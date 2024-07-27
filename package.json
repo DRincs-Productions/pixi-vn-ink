@@ -1,0 +1,41 @@
+{
+  "name": "@drincs/pixi-vn-ink",
+  "version": "0.6.5",
+  "description": "",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DRincs-Productions/pixi-vn-ink.git"
+  },
+  "author": "DRincs-Productions",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/DRincs-Productions/pixi-vn-ink/issues"
+  },
+  "homepage": "https://pixi-vn-ink.web.app/",
+  "devDependencies": {
+    "@drincs/pixi-vn": "^0.6.4",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.4"
+  },
+  "keywords": [
+    "game",
+    "js",
+    "novel",
+    "pixi",
+    "pixi-js",
+    "visual",
+    "visual-novel"
+  ]
+}
