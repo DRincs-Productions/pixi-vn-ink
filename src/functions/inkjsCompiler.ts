@@ -5,5 +5,6 @@ function convertor(test: string) {
         const story = new inkjs.Compiler(test).Compile();
         return story.ToJson();
     } catch (e) {
+        throw e
     }
 }
