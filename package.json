@@ -37,5 +37,8 @@
     "pixi-js",
     "visual",
     "visual-novel"
-  ]
+  ],
+  "dependencies": {
+    "inkjs": "^2.2.4"
+  }
 }
