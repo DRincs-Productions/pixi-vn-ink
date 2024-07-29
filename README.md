@@ -2,8 +2,14 @@
 
 npm library to import .ink files into pixi-vn
 
-## Run tests
+## install project
 
 ```bash
-npm run test
+git clone https://github.com/DRincs-Productions/pixi-vn-ink
+git submodule update --init --recursive
+npm install
 ```
+
+## Run tests
+
+Press F5 in vscode to run tests
