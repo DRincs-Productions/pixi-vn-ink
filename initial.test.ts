@@ -1,8 +1,8 @@
 import { test } from 'vitest';
-import { convertorInkToJson } from './src/functions/inkjsCompiler';
+import { convertorInkToJson, getJsonLabels } from './src/functions/inkjsCompiler';
 
 test('convertorInkToJson', async () => {
-    convertorInkToJson(`
+    let json = convertorInkToJson(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
@@ -11,4 +11,7 @@ We arrived into London at 9.45pm exactly.
 === hurry_home ===
 We hurried home to Savile Row as fast as we could.
 `);
+
+    getJsonLabels(json)
+
 });
