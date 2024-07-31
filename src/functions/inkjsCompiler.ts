@@ -1,6 +1,5 @@
 import { ChoiceMenuOptionsType } from '@drincs/pixi-vn';
-import { Compiler } from '../inkjs/src/compiler/Compiler';
-
+import { Compiler } from "inkjs/compiler/Compiler";
 export function convertorInkToJson(test: string): string {
     try {
         const story = new Compiler(test).Compile();

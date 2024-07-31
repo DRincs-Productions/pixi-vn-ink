@@ -40,6 +40,6 @@
     "visual-novel"
   ],
   "dependencies": {
-    "inkjs": "^2.2.4"
+    "inkjs": "2.2.2"
   }
 }
