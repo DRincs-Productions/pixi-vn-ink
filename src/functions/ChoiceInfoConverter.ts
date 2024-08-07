@@ -1,9 +1,15 @@
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 
-export function getLabelChoice(items: any[]): { text: string, label: string } | undefined {
+export function getLabelChoice(items: any[], list: { text: string; label: string; }[]) {
     let text: string = ""
     let label: string = ""
-    items.forEach((v) => {
+    items.forEach((v, index) => {
+        if (typeof v === "string") {
+            // Dialog
+            if (v.startsWith("^")) {
+                text = v.substring(1)
+            }
+        }
         if (typeof v === "object") {
             // if is a choice
             if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
@@ -18,14 +24,17 @@ export function getLabelChoice(items: any[]): { text: string, label: string } | 
                 }
             }
         }
-    })
-    if (text && label) {
-        return {
-            text,
-            label
+        if (text && label) {
+            list.push({
+                text,
+                label
+            })
+            // split text and label
+            let newListItem = items.slice(index + 1)
+            getLabelChoice(newListItem, list)
+            return
         }
-    }
-    return undefined
+    })
 }
 
 function findChoiceText(items: RootParserItemType[]): string | undefined {

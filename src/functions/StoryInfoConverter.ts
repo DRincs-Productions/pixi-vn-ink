@@ -57,7 +57,7 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
 }
 
 function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }) {
-    items.forEach((v) => {
+    items.forEach((v, index) => {
         if (typeof v === "string") {
             // Dialog
             if (v.startsWith("^")) {
@@ -65,21 +65,28 @@ function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], s
                     dialog: v.substring(1)
                 })
             }
+            else if (v == "ev") {
+                // get all item after "ev"
+                let nextItems = items.slice(index)
+                let list: {
+                    text: string;
+                    label: string;
+                }[] = []
+                getLabelChoice(nextItems, list)
+                list.forEach((c) => {
+                    labels.push({
+                        currentChoiceMenuOptions: {
+                            text: c.text,
+                            // TODO: get label
+                            label: labelKey + "_" + c.label
+                        } as any
+                    })
+                })
+                return
+            }
         }
         else if (v instanceof Array) {
-            let c = getLabelChoice(v)
-            if (c) {
-                labels.push({
-                    currentChoiceMenuOptions: {
-                        text: c.text,
-                        // TODO: get label
-                        label: labelKey + "_" + c.label
-                    } as any
-                })
-            }
-            else {
-                getLabel(v, labelKey, labels, subLabels)
-            }
+            getLabel(v, labelKey, labels, subLabels)
         }
         else if (typeof v === "object") {
             addLabels(v, subLabels, labelKey)
