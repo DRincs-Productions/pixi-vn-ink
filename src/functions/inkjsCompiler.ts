@@ -1,5 +1,7 @@
 import { ChoiceMenuOptionsType } from '@drincs/pixi-vn';
 import { Compiler } from "inkjs/compiler/Compiler";
+import InkStoryType from '../types/InkStoryType';
+import RootParserItemType from '../types/parserItems/RootParserItemType';
 export function convertorInkToJson(test: string): string {
     try {
         const story = new Compiler(test).Compile();
@@ -24,47 +26,108 @@ type StepLabelJsonType = {
     }
 }
 
-type Typew = "done" | { "#n": string }
 
-type Label = {
-    [labelId: string]: (
-        string |
-        '\n' |
-        null |
-        { "->": string }
-    )[]
+
+function findChoiceTest(items: RootParserItemType[]): string | undefined {
+    for (const item of items) {
+        if (typeof item === "string") {
+            if (item.startsWith("^")) {
+                return item.substring(1)
+            }
+        }
+        else if (item instanceof Array) {
+            let res = findChoiceTest(item)
+            if (res) {
+                return res
+            }
+        }
+    }
 }
 
-type Item = Typew | Item[] | Label
-
-type JsonLabelsType = {
-    inkVersion: number,
-    listDefs: {},
-    root: Item[],
+function getLabel(items: any[], labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }, choise?: ChoiceMenuOptionsType<{}>) {
+    let c: {
+        text: string,
+        label: string
+    } | undefined = undefined
+    items.forEach((v) => {
+        if (typeof v === "string") {
+            if (v.startsWith("^")) {
+                labels.push({
+                    // remove first character
+                    dialog: v.substring(1)
+                })
+            }
+        }
+        // is array
+        else if (v instanceof Array) {
+            if (choise instanceof Array) {
+                getLabel(v, labels, subLabels, choise)
+            }
+            else {
+                let choiseInt: ChoiceMenuOptionsType<{}> = []
+                getLabel(v, labels, subLabels, choiseInt)
+                labels.push({
+                    currentChoiceMenuOptions: choiseInt
+                })
+            }
+        }
+        // if is object
+        else if (typeof v === "object") {
+            // if is a choice
+            if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
+                let label = "c" + v["*"].split("c")[1]
+                if (!c) {
+                    c = {
+                        text: "",
+                        label: ""
+                    }
+                }
+                c.label = label
+            }
+            // if is choise info
+            else if ("s" in v && v["s"] instanceof Array) {
+                let text = findChoiceTest(v["s"])
+                if (text) {
+                    if (!c) {
+                        c = {
+                            text: "",
+                            label: ""
+                        }
+                    }
+                    c.text = text
+                }
+            }
+            else if (choise instanceof Array) {
+                addLabels(v, subLabels, choise)
+            }
+            else {
+                let choiseInt: ChoiceMenuOptionsType<{}> = []
+                addLabels(v, subLabels, choiseInt)
+            }
+        }
+        else {
+            console.log("ignore", v)
+        }
+    })
+    if (c) {
+        (choise as any).push(c)
+    }
 }
 
-function addLabels(item: object, labels: { [labelId: string]: StepLabelJsonType[] }) {
+function addLabels(item: object, labels: { [labelId: string]: StepLabelJsonType[] }, choise?: ChoiceMenuOptionsType<{}>) {
+    if (item === null) {
+        return
+    }
     // for value and key in item
     for (const [key, value] of Object.entries(item)) {
         // if value is an array
         if (value instanceof Array) {
             let aaaa: StepLabelJsonType[] = []
-            value.forEach((v) => {
-                if (typeof v === "string") {
-                    if (v !== '\n') {
-                        aaaa.push({
-                            dialog: v
-                        })
-                    }
-                }
-                else {
-                    console.log("ignore", v)
-                }
-            })
+            let subLabels: { [labelId: string]: StepLabelJsonType[] } = {}
+            getLabel(value, aaaa, subLabels, choise)
             if (aaaa.length > 0) {
                 labels[key] = aaaa
             }
-
         }
         else {
             console.log(value)
@@ -72,7 +135,7 @@ function addLabels(item: object, labels: { [labelId: string]: StepLabelJsonType[
     }
 }
 
-function findLabel(items: Item[], labels: { [labelId: string]: StepLabelJsonType[] }) {
+function findLabel(items: RootParserItemType[], labels: { [labelId: string]: StepLabelJsonType[] }) {
     for (const item of items) {
         if (typeof item === "object") {
             if (item instanceof Array) {
@@ -91,41 +154,27 @@ function findLabel(items: Item[], labels: { [labelId: string]: StepLabelJsonType
     }
 }
 
-export function getJsonLabels(json: string): { [labelId: string]: StepLabelJsonType[] } | undefined {
+export function getInkLabel(inkObj: InkStoryType): { [labelId: string]: StepLabelJsonType[] } | undefined {
     try {
-        // convert the json string to object
-        let obj: JsonLabelsType = JSON.parse(json);
-        // todo: implement this function
-        // labelId is the name of the label, in ink it is the text between === ===
-
-        // the array of StepLabelJsonType is the list of steps that are in that label
-
-        // for example, in the label === back_in_london ===
-        // there are two steps:
-        // 1. We arrived into London at 9.45pm exactly.
-        // 2. -> hurry_home
-
-        // so the return value should be:
-        // {
-        //     back_in_london: [
-        //         {
-        //             dialog: "We arrived into London at 9.45pm exactly."
-        //         },
-        //         {
-        //             labelToOpen: {
-        //                 labelId: "hurry_home",
-        //                 type: "call"
-        //             }
-        //         }
-        //     ]
-        // }
-
         let label: { [labelId: string]: StepLabelJsonType[] } = {}
 
-        findLabel(obj.root, label)
+        findLabel(inkObj.root, label)
 
-        return {};
+        return label;
     } catch (e) {
-        console.error("[Pixi'VN Ink] Error parsing json", e)
+        console.error("[Pixi'VN Ink] Error parsing ink file", e)
     }
+}
+
+export function convertInkText(text: string): { [labelId: string]: StepLabelJsonType[] } | undefined {
+    let json = convertorInkToJson(text);
+    let obj: InkStoryType
+    try {
+        obj = JSON.parse(json);
+    } catch (e) {
+        console.error("[Pixi'VN Ink] Error parsing ink file", e)
+        return
+    }
+
+    return getInkLabel(obj)
 }
