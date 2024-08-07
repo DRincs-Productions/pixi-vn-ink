@@ -25,7 +25,7 @@ export function convertInkText(text: string): { [labelId: string]: StepLabelJson
         return
     }
 
-    return getInkLabel(obj)
+    return getInkLabel(obj.root)
 }
 
 function convertorInkToJson(test: string): string {

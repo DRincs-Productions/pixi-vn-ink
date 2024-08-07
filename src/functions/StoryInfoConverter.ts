@@ -1,14 +1,13 @@
-import { ChoiceMenuOptionsType } from '@drincs/pixi-vn';
-import InkStoryType from '../types/InkStoryType';
+import InkRootType from '../types/InkRootType';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelC } from './ChoiceInfoConverter';
 import { StepLabelJsonType } from './InkToPixivn';
 
-export function getInkLabel(inkObj: InkStoryType): { [labelId: string]: StepLabelJsonType[] } | undefined {
+export function getInkLabel(story: InkRootType[]): { [labelId: string]: StepLabelJsonType[] } | undefined {
     try {
         let label: { [labelId: string]: StepLabelJsonType[] } = {}
 
-        findLabel(inkObj.root, label)
+        findLabel(story, label)
 
         return label;
     } catch (e) {
@@ -16,83 +15,62 @@ export function getInkLabel(inkObj: InkStoryType): { [labelId: string]: StepLabe
     }
 }
 
-function findLabel(items: RootParserItemType[], labels: { [labelId: string]: StepLabelJsonType[] }) {
-    for (const item of items) {
-        if (typeof item === "object") {
-            if (item instanceof Array) {
-                findLabel(item, labels)
+function findLabel(story: RootParserItemType[], labels: { [labelId: string]: StepLabelJsonType[] }) {
+    for (const storyItem of story) {
+        if (typeof storyItem === "object") {
+            if (storyItem instanceof Array) {
+                findLabel(storyItem, labels)
             }
-            else if (item === null) {
+            else if (storyItem === null) {
             }
             // is object
-            else if (typeof item === "object") {
-                addLabels(item, labels)
+            else if (typeof storyItem === "object") {
+                addLabels(storyItem, labels)
             }
             else {
-                console.log(item)
+                console.log(storyItem)
             }
         }
     }
 }
 
-function addLabels(item: object, labels: { [labelId: string]: StepLabelJsonType[] }, choise?: ChoiceMenuOptionsType<{}>) {
-    if (item === null) {
+function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJsonType[] }) {
+    if (storyItem === null) {
         return
     }
     // for value and key in item
-    for (const [key, value] of Object.entries(item)) {
+    for (const [key, value] of Object.entries(storyItem)) {
         // if value is an array
         if (value instanceof Array) {
-            let aaaa: StepLabelJsonType[] = []
+            let labels: StepLabelJsonType[] = []
             let subLabels: { [labelId: string]: StepLabelJsonType[] } = {}
-            getLabel(value, aaaa, subLabels, choise)
-            if (aaaa.length > 0) {
-                labels[key] = aaaa
+            getLabel(value, labels, subLabels)
+            for (const [subKey, value] of Object.entries(subLabels)) {
+                result[key + "-" + subKey] = value
             }
-        }
-        else {
-            console.log(value)
+            if (labels.length > 0) {
+                result[key] = labels
+            }
         }
     }
 }
 
-function getLabel(items: any[], labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }, choise?: ChoiceMenuOptionsType<{}>) {
+function getLabel(items: any[], labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }) {
     items.forEach((v) => {
         if (typeof v === "string") {
+            // Dialog
             if (v.startsWith("^")) {
                 labels.push({
-                    // remove first character
                     dialog: v.substring(1)
                 })
             }
         }
-        // is array
         else if (v instanceof Array) {
             let c = getLabelC(v)
-            if (choise instanceof Array) {
-                getLabel(v, labels, subLabels, choise)
-            }
-            else {
-                let choiseInt: ChoiceMenuOptionsType<{}> = []
-                getLabel(v, labels, subLabels, choiseInt)
-                labels.push({
-                    currentChoiceMenuOptions: choiseInt
-                })
-            }
+            getLabel(v, labels, subLabels)
         }
-        // if is object
         else if (typeof v === "object") {
-            // if is a choice
-            if (choise instanceof Array) {
-                addLabels(v, subLabels, choise)
-            }
-            else {
-                let choiseInt: ChoiceMenuOptionsType<{}> = []
-                addLabels(v, subLabels, choiseInt)
-            }
-        }
-        else {
-            console.log("ignore", v)
+            addLabels(v, subLabels)
         }
     })
 }
