@@ -1,6 +1,6 @@
 import InkRootType from '../types/InkRootType';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
-import { getLabelC } from './ChoiceInfoConverter';
+import { getLabelChoice } from './ChoiceInfoConverter';
 import { StepLabelJsonType } from './InkToPixivn';
 
 export function getInkLabel(story: InkRootType[]): { [labelId: string]: StepLabelJsonType[] } | undefined {
@@ -67,7 +67,7 @@ function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], s
             }
         }
         else if (v instanceof Array) {
-            let c = getLabelC(v)
+            let c = getLabelChoice(v)
             if (c) {
                 labels.push({
                     currentChoiceMenuOptions: {

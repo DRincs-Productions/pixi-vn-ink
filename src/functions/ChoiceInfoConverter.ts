@@ -1,6 +1,6 @@
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 
-export function getLabelC(items: any[]): { text: string, label: string } | undefined {
+export function getLabelChoice(items: any[]): { text: string, label: string } | undefined {
     let text: string = ""
     let label: string = ""
     items.forEach((v) => {
@@ -12,7 +12,7 @@ export function getLabelC(items: any[]): { text: string, label: string } | undef
             }
             // if is choise info
             else if ("s" in v && v["s"] instanceof Array) {
-                let t = findChoiceTest(v["s"])
+                let t = findChoiceText(v["s"])
                 if (t) {
                     text = t
                 }
@@ -28,7 +28,7 @@ export function getLabelC(items: any[]): { text: string, label: string } | undef
     return undefined
 }
 
-function findChoiceTest(items: RootParserItemType[]): string | undefined {
+function findChoiceText(items: RootParserItemType[]): string | undefined {
     for (const item of items) {
         if (typeof item === "string") {
             if (item.startsWith("^")) {
@@ -36,7 +36,7 @@ function findChoiceTest(items: RootParserItemType[]): string | undefined {
             }
         }
         else if (item instanceof Array) {
-            let res = findChoiceTest(item)
+            let res = findChoiceText(item)
             if (res) {
                 return res
             }
