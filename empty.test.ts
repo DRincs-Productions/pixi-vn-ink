@@ -1,5 +1,5 @@
 import { test } from 'vitest';
-import { convertInkText } from './src/functions/inkjsCompiler';
+import { convertInkText } from './src/functions';
 
 test('Empty file test', async () => {
     let res = convertInkText(``);
