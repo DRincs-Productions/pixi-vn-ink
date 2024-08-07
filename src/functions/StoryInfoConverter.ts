@@ -34,7 +34,7 @@ function findLabel(story: RootParserItemType[], labels: { [labelId: string]: Ste
     }
 }
 
-function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJsonType[] }) {
+function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJsonType[] }, dadLabelKey: string = "") {
     if (storyItem === null) {
         return
     }
@@ -44,18 +44,19 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
         if (value instanceof Array) {
             let labels: StepLabelJsonType[] = []
             let subLabels: { [labelId: string]: StepLabelJsonType[] } = {}
-            getLabel(value, labels, subLabels)
-            for (const [subKey, value] of Object.entries(subLabels)) {
-                result[key + "-" + subKey] = value
+            let labelName = (dadLabelKey ? dadLabelKey + "_" : "") + key
+            getLabel(value, labelName, labels, subLabels)
+            for (const [subKey, subValue] of Object.entries(subLabels)) {
+                result[subKey] = subValue
             }
             if (labels.length > 0) {
-                result[key] = labels
+                result[labelName] = labels
             }
         }
     }
 }
 
-function getLabel(items: any[], labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }) {
+function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }) {
     items.forEach((v) => {
         if (typeof v === "string") {
             // Dialog
@@ -67,10 +68,21 @@ function getLabel(items: any[], labels: StepLabelJsonType[], subLabels: { [label
         }
         else if (v instanceof Array) {
             let c = getLabelC(v)
-            getLabel(v, labels, subLabels)
+            if (c) {
+                labels.push({
+                    currentChoiceMenuOptions: {
+                        text: c.text,
+                        // TODO: get label
+                        label: labelKey + "_" + c.label
+                    } as any
+                })
+            }
+            else {
+                getLabel(v, labelKey, labels, subLabels)
+            }
         }
         else if (typeof v === "object") {
-            addLabels(v, subLabels)
+            addLabels(v, subLabels, labelKey)
         }
     })
 }
