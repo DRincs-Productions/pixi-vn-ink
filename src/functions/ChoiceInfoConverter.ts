@@ -10,9 +10,9 @@ export function getLabelChoice(items: any[], list: { text: string; label: string
                 text = v.substring(1)
             }
         }
-        if (typeof v === "object") {
+        else if (v && typeof v === "object") {
             // if is a choice
-            if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
+            if ("*" in v && typeof v["*"] && typeof v["*"] === "string" && v["*"].includes("c")) {
                 let l = "c" + v["*"].split("c")[1]
                 label = l
             }

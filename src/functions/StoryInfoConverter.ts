@@ -57,8 +57,16 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
 }
 
 function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }) {
-    items.forEach((v, index) => {
-        if (typeof v === "string") {
+    let isInEnv = false
+    let envList: any[] = []
+    items.forEach((v) => {
+        if (isInEnv) {
+            envList.push(v)
+            if (typeof v === "string" && v == "/ev") {
+                isInEnv = false
+            }
+        }
+        else if (typeof v === "string") {
             // Dialog
             if (v.startsWith("^")) {
                 labels.push({
@@ -66,30 +74,39 @@ function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], s
                 })
             }
             else if (v == "ev") {
-                // get all item after "ev"
-                let nextItems = items.slice(index)
-                let list: {
-                    text: string;
-                    label: string;
-                }[] = []
-                getLabelChoice(nextItems, list)
-                list.forEach((c) => {
-                    labels.push({
-                        currentChoiceMenuOptions: {
-                            text: c.text,
-                            // TODO: get label
-                            label: labelKey + "_" + c.label
-                        } as any
-                    })
-                })
-                return
+                isInEnv = true
             }
         }
         else if (v instanceof Array) {
             getLabel(v, labelKey, labels, subLabels)
         }
-        else if (typeof v === "object") {
-            addLabels(v, subLabels, labelKey)
+        else if (v && typeof v === "object") {
+            if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
+                envList.push(v)
+            }
+            // if is choise info
+            else if ("s" in v && v["s"] instanceof Array) {
+                envList.push(v)
+            }
+            else {
+                addLabels(v, subLabels, labelKey)
+            }
         }
     })
+    if (envList.length > 0) {
+        let list: {
+            text: string;
+            label: string;
+        }[] = []
+        getLabelChoice(envList, list)
+        list.forEach((c) => {
+            labels.push({
+                currentChoiceMenuOptions: {
+                    text: c.text,
+                    // TODO: get label
+                    label: labelKey + "_" + c.label
+                } as any
+            })
+        })
+    }
 }
