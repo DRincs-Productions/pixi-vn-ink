@@ -1,4 +1,4 @@
-import { ChoiceMenuOptionsType } from "@drincs/pixi-vn";
+import { LabelJsonType } from "@drincs/pixi-vn";
 import { Compiler } from "inkjs/compiler/Compiler";
 import InkStoryType from "../types/InkStoryType";
 import { getInkLabel } from "./StoryInfoConverter";

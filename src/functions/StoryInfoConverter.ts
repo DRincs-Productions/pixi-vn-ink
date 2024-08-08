@@ -1,3 +1,4 @@
+import { LabelJsonType, StepLabelJsonType } from '@drincs/pixi-vn';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
@@ -135,11 +136,21 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             let newKey = labelKey + "_" + key
             // if last step is choice
             if (labelSteps.length > 0 && "currentChoiceMenuOptions" in labelSteps[labelSteps.length - 1]) {
-                labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push(new ChoiceMenuOption(value.text, newKey, {}, "call"))
+                labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push({
+                    text: value.text,
+                    label: newKey,
+                    props: {},
+                    type: "call"
+                })
             }
             else {
                 labelSteps.push({
-                    currentChoiceMenuOptions: [new ChoiceMenuOption(value.text, newKey, {}, "call")]
+                    currentChoiceMenuOptions: [{
+                        text: value.text,
+                        label: newKey,
+                        props: {},
+                        type: "call"
+                    }]
                 })
             }
             if (value.preDialog) {

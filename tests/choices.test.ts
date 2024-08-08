@@ -15,6 +15,8 @@ test('Choices test 1', async () => {
 					{
 						text: "Hello back!",
 						label: "test_c-0",
+						props: {},
+						type: "call",
 					},
 				],
 			},
@@ -51,6 +53,8 @@ test('Choices test 2', async () => {
 					{
 						text: "Hello back!",
 						label: "test_c-0",
+						props: {},
+						type: "call",
 					},
 				],
 			},
@@ -82,6 +86,8 @@ test('Choices test 3', async () => {
 					{
 						text: "Hello back!",
 						label: "test_c-0",
+						props: {},
+						type: "call",
 					},
 				],
 			},
@@ -115,6 +121,8 @@ test('Choices test 4', async () => {
 					{
 						text: "\"I am somewhat tired.\"",
 						label: "test_c-0",
+						props: {},
+						type: "call",
 					},
 				],
 			},
@@ -148,14 +156,20 @@ test('Choices test 5', async () => {
 					{
 						text: "\"I am somewhat tired.\"",
 						label: "test_c-0",
+						props: {},
+						type: "call",
 					},
 					{
 						text: "\"Nothing, Monsieur!\"",
 						label: "test_c-1",
+						props: {},
+						type: "call",
 					},
 					{
 						text: "\"I said, this journey is appalling.\"",
 						label: "test_c-2",
+						props: {},
+						type: "call",
 					},
 				],
 			},
