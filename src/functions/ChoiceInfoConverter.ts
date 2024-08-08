@@ -1,6 +1,6 @@
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 
-export function getLabelChoice(items: any[], list: { text: string; label: string; }[]) {
+export function getLabelChoice(items: any[], result: { [label: string]: { text: string } }) {
     let text: string = ""
     let label: string = ""
     items.forEach((v, index) => {
@@ -25,13 +25,15 @@ export function getLabelChoice(items: any[], list: { text: string; label: string
             }
         }
         if (text && label) {
-            list.push({
-                text,
-                label
-            })
+            if (result[label]) {
+                result[label].text = text + result[label].text
+            }
+            else {
+                result[label] = { text: text }
+            }
             // split text and label
             let newListItem = items.slice(index + 1)
-            getLabelChoice(newListItem, list)
+            getLabelChoice(newListItem, result)
             return
         }
     })

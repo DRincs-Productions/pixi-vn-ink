@@ -94,19 +94,16 @@ function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], s
         }
     })
     if (envList.length > 0) {
-        let list: {
-            text: string;
-            label: string;
-        }[] = []
-        getLabelChoice(envList, list)
-        list.forEach((c) => {
+        let choices: { [label: string]: { text: string } } = {}
+        getLabelChoice(envList, choices)
+        for (const [key, value] of Object.entries(choices)) {
             labels.push({
                 currentChoiceMenuOptions: {
-                    text: c.text,
+                    text: value.text,
                     // TODO: get label
-                    label: labelKey + "_" + c.label
+                    label: labelKey + "_" + key
                 } as any
             })
-        })
+        }
     }
 }
