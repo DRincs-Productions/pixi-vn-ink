@@ -1,4 +1,5 @@
 import InkRootType from '../types/InkRootType';
+import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
 import { StepLabelJsonType } from './InkToPixivn';
@@ -17,13 +18,10 @@ export function getInkLabel(story: InkRootType[]): { [labelId: string]: StepLabe
 
 function findLabel(story: RootParserItemType[], labels: { [labelId: string]: StepLabelJsonType[] }) {
     for (const storyItem of story) {
-        if (typeof storyItem === "object") {
+        if (storyItem) {
             if (storyItem instanceof Array) {
                 findLabel(storyItem, labels)
             }
-            else if (storyItem === null) {
-            }
-            // is object
             else if (typeof storyItem === "object") {
                 addLabels(storyItem, labels)
             }
@@ -34,7 +32,7 @@ function findLabel(story: RootParserItemType[], labels: { [labelId: string]: Ste
     }
 }
 
-function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJsonType[] }, dadLabelKey: string = "") {
+function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJsonType[] }, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
     if (storyItem === null) {
         return
     }
@@ -45,7 +43,7 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
             let labels: StepLabelJsonType[] = []
             let subLabels: { [labelId: string]: StepLabelJsonType[] } = {}
             let labelName = (dadLabelKey ? dadLabelKey + "_" : "") + key
-            getLabel(value, labelName, labels, subLabels)
+            getLabel(value, labelName, labels, subLabels, shareData)
             for (const [subKey, subValue] of Object.entries(subLabels)) {
                 result[subKey] = subValue
             }
@@ -56,9 +54,19 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
     }
 }
 
-function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }) {
+type ShareData = {
+    preDialog: { [label: string]: { text: string } }
+}
+function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }, shareData: ShareData, isNewLine: boolean = true) {
     let isInEnv = false
     let envList: any[] = []
+    if (shareData.preDialog[labelKey]) {
+        labelSteps.push({
+            dialog: shareData.preDialog[labelKey].text
+        })
+        delete shareData.preDialog[labelKey]
+        isNewLine = false
+    }
     items.forEach((v) => {
         if (isInEnv) {
             envList.push(v)
@@ -69,41 +77,57 @@ function getLabel(items: any[], labelKey: string, labels: StepLabelJsonType[], s
         else if (typeof v === "string") {
             // Dialog
             if (v.startsWith("^")) {
-                labels.push({
-                    dialog: v.substring(1)
-                })
+                if (!isNewLine && labelSteps.length > 0) {
+                    labelSteps[labelSteps.length - 1].dialog = labelSteps[labelSteps.length - 1].dialog + v.substring(1)
+                } else {
+                    labelSteps.push({
+                        dialog: v.substring(1)
+                    })
+                }
+                isNewLine = false
             }
             else if (v == "ev") {
                 isInEnv = true
             }
+            else if (v == "\n") {
+                isNewLine = true
+            }
         }
         else if (v instanceof Array) {
-            getLabel(v, labelKey, labels, subLabels)
+            getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
         }
         else if (v && typeof v === "object") {
             if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
                 envList.push(v)
+                isNewLine = false
             }
             // if is choise info
             else if ("s" in v && v["s"] instanceof Array) {
                 envList.push(v)
+                isNewLine = false
             }
             else {
-                addLabels(v, subLabels, labelKey)
+                addLabels(v, subLabels, labelKey, shareData)
             }
         }
     })
     if (envList.length > 0) {
-        let choices: { [label: string]: { text: string } } = {}
+        let choices: LabelChoiceRes = {}
         getLabelChoice(envList, choices)
         for (const [key, value] of Object.entries(choices)) {
-            labels.push({
+            let newKey = labelKey + "_" + key
+            labelSteps.push({
                 currentChoiceMenuOptions: {
                     text: value.text,
                     // TODO: get label
-                    label: labelKey + "_" + key
+                    label: newKey
                 } as any
             })
+            if (value.preDialog) {
+                shareData.preDialog[newKey] = {
+                    text: value.preDialog.text
+                }
+            }
         }
     }
 }

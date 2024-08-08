@@ -1,8 +1,10 @@
+import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 
-export function getLabelChoice(items: any[], result: { [label: string]: { text: string } }) {
+export function getLabelChoice(items: any[], result: LabelChoiceRes) {
     let text: string = ""
     let label: string = ""
+    let preDialog: string = ""
     items.forEach((v, index) => {
         if (typeof v === "string") {
             // Dialog
@@ -21,6 +23,7 @@ export function getLabelChoice(items: any[], result: { [label: string]: { text: 
                 let t = findChoiceText(v["s"])
                 if (t) {
                     text = t
+                    preDialog = t
                 }
             }
         }
@@ -30,6 +33,9 @@ export function getLabelChoice(items: any[], result: { [label: string]: { text: 
             }
             else {
                 result[label] = { text: text }
+            }
+            if (preDialog) {
+                result[label].preDialog = { text: preDialog }
             }
             // split text and label
             let newListItem = items.slice(index + 1)
