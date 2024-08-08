@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.6.5",
+  "version": "0.1.0",
   "description": "",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -37,11 +37,14 @@
   },
   "keywords": [
     "game",
+    "ink",
     "js",
     "novel",
     "pixi",
     "pixi-js",
+    "pixi-vn",
     "visual",
-    "visual-novel"
+    "visual-novel",
+    "vn"
   ]
 }
