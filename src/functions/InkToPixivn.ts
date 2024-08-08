@@ -3,20 +3,7 @@ import { Compiler } from "inkjs/compiler/Compiler";
 import InkStoryType from "../types/InkStoryType";
 import { getInkLabel } from "./StoryInfoConverter";
 
-export type StepLabelJsonType = {
-    currentChoiceMenuOptions?: ChoiceMenuOptionsType<{}>
-    dialog?: {
-        character: string,
-        text: string,
-    } | string
-    labelToOpen?: {
-        labelId: string,
-        type: "jump" | "call",
-    }
-    end?: "game_end" | "label_end"
-}
-
-export function convertInkText(text: string): { [labelId: string]: StepLabelJsonType[] } | undefined {
+export function convertInkText(text: string): LabelJsonType | undefined {
     let json = convertorInkToJson(text);
     let obj: InkStoryType
     try {

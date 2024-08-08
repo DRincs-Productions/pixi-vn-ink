@@ -2,11 +2,10 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
-import { StepLabelJsonType } from './InkToPixivn';
 
-export function getInkLabel(story: InkRootType[]): { [labelId: string]: StepLabelJsonType[] } | undefined {
+export function getInkLabel(story: InkRootType[]): LabelJsonType | undefined {
     try {
-        let label: { [labelId: string]: StepLabelJsonType[] } = {}
+        let label: LabelJsonType = {}
 
         findLabel(story, label)
 
@@ -16,7 +15,7 @@ export function getInkLabel(story: InkRootType[]): { [labelId: string]: StepLabe
     }
 }
 
-function findLabel(story: RootParserItemType[], labels: { [labelId: string]: StepLabelJsonType[] }) {
+function findLabel(story: RootParserItemType[], labels: LabelJsonType) {
     for (const storyItem of story) {
         if (storyItem) {
             if (storyItem instanceof Array) {
@@ -29,7 +28,7 @@ function findLabel(story: RootParserItemType[], labels: { [labelId: string]: Ste
     }
 }
 
-function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJsonType[] }, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
+function addLabels(storyItem: object, result: LabelJsonType, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
     if (storyItem === null) {
         return
     }
@@ -38,7 +37,7 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
         // if value is an array
         if (value instanceof Array) {
             let labels: StepLabelJsonType[] = []
-            let subLabels: { [labelId: string]: StepLabelJsonType[] } = {}
+            let subLabels: LabelJsonType = {}
             let labelName = (dadLabelKey ? dadLabelKey + "_" : "") + key
             getLabel(value, labelName, labels, subLabels, shareData)
             for (const [subKey, subValue] of Object.entries(subLabels)) {
@@ -54,7 +53,7 @@ function addLabels(storyItem: object, result: { [labelId: string]: StepLabelJson
 type ShareData = {
     preDialog: { [label: string]: { text: string } }
 }
-function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[], subLabels: { [labelId: string]: StepLabelJsonType[] }, shareData: ShareData, isNewLine: boolean = true) {
+function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[], subLabels: LabelJsonType, shareData: ShareData, isNewLine: boolean = true) {
     let isInEnv = false
     let envList: any[] = []
     if (shareData.preDialog[labelKey]) {
