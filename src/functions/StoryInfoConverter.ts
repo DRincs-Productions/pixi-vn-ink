@@ -25,9 +25,6 @@ function findLabel(story: RootParserItemType[], labels: { [labelId: string]: Ste
             else if (typeof storyItem === "object") {
                 addLabels(storyItem, labels)
             }
-            else {
-                console.log(storyItem)
-            }
         }
     }
 }
@@ -116,13 +113,23 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
         getLabelChoice(envList, choices)
         for (const [key, value] of Object.entries(choices)) {
             let newKey = labelKey + "_" + key
-            labelSteps.push({
-                currentChoiceMenuOptions: {
+            // if last step is choice
+            if (labelSteps.length > 0 && "currentChoiceMenuOptions" in labelSteps[labelSteps.length - 1]) {
+                labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push({
                     text: value.text,
                     // TODO: get label
                     label: newKey
-                } as any
-            })
+                } as any)
+            }
+            else {
+                labelSteps.push({
+                    currentChoiceMenuOptions: [{
+                        text: value.text,
+                        // TODO: get label
+                        label: newKey
+                    } as any]
+                })
+            }
             if (value.preDialog) {
                 shareData.preDialog[newKey] = {
                     text: value.preDialog.text
