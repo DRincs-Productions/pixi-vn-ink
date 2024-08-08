@@ -1,5 +1,5 @@
-import { test } from 'vitest';
-import { convertInkText } from './src/functions';
+import { expect, test } from 'vitest';
+import { convertInkText } from '../src/functions';
 
 test('Label test 1', async () => {
 	let res = convertInkText(`
@@ -10,6 +10,7 @@ We arrived into London at 9.45pm exactly.
 
 === hurry_home ===
 We hurried home to Savile Row as fast as we could.
-// ->DONE -> ERROR
+	->DONE -> ERROR
 `);
+	expect(res).toEqual(undefined);
 });

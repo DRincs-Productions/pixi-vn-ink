@@ -13,6 +13,7 @@ export type StepLabelJsonType = {
         labelId: string,
         type: "jump" | "call",
     }
+    end?: "game_end" | "label_end"
 }
 
 export function convertInkText(text: string): { [labelId: string]: StepLabelJsonType[] } | undefined {
@@ -36,6 +37,6 @@ function convertorInkToJson(test: string): string {
         return json || "";
     } catch (e) {
         console.error("[Pixi'VN] Error compiling ink file", e)
-        throw e
+        return ""
     }
 }

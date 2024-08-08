@@ -89,12 +89,33 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             else if (v == "\n") {
                 isNewLine = true
             }
+            else if (v == "done") {
+                labelSteps.push({
+                    end: "label_end"
+                })
+                isNewLine = false
+            }
+            else if (v == "end") {
+                labelSteps.push({
+                    end: "game_end"
+                })
+                isNewLine = false
+            }
         }
         else if (v instanceof Array) {
             getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
         }
         else if (v && typeof v === "object") {
-            if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
+            if ("->" in v && typeof v["->"] === "string" && !v["->"].includes(".^.^.")) {
+                labelSteps.push({
+                    labelToOpen: {
+                        labelId: v["->"],
+                        type: "call",
+                    }
+                })
+                isNewLine = false
+            }
+            else if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
                 envList.push(v)
                 isNewLine = false
             }
