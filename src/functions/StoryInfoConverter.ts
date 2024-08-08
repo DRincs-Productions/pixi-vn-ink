@@ -136,19 +136,11 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             let newKey = labelKey + "_" + key
             // if last step is choice
             if (labelSteps.length > 0 && "currentChoiceMenuOptions" in labelSteps[labelSteps.length - 1]) {
-                labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push({
-                    text: value.text,
-                    // TODO: get label
-                    label: newKey
-                } as any)
+                labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push(new ChoiceMenuOption(value.text, newKey, {}, "call"))
             }
             else {
                 labelSteps.push({
-                    currentChoiceMenuOptions: [{
-                        text: value.text,
-                        // TODO: get label
-                        label: newKey
-                    } as any]
+                    currentChoiceMenuOptions: [new ChoiceMenuOption(value.text, newKey, {}, "call")]
                 })
             }
             if (value.preDialog) {
