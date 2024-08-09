@@ -25,15 +25,15 @@
   "devDependencies": {
     "jsdom": "^24.1.1",
     "ts-node": "^10.9.2",
-    "tsup": "^8.2.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4",
-    "vitest": "^2.0.4"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
-    "inkjs": "2.2.2"
+    "inkjs": "2.2.5"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=0.6.8"
+    "@drincs/pixi-vn": ">=0.6.9"
   },
   "keywords": [
     "game",
