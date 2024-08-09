@@ -74,12 +74,12 @@ export default defineConfig({
 })
 ```
 
-After that you can import the ink file in your project:
+After that you can import the ink file and add `?raw` at the end of the import to get the text content.
 
 ```typescript
 // main.ts
 import { importInkText } from '@drincs/pixi-vn-ink'
-import mainInk from './main-ink.ink'
+import startLabel from './ink_labels/start.ink?raw'
 
-importInkText([mainInk, ...])
+importInkText([startLabel, ...])
 ```
