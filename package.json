@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/DRincs-Productions/pixi-vn-ink/issues"
   },
-  "homepage": "https://pixi-vn.web.app/",
+  "homepage": "https://pixi-vn.web.app/start/ink.html",
   "devDependencies": {
     "jsdom": "^24.1.1",
     "ts-node": "^10.9.2",
