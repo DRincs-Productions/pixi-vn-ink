@@ -3,6 +3,11 @@ import { Compiler } from "inkjs/compiler/Compiler";
 import InkStoryType from "../types/InkStoryType";
 import { getInkLabel } from "./StoryInfoConverter";
 
+/**
+ * This function converts string written in ink language into the LabelJsonType.
+ * @param text string or array of strings written in ink language
+ * @returns LabelJsonType or undefined
+ */
 export function convertInkText(text: string): LabelJsonType | undefined {
     let json = convertorInkToJson(text);
     let obj: InkStoryType

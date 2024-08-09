@@ -36,7 +36,6 @@ We hurried home to Savile Row as fast as we could.
 	expect(res).toEqual(expected);
 });
 
-// TODO: To handle the end of the game I should have the user pass me a functionok
 test('Label test 2', async () => {
 	let expected = {
 		back_in_london: [
