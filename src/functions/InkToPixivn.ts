@@ -14,7 +14,7 @@ export function convertInkText(text: string): LabelJsonType | undefined {
     try {
         obj = JSON.parse(json);
     } catch (e) {
-        console.error("[Pixi'VN Ink] Error parsing ink file", e)
+        console.error("[Pixi’VN Ink] Error parsing ink file", e)
         return
     }
 
@@ -28,7 +28,7 @@ function convertorInkToJson(test: string): string {
         console.log(json);
         return json || "";
     } catch (e) {
-        console.error("[Pixi'VN] Error compiling ink file", e)
+        console.error("[Pixi’VN] Error compiling ink file", e)
         return ""
     }
 }

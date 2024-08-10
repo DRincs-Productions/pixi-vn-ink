@@ -1,6 +1,6 @@
-# Pixi'VN + Ink Language
+# Pixi’VN + Ink Language
 
-Pixi'VN gives you the ability to write your own narrative using Ink.
+Pixi’VN gives you the ability to write your own narrative using Ink.
 
 ## What is ink?
 
@@ -8,11 +8,11 @@ Ink is a scripting language for writing interactive narrative. It is used in gam
 
 This language is very simple to learn, you can learn the basics in a few minutes. Go on [ink website](https://www.inklestudios.com/ink/) to learn more about it.
 
-## Start using Ink in Pixi'VN
+## Start using Ink in Pixi’VN
 
 If you have not created a project yet then it is recommended to use the [template](/start/getting-started.md#project-initialization) and select a template that is based on ink.
 
-Otherwise to add ink to your Pixi'VN project you need to install the `@drincs/pixi-vn-ink` package.
+Otherwise to add ink to your Pixi’VN project you need to install the `@drincs/pixi-vn-ink` package.
 
 ```bash
 # npm
@@ -43,7 +43,7 @@ Hello
 importInkText([inkText, ...])
 ```
 
-Now you can run the `start` knot (or label) with [Pixi'VN functions](/start/labels.md#run-a-label).
+Now you can run the `start` knot (or label) with [Pixi’VN functions](/start/labels.md#run-a-label).
 
 ```typescript
 GameStepManager.callLabel(`start`, {})

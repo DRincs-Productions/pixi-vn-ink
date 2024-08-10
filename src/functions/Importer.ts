@@ -2,7 +2,7 @@ import { importPixiVNJson } from "@drincs/pixi-vn";
 import { convertInkText } from "./InkToPixivn";
 
 /**
- * This function imports string or array of strings written in ink language into the Pixi'VN engine.
+ * This function imports string or array of strings written in ink language into the Pixi’VN engine.
  * @example
  * ```ts
  * import { importInkText } from 'pixi-vn'

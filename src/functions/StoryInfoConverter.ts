@@ -12,7 +12,7 @@ export function getInkLabel(story: InkRootType[]): LabelJsonType | undefined {
 
         return label;
     } catch (e) {
-        console.error("[Pixi'VN Ink] Error parsing ink file", e)
+        console.error("[Pixi’VN Ink] Error parsing ink file", e)
     }
 }
 
