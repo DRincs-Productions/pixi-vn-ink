@@ -136,8 +136,8 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
         for (const [key, value] of Object.entries(choices)) {
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
-            if (labelSteps.length > 0 && "currentChoiceMenuOptions" in labelSteps[labelSteps.length - 1]) {
-                labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push({
+            if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
+                labelSteps[labelSteps.length - 1].choices?.push({
                     text: value.text,
                     label: newKey,
                     props: {},
@@ -146,7 +146,7 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             }
             else {
                 labelSteps.push({
-                    currentChoiceMenuOptions: [{
+                    choices: [{
                         text: value.text,
                         label: newKey,
                         props: {},
@@ -161,10 +161,12 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             }
         }
     }
+    // * [Open the gate] -> paragraph_2
     if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && labelSteps.length == 2
         && labelSteps[0].dialog == " " && labelSteps[1].labelToOpen
     ) {
-        // TODO: remove item 0 and add go next
-        console.log("remove item 0 and add go next")
+        // remove first step
+        labelSteps.shift()
+        labelSteps[0].goNextStep = true
     }
 }

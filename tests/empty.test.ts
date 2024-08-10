@@ -3,7 +3,7 @@ import { convertInkText } from '../src/functions';
 
 test('Empty file test', async () => {
     let res = convertInkText(``);
-    expect(res).toEqual({});
+    expect(res).toEqual({ "labels": {} });
 });
 
 test('Test elements not considered', async () => {
@@ -18,5 +18,5 @@ test('Test elements not considered', async () => {
 	... or an unlimited block of text
 */
 `);
-    expect(res).toEqual({});
+    expect(res).toEqual({ "labels": {} });
 });

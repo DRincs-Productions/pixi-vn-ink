@@ -3,25 +3,27 @@ import { convertInkText } from '../src/functions';
 
 test('Label test 1', async () => {
 	let expected = {
-		back_in_london: [
-			{
-				dialog: "We arrived into London at 9.45pm exactly.",
-			},
-			{
-				labelToOpen: {
-					labelId: "hurry_home",
-					type: "call",
+		labels: {
+			back_in_london: [
+				{
+					dialog: "We arrived into London at 9.45pm exactly.",
 				},
-			},
-		],
-		hurry_home: [
-			{
-				dialog: "We hurried home to Savile Row as fast as we could.",
-			},
-			{
-				end: "label_end",
-			},
-		]
+				{
+					labelToOpen: {
+						labelId: "hurry_home",
+						type: "call",
+					},
+				},
+			],
+			hurry_home: [
+				{
+					dialog: "We hurried home to Savile Row as fast as we could.",
+				},
+				{
+					end: "label_end",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === back_in_london ===
@@ -38,22 +40,24 @@ We hurried home to Savile Row as fast as we could.
 
 test('Label test 2', async () => {
 	let expected = {
-		back_in_london: [
-			{
-				dialog: "We arrived into London at 9.45pm exactly.",
-			},
-			{
-				end: "game_end",
-			},
-		],
-		hurry_home: [
-			{
-				dialog: "We hurried home to Savile Row as fast as we could.",
-			},
-			{
-				end: "label_end",
-			},
-		]
+		labels: {
+			back_in_london: [
+				{
+					dialog: "We arrived into London at 9.45pm exactly.",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			hurry_home: [
+				{
+					dialog: "We hurried home to Savile Row as fast as we could.",
+				},
+				{
+					end: "label_end",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === back_in_london ===

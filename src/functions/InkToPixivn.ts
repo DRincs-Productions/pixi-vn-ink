@@ -1,4 +1,4 @@
-import { LabelJsonType } from "@drincs/pixi-vn";
+import { PixiVNJson } from "@drincs/pixi-vn";
 import { Compiler } from "inkjs/compiler/Compiler";
 import InkStoryType from "../types/InkStoryType";
 import { getInkLabel } from "./StoryInfoConverter";
@@ -8,7 +8,8 @@ import { getInkLabel } from "./StoryInfoConverter";
  * @param text string or array of strings written in ink language
  * @returns LabelJsonType or undefined
  */
-export function convertInkText(text: string): LabelJsonType | undefined {
+export function convertInkText(text: string): PixiVNJson | undefined {
+    let result: PixiVNJson = {}
     let json = convertorInkToJson(text);
     let obj: InkStoryType
     try {
@@ -18,7 +19,9 @@ export function convertInkText(text: string): LabelJsonType | undefined {
         return
     }
 
-    return getInkLabel(obj.root)
+    result.labels = getInkLabel(obj.root)
+
+    return result
 }
 
 function convertorInkToJson(test: string): string {
