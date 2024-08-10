@@ -1,4 +1,5 @@
 import { LabelJsonType, StepLabelJsonType } from '@drincs/pixi-vn';
+import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
@@ -39,7 +40,7 @@ function addLabels(storyItem: object, result: LabelJsonType, dadLabelKey: string
         if (value instanceof Array) {
             let labels: StepLabelJsonType[] = []
             let subLabels: LabelJsonType = {}
-            let labelName = (dadLabelKey ? dadLabelKey + "_" : "") + key
+            let labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key
             getLabel(value, labelName, labels, subLabels, shareData)
             for (const [subKey, subValue] of Object.entries(subLabels)) {
                 result[subKey] = subValue
@@ -133,7 +134,7 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
         let choices: LabelChoiceRes = {}
         getLabelChoice(envList, choices)
         for (const [key, value] of Object.entries(choices)) {
-            let newKey = labelKey + "_" + key
+            let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
             if (labelSteps.length > 0 && "currentChoiceMenuOptions" in labelSteps[labelSteps.length - 1]) {
                 labelSteps[labelSteps.length - 1].currentChoiceMenuOptions?.push({
@@ -159,5 +160,11 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                 }
             }
         }
+    }
+    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && labelSteps.length == 2
+        && labelSteps[0].dialog == " " && labelSteps[1].labelToOpen
+    ) {
+        // TODO: remove item 0 and add go next
+        console.log("remove item 0 and add go next")
     }
 }

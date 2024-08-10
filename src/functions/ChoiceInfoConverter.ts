@@ -5,7 +5,8 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes) {
     let text: string = ""
     let label: string = ""
     let preDialog: string = ""
-    items.forEach((v, index) => {
+    for (let index = 0; index < items.length; index++) {
+        let v = items[index]
         if (typeof v === "string") {
             // Dialog
             if (v.startsWith("^")) {
@@ -42,7 +43,7 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes) {
             getLabelChoice(newListItem, result)
             return
         }
-    })
+    }
 }
 
 function findChoiceText(items: RootParserItemType[]): string | undefined {

@@ -14,14 +14,14 @@ test('Choices test 1', async () => {
 				currentChoiceMenuOptions: [
 					{
 						text: "Hello back!",
-						label: "test_c-0",
+						label: "test_|_c-0",
 						props: {},
 						type: "call",
 					},
 				],
 			},
 		],
-		"test_c-0": [
+		"test_|_c-0": [
 			{
 				dialog: "Hello back!",
 			},
@@ -52,14 +52,14 @@ test('Choices test 2', async () => {
 				currentChoiceMenuOptions: [
 					{
 						text: "Hello back!",
-						label: "test_c-0",
+						label: "test_|_c-0",
 						props: {},
 						type: "call",
 					},
 				],
 			},
 		],
-		"test_c-0": [
+		"test_|_c-0": [
 			{
 				dialog: "Nice to hear from you!",
 			},
@@ -85,14 +85,14 @@ test('Choices test 3', async () => {
 				currentChoiceMenuOptions: [
 					{
 						text: "Hello back!",
-						label: "test_c-0",
+						label: "test_|_c-0",
 						props: {},
 						type: "call",
 					},
 				],
 			},
 		],
-		"test_c-0": [
+		"test_|_c-0": [
 			{
 				dialog: "Hello  right back to you!",
 			},
@@ -120,14 +120,14 @@ test('Choices test 4', async () => {
 				currentChoiceMenuOptions: [
 					{
 						text: "\"I am somewhat tired.\"",
-						label: "test_c-0",
+						label: "test_|_c-0",
 						props: {},
 						type: "call",
 					},
 				],
 			},
 		],
-		"test_c-0": [
+		"test_|_c-0": [
 			{
 				dialog: "\"I am somewhat tired,\" I repeated.",
 			},
@@ -155,26 +155,26 @@ test('Choices test 5', async () => {
 				currentChoiceMenuOptions: [
 					{
 						text: "\"I am somewhat tired.\"",
-						label: "test_c-0",
+						label: "test_|_c-0",
 						props: {},
 						type: "call",
 					},
 					{
 						text: "\"Nothing, Monsieur!\"",
-						label: "test_c-1",
+						label: "test_|_c-1",
 						props: {},
 						type: "call",
 					},
 					{
 						text: "\"I said, this journey is appalling.\"",
-						label: "test_c-2",
+						label: "test_|_c-2",
 						props: {},
 						type: "call",
 					},
 				],
 			},
 		],
-		"test_c-0": [
+		"test_|_c-0": [
 			{
 				dialog: "\"I am somewhat tired,\" I repeated.",
 			},
@@ -182,7 +182,7 @@ test('Choices test 5', async () => {
 				dialog: "\"Really,\" he responded. \"How deleterious.\"",
 			},
 		],
-		"test_c-1": [
+		"test_|_c-1": [
 			{
 				dialog: "\"Nothing, Monsieur!\" I replied.",
 			},
@@ -190,7 +190,7 @@ test('Choices test 5', async () => {
 				dialog: "\"Very good, then.\"",
 			},
 		],
-		"test_c-2": [
+		"test_|_c-2": [
 			{
 				dialog: "\"I said, this journey is appalling and I want no more of it.\"",
 			},
@@ -208,6 +208,32 @@ test('Choices test 5', async () => {
 	"Very good, then."
 *  "I said, this journey is appalling[."] and I want no more of it."
 	"Ah," he replied, not unkindly. "I see you are feeling frustrated. Tomorrow, things will improve."
+`);
+	expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#basic-branching
+ */
+test('Basic branching', async () => {
+	let expected = {
+	}
+	let res = convertInkText(`
+-> paragraph_1
+=== paragraph_1 ===
+You stand by the wall of Analand, sword in hand.
+* [Open the gate] -> paragraph_2
+* [Smash down the gate] -> paragraph_3
+* [Turn back and go home] -> paragraph_4
+=== paragraph_2 ===
+You open the gate, and step out onto the path.
+-> DONE
+=== paragraph_3 ===
+You open the gate, and step out onto the path.
+-> DONE
+=== paragraph_4 ===
+You open the gate, and step out onto the path.
+-> DONE
 `);
 	expect(res).toEqual(expected);
 });
