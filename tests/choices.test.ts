@@ -6,29 +6,31 @@ import { convertInkText } from '../src/functions';
 
 test('Choices test 1', async () => {
 	let expected = {
-		test: [
-			{
-				dialog: "Hello world!",
-			},
-			{
-				currentChoiceMenuOptions: [
-					{
-						text: "Hello back!",
-						label: "test_|_c-0",
-						props: {},
-						type: "call",
-					},
-				],
-			},
-		],
-		"test_|_c-0": [
-			{
-				dialog: "Hello back!",
-			},
-			{
-				dialog: "Nice to hear from you!",
-			},
-		]
+		labels: {
+			test: [
+				{
+					dialog: "Hello world!",
+				},
+				{
+					choices: [
+						{
+							text: "Hello back!",
+							label: "test_|_c-0",
+							props: {},
+							type: "call",
+						},
+					],
+				},
+			],
+			"test_|_c-0": [
+				{
+					dialog: "Hello back!",
+				},
+				{
+					dialog: "Nice to hear from you!",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === test ===
@@ -41,29 +43,31 @@ Hello world!
 
 test('Choices test 2', async () => {
 	let expected = {
-		test: [
-			{
-				dialog: "Hello world!",
-			},
-			{
-				dialog: "Hello world!2",
-			},
-			{
-				currentChoiceMenuOptions: [
-					{
-						text: "Hello back!",
-						label: "test_|_c-0",
-						props: {},
-						type: "call",
-					},
-				],
-			},
-		],
-		"test_|_c-0": [
-			{
-				dialog: "Nice to hear from you!",
-			},
-		]
+		labels: {
+			test: [
+				{
+					dialog: "Hello world!",
+				},
+				{
+					dialog: "Hello world!2",
+				},
+				{
+					choices: [
+						{
+							text: "Hello back!",
+							label: "test_|_c-0",
+							props: {},
+							type: "call",
+						},
+					],
+				},
+			],
+			"test_|_c-0": [
+				{
+					dialog: "Nice to hear from you!",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === test ===
@@ -77,29 +81,31 @@ Hello world!2
 
 test('Choices test 3', async () => {
 	let expected = {
-		test: [
-			{
-				dialog: "Hello world!",
-			},
-			{
-				currentChoiceMenuOptions: [
-					{
-						text: "Hello back!",
-						label: "test_|_c-0",
-						props: {},
-						type: "call",
-					},
-				],
-			},
-		],
-		"test_|_c-0": [
-			{
-				dialog: "Hello  right back to you!",
-			},
-			{
-				dialog: "Nice to hear from you!",
-			},
-		]
+		labels: {
+			test: [
+				{
+					dialog: "Hello world!",
+				},
+				{
+					choices: [
+						{
+							text: "Hello back!",
+							label: "test_|_c-0",
+							props: {},
+							type: "call",
+						},
+					],
+				},
+			],
+			"test_|_c-0": [
+				{
+					dialog: "Hello  right back to you!",
+				},
+				{
+					dialog: "Nice to hear from you!",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === test ===
@@ -112,29 +118,31 @@ Hello world!
 
 test('Choices test 4', async () => {
 	let expected = {
-		test: [
-			{
-				dialog: "\"What's that?\" my master asked.",
-			},
-			{
-				currentChoiceMenuOptions: [
-					{
-						text: "\"I am somewhat tired.\"",
-						label: "test_|_c-0",
-						props: {},
-						type: "call",
-					},
-				],
-			},
-		],
-		"test_|_c-0": [
-			{
-				dialog: "\"I am somewhat tired,\" I repeated.",
-			},
-			{
-				dialog: "\"Really,\" he responded. \"How deleterious.\"",
-			},
-		]
+		labels: {
+			test: [
+				{
+					dialog: "\"What's that?\" my master asked.",
+				},
+				{
+					choices: [
+						{
+							text: "\"I am somewhat tired.\"",
+							label: "test_|_c-0",
+							props: {},
+							type: "call",
+						},
+					],
+				},
+			],
+			"test_|_c-0": [
+				{
+					dialog: "\"I am somewhat tired,\" I repeated.",
+				},
+				{
+					dialog: "\"Really,\" he responded. \"How deleterious.\"",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === test ===
@@ -147,57 +155,59 @@ test('Choices test 4', async () => {
 
 test('Choices test 5', async () => {
 	let expected = {
-		test: [
-			{
-				dialog: "\"What's that?\" my master asked.",
-			},
-			{
-				currentChoiceMenuOptions: [
-					{
-						text: "\"I am somewhat tired.\"",
-						label: "test_|_c-0",
-						props: {},
-						type: "call",
-					},
-					{
-						text: "\"Nothing, Monsieur!\"",
-						label: "test_|_c-1",
-						props: {},
-						type: "call",
-					},
-					{
-						text: "\"I said, this journey is appalling.\"",
-						label: "test_|_c-2",
-						props: {},
-						type: "call",
-					},
-				],
-			},
-		],
-		"test_|_c-0": [
-			{
-				dialog: "\"I am somewhat tired,\" I repeated.",
-			},
-			{
-				dialog: "\"Really,\" he responded. \"How deleterious.\"",
-			},
-		],
-		"test_|_c-1": [
-			{
-				dialog: "\"Nothing, Monsieur!\" I replied.",
-			},
-			{
-				dialog: "\"Very good, then.\"",
-			},
-		],
-		"test_|_c-2": [
-			{
-				dialog: "\"I said, this journey is appalling and I want no more of it.\"",
-			},
-			{
-				dialog: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
-			},
-		]
+		labels: {
+			test: [
+				{
+					dialog: "\"What's that?\" my master asked.",
+				},
+				{
+					choices: [
+						{
+							text: "\"I am somewhat tired.\"",
+							label: "test_|_c-0",
+							props: {},
+							type: "call",
+						},
+						{
+							text: "\"Nothing, Monsieur!\"",
+							label: "test_|_c-1",
+							props: {},
+							type: "call",
+						},
+						{
+							text: "\"I said, this journey is appalling.\"",
+							label: "test_|_c-2",
+							props: {},
+							type: "call",
+						},
+					],
+				},
+			],
+			"test_|_c-0": [
+				{
+					dialog: "\"I am somewhat tired,\" I repeated.",
+				},
+				{
+					dialog: "\"Really,\" he responded. \"How deleterious.\"",
+				},
+			],
+			"test_|_c-1": [
+				{
+					dialog: "\"Nothing, Monsieur!\" I replied.",
+				},
+				{
+					dialog: "\"Very good, then.\"",
+				},
+			],
+			"test_|_c-2": [
+				{
+					dialog: "\"I said, this journey is appalling and I want no more of it.\"",
+				},
+				{
+					dialog: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
+				},
+			]
+		}
 	}
 	let res = convertInkText(`
 === test ===
@@ -217,6 +227,86 @@ test('Choices test 5', async () => {
  */
 test('Basic branching', async () => {
 	let expected = {
+		labels: {
+			"paragraph_1_|_c-0": [
+				{
+					labelToOpen: {
+						labelId: "paragraph_2",
+						type: "call",
+					},
+					goNextStep: true,
+				},
+			],
+			"paragraph_1_|_c-1": [
+				{
+					labelToOpen: {
+						labelId: "paragraph_3",
+						type: "call",
+					},
+					goNextStep: true,
+				},
+			],
+			"paragraph_1_|_c-2": [
+				{
+					labelToOpen: {
+						labelId: "paragraph_4",
+						type: "call",
+					},
+					goNextStep: true,
+				},
+			],
+			paragraph_1: [
+				{
+					dialog: "You stand by the wall of Analand, sword in hand.",
+				},
+				{
+					choices: [
+						{
+							text: "Open the gate",
+							label: "paragraph_1_|_c-0",
+							props: {},
+							type: "call",
+						},
+						{
+							text: "Smash down the gate",
+							label: "paragraph_1_|_c-1",
+							props: {},
+							type: "call",
+						},
+						{
+							text: "Turn back and go home",
+							label: "paragraph_1_|_c-2",
+							props: {},
+							type: "call",
+						},
+					],
+				},
+			],
+			paragraph_2: [
+				{
+					dialog: "You open the gate, and step out onto the path.",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			paragraph_3: [
+				{
+					dialog: "You open the gate, and step out onto the path.",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			paragraph_4: [
+				{
+					dialog: "You open the gate, and step out onto the path.",
+				},
+				{
+					end: "label_end",
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> paragraph_1
