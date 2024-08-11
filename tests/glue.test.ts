@@ -37,3 +37,26 @@ as fast as we could.
 `);
     expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#glue
+ */
+test('Glue', async () => {
+    let expected: PixiVNJson = {
+        labels: {
+        }
+    }
+    let res = convertInkText(`
+=== hurry_home ===
+We hurried home <>
+-> to_savile_row
+
+=== to_savile_row ===
+to Savile Row
+-> as_fast_as_we_could
+
+=== as_fast_as_we_could ===
+<> as fast as we could.
+`);
+    expect(res).toEqual(expected);
+});
