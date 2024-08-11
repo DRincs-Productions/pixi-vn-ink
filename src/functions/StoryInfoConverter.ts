@@ -130,7 +130,10 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
         }
         else if (v && typeof v === "object") {
-            if ("->" in v && typeof v["->"] === "string" && !v["->"].includes(".^.^.")) {
+            if ("->" in v && typeof v["->"] === "string"
+                // {->: '.^.^.2.s'}
+                && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
+            ) {
                 labelSteps.push({
                     labelToOpen: {
                         labelId: v["->"],
