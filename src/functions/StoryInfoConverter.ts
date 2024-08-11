@@ -4,6 +4,7 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
+import { unionStringOrArray } from './utility';
 
 export function getInkLabel(story: InkRootType[]): LabelJsonType | undefined {
     try {
@@ -76,7 +77,22 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             // Dialog
             if (v.startsWith("^")) {
                 if (!isNewLine && labelSteps.length > 0) {
-                    labelSteps[labelSteps.length - 1].dialog = labelSteps[labelSteps.length - 1].dialog + v.substring(1)
+                    // in this case: <> text
+                    if (labelSteps[labelSteps.length - 1].glueEnabled) {
+                        labelSteps.push({
+                            dialog: v.substring(1)
+                        })
+                    } else {
+                        let newDialog = labelSteps[labelSteps.length - 1].dialog
+                        // if is a string or an array
+                        if (typeof newDialog === "string" || newDialog instanceof Array || !newDialog) {
+                            labelSteps[labelSteps.length - 1].dialog = unionStringOrArray(newDialog, v.substring(1))
+                        }
+                        else {
+                            newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
+                            labelSteps[labelSteps.length - 1].dialog = newDialog
+                        }
+                    }
                 } else {
                     labelSteps.push({
                         dialog: v.substring(1)
