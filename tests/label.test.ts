@@ -72,3 +72,47 @@ We hurried home to Savile Row as fast as we could.
 `);
 	expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#the-first-stitch-is-the-default
+ */
+test('The first stitch is the default', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+		}
+	}
+	let res = convertInkText(`
+=== the_orient_express ===
+
+We boarded the train, but where?
+*	[First class] -> in_first_class
+*	[Second class] -> in_second_class
+
+= in_first_class
+	First class was luxurious.
+= in_second_class
+	Second class was cramped.
+`);
+	expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#local-diverts
+ */
+test('Local diverts', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+		}
+	}
+	let res = convertInkText(`
+=== the_orient_express ===
+= in_first_class
+	I settled my master.
+	*	[Move to third class]
+		-> in_third_class
+
+= in_third_class
+	I put myself in third.
+`);
+	expect(res).toEqual(expected);
+});
