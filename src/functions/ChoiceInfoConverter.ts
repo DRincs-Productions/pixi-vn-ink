@@ -1,5 +1,6 @@
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
+import { unionStringOrArray } from './utility';
 
 export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?: string) {
     let text: string = ""
@@ -25,7 +26,7 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?:
                 if (t) {
                     if (lastLabel && result[lastLabel]) {
                         result[lastLabel].preDialog = { text: t }
-                        result[lastLabel].text = t + result[lastLabel].text
+                        result[lastLabel].text = unionStringOrArray(t, result[lastLabel].text)
                     }
                     else {
                         text = t
@@ -36,7 +37,7 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?:
         }
         if (text && label) {
             if (result[label]) {
-                result[label].text = text + result[label].text
+                result[label].text = unionStringOrArray(text, result[label].text)
             }
             else {
                 result[label] = { text: text }
