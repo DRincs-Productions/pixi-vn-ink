@@ -108,10 +108,7 @@ test('Branching and joining', async () => {
         labels: {
             "back_in_london_|_c-0": [
                 {
-                    dialog: [
-                        "\"There is not a moment to lose!\"",
-                        " I declared.",
-                    ],
+                    dialog: ["\"There is not a moment to lose!\"", " I declared.",],
                 },
                 {
                     labelToOpen: {
@@ -124,10 +121,7 @@ test('Branching and joining', async () => {
             ],
             "back_in_london_|_c-1": [
                 {
-                    dialog: [
-                        "\"Monsieur, let us savour this moment!\"",
-                        " I declared.",
-                    ],
+                    dialog: ["\"Monsieur, let us savour this moment!\"", " I declared.",],
                 },
                 {
                     dialog: "My master clouted me firmly around the head and dragged me out of the door.",
@@ -160,22 +154,19 @@ test('Branching and joining', async () => {
                         {
                             text: "\"There is not a moment to lose!\"",
                             label: "back_in_london_|_c-0",
-                            props: {
-                            },
+                            props: {},
                             type: "call",
                         },
                         {
                             text: "\"Monsieur, let us savour this moment!\"",
                             label: "back_in_london_|_c-1",
-                            props: {
-                            },
+                            props: {},
                             type: "call",
                         },
                         {
                             text: "We hurried home",
                             label: "back_in_london_|_c-2",
-                            props: {
-                            },
+                            props: {},
                             type: "call",
                         },
                     ],

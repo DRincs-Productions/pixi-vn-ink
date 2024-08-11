@@ -83,6 +83,14 @@ Hello world!2
 test('Choices test 3', async () => {
 	let expected: PixiVNJson = {
 		labels: {
+			"test_|_c-0": [
+				{
+					dialog: ["Hello ", " right back to you!",],
+				},
+				{
+					dialog: "Nice to hear from you!",
+				},
+			],
 			test: [
 				{
 					dialog: "Hello world!",
@@ -90,7 +98,7 @@ test('Choices test 3', async () => {
 				{
 					choices: [
 						{
-							text: "Hello back!",
+							text: ["Hello ", "back!",],
 							label: "test_|_c-0",
 							props: {},
 							type: "call",
@@ -98,14 +106,6 @@ test('Choices test 3', async () => {
 					],
 				},
 			],
-			"test_|_c-0": [
-				{
-					dialog: "Hello  right back to you!",
-				},
-				{
-					dialog: "Nice to hear from you!",
-				},
-			]
 		}
 	}
 	let res = convertInkText(`
@@ -120,6 +120,14 @@ Hello world!
 test('Choices test 4', async () => {
 	let expected: PixiVNJson = {
 		labels: {
+			"test_|_c-0": [
+				{
+					dialog: ["\"I am somewhat tired", ",\" I repeated.",],
+				},
+				{
+					dialog: "\"Really,\" he responded. \"How deleterious.\"",
+				},
+			],
 			test: [
 				{
 					dialog: "\"What's that?\" my master asked.",
@@ -127,7 +135,7 @@ test('Choices test 4', async () => {
 				{
 					choices: [
 						{
-							text: "\"I am somewhat tired.\"",
+							text: ["\"I am somewhat tired", ".\"",],
 							label: "test_|_c-0",
 							props: {},
 							type: "call",
@@ -135,14 +143,6 @@ test('Choices test 4', async () => {
 					],
 				},
 			],
-			"test_|_c-0": [
-				{
-					dialog: "\"I am somewhat tired,\" I repeated.",
-				},
-				{
-					dialog: "\"Really,\" he responded. \"How deleterious.\"",
-				},
-			]
 		}
 	}
 	let res = convertInkText(`
@@ -157,6 +157,30 @@ test('Choices test 4', async () => {
 test('Choices test 5', async () => {
 	let expected: PixiVNJson = {
 		labels: {
+			"test_|_c-0": [
+				{
+					dialog: ["\"I am somewhat tired", ",\" I repeated.",],
+				},
+				{
+					dialog: "\"Really,\" he responded. \"How deleterious.\"",
+				},
+			],
+			"test_|_c-1": [
+				{
+					dialog: ["\"Nothing, Monsieur!\"", " I replied.",],
+				},
+				{
+					dialog: "\"Very good, then.\"",
+				},
+			],
+			"test_|_c-2": [
+				{
+					dialog: ["\"I said, this journey is appalling", " and I want no more of it.\"",],
+				},
+				{
+					dialog: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
+				},
+			],
 			test: [
 				{
 					dialog: "\"What's that?\" my master asked.",
@@ -164,7 +188,9 @@ test('Choices test 5', async () => {
 				{
 					choices: [
 						{
-							text: "\"I am somewhat tired.\"",
+							text: [
+								"\"I am somewhat tired", ".\"",
+							],
 							label: "test_|_c-0",
 							props: {},
 							type: "call",
@@ -176,7 +202,7 @@ test('Choices test 5', async () => {
 							type: "call",
 						},
 						{
-							text: "\"I said, this journey is appalling.\"",
+							text: ["\"I said, this journey is appalling", ".\"",],
 							label: "test_|_c-2",
 							props: {},
 							type: "call",
@@ -184,30 +210,6 @@ test('Choices test 5', async () => {
 					],
 				},
 			],
-			"test_|_c-0": [
-				{
-					dialog: "\"I am somewhat tired,\" I repeated.",
-				},
-				{
-					dialog: "\"Really,\" he responded. \"How deleterious.\"",
-				},
-			],
-			"test_|_c-1": [
-				{
-					dialog: "\"Nothing, Monsieur!\" I replied.",
-				},
-				{
-					dialog: "\"Very good, then.\"",
-				},
-			],
-			"test_|_c-2": [
-				{
-					dialog: "\"I said, this journey is appalling and I want no more of it.\"",
-				},
-				{
-					dialog: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
-				},
-			]
 		}
 	}
 	let res = convertInkText(`
