@@ -78,7 +78,9 @@ test('Glue', async () => {
                 {
                     glueEnabled: true,
                     goNextStep: true,
-                    dialog: "undefined as fast as we could.",
+                },
+                {
+                    dialog: " as fast as we could.",
                 },
             ],
         }
