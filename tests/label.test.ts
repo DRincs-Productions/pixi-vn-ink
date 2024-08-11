@@ -82,7 +82,7 @@ test('The first stitch is the default', async () => {
 			"the_orient_express_|_c-0": [
 				{
 					labelToOpen: {
-						labelId: ".^.^.^.in_first_class",
+						labelId: "the_orient_express_|_in_first_class",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -92,7 +92,7 @@ test('The first stitch is the default', async () => {
 			"the_orient_express_|_c-1": [
 				{
 					labelToOpen: {
-						labelId: ".^.^.^.in_second_class",
+						labelId: "the_orient_express_|_in_second_class",
 						type: "call",
 					},
 					glueEnabled: undefined,

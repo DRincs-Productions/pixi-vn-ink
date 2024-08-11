@@ -134,9 +134,19 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
             ) {
+                ".^.^.^.in_first_class"
+                let labelIdToOpen = v["->"]
+                if (
+                    (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(v["->"])
+                    && labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)
+                ) {
+                    // remove first 7 characters
+                    let endOfLabel = v["->"].substring(7)
+                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                }
                 labelSteps.push({
                     labelToOpen: {
-                        labelId: v["->"],
+                        labelId: labelIdToOpen,
                         type: "call",
                     },
                     glueEnabled: isNewLine ? undefined : true,
