@@ -44,6 +44,43 @@ as fast as we could.
 test('Glue', async () => {
     let expected: PixiVNJson = {
         labels: {
+            hurry_home: [
+                {
+                    dialog: "We hurried home ",
+                },
+                {
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        labelId: "to_savile_row",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: undefined,
+                },
+            ],
+            to_savile_row: [
+                {
+                    dialog: "to Savile Row",
+                },
+                {
+                    labelToOpen: {
+                        labelId: "as_fast_as_we_could",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: undefined,
+                },
+            ],
+            as_fast_as_we_could: [
+                {
+                    glueEnabled: true,
+                    goNextStep: true,
+                    dialog: "undefined as fast as we could.",
+                },
+            ],
         }
     }
     let res = convertInkText(`

@@ -102,6 +102,13 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                 })
                 isNewLine = false
             }
+            else if (v == "<>") {
+                labelSteps.push({
+                    glueEnabled: true,
+                    goNextStep: true,
+                })
+                isNewLine = false
+            }
         }
         else if (v instanceof Array) {
             getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
