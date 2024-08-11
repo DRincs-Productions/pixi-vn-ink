@@ -112,7 +112,9 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                     labelToOpen: {
                         labelId: v["->"],
                         type: "call",
-                    }
+                    },
+                    glueEnabled: isNewLine ? undefined : true,
+                    goNextStep: isNewLine ? undefined : true,
                 })
                 isNewLine = false
             }
@@ -167,6 +169,6 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
     ) {
         // remove first step
         labelSteps.shift()
-        labelSteps[0].goNextStep = true
+        labelSteps[0].glueEnabled = undefined
     }
 }

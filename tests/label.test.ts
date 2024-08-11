@@ -1,8 +1,9 @@
+import { PixiVNJson } from '@drincs/pixi-vn';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 
 test('Label test 1', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			back_in_london: [
 				{
@@ -39,7 +40,7 @@ We hurried home to Savile Row as fast as we could.
 });
 
 test('Label test 2', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			back_in_london: [
 				{
