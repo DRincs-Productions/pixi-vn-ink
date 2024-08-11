@@ -118,15 +118,13 @@ test('The first stitch is the default', async () => {
 						{
 							text: "First class",
 							label: "the_orient_express_|_c-0",
-							props: {
-							},
+							props: {},
 							type: "call",
 						},
 						{
 							text: "Second class",
 							label: "the_orient_express_|_c-1",
-							props: {
-							},
+							props: {},
 							type: "call",
 						},
 					],
@@ -158,11 +156,11 @@ test('Local diverts', async () => {
 			"the_orient_express_|_in_first_class_|_c-0": [
 				{
 					labelToOpen: {
-						labelId: ".^.^.^.^.in_third_class",
+						labelId: "the_orient_express_|_in_third_class",
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: undefined,
+					goNextStep: true,
 				},
 			],
 			"the_orient_express_|_in_first_class": [
@@ -188,11 +186,11 @@ test('Local diverts', async () => {
 			the_orient_express: [
 				{
 					labelToOpen: {
-						labelId: ".^.in_first_class",
+						labelId: "the_orient_express_|_in_first_class",
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: undefined,
+					goNextStep: true,
 				},
 			],
 		}

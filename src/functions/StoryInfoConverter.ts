@@ -134,23 +134,42 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
             ) {
-                ".^.^.^.in_first_class"
                 let labelIdToOpen = v["->"]
+                let glueEnabled = isNewLine ? undefined : true
+                let goNextStep = isNewLine ? undefined : true
                 if (
+                    // if there are a sub label "=label"
+                    (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(v["->"])
+                    && labelKey
+                ) {
+                    let endOfLabel = v["->"].substring(9)
+                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                    goNextStep = true
+                }
+                else if (
+                    // if there are a sub label "=label"
                     (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(v["->"])
                     && labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)
                 ) {
-                    // remove first 7 characters
                     let endOfLabel = v["->"].substring(7)
                     labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                }
+                else if (
+                    // if there are a sub label "=label"
+                    (new RegExp(/^\.\^\..*$/)).test(v["->"])
+                    && labelKey
+                ) {
+                    let endOfLabel = v["->"].substring(3)
+                    labelIdToOpen = labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                    goNextStep = true
                 }
                 labelSteps.push({
                     labelToOpen: {
                         labelId: labelIdToOpen,
                         type: "call",
                     },
-                    glueEnabled: isNewLine ? undefined : true,
-                    goNextStep: isNewLine ? undefined : true,
+                    glueEnabled: glueEnabled,
+                    goNextStep: goNextStep,
                 })
                 isNewLine = false
             }
