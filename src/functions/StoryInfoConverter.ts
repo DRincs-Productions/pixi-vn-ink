@@ -130,14 +130,46 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
         }
         else if (v && typeof v === "object") {
-            if ("->" in v && typeof v["->"] === "string" && !v["->"].includes(".^.^.")) {
+            if ("->" in v && typeof v["->"] === "string"
+                // {->: '.^.^.2.s'}
+                && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
+            ) {
+                let labelIdToOpen = v["->"]
+                let glueEnabled = isNewLine ? undefined : true
+                let goNextStep = isNewLine ? undefined : true
+                if (
+                    // if there are a sub label "=label"
+                    (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(v["->"])
+                    && labelKey
+                ) {
+                    let endOfLabel = v["->"].substring(9)
+                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                    goNextStep = true
+                }
+                else if (
+                    // if there are a sub label "=label"
+                    (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(v["->"])
+                    && labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)
+                ) {
+                    let endOfLabel = v["->"].substring(7)
+                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                }
+                else if (
+                    // if there are a sub label "=label"
+                    (new RegExp(/^\.\^\..*$/)).test(v["->"])
+                    && labelKey
+                ) {
+                    let endOfLabel = v["->"].substring(3)
+                    labelIdToOpen = labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+                    goNextStep = true
+                }
                 labelSteps.push({
                     labelToOpen: {
-                        labelId: v["->"],
+                        labelId: labelIdToOpen,
                         type: "call",
                     },
-                    glueEnabled: isNewLine ? undefined : true,
-                    goNextStep: isNewLine ? undefined : true,
+                    glueEnabled: glueEnabled,
+                    goNextStep: goNextStep,
                 })
                 isNewLine = false
             }
