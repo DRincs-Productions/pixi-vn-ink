@@ -28,7 +28,6 @@ function convertorInkToJson(test: string): string {
     try {
         const story = new Compiler(test).Compile();
         let json = story.ToJson();
-        console.log(json);
         return json || "";
     } catch (e) {
         console.error("[Pixi’VN] Error compiling ink file", e)

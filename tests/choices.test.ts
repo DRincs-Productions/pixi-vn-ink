@@ -1,3 +1,4 @@
+import { PixiVNJson } from '@drincs/pixi-vn';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 
@@ -5,7 +6,7 @@ import { convertInkText } from '../src/functions';
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#2-choices
 
 test('Choices test 1', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			test: [
 				{
@@ -42,7 +43,7 @@ Hello world!
 });
 
 test('Choices test 2', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			test: [
 				{
@@ -80,7 +81,7 @@ Hello world!2
 });
 
 test('Choices test 3', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			test: [
 				{
@@ -117,7 +118,7 @@ Hello world!
 });
 
 test('Choices test 4', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			test: [
 				{
@@ -154,7 +155,7 @@ test('Choices test 4', async () => {
 });
 
 test('Choices test 5', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			test: [
 				{
@@ -226,7 +227,7 @@ test('Choices test 5', async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#basic-branching
  */
 test('Basic branching', async () => {
-	let expected = {
+	let expected: PixiVNJson = {
 		labels: {
 			"paragraph_1_|_c-0": [
 				{
