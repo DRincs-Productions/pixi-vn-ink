@@ -196,6 +196,7 @@ test('Local diverts', async () => {
 		}
 	}
 	let res = convertInkText(`
+-> the_orient_express
 === the_orient_express ===
 = in_first_class
 	I settled my master.
@@ -204,6 +205,7 @@ test('Local diverts', async () => {
 
 = in_third_class
 	I put myself in third.
+	->DONE
 `);
 	expect(res).toEqual(expected);
 });
