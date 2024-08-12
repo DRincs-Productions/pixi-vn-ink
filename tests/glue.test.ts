@@ -11,6 +11,7 @@ test('Diverts are invisible', async () => {
             hurry_home: [
                 {
                     dialog: "We hurried home to Savile Row ",
+                    goNextStep: true,
                 },
                 {
                     labelToOpen: {
@@ -18,7 +19,6 @@ test('Diverts are invisible', async () => {
                         type: "call",
                     },
                     glueEnabled: true,
-                    goNextStep: true,
                 },
             ],
             as_fast_as_we_could: [
@@ -175,6 +175,7 @@ test('Branching and joining', async () => {
             hurry_outside: [
                 {
                     dialog: "We hurried home to Savile Row ",
+                    goNextStep: true,
                 },
                 {
                     labelToOpen: {
@@ -182,7 +183,6 @@ test('Branching and joining', async () => {
                         type: "call",
                     },
                     glueEnabled: true,
-                    goNextStep: true,
                 },
             ],
             dragged_outside: [

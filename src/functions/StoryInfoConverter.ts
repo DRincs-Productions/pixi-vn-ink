@@ -136,7 +136,9 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
             ) {
                 let labelIdToOpen = v["->"]
                 let glueEnabled = isNewLine ? undefined : true
-                let goNextStep = isNewLine ? undefined : true
+                if (!isNewLine && labelSteps.length > 0) {
+                    labelSteps[labelSteps.length - 1].goNextStep = true
+                }
                 if (
                     // if there are a sub label "=label"
                     (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(v["->"])
@@ -167,7 +169,6 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                         type: "call",
                     },
                     glueEnabled: glueEnabled,
-                    goNextStep: goNextStep,
                 })
                 isNewLine = false
             }
@@ -223,6 +224,5 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
         // remove first step
         labelSteps.shift()
         labelSteps[0].glueEnabled = undefined
-        labelSteps[0].goNextStep = undefined
     }
 }
