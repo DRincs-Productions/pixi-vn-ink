@@ -144,7 +144,6 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                 ) {
                     let endOfLabel = v["->"].substring(9)
                     labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                    goNextStep = true
                 }
                 else if (
                     // if there are a sub label "=label"
@@ -161,7 +160,6 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                 ) {
                     let endOfLabel = v["->"].substring(3)
                     labelIdToOpen = labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                    goNextStep = true
                 }
                 labelSteps.push({
                     labelToOpen: {
@@ -225,5 +223,6 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
         // remove first step
         labelSteps.shift()
         labelSteps[0].glueEnabled = undefined
+        labelSteps[0].goNextStep = undefined
     }
 }

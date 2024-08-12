@@ -86,7 +86,7 @@ test('The first stitch is the default', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 			"the_orient_express_|_c-1": [
@@ -96,7 +96,7 @@ test('The first stitch is the default', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 			"the_orient_express_|_in_first_class": [
@@ -160,7 +160,7 @@ test('Local diverts', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 			"the_orient_express_|_in_first_class": [
@@ -182,6 +182,9 @@ test('Local diverts', async () => {
 				{
 					dialog: "I put myself in third.",
 				},
+				{
+					end: "label_end",
+				},
 			],
 			the_orient_express: [
 				{
@@ -190,7 +193,7 @@ test('Local diverts', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 		}

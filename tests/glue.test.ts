@@ -142,7 +142,7 @@ test('Branching and joining', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: true,
+                    goNextStep: undefined,
                 },
             ],
             back_in_london: [

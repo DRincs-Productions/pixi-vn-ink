@@ -237,7 +237,7 @@ test('Basic branching', async () => {
 						labelId: "paragraph_2",
 						type: "call",
 					},
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 			"paragraph_1_|_c-1": [
@@ -246,7 +246,7 @@ test('Basic branching', async () => {
 						labelId: "paragraph_3",
 						type: "call",
 					},
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 			"paragraph_1_|_c-2": [
@@ -255,7 +255,7 @@ test('Basic branching', async () => {
 						labelId: "paragraph_4",
 						type: "call",
 					},
-					goNextStep: true,
+					goNextStep: undefined,
 				},
 			],
 			paragraph_1: [
