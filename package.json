@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -33,7 +33,7 @@
     "inkjs": "2.2.5"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=0.6.10"
+    "@drincs/pixi-vn": ">=0.6.12"
   },
   "keywords": [
     "game",
