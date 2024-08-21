@@ -188,7 +188,7 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                 }
                 labelSteps.push({
                     labelToOpen: {
-                        labelId: labelIdToOpen,
+                        label: labelIdToOpen,
                         type: "call",
                     },
                     glueEnabled: glueEnabled,

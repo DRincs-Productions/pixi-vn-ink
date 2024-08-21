@@ -1,4 +1,4 @@
-import { PixiVNJson } from '@drincs/pixi-vn';
+import { PixiVNJson, PixiVNJsonIfElse } from '@drincs/pixi-vn';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 
@@ -241,7 +241,7 @@ test('Basic branching', async () => {
 			"paragraph_1_|_c-0": [
 				{
 					labelToOpen: {
-						labelId: "paragraph_2",
+						label: "paragraph_2",
 						type: "call",
 					},
 					goNextStep: undefined,
@@ -250,7 +250,7 @@ test('Basic branching', async () => {
 			"paragraph_1_|_c-1": [
 				{
 					labelToOpen: {
-						labelId: "paragraph_3",
+						label: "paragraph_3",
 						type: "call",
 					},
 					goNextStep: undefined,
@@ -259,7 +259,7 @@ test('Basic branching', async () => {
 			"paragraph_1_|_c-2": [
 				{
 					labelToOpen: {
-						labelId: "paragraph_4",
+						label: "paragraph_4",
 						type: "call",
 					},
 					goNextStep: undefined,
@@ -358,7 +358,7 @@ test('Example of a fallback choice', async () => {
 				},
 				{
 					labelToOpen: {
-						labelId: "find_help",
+						label: "find_help",
 						type: "call",
 					},
 					glueEnabled: true,
@@ -371,7 +371,7 @@ test('Example of a fallback choice', async () => {
 				},
 				{
 					labelToOpen: {
-						labelId: "find_help",
+						label: "find_help",
 						type: "call",
 					},
 					glueEnabled: true,
@@ -438,7 +438,7 @@ test('Sticky choices', async () => {
 				},
 				{
 					labelToOpen: {
-						labelId: "homers_couch",
+						label: "homers_couch",
 						type: "call",
 					},
 					glueEnabled: true,
@@ -495,7 +495,7 @@ test('Conditional Choices', async () => {
 			"visit_paris_|_c-0": [
 				{
 					labelToOpen: {
-						labelId: "visit_paris",
+						label: "visit_paris",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -504,7 +504,7 @@ test('Conditional Choices', async () => {
 			"visit_paris_|_c-1": [
 				{
 					labelToOpen: {
-						labelId: "visit_paris",
+						label: "visit_paris",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -513,7 +513,7 @@ test('Conditional Choices', async () => {
 			"visit_paris_|_c-2": [
 				{
 					labelToOpen: {
-						labelId: "phone_estelle",
+						label: "phone_estelle",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -531,10 +531,27 @@ test('Conditional Choices', async () => {
 				{
 					choices: [
 						{
+							type: "labelcondition",
+							condition: "notstarted",
+							label: "visit_paris",
+							then: 
 						},
 						{
+							type: "labelcondition",
+							condition: "started",
+							label: "visit_paris",
+							then: {
+								type: "labelcondition",
+								condition: "notstarted",
+								label: "bored_of_paris",
+								then:
+							}
 						},
 						{
+							type: "labelcondition",
+							condition: "started",
+							label: "visit_paris",
+							then: 
 						},
 					],
 				},
