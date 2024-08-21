@@ -441,7 +441,7 @@ test('Sticky choices', async () => {
 						labelId: "homers_couch",
 						type: "call",
 					},
-					glueEnabled: false,
+					glueEnabled: true,
 				},
 			],
 			"homers_couch_|_c-1": [

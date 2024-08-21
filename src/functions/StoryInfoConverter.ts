@@ -167,7 +167,6 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                     && labelKey
                 ) {
                     if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
-                        glueEnabled = false
                         // split labelKey by CHOISE_LABEL_KEY_SEPARATOR
                         let newlabelKey = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)
                         if (newlabelKey.length > 1) {

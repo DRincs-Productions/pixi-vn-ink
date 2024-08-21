@@ -1,24 +1,24 @@
 type StandardDivert = {
     "->": string
-    c: boolean
+    c?: boolean
 }
 type DivertTarget = {
     "->": string
     "var": true
-    c: boolean
+    c?: boolean
 }
 type DivertFunction = {
     "f()": string
-    c: boolean
+    c?: boolean
 }
 type DivertTunnel = {
     "->t->": string
-    c: boolean
+    c?: boolean
 }
 type DivertExternalFunction = {
     "x()": string,
     "exArgs": number
-    c: boolean
+    c?: boolean
 }
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md#divert
