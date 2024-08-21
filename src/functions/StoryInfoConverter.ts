@@ -88,9 +88,15 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                         if (typeof newDialog === "string" || newDialog instanceof Array || !newDialog) {
                             labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
                         }
-                        else {
+                        else if ("type" in newDialog) {
+                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>")
+                        }
+                        else if (newDialog.text === "string" || newDialog.text instanceof Array || !newDialog.text) {
                             newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
                             labelSteps[labelSteps.length - 1].dialogue = newDialog
+                        }
+                        else {
+                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined")
                         }
                     }
                 } else {
@@ -193,12 +199,19 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
             if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
-                labelSteps[labelSteps.length - 1].choices?.push({
-                    text: value.text,
-                    label: newKey,
-                    props: {},
-                    type: "call"
-                })
+                let choices = labelSteps[labelSteps.length - 1].choices
+                if (choices && Array.isArray(choices)) {
+                    choices.push({
+                        text: value.text,
+                        label: newKey,
+                        props: {},
+                        type: "call"
+                    })
+                }
+                else {
+                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined")
+                }
+                labelSteps[labelSteps.length - 1].choices = choices
             }
             else {
                 labelSteps.push({
