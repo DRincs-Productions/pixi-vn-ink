@@ -15,7 +15,7 @@ export function convertInkText(text: string): PixiVNJson | undefined {
     try {
         obj = JSON.parse(json);
     } catch (e) {
-        console.error("[Pixi’VN Ink] Error parsing ink file", e)
+        console.error("[Pixi’VN Ink] Error parsing ink file")
         return
     }
 
@@ -30,7 +30,7 @@ function convertorInkToJson(test: string): string {
         let json = story.ToJson();
         return json || "";
     } catch (e) {
-        console.error("[Pixi’VN] Error compiling ink file", e)
+        console.error("[Pixi’VN Ink] Error compiling ink file", e)
         return ""
     }
 }
