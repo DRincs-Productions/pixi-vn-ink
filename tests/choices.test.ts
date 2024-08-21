@@ -485,3 +485,97 @@ test('Sticky choices', async () => {
 `);
 	expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-choices
+ */
+test('Conditional Choices', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+			"visit_paris_|_c-0": [
+				{
+					labelToOpen: {
+						labelId: "visit_paris",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"visit_paris_|_c-1": [
+				{
+					labelToOpen: {
+						labelId: "visit_paris",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"visit_paris_|_c-2": [
+				{
+					labelToOpen: {
+						labelId: "phone_estelle",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"visit_paris_|_met_estelle": [
+				{
+					dialogue: "met_estelle",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			visit_paris: [
+				{
+					choices: [
+						{
+							type: ""
+						},
+						{
+						},
+						{
+						},
+					],
+				},
+			],
+			phone_estelle: [
+				{
+					dialogue: "phone_estelle",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			bored_of_paris: [
+				{
+					dialogue: "bored_of_paris",
+				},
+				{
+					end: "label_end",
+				},
+			],
+		}
+	}
+	let res = convertInkText(`
+-> visit_paris
+=== visit_paris ===
+*	{ not visit_paris } 	[Go to Paris] -> visit_paris
++ 	{ visit_paris } { not bored_of_paris }
+	[Return to Paris] -> visit_paris
+*	{ visit_paris.met_estelle } [ Telephone Mme Estelle ] -> phone_estelle
+= met_estelle
+met_estelle
+-> DONE
+
+=== phone_estelle ===
+phone_estelle
+-> DONE
+
+=== bored_of_paris ===
+bored_of_paris
+-> DONE
+`);
+	expect(res).toEqual(expected);
+});
