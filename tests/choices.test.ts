@@ -340,3 +340,70 @@ You open the gate, and step out onto the path.
 `);
 	expect(res).toEqual(expected);
 });
+
+/**
+ * Varying Choices
+ */
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#sticky-choices
+ */
+test('Sticky choices', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+			"homers_couch_|_c-0": [
+				{
+					dialogue: "You eat another donut. ",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						labelId: "homers_couch",
+						type: "call",
+					},
+					glueEnabled: false,
+				},
+			],
+			"homers_couch_|_c-1": [
+				{
+					dialogue: "You struggle up off the couch to go and compose epic poetry.",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			homers_couch: [
+				{
+					choices: [
+						{
+							text: "Eat another donut",
+							label: "homers_couch_|_c-0",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "Get off the couch",
+							label: "homers_couch_|_c-1",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+		}
+	}
+	let res = convertInkText(`
+-> homers_couch
+=== homers_couch ===
+	+	[Eat another donut]
+		You eat another donut. -> homers_couch
+	*	[Get off the couch]
+		You struggle up off the couch to go and compose epic poetry.
+		-> END
+`);
+	expect(res).toEqual(expected);
+});

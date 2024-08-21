@@ -163,6 +163,24 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                 }
                 else if (
                     // if there are a sub label "=label"
+                    (new RegExp(/^\.\^\.\^\..*$/)).test(v["->"])
+                    && labelKey
+                ) {
+                    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
+                        glueEnabled = false
+                        // split labelKey by CHOISE_LABEL_KEY_SEPARATOR
+                        let newlabelKey = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)
+                        if (newlabelKey.length > 1) {
+                            newlabelKey.pop()
+                        }
+                        labelIdToOpen = newlabelKey.join(CHOISE_LABEL_KEY_SEPARATOR)
+                    }
+                    else {
+                        console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR")
+                    }
+                }
+                else if (
+                    // if there are a sub label "=label"
                     (new RegExp(/^\.\^\..*$/)).test(v["->"])
                     && labelKey
                 ) {
