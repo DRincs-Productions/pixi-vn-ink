@@ -1,7 +1,6 @@
+import RootParserItemType from "./parserItems/RootParserItemType"
+
 type InkRootType = {
-    [labelId: string]: (
-        string |
-        null
-    )[]
+    [labelId: string]: RootParserItemType[]
 }
 export default InkRootType

@@ -6,7 +6,7 @@ import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
 import { unionStringOrArray } from './utility';
 
-export function getInkLabel(story: InkRootType[]): PixiVNJsonLabels | undefined {
+export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
         let label: PixiVNJsonLabels = {}
 
@@ -18,7 +18,7 @@ export function getInkLabel(story: InkRootType[]): PixiVNJsonLabels | undefined 
     }
 }
 
-function findLabel(story: RootParserItemType[], labels: PixiVNJsonLabels) {
+function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[], labels: PixiVNJsonLabels) {
     for (const storyItem of story) {
         if (storyItem) {
             if (storyItem instanceof Array) {
@@ -31,7 +31,7 @@ function findLabel(story: RootParserItemType[], labels: PixiVNJsonLabels) {
     }
 }
 
-function addLabels(storyItem: object, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
+function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
     if (storyItem === null) {
         return
     }
@@ -56,9 +56,9 @@ function addLabels(storyItem: object, result: PixiVNJsonLabels, dadLabelKey: str
 type ShareData = {
     preDialog: { [label: string]: { text: string } }
 }
-function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
+function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
     let isInEnv = false
-    let envList: any[] = []
+    let envList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
         labelSteps.push({
             dialogue: shareData.preDialog[labelKey].text
@@ -212,7 +212,7 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
     })
     if (envList.length > 0) {
         let choices: LabelChoiceRes = {}
-        getLabelChoice(envList, choices)
+        getLabelChoice(envList as any, choices)
         for (const [key, value] of Object.entries(choices)) {
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice

@@ -1,9 +1,9 @@
 import LabelChoiceRes from '../types/LabelChoiceRes';
-import { ChoiceInfo, ChoiceLabel } from '../types/parserItems/ChoiceType';
+import ChoicePoint, { ChoiceInfo } from '../types/parserItems/ChoicePoint';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { unionStringOrArray } from './utility';
 
-export function getLabelChoice(items: (string | ChoiceLabel | ChoiceInfo)[], result: LabelChoiceRes, lastLabel?: string) {
+export function getLabelChoice(items: (string | ChoicePoint | ChoiceInfo)[], result: LabelChoiceRes, lastLabel?: string) {
     let text: string = ""
     let label: string = ""
     let preDialog: string = ""
