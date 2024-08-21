@@ -205,7 +205,8 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                         text: value.text,
                         label: newKey,
                         props: {},
-                        type: "call"
+                        type: "call",
+                        oneTime: value.onetime,
                     })
                 }
                 else {
@@ -219,7 +220,8 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                         text: value.text,
                         label: newKey,
                         props: {},
-                        type: "call"
+                        type: "call",
+                        oneTime: value.onetime,
                     }]
                 })
             }

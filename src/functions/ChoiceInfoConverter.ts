@@ -6,6 +6,7 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?:
     let text: string = ""
     let label: string = ""
     let preDialog: string = ""
+    let onetime: boolean = false
     for (let index = 0; index < items.length; index++) {
         let v = items[index]
         if (typeof v === "string") {
@@ -19,6 +20,7 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?:
             if ("*" in v && typeof v["*"] && typeof v["*"] === "string" && v["*"].includes("c")) {
                 let l = "c" + v["*"].split("c")[1]
                 label = l
+                onetime = true
             }
             // if is choise info
             else if ("s" in v && v["s"] instanceof Array) {
@@ -40,7 +42,7 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?:
                 result[label].text = unionStringOrArray(text, result[label].text)
             }
             else {
-                result[label] = { text: text }
+                result[label] = { text: text, onetime: onetime }
             }
             if (preDialog) {
                 result[label].preDialog = { text: preDialog }

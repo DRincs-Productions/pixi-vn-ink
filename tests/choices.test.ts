@@ -17,6 +17,7 @@ test('Choices test 1', async () => {
 						{
 							text: "Hello back!",
 							label: "test_|_c-0",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
@@ -57,6 +58,7 @@ test('Choices test 2', async () => {
 						{
 							text: "Hello back!",
 							label: "test_|_c-0",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
@@ -100,6 +102,7 @@ test('Choices test 3', async () => {
 						{
 							text: ["Hello ", "back!",],
 							label: "test_|_c-0",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
@@ -137,6 +140,7 @@ test('Choices test 4', async () => {
 						{
 							text: ["\"I am somewhat tired", ".\"",],
 							label: "test_|_c-0",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
@@ -192,18 +196,21 @@ test('Choices test 5', async () => {
 								"\"I am somewhat tired", ".\"",
 							],
 							label: "test_|_c-0",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
 						{
 							text: "\"Nothing, Monsieur!\"",
 							label: "test_|_c-1",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
 						{
 							text: ["\"I said, this journey is appalling", ".\"",],
 							label: "test_|_c-2",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
@@ -267,18 +274,21 @@ test('Basic branching', async () => {
 						{
 							text: "Open the gate",
 							label: "paragraph_1_|_c-0",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
 						{
 							text: "Smash down the gate",
 							label: "paragraph_1_|_c-1",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},
 						{
 							text: "Turn back and go home",
 							label: "paragraph_1_|_c-2",
+							oneTime: true,
 							props: {},
 							type: "call",
 						},

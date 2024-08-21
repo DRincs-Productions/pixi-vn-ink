@@ -154,18 +154,21 @@ test('Branching and joining', async () => {
                         {
                             text: "\"There is not a moment to lose!\"",
                             label: "back_in_london_|_c-0",
+                            oneTime: true,
                             props: {},
                             type: "call",
                         },
                         {
                             text: "\"Monsieur, let us savour this moment!\"",
                             label: "back_in_london_|_c-1",
+                            oneTime: true,
                             props: {},
                             type: "call",
                         },
                         {
                             text: "We hurried home",
                             label: "back_in_london_|_c-2",
+                            oneTime: true,
                             props: {},
                             type: "call",
                         },
