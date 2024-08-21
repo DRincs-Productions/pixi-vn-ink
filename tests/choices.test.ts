@@ -378,16 +378,14 @@ test('Sticky choices', async () => {
 						{
 							text: "Eat another donut",
 							label: "homers_couch_|_c-0",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: false,
 						},
 						{
 							text: "Get off the couch",
 							label: "homers_couch_|_c-1",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
