@@ -1,8 +1,9 @@
 import LabelChoiceRes from '../types/LabelChoiceRes';
+import { ChoiceInfo, ChoiceLabel } from '../types/parserItems/ChoiceType';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { unionStringOrArray } from './utility';
 
-export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?: string) {
+export function getLabelChoice(items: (string | ChoiceLabel | ChoiceInfo)[], result: LabelChoiceRes, lastLabel?: string) {
     let text: string = ""
     let label: string = ""
     let preDialog: string = ""
@@ -20,7 +21,9 @@ export function getLabelChoice(items: any[], result: LabelChoiceRes, lastLabel?:
             if ("*" in v && typeof v["*"] && typeof v["*"] === "string" && v["*"].includes("c")) {
                 let l = "c" + v["*"].split("c")[1]
                 label = l
-                onetime = true
+                if (v.flg & 0x10) {
+                    onetime = true
+                }
             }
             // if is choise info
             else if ("s" in v && v["s"] instanceof Array) {

@@ -381,7 +381,7 @@ test('Sticky choices', async () => {
 							props: {
 							},
 							type: "call",
-							oneTime: true,
+							oneTime: false,
 						},
 						{
 							text: "Get off the couch",
