@@ -1,6 +1,18 @@
 import RootParserItemType from "./RootParserItemType"
 
-export type ChoiceLabel = {
+/**
+ * Generates an instance of a Choice. Its exact behaviour depends on its flags. It doesn't contain any text itself, since choice text is generated at runtime and added to the evaluation stack. When a ChoicePoint is encountered, it pops content off the evaluation stack according to its flags, which indicate which texts are needed.
+ * 
+ * A ChoicePoint object's structure in JSON is:
+ * ```json
+ * {
+ *     "*": "path.when.chosen",
+ *     "flg": 18
+ * }
+ * ```
+ * The path when chosen is the target path of a Container of content, and is assigned when calling ChooseChoiceIndex.
+ */
+type ChoicePoint = {
     "*": string,
     /**
      * The flg field is a bitfield of flags:
@@ -12,4 +24,5 @@ export type ChoiceLabel = {
      */
     flg: number
 }
+export default ChoicePoint
 export type ChoiceInfo = { s: RootParserItemType[] }
