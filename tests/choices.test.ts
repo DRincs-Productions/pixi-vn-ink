@@ -531,7 +531,6 @@ test('Conditional Choices', async () => {
 				{
 					choices: [
 						{
-							type: ""
 						},
 						{
 						},
