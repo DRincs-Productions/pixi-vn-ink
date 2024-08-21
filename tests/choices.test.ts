@@ -346,6 +346,86 @@ You open the gate, and step out onto the path.
  */
 
 /**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-of-a-fallback-choice
+ */
+test('Example of a fallback choice', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+			"find_help_|_c-0": [
+				{
+					dialogue: ["The woman in the hat", " pushes you roughly aside. ",],
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						labelId: "find_help",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			"find_help_|_c-1": [
+				{
+					dialogue: ["The man with the briefcase", " looks disgusted as you stumble past him. ",],
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						labelId: "find_help",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			"find_help_|_c-2": [
+				{
+					dialogue: "But it is too late: you collapse onto the station platform. This is the end.",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			find_help: [
+				{
+					dialogue: "You search desperately for a friendly face in the crowd.",
+				},
+				{
+					choices: [
+						{
+							text: ["The woman in the hat", "?",],
+							label: "find_help_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: ["The man with the briefcase", "?",],
+							label: "find_help_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+		}
+	}
+	let res = convertInkText(`
+-> find_help
+=== find_help ===
+
+	You search desperately for a friendly face in the crowd.
+	*	The woman in the hat[?] pushes you roughly aside. -> find_help
+	*	The man with the briefcase[?] looks disgusted as you stumble past him. -> find_help
+	*	->
+		But it is too late: you collapse onto the station platform. This is the end.
+		-> END
+`);
+	expect(res).toEqual(expected);
+});
+
+
+/**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#sticky-choices
  */
 test('Sticky choices', async () => {
