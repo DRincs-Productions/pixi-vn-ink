@@ -1,4 +1,4 @@
-import { LabelJsonType, StepLabelJsonType } from '@drincs/pixi-vn';
+import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
@@ -6,9 +6,9 @@ import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
 import { unionStringOrArray } from './utility';
 
-export function getInkLabel(story: InkRootType[]): LabelJsonType | undefined {
+export function getInkLabel(story: InkRootType[]): PixiVNJsonLabels | undefined {
     try {
-        let label: LabelJsonType = {}
+        let label: PixiVNJsonLabels = {}
 
         findLabel(story, label)
 
@@ -18,7 +18,7 @@ export function getInkLabel(story: InkRootType[]): LabelJsonType | undefined {
     }
 }
 
-function findLabel(story: RootParserItemType[], labels: LabelJsonType) {
+function findLabel(story: RootParserItemType[], labels: PixiVNJsonLabels) {
     for (const storyItem of story) {
         if (storyItem) {
             if (storyItem instanceof Array) {
@@ -31,7 +31,7 @@ function findLabel(story: RootParserItemType[], labels: LabelJsonType) {
     }
 }
 
-function addLabels(storyItem: object, result: LabelJsonType, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
+function addLabels(storyItem: object, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
     if (storyItem === null) {
         return
     }
@@ -39,8 +39,8 @@ function addLabels(storyItem: object, result: LabelJsonType, dadLabelKey: string
     for (const [key, value] of Object.entries(storyItem)) {
         // if value is an array
         if (value instanceof Array) {
-            let labels: StepLabelJsonType[] = []
-            let subLabels: LabelJsonType = {}
+            let labels: PixiVNJsonLabel = []
+            let subLabels: PixiVNJsonLabels = {}
             let labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key
             getLabel(value, labelName, labels, subLabels, shareData)
             for (const [subKey, subValue] of Object.entries(subLabels)) {
@@ -56,12 +56,12 @@ function addLabels(storyItem: object, result: LabelJsonType, dadLabelKey: string
 type ShareData = {
     preDialog: { [label: string]: { text: string } }
 }
-function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[], subLabels: LabelJsonType, shareData: ShareData, isNewLine: boolean = true) {
+function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
     let isInEnv = false
     let envList: any[] = []
     if (shareData.preDialog[labelKey]) {
         labelSteps.push({
-            dialog: shareData.preDialog[labelKey].text
+            dialogue: shareData.preDialog[labelKey].text
         })
         delete shareData.preDialog[labelKey]
         isNewLine = false
@@ -80,22 +80,22 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
                     // in this case: <> text
                     if (labelSteps[labelSteps.length - 1].glueEnabled) {
                         labelSteps.push({
-                            dialog: v.substring(1)
+                            dialogue: v.substring(1)
                         })
                     } else {
-                        let newDialog = labelSteps[labelSteps.length - 1].dialog
+                        let newDialog = labelSteps[labelSteps.length - 1].dialogue
                         // if is a string or an array
                         if (typeof newDialog === "string" || newDialog instanceof Array || !newDialog) {
-                            labelSteps[labelSteps.length - 1].dialog = unionStringOrArray(newDialog, v.substring(1))
+                            labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
                         }
                         else {
                             newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
-                            labelSteps[labelSteps.length - 1].dialog = newDialog
+                            labelSteps[labelSteps.length - 1].dialogue = newDialog
                         }
                     }
                 } else {
                     labelSteps.push({
-                        dialog: v.substring(1)
+                        dialogue: v.substring(1)
                     })
                 }
                 isNewLine = false
@@ -219,7 +219,7 @@ function getLabel(items: any[], labelKey: string, labelSteps: StepLabelJsonType[
     }
     // * [Open the gate] -> paragraph_2
     if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && labelSteps.length == 2
-        && labelSteps[0].dialog == " " && labelSteps[1].labelToOpen
+        && labelSteps[0].dialogue == " " && labelSteps[1].labelToOpen
     ) {
         // remove first step
         labelSteps.shift()
