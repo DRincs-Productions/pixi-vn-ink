@@ -1,4 +1,4 @@
-import { PixiVNJson, PixiVNJsonIfElse } from '@drincs/pixi-vn';
+import { PixiVNJson } from '@drincs/pixi-vn';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 
@@ -534,7 +534,13 @@ test('Conditional Choices', async () => {
 							type: "labelcondition",
 							condition: "notstarted",
 							label: "visit_paris",
-							then: 
+							then: {
+								text: "Go to Paris",
+								label: "visit_paris_|_c-0",
+								props: {},
+								type: "call",
+								oneTime: true,
+							}
 						},
 						{
 							type: "labelcondition",
@@ -544,14 +550,26 @@ test('Conditional Choices', async () => {
 								type: "labelcondition",
 								condition: "notstarted",
 								label: "bored_of_paris",
-								then:
+								then: {
+									text: "Return to Paris",
+									label: "visit_paris_|_c-1",
+									props: {},
+									type: "call",
+									oneTime: false,
+								}
 							}
 						},
 						{
 							type: "labelcondition",
 							condition: "started",
 							label: "visit_paris",
-							then: 
+							then: {
+								text: " Telephone Mme Estelle ",
+								label: "visit_paris_|_c-2",
+								props: {},
+								type: "call",
+								oneTime: true,
+							}
 						},
 					],
 				},
