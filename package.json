@@ -33,7 +33,7 @@
     "inkjs": "2.2.5"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=0.6.12"
+    "@drincs/pixi-vn": ">=0.7.0"
   },
   "keywords": [
     "game",
