@@ -7,7 +7,7 @@ test('Label test 1', async () => {
 		labels: {
 			back_in_london: [
 				{
-					dialog: "We arrived into London at 9.45pm exactly.",
+					dialogue: "We arrived into London at 9.45pm exactly.",
 				},
 				{
 					labelToOpen: {
@@ -18,7 +18,7 @@ test('Label test 1', async () => {
 			],
 			hurry_home: [
 				{
-					dialog: "We hurried home to Savile Row as fast as we could.",
+					dialogue: "We hurried home to Savile Row as fast as we could.",
 				},
 				{
 					end: "label_end",
@@ -44,7 +44,7 @@ test('Label test 2', async () => {
 		labels: {
 			back_in_london: [
 				{
-					dialog: "We arrived into London at 9.45pm exactly.",
+					dialogue: "We arrived into London at 9.45pm exactly.",
 				},
 				{
 					end: "game_end",
@@ -52,7 +52,7 @@ test('Label test 2', async () => {
 			],
 			hurry_home: [
 				{
-					dialog: "We hurried home to Savile Row as fast as we could.",
+					dialogue: "We hurried home to Savile Row as fast as we could.",
 				},
 				{
 					end: "label_end",
@@ -101,17 +101,17 @@ test('The first stitch is the default', async () => {
 			],
 			"the_orient_express_|_in_first_class": [
 				{
-					dialog: "First class was luxurious.",
+					dialogue: "First class was luxurious.",
 				},
 			],
 			"the_orient_express_|_in_second_class": [
 				{
-					dialog: "Second class was cramped.",
+					dialogue: "Second class was cramped.",
 				},
 			],
 			the_orient_express: [
 				{
-					dialog: "We boarded the train, but where?",
+					dialogue: "We boarded the train, but where?",
 				},
 				{
 					choices: [
@@ -165,7 +165,7 @@ test('Local diverts', async () => {
 			],
 			"the_orient_express_|_in_first_class": [
 				{
-					dialog: "I settled my master.",
+					dialogue: "I settled my master.",
 				},
 				{
 					choices: [
@@ -180,7 +180,7 @@ test('Local diverts', async () => {
 			],
 			"the_orient_express_|_in_third_class": [
 				{
-					dialog: "I put myself in third.",
+					dialogue: "I put myself in third.",
 				},
 				{
 					end: "label_end",

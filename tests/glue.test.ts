@@ -10,7 +10,7 @@ test('Diverts are invisible', async () => {
         labels: {
             hurry_home: [
                 {
-                    dialog: "We hurried home to Savile Row ",
+                    dialogue: "We hurried home to Savile Row ",
                     goNextStep: true,
                 },
                 {
@@ -23,7 +23,7 @@ test('Diverts are invisible', async () => {
             ],
             as_fast_as_we_could: [
                 {
-                    dialog: "as fast as we could.",
+                    dialogue: "as fast as we could.",
                 },
             ],
         }
@@ -46,7 +46,7 @@ test('Glue', async () => {
         labels: {
             hurry_home: [
                 {
-                    dialog: "We hurried home ",
+                    dialogue: "We hurried home ",
                 },
                 {
                     glueEnabled: true,
@@ -63,7 +63,7 @@ test('Glue', async () => {
             ],
             to_savile_row: [
                 {
-                    dialog: "to Savile Row",
+                    dialogue: "to Savile Row",
                 },
                 {
                     labelToOpen: {
@@ -80,7 +80,7 @@ test('Glue', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialog: " as fast as we could.",
+                    dialogue: " as fast as we could.",
                 },
             ],
         }
@@ -108,7 +108,7 @@ test('Branching and joining', async () => {
         labels: {
             "back_in_london_|_c-0": [
                 {
-                    dialog: ["\"There is not a moment to lose!\"", " I declared.",],
+                    dialogue: ["\"There is not a moment to lose!\"", " I declared.",],
                 },
                 {
                     labelToOpen: {
@@ -121,10 +121,10 @@ test('Branching and joining', async () => {
             ],
             "back_in_london_|_c-1": [
                 {
-                    dialog: ["\"Monsieur, let us savour this moment!\"", " I declared.",],
+                    dialogue: ["\"Monsieur, let us savour this moment!\"", " I declared.",],
                 },
                 {
-                    dialog: "My master clouted me firmly around the head and dragged me out of the door.",
+                    dialogue: "My master clouted me firmly around the head and dragged me out of the door.",
                 },
                 {
                     labelToOpen: {
@@ -147,7 +147,7 @@ test('Branching and joining', async () => {
             ],
             back_in_london: [
                 {
-                    dialog: "We arrived into London at 9.45pm exactly.",
+                    dialogue: "We arrived into London at 9.45pm exactly.",
                 },
                 {
                     choices: [
@@ -174,7 +174,7 @@ test('Branching and joining', async () => {
             ],
             hurry_outside: [
                 {
-                    dialog: "We hurried home to Savile Row ",
+                    dialogue: "We hurried home to Savile Row ",
                     goNextStep: true,
                 },
                 {
@@ -187,7 +187,7 @@ test('Branching and joining', async () => {
             ],
             dragged_outside: [
                 {
-                    dialog: "He insisted that we hurried home to Savile Row",
+                    dialogue: "He insisted that we hurried home to Savile Row",
                 },
                 {
                     labelToOpen: {
@@ -204,7 +204,7 @@ test('Branching and joining', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialog: " as fast as we could.",
+                    dialogue: " as fast as we could.",
                 },
             ],
         }

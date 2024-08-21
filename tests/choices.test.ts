@@ -10,7 +10,7 @@ test('Choices test 1', async () => {
 		labels: {
 			test: [
 				{
-					dialog: "Hello world!",
+					dialogue: "Hello world!",
 				},
 				{
 					choices: [
@@ -25,10 +25,10 @@ test('Choices test 1', async () => {
 			],
 			"test_|_c-0": [
 				{
-					dialog: "Hello back!",
+					dialogue: "Hello back!",
 				},
 				{
-					dialog: "Nice to hear from you!",
+					dialogue: "Nice to hear from you!",
 				},
 			]
 		}
@@ -47,10 +47,10 @@ test('Choices test 2', async () => {
 		labels: {
 			test: [
 				{
-					dialog: "Hello world!",
+					dialogue: "Hello world!",
 				},
 				{
-					dialog: "Hello world!2",
+					dialogue: "Hello world!2",
 				},
 				{
 					choices: [
@@ -65,7 +65,7 @@ test('Choices test 2', async () => {
 			],
 			"test_|_c-0": [
 				{
-					dialog: "Nice to hear from you!",
+					dialogue: "Nice to hear from you!",
 				},
 			]
 		}
@@ -85,15 +85,15 @@ test('Choices test 3', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialog: ["Hello ", " right back to you!",],
+					dialogue: ["Hello ", " right back to you!",],
 				},
 				{
-					dialog: "Nice to hear from you!",
+					dialogue: "Nice to hear from you!",
 				},
 			],
 			test: [
 				{
-					dialog: "Hello world!",
+					dialogue: "Hello world!",
 				},
 				{
 					choices: [
@@ -122,15 +122,15 @@ test('Choices test 4', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialog: ["\"I am somewhat tired", ",\" I repeated.",],
+					dialogue: ["\"I am somewhat tired", ",\" I repeated.",],
 				},
 				{
-					dialog: "\"Really,\" he responded. \"How deleterious.\"",
+					dialogue: "\"Really,\" he responded. \"How deleterious.\"",
 				},
 			],
 			test: [
 				{
-					dialog: "\"What's that?\" my master asked.",
+					dialogue: "\"What's that?\" my master asked.",
 				},
 				{
 					choices: [
@@ -159,31 +159,31 @@ test('Choices test 5', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialog: ["\"I am somewhat tired", ",\" I repeated.",],
+					dialogue: ["\"I am somewhat tired", ",\" I repeated.",],
 				},
 				{
-					dialog: "\"Really,\" he responded. \"How deleterious.\"",
+					dialogue: "\"Really,\" he responded. \"How deleterious.\"",
 				},
 			],
 			"test_|_c-1": [
 				{
-					dialog: ["\"Nothing, Monsieur!\"", " I replied.",],
+					dialogue: ["\"Nothing, Monsieur!\"", " I replied.",],
 				},
 				{
-					dialog: "\"Very good, then.\"",
+					dialogue: "\"Very good, then.\"",
 				},
 			],
 			"test_|_c-2": [
 				{
-					dialog: ["\"I said, this journey is appalling", " and I want no more of it.\"",],
+					dialogue: ["\"I said, this journey is appalling", " and I want no more of it.\"",],
 				},
 				{
-					dialog: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
+					dialogue: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
 				},
 			],
 			test: [
 				{
-					dialog: "\"What's that?\" my master asked.",
+					dialogue: "\"What's that?\" my master asked.",
 				},
 				{
 					choices: [
@@ -260,7 +260,7 @@ test('Basic branching', async () => {
 			],
 			paragraph_1: [
 				{
-					dialog: "You stand by the wall of Analand, sword in hand.",
+					dialogue: "You stand by the wall of Analand, sword in hand.",
 				},
 				{
 					choices: [
@@ -287,7 +287,7 @@ test('Basic branching', async () => {
 			],
 			paragraph_2: [
 				{
-					dialog: "You open the gate, and step out onto the path.",
+					dialogue: "You open the gate, and step out onto the path.",
 				},
 				{
 					end: "label_end",
@@ -295,7 +295,7 @@ test('Basic branching', async () => {
 			],
 			paragraph_3: [
 				{
-					dialog: "You open the gate, and step out onto the path.",
+					dialogue: "You open the gate, and step out onto the path.",
 				},
 				{
 					end: "label_end",
@@ -303,7 +303,7 @@ test('Basic branching', async () => {
 			],
 			paragraph_4: [
 				{
-					dialog: "You open the gate, and step out onto the path.",
+					dialogue: "You open the gate, and step out onto the path.",
 				},
 				{
 					end: "label_end",
