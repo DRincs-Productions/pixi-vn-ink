@@ -9,3 +9,5 @@
  */
 type NativeFunctions = "+" | "-" | "/" | "*" | "%" | "_" | "==" | ">" | "<" | ">=" | "<=" | "!=" | "!" | "&&" | "||" | "MIN" | "MAX"
 export default NativeFunctions
+
+export const nativeFunctions: NativeFunctions[] = ["+", "-", "/", "*", "%", "_", "==", ">", "<", ">=", "<=", "!=", "!", "&&", "||", "MIN", "MAX"]

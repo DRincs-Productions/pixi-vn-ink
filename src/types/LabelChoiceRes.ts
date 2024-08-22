@@ -1,2 +1,12 @@
-type LabelChoiceRes = { [label: string]: { text: string | string[], preDialog?: { text: string }, onetime: boolean } }
+import NativeFunctions from "./parserItems/NativeFunctions"
+import ReadCount from "./parserItems/ReadCount"
+
+type LabelChoiceRes = {
+    [label: string]: {
+        text: string | string[]
+        preDialog?: { text: string }
+        onetime: boolean
+        condition: (ReadCount | NativeFunctions)[]
+    }
+}
 export default LabelChoiceRes

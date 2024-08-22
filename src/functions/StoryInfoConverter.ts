@@ -1,4 +1,5 @@
-import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
+import { PixiVNJsonConditionalStatements, PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
+import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
@@ -164,6 +165,10 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                 envList.push(v)
                 isNewLine = false
             }
+            else if ("CNT?" in v) {
+                envList.push(v)
+                isNewLine = false
+            }
             else {
                 addLabels(v, subLabels, labelKey, shareData)
             }
@@ -178,13 +183,14 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
             if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
                 let choices = labelSteps[labelSteps.length - 1].choices
                 if (choices && Array.isArray(choices)) {
-                    choices.push({
+                    let c: PixiVNJsonChoice | PixiVNJsonConditionalStatements<PixiVNJsonChoice> = {
                         text: value.text,
                         label: newKey,
                         props: {},
                         type: "call",
                         oneTime: value.onetime,
-                    })
+                    }
+                    choices.push(c)
                 }
                 else {
                     console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
