@@ -31,8 +31,16 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
             return newlabelKey.join(CHOISE_LABEL_KEY_SEPARATOR)
         }
         else {
-            console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR", divertName)
+            let endOfLabel = divertName.substring(5)
+            return labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
         }
+    }
+    else if (
+        // if there are a sub label "=label"
+        (new RegExp(/^\.\^\.\^$/)).test(divertName)
+        && labelKey
+    ) {
+        return labelKey
     }
     else if (
         // if there are a sub label "=label"

@@ -616,81 +616,67 @@ test('Conditional Choices', async () => {
 										conditions: [
 											{
 												type: "union",
+												unionType: "not",
+												condition: {
+													type: "union",
+													unionType: "or",
+													conditions: [
+														{
+															type: "labelcondition",
+															operator: "started",
+															label: "visit_paris",
+														},
+														{
+															type: "labelcondition",
+															operator: "started",
+															label: "phone_estelle",
+														},
+														{
+															type: "labelcondition",
+															operator: "started",
+															label: "bored_of_paris",
+														}
+													]
+												}
+											},
+											{
+												type: "union",
 												unionType: "or",
 												conditions: [
-													{
-														type: "union",
-														unionType: "and",
-														conditions: [
-															{
-																type: "union",
-																unionType: "or",
-																conditions: [
-																	{
-																		type: "union",
-																		unionType: "not",
-																		condition: {
-																			type: "union",
-																			unionType: "or",
-																			conditions: [
-																				{
-																					type: "union",
-																					unionType: "or",
-																					conditions: [
-																						{
-																							type: "labelcondition",
-																							operator: "started",
-																							label: "visit_paris",
-																						},
-																						{
-																							type: "labelcondition",
-																							operator: "started",
-																							label: "phone_estelle",
-																						},
-																					],
-																				},
-																				{
-																					type: "labelcondition",
-																					operator: "started",
-																					label: "bored_of_paris",
-																				},
-																			],
-																		},
-																	},
-																	{
-																		type: "labelcondition",
-																		operator: "started",
-																		label: "phone_estelle",
-																	},
-																	{
-																		type: "union",
-																		unionType: "not",
-																		condition: {
-																			type: "labelcondition",
-																			operator: "started",
-																			label: "bored_of_paris",
-																		},
-																	},
-																],
-															},
-														],
-													},
 													{
 														type: "labelcondition",
 														operator: "started",
 														label: "phone_estelle",
-													},
-													{
+													}, {
 														type: "union",
 														unionType: "not",
 														condition: {
 															type: "labelcondition",
 															operator: "started",
 															label: "bored_of_paris",
-														},
-													},
-												],
+														}
+													}
+												]
 											},
+											{
+												type: "union",
+												unionType: "or",
+												conditions: [
+													{
+														type: "labelcondition",
+														operator: "started",
+														label: "phone_estelle",
+													}, {
+														type: "union",
+														unionType: "not",
+														condition: {
+															type: "labelcondition",
+															operator: "started",
+															label: "bored_of_paris",
+														}
+													}
+												]
+											}
 										],
 									},
 									{
