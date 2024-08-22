@@ -4,6 +4,7 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
+import { getLabelByStandardDivert } from './DivertUtility';
 import { unionStringOrArray } from './utility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
@@ -140,51 +141,10 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
             ) {
-                let labelIdToOpen = v["->"]
                 let glueEnabled = isNewLine ? undefined : true
+                let labelIdToOpen = getLabelByStandardDivert(v, labelKey)
                 if (!isNewLine && labelSteps.length > 0) {
                     labelSteps[labelSteps.length - 1].goNextStep = true
-                }
-                if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(v["->"])
-                    && labelKey
-                ) {
-                    let endOfLabel = v["->"].substring(9)
-                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                }
-                else if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(v["->"])
-                    && labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)
-                ) {
-                    let endOfLabel = v["->"].substring(7)
-                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                }
-                else if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\.\^\..*$/)).test(v["->"])
-                    && labelKey
-                ) {
-                    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
-                        // split labelKey by CHOISE_LABEL_KEY_SEPARATOR
-                        let newlabelKey = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)
-                        if (newlabelKey.length > 1) {
-                            newlabelKey.pop()
-                        }
-                        labelIdToOpen = newlabelKey.join(CHOISE_LABEL_KEY_SEPARATOR)
-                    }
-                    else {
-                        console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR")
-                    }
-                }
-                else if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\..*$/)).test(v["->"])
-                    && labelKey
-                ) {
-                    let endOfLabel = v["->"].substring(3)
-                    labelIdToOpen = labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
                 }
                 labelSteps.push({
                     labelToOpen: {

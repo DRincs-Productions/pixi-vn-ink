@@ -1,4 +1,4 @@
-type StandardDivert = {
+export type StandardDivert = {
     "->": string
     c?: boolean
 }
