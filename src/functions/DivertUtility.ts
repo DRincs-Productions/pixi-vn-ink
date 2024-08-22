@@ -32,7 +32,7 @@ export function getLabelByStandardDivert(divert: StandardDivert, labelKey: strin
             return newlabelKey.join(CHOISE_LABEL_KEY_SEPARATOR)
         }
         else {
-            console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR")
+            console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR", divert)
         }
     }
     else if (

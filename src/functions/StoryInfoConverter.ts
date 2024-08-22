@@ -90,14 +90,14 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                             labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
                         }
                         else if ("type" in newDialog) {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>")
+                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>", newDialog, v)
                         }
                         else if (newDialog.text === "string" || newDialog.text instanceof Array || !newDialog.text) {
                             newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
                             labelSteps[labelSteps.length - 1].dialogue = newDialog
                         }
                         else {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined")
+                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined", newDialog, v)
                         }
                     }
                 } else {
@@ -187,7 +187,7 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                     })
                 }
                 else {
-                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined")
+                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
                 }
                 labelSteps[labelSteps.length - 1].choices = choices
             }
