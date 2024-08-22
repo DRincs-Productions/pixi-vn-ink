@@ -1,26 +1,25 @@
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant"
-import { StandardDivert } from "../types/parserItems/Divert"
 
-export function getLabelByStandardDivert(divert: StandardDivert, labelKey: string): string {
+export function getLabelByStandardDivert(divertName: string, labelKey: string): string {
     if (
         // if there are a sub label "=label"
-        (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(divert["->"])
+        (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(divertName)
         && labelKey
     ) {
-        let endOfLabel = divert["->"].substring(9)
+        let endOfLabel = divertName.substring(9)
         return labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
     }
     else if (
         // if there are a sub label "=label"
-        (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(divert["->"])
+        (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(divertName)
         && labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)
     ) {
-        let endOfLabel = divert["->"].substring(7)
+        let endOfLabel = divertName.substring(7)
         return labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
     }
     else if (
         // if there are a sub label "=label"
-        (new RegExp(/^\.\^\.\^\..*$/)).test(divert["->"])
+        (new RegExp(/^\.\^\.\^\..*$/)).test(divertName)
         && labelKey
     ) {
         if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
@@ -32,16 +31,16 @@ export function getLabelByStandardDivert(divert: StandardDivert, labelKey: strin
             return newlabelKey.join(CHOISE_LABEL_KEY_SEPARATOR)
         }
         else {
-            console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR", divert)
+            console.error("[Pixi’VN Ink] Unhandled case: labelKey is not include CHOISE_LABEL_KEY_SEPARATOR", divertName)
         }
     }
     else if (
         // if there are a sub label "=label"
-        (new RegExp(/^\.\^\..*$/)).test(divert["->"])
+        (new RegExp(/^\.\^\..*$/)).test(divertName)
         && labelKey
     ) {
-        let endOfLabel = divert["->"].substring(3)
+        let endOfLabel = divertName.substring(3)
         return labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
     }
-    return divert["->"]
+    return divertName
 }

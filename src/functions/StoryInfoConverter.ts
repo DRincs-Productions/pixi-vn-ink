@@ -144,7 +144,7 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
             ) {
                 let glueEnabled = isNewLine ? undefined : true
-                let labelIdToOpen = getLabelByStandardDivert(v, labelKey)
+                let labelIdToOpen = getLabelByStandardDivert(v["->"], labelKey)
                 if (!isNewLine && labelSteps.length > 0) {
                     labelSteps[labelSteps.length - 1].goNextStep = true
                 }
@@ -191,7 +191,7 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                         type: "call",
                         oneTime: value.onetime,
                     }
-                    choices.push(getConditional(c, value.conditions))
+                    choices.push(getConditional(c, value.conditions, labelKey))
                 }
                 else {
                     console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
@@ -207,7 +207,7 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                     oneTime: value.onetime,
                 }
                 labelSteps.push({
-                    choices: [getConditional(c, value.conditions)]
+                    choices: [getConditional(c, value.conditions, labelKey)]
                 })
             }
             if (value.preDialog) {

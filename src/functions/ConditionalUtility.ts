@@ -1,8 +1,9 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonConditions } from "@drincs/pixi-vn";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
+import { getLabelByStandardDivert } from "./DivertUtility";
 
-export function getConditional<T>(element: T, data: (ReadCount | NativeFunctions)[]): T | PixiVNJsonConditionalStatements<T> {
+export function getConditional<T>(element: T, data: (ReadCount | NativeFunctions)[], labelKey: string): T | PixiVNJsonConditionalStatements<T> {
     if (data.length > 0) {
         let conditions: PixiVNJsonConditions[] = []
         data.forEach((item) => {
@@ -10,7 +11,7 @@ export function getConditional<T>(element: T, data: (ReadCount | NativeFunctions
                 conditions.push({
                     type: "labelcondition",
                     operator: "started",
-                    label: item["CNT?"],
+                    label: getLabelByStandardDivert(item["CNT?"], labelKey),
                 })
             }
             else if (item === "&&" || item === "||") {

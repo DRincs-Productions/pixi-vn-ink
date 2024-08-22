@@ -519,6 +519,15 @@ test('Conditional Choices', async () => {
 					glueEnabled: undefined,
 				},
 			],
+			"visit_paris_|_c-3": [
+				{
+					labelToOpen: {
+						label: "bored_of_paris",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
 			"visit_paris_|_met_estelle": [
 				{
 					dialogue: "met_estelle",
@@ -536,10 +545,10 @@ test('Conditional Choices', async () => {
 								type: "union",
 								unionType: "not",
 								condition: {
-							type: "labelcondition",
+									type: "labelcondition",
 									operator: "started",
-							label: "visit_paris",
-								}
+									label: "visit_paris",
+								},
 							},
 							then: {
 								text: "Go to Paris",
@@ -547,7 +556,7 @@ test('Conditional Choices', async () => {
 								props: {},
 								type: "call",
 								oneTime: true,
-							}
+							},
 						},
 						{
 							type: "ifelse",
@@ -555,29 +564,154 @@ test('Conditional Choices', async () => {
 								type: "union",
 								unionType: "and",
 								conditions: [
-						{
-							type: "labelcondition",
+									{
+										type: "labelcondition",
 										operator: "started",
-							label: "visit_paris",
+										label: "visit_paris",
 									},
 									{
 										type: "union",
 										unionType: "not",
 										condition: {
-								type: "labelcondition",
+											type: "labelcondition",
 											operator: "started",
-								label: "bored_of_paris",
-										}
-									}
-								]
+											label: "bored_of_paris",
+										},
+									},
+								],
 							},
-								then: {
-									text: "Return to Paris",
-									label: "visit_paris_|_c-1",
-									props: {},
-									type: "call",
-									oneTime: false,
-							}
+							then: {
+								text: "Return to Paris",
+								label: "visit_paris_|_c-1",
+								props: {},
+								type: "call",
+								oneTime: false,
+							},
+						},
+						{
+							type: "ifelse",
+							condition: {
+								type: "labelcondition",
+								operator: "started",
+								label: "visit_paris_|_met_estelle",
+							},
+							then: {
+								text: " Telephone Mme Estelle ",
+								label: "visit_paris_|_c-2",
+								props: {
+								},
+								type: "call",
+								oneTime: true,
+							},
+						},
+						{
+							type: "ifelse",
+							condition: {
+								type: "union",
+								unionType: "or",
+								conditions: [
+									{
+										type: "union",
+										unionType: "and",
+										conditions: [
+											{
+												type: "union",
+												unionType: "or",
+												conditions: [
+													{
+														type: "union",
+														unionType: "and",
+														conditions: [
+															{
+																type: "union",
+																unionType: "or",
+																conditions: [
+																	{
+																		type: "union",
+																		unionType: "not",
+																		condition: {
+																			type: "union",
+																			unionType: "or",
+																			conditions: [
+																				{
+																					type: "union",
+																					unionType: "or",
+																					conditions: [
+																						{
+																							type: "labelcondition",
+																							operator: "started",
+																							label: "visit_paris",
+																						},
+																						{
+																							type: "labelcondition",
+																							operator: "started",
+																							label: "phone_estelle",
+																						},
+																					],
+																				},
+																				{
+																					type: "labelcondition",
+																					operator: "started",
+																					label: "bored_of_paris",
+																				},
+																			],
+																		},
+																	},
+																	{
+																		type: "labelcondition",
+																		operator: "started",
+																		label: "phone_estelle",
+																	},
+																	{
+																		type: "union",
+																		unionType: "not",
+																		condition: {
+																			type: "labelcondition",
+																			operator: "started",
+																			label: "bored_of_paris",
+																		},
+																	},
+																],
+															},
+														],
+													},
+													{
+														type: "labelcondition",
+														operator: "started",
+														label: "phone_estelle",
+													},
+													{
+														type: "union",
+														unionType: "not",
+														condition: {
+															type: "labelcondition",
+															operator: "started",
+															label: "bored_of_paris",
+														},
+													},
+												],
+											},
+										],
+									},
+									{
+										type: "union",
+										unionType: "not",
+										condition: {
+											type: "labelcondition",
+											operator: "started",
+											label: "bored_of_paris",
+										},
+									},
+								],
+							},
+							then: {
+								text: " Wait. Go where? I'm confused. ",
+								label: "visit_paris_|_c-3",
+								props: {
+								},
+								type: "call",
+								oneTime: true,
+							},
 						},
 					],
 				},
