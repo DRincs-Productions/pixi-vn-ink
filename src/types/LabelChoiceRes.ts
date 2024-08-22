@@ -6,7 +6,7 @@ type LabelChoiceRes = {
         text: string | string[]
         preDialog?: { text: string }
         onetime: boolean
-        condition: (ReadCount | NativeFunctions)[]
+        conditions: (ReadCount | NativeFunctions)[]
     }
 }
 export default LabelChoiceRes

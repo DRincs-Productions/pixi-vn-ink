@@ -55,7 +55,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
                 result[label].text = unionStringOrArray(text, result[label].text)
             }
             else {
-                result[label] = { text: text, onetime: onetime, condition: condition }
+                result[label] = { text: text, onetime: onetime, conditions: condition }
             }
             if (preDialog) {
                 result[label].preDialog = { text: preDialog }

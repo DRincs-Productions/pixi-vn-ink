@@ -1,10 +1,11 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
+import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
 import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
+import { getConditional } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { unionStringOrArray } from './utility';
 
@@ -183,14 +184,14 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
             if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
                 let choices = labelSteps[labelSteps.length - 1].choices
                 if (choices && Array.isArray(choices)) {
-                    let c: PixiVNJsonChoice | PixiVNJsonConditionalStatements<PixiVNJsonChoice> = {
+                    let c: PixiVNJsonChoice = {
                         text: value.text,
                         label: newKey,
                         props: {},
                         type: "call",
                         oneTime: value.onetime,
                     }
-                    choices.push(c)
+                    choices.push(getConditional(c, value.conditions))
                 }
                 else {
                     console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
@@ -198,14 +199,15 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                 labelSteps[labelSteps.length - 1].choices = choices
             }
             else {
+                let c: PixiVNJsonChoice = {
+                    text: value.text,
+                    label: newKey,
+                    props: {},
+                    type: "call",
+                    oneTime: value.onetime,
+                }
                 labelSteps.push({
-                    choices: [{
-                        text: value.text,
-                        label: newKey,
-                        props: {},
-                        type: "call",
-                        oneTime: value.onetime,
-                    }]
+                    choices: [getConditional(c, value.conditions)]
                 })
             }
             if (value.preDialog) {
