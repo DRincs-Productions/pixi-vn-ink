@@ -531,9 +531,16 @@ test('Conditional Choices', async () => {
 				{
 					choices: [
 						{
+							type: "ifelse",
+							condition: {
+								type: "union",
+								unionType: "not",
+								condition: {
 							type: "labelcondition",
-							condition: "notstarted",
+									operator: "started",
 							label: "visit_paris",
+								}
+							},
 							then: {
 								text: "Go to Paris",
 								label: "visit_paris_|_c-0",
@@ -543,32 +550,33 @@ test('Conditional Choices', async () => {
 							}
 						},
 						{
+							type: "ifelse",
+							condition: {
+								type: "union",
+								unionType: "and",
+								conditions: [
+						{
 							type: "labelcondition",
-							condition: "started",
+										operator: "started",
 							label: "visit_paris",
-							then: {
+									},
+									{
+										type: "union",
+										unionType: "not",
+										condition: {
 								type: "labelcondition",
-								condition: "notstarted",
+											operator: "started",
 								label: "bored_of_paris",
+										}
+									}
+								]
+							},
 								then: {
 									text: "Return to Paris",
 									label: "visit_paris_|_c-1",
 									props: {},
 									type: "call",
 									oneTime: false,
-								}
-							}
-						},
-						{
-							type: "labelcondition",
-							condition: "started",
-							label: "visit_paris",
-							then: {
-								text: " Telephone Mme Estelle ",
-								label: "visit_paris_|_c-2",
-								props: {},
-								type: "call",
-								oneTime: true,
 							}
 						},
 					],
@@ -599,6 +607,7 @@ test('Conditional Choices', async () => {
 + 	{ visit_paris } { not bored_of_paris }
 	[Return to Paris] -> visit_paris
 *	{ visit_paris.met_estelle } [ Telephone Mme Estelle ] -> phone_estelle
+*	{ (not (visit_paris or phone_estelle || bored_of_paris) && (phone_estelle || not bored_of_paris) && (phone_estelle || not bored_of_paris)) || not bored_of_paris } [ Wait. Go where? I'm confused. ] -> bored_of_paris
 = met_estelle
 met_estelle
 -> DONE
