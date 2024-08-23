@@ -598,8 +598,7 @@ test('Conditional Choices', async () => {
 							then: {
 								text: " Telephone Mme Estelle ",
 								label: "visit_paris_|_c-2",
-								props: {
-								},
+								props: {},
 								type: "call",
 								oneTime: true,
 							},
@@ -616,28 +615,60 @@ test('Conditional Choices', async () => {
 										conditions: [
 											{
 												type: "union",
-												unionType: "not",
-												condition: {
-													type: "union",
-													unionType: "or",
-													conditions: [
-														{
-															type: "labelcondition",
-															operator: "started",
-															label: "visit_paris",
+												unionType: "and",
+												conditions: [
+													{
+														type: "union",
+														unionType: "not",
+														condition: {
+															type: "union",
+															unionType: "or",
+															conditions: [
+																{
+																	type: "union",
+																	unionType: "or",
+																	conditions: [
+																		{
+																			type: "labelcondition",
+																			operator: "started",
+																			label: "visit_paris",
+																		},
+																		{
+																			type: "labelcondition",
+																			operator: "started",
+																			label: "phone_estelle",
+																		},
+																	],
+																},
+																{
+																	type: "labelcondition",
+																	operator: "started",
+																	label: "bored_of_paris",
+																},
+															],
 														},
-														{
-															type: "labelcondition",
-															operator: "started",
-															label: "phone_estelle",
-														},
-														{
-															type: "labelcondition",
-															operator: "started",
-															label: "bored_of_paris",
-														}
-													]
-												}
+													},
+													{
+														type: "union",
+														unionType: "or",
+														conditions: [
+															{
+																type: "labelcondition",
+																operator: "started",
+																label: "phone_estelle",
+															},
+															{
+																type: "union",
+																unionType: "not",
+																condition: {
+																	type: "labelcondition",
+																	operator: "started",
+																	label: "bored_of_paris",
+																},
+															},
+														],
+													},
+												],
 											},
 											{
 												type: "union",
@@ -647,36 +678,18 @@ test('Conditional Choices', async () => {
 														type: "labelcondition",
 														operator: "started",
 														label: "phone_estelle",
-													}, {
-														type: "union",
-														unionType: "not",
-														condition: {
-															type: "labelcondition",
-															operator: "started",
-															label: "bored_of_paris",
-														}
-													}
-												]
-											},
-											{
-												type: "union",
-												unionType: "or",
-												conditions: [
+													},
 													{
-														type: "labelcondition",
-														operator: "started",
-														label: "phone_estelle",
-													}, {
 														type: "union",
 														unionType: "not",
 														condition: {
 															type: "labelcondition",
 															operator: "started",
 															label: "bored_of_paris",
-														}
-													}
-												]
-											}
+														},
+													},
+												],
+											},
 										],
 									},
 									{
@@ -693,8 +706,7 @@ test('Conditional Choices', async () => {
 							then: {
 								text: " Wait. Go where? I'm confused. ",
 								label: "visit_paris_|_c-3",
-								props: {
-								},
+								props: {},
 								type: "call",
 								oneTime: true,
 							},

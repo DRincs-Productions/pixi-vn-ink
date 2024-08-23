@@ -15,16 +15,22 @@ export function getConditional<T>(element: T, data: (ReadCount | NativeFunctions
                 })
             }
             else if (item === "&&" || item === "||") {
-                if (conditions.length === 0) {
+                if (conditions.length < 2) {
                     console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
                 }
                 else {
                     let i: PixiVNJsonConditions = {
                         type: "union",
                         unionType: item === "&&" ? "and" : "or",
-                        conditions: conditions
+                        conditions: [
+                            conditions[conditions.length - 2],
+                            conditions[conditions.length - 1]
+                        ]
                     }
-                    conditions = [i]
+                    // remove last two elements
+                    conditions.pop()
+                    conditions.pop()
+                    conditions.push(i)
                 }
             }
             else if (item === "!") {
