@@ -341,7 +341,186 @@ leave_post_office
  */
 test('Examples', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"whack_a_mole_|_c-0": [
+				{
+					dialogue: " \t",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "whack_a_mole",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			"whack_a_mole_|_c-1": [
+				{
+					labelToOpen: {
+						label: "whack_a_mole",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"whack_a_mole_|_c-2": [
+				{
+					labelToOpen: {
+						label: "whack_a_mole",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"whack_a_mole_|_c-3": [
+				{
+					dialogue: " \t",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "whack_a_mole",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			"whack_a_mole_|_c-4": [
+				{
+					dialogue: " \t",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "whack_a_mole",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			"whack_a_mole_|_c-5": [
+				{
+					dialogue: "Then you collapse from hunger. The mole has defeated you!",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			whack_a_mole: [
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"I heft the hammer.",
+						],
+						choiceType: "sequential",
+						end: undefined,
+					},
+				},
+				{
+					dialogue: "The ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"mole",
+							" ",
+						],
+						choiceType: "loop",
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " is ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"in here somewhere",
+							"hiding somewhere",
+							"still at large",
+							"laughing at me",
+							"still unwhacked",
+							"doomed",
+						],
+						choiceType: "sequential",
+						end: undefined,
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ". ",
+				},
+				{
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"I'll show him!",
+							"But this time he won't escape!",
+						],
+						choiceType: "sequential",
+						end: undefined,
+					},
+				},
+				{
+					choices: [
+						{
+							text: " top-left",
+							label: "whack_a_mole_|_c-0",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: " top-right",
+							label: "whack_a_mole_|_c-1",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: " middle",
+							label: "whack_a_mole_|_c-2",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: " bottom-left",
+							label: "whack_a_mole_|_c-3",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: " bottom-right",
+							label: "whack_a_mole_|_c-4",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> whack_a_mole
