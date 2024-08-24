@@ -74,9 +74,18 @@ I took a step forward. {!||||Then the lights went out. -> eek}
 The Ratbear {&{wastes no time and |}swipes|scratches} {&at you|into your {&leg|arm|cheek}}.
 I {waited.|waited some more.|snoozed.|woke up and waited more.|gave up and left. -> leave_post_office}
 + 	"Hello, {&Master|Monsieur Fogg|you|brown-eyes}!"[] I declared.
+-> DONE
 +\	{&They headed towards the Sandlands|They set off for the desert|The party followed the old road South}
+-> DONE
 + [ Loop ] -> loop
 + [ Exit ] -> END
+
+== eek==
+eek
+-> DONE
+== leave_post_office==
+leave_post_office
+-> DONE
 `);
 	expect(res).toEqual(expected);
 });
@@ -89,15 +98,36 @@ test('Examples', async () => {
 		labels: {}
 	}
 	let res = convertInkText(`
--> loop
-=== loop ===
-I took a step forward. {!||||Then the lights went out. -> eek}
-The Ratbear {&{wastes no time and |}swipes|scratches} {&at you|into your {&leg|arm|cheek}}.
-I {waited.|waited some more.|snoozed.|woke up and waited more.|gave up and left. -> leave_post_office}
-+ 	"Hello, {&Master|Monsieur Fogg|you|brown-eyes}!"[] I declared.
-+\	{&They headed towards the Sandlands|They set off for the desert|The party followed the old road South}
-+ [ Loop ] -> loop
-+ [ Exit ] -> END
+-> whack_a_mole
+=== whack_a_mole ===
+	{I heft the hammer.|{~Missed!|Nothing!|No good. Where is he?|Ah-ha! Got him! -> END}}
+	The {&mole|{&nasty|blasted|foul} {&creature|rodent}} is {in here somewhere|hiding somewhere|still at large|laughing at me|still unwhacked|doomed}. <>
+	{!I'll show him!|But this time he won't escape!}
+	* 	[{&Hit|Smash|Try} top-left] 	-> whack_a_mole
+	*  [{&Whallop|Splat|Whack} top-right] -> whack_a_mole
+	*  [{&Blast|Hammer} middle] -> whack_a_mole
+	*  [{&Clobber|Bosh} bottom-left] 	-> whack_a_mole
+	*  [{&Nail|Thump} bottom-right] 	-> whack_a_mole
+	*   ->
+    	    Then you collapse from hunger. The mole has defeated you!
+            -> END
+`);
+	expect(res).toEqual(expected);
+});
+
+test('Examples 2', async () => {
+	let expected: PixiVNJson = {
+		labels: {}
+	}
+	let res = convertInkText(`
+-> turn_on_television
+=== turn_on_television ===
+I turned on the television {for the first time|for the second time|again|once more}, but there was {nothing good on, so I turned it off again|still nothing worth watching|even less to hold my interest than before|nothing but rubbish|a program about sharks and I don't like sharks|nothing on}.
++	[Try it again]	 		-> turn_on_television
+*	[Go outside instead]	-> go_outside_instead
+
+=== go_outside_instead ===
+-> END
 `);
 	expect(res).toEqual(expected);
 });
