@@ -7,7 +7,81 @@ import { convertInkText } from '../src/functions';
 
 test('Sequences (the default)', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"loop_|_c-0": [
+				{
+					labelToOpen: {
+						label: "loop",
+						type: "call",
+					},
+					glueEnabled: undefined,
+					goNextStep: false,
+				},
+			],
+			"loop_|_c-1": [
+				{
+					dialogue: " ",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			loop: [
+				{
+					dialogue: "The radio hissed into life. ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"\"Three!\"",
+							"\"Two!\"",
+							"\"One!\"",
+							"There was the white noise racket of an explosion.",
+							"But it was just static.",
+						],
+						choiceType: "sequential",
+						end: undefined,
+					},
+					glueEnabled: false,
+					goNextStep: false,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"I bought a coffee with my five-pound note.",
+							"I bought a second coffee for my friend.",
+							"I didn't have enough money to buy any more coffee.",
+						],
+						choiceType: "sequential",
+						end: undefined,
+					},
+					glueEnabled: false,
+					goNextStep: false,
+				},
+				{
+					choices: [
+						{
+							text: " Loop ",
+							label: "loop_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: " Exit ",
+							label: "loop_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> loop
@@ -23,7 +97,71 @@ The radio hissed into life. {"Three!"|"Two!"|"One!"|There was the white noise ra
 
 test('Cycles (marked with a &)', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"loop_|_c-0": [
+				{
+					labelToOpen: {
+						label: "loop",
+						type: "call",
+					},
+					glueEnabled: undefined,
+					goNextStep: false,
+				},
+			],
+			"loop_|_c-1": [
+				{
+					dialogue: " ",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			loop: [
+				{
+					dialogue: "It was ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"Monday",
+							"Tuesday",
+							"Wednesday",
+							"Thursday",
+							"Friday",
+							"Saturday",
+							"Sunday",
+						],
+						choiceType: "loop",
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " today.",
+				},
+				{
+					choices: [
+						{
+							text: " Loop ",
+							label: "loop_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: " Exit ",
+							label: "loop_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> loop
@@ -37,7 +175,68 @@ It was {&Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday} today.
 
 test('Once-only (marked with a !)', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"loop_|_c-0": [
+				{
+					labelToOpen: {
+						label: "loop",
+						type: "call",
+					},
+					glueEnabled: undefined,
+					goNextStep: false,
+				},
+			],
+			"loop_|_c-1": [
+				{
+					dialogue: " ",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			loop: [
+				{
+					dialogue: "He told me a joke. ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"I laughed politely.",
+							"I smiled.",
+							"I grimaced.",
+							"I promised myself to not react again.",
+						],
+						choiceType: "sequential",
+						end: undefined,
+					},
+					glueEnabled: false,
+					goNextStep: false,
+				},
+				{
+					choices: [
+						{
+							text: " Loop ",
+							label: "loop_|_c-0",
+							props: {
+							},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: " Exit ",
+							label: "loop_|_c-1",
+							props: {
+							},
+							type: "call",
+							oneTime: false,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> loop
@@ -51,7 +250,66 @@ He told me a joke. {!I laughed politely.|I smiled.|I grimaced.|I promised myself
 
 test('Shuffles (marked with a ~)', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"loop_|_c-0": [
+				{
+					labelToOpen: {
+						label: "loop",
+						type: "call",
+					},
+					glueEnabled: undefined,
+					goNextStep: false,
+				},
+			],
+			"loop_|_c-1": [
+				{
+					dialogue: " ",
+				},
+				{
+					end: "game_end",
+				},
+			],
+			loop: [
+				{
+					dialogue: "I tossed the coin. ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "stepswitch",
+						elements: [
+							"Heads",
+							"Tails",
+						],
+						choiceType: "random",
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ".",
+				},
+				{
+					choices: [
+						{
+							text: " Loop ",
+							label: "loop_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: " Exit ",
+							label: "loop_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> loop
