@@ -1,12 +1,15 @@
 import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
+import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
+import { getConditional } from './ConditionalUtility';
+import { getLabelByStandardDivert } from './DivertUtility';
 import { unionStringOrArray } from './utility';
 
-export function getInkLabel(story: InkRootType[]): PixiVNJsonLabels | undefined {
+export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
         let label: PixiVNJsonLabels = {}
 
@@ -18,7 +21,7 @@ export function getInkLabel(story: InkRootType[]): PixiVNJsonLabels | undefined 
     }
 }
 
-function findLabel(story: RootParserItemType[], labels: PixiVNJsonLabels) {
+function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[], labels: PixiVNJsonLabels) {
     for (const storyItem of story) {
         if (storyItem) {
             if (storyItem instanceof Array) {
@@ -31,7 +34,7 @@ function findLabel(story: RootParserItemType[], labels: PixiVNJsonLabels) {
     }
 }
 
-function addLabels(storyItem: object, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
+function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
     if (storyItem === null) {
         return
     }
@@ -56,9 +59,9 @@ function addLabels(storyItem: object, result: PixiVNJsonLabels, dadLabelKey: str
 type ShareData = {
     preDialog: { [label: string]: { text: string } }
 }
-function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
+function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
     let isInEnv = false
-    let envList: any[] = []
+    let envList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
         labelSteps.push({
             dialogue: shareData.preDialog[labelKey].text
@@ -89,14 +92,14 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                             labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
                         }
                         else if ("type" in newDialog) {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>")
+                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>", newDialog, v)
                         }
                         else if (newDialog.text === "string" || newDialog.text instanceof Array || !newDialog.text) {
                             newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
                             labelSteps[labelSteps.length - 1].dialogue = newDialog
                         }
                         else {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined")
+                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined", newDialog, v)
                         }
                     }
                 } else {
@@ -140,38 +143,14 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
             ) {
-                let labelIdToOpen = v["->"]
                 let glueEnabled = isNewLine ? undefined : true
+                let labelIdToOpen = getLabelByStandardDivert(v["->"], labelKey)
                 if (!isNewLine && labelSteps.length > 0) {
                     labelSteps[labelSteps.length - 1].goNextStep = true
                 }
-                if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\.\^\.\^\.\^\..*$/)).test(v["->"])
-                    && labelKey
-                ) {
-                    let endOfLabel = v["->"].substring(9)
-                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                }
-                else if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(v["->"])
-                    && labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR)
-                ) {
-                    let endOfLabel = v["->"].substring(7)
-                    labelIdToOpen = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                }
-                else if (
-                    // if there are a sub label "=label"
-                    (new RegExp(/^\.\^\..*$/)).test(v["->"])
-                    && labelKey
-                ) {
-                    let endOfLabel = v["->"].substring(3)
-                    labelIdToOpen = labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
-                }
                 labelSteps.push({
                     labelToOpen: {
-                        labelId: labelIdToOpen,
+                        label: labelIdToOpen,
                         type: "call",
                     },
                     glueEnabled: glueEnabled,
@@ -187,6 +166,10 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
                 envList.push(v)
                 isNewLine = false
             }
+            else if ("CNT?" in v) {
+                envList.push(v)
+                isNewLine = false
+            }
             else {
                 addLabels(v, subLabels, labelKey, shareData)
             }
@@ -194,35 +177,37 @@ function getLabel(items: any[], labelKey: string, labelSteps: PixiVNJsonLabel, s
     })
     if (envList.length > 0) {
         let choices: LabelChoiceRes = {}
-        getLabelChoice(envList, choices)
+        getLabelChoice(envList as any, choices)
         for (const [key, value] of Object.entries(choices)) {
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
             if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
                 let choices = labelSteps[labelSteps.length - 1].choices
                 if (choices && Array.isArray(choices)) {
-                    choices.push({
+                    let c: PixiVNJsonChoice = {
                         text: value.text,
                         label: newKey,
                         props: {},
                         type: "call",
                         oneTime: value.onetime,
-                    })
+                    }
+                    choices.push(getConditional(c, value.conditions, labelKey))
                 }
                 else {
-                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined")
+                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
                 }
                 labelSteps[labelSteps.length - 1].choices = choices
             }
             else {
+                let c: PixiVNJsonChoice = {
+                    text: value.text,
+                    label: newKey,
+                    props: {},
+                    type: "call",
+                    oneTime: value.onetime,
+                }
                 labelSteps.push({
-                    choices: [{
-                        text: value.text,
-                        label: newKey,
-                        props: {},
-                        type: "call",
-                        oneTime: value.onetime,
-                    }]
+                    choices: [getConditional(c, value.conditions, labelKey)]
                 })
             }
             if (value.preDialog) {
