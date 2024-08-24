@@ -50,6 +50,9 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
                 condition.push(v)
             }
         }
+        else {
+            condition.push(v)
+        }
         if (text && label) {
             if (result[label]) {
                 result[label].text = unionStringOrArray(text, result[label].text)

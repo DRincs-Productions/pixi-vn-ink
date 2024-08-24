@@ -545,8 +545,9 @@ test('Conditional Choices', async () => {
 								type: "union",
 								unionType: "not",
 								condition: {
-									type: "labelcondition",
-									operator: "started",
+									type: "value",
+									storageType: "label",
+									storageOperationType: "get",
 									label: "visit_paris",
 								},
 							},
@@ -565,16 +566,18 @@ test('Conditional Choices', async () => {
 								unionType: "and",
 								conditions: [
 									{
-										type: "labelcondition",
-										operator: "started",
+										type: "value",
+										storageType: "label",
+										storageOperationType: "get",
 										label: "visit_paris",
 									},
 									{
 										type: "union",
 										unionType: "not",
 										condition: {
-											type: "labelcondition",
-											operator: "started",
+											type: "value",
+											storageType: "label",
+											storageOperationType: "get",
 											label: "bored_of_paris",
 										},
 									},
@@ -591,8 +594,9 @@ test('Conditional Choices', async () => {
 						{
 							type: "ifelse",
 							condition: {
-								type: "labelcondition",
-								operator: "started",
+								type: "value",
+								storageType: "label",
+								storageOperationType: "get",
 								label: "visit_paris_|_met_estelle",
 							},
 							then: {
@@ -629,20 +633,23 @@ test('Conditional Choices', async () => {
 																	unionType: "or",
 																	conditions: [
 																		{
-																			type: "labelcondition",
-																			operator: "started",
+																			type: "value",
+																			storageType: "label",
+																			storageOperationType: "get",
 																			label: "visit_paris",
 																		},
 																		{
-																			type: "labelcondition",
-																			operator: "started",
+																			type: "value",
+																			storageType: "label",
+																			storageOperationType: "get",
 																			label: "phone_estelle",
 																		},
 																	],
 																},
 																{
-																	type: "labelcondition",
-																	operator: "started",
+																	type: "value",
+																	storageType: "label",
+																	storageOperationType: "get",
 																	label: "bored_of_paris",
 																},
 															],
@@ -653,16 +660,18 @@ test('Conditional Choices', async () => {
 														unionType: "or",
 														conditions: [
 															{
-																type: "labelcondition",
-																operator: "started",
+																type: "value",
+																storageType: "label",
+																storageOperationType: "get",
 																label: "phone_estelle",
 															},
 															{
 																type: "union",
 																unionType: "not",
 																condition: {
-																	type: "labelcondition",
-																	operator: "started",
+																	type: "value",
+																	storageType: "label",
+																	storageOperationType: "get",
 																	label: "bored_of_paris",
 																},
 															},
@@ -675,16 +684,18 @@ test('Conditional Choices', async () => {
 												unionType: "or",
 												conditions: [
 													{
-														type: "labelcondition",
-														operator: "started",
+														type: "value",
+														storageType: "label",
+														storageOperationType: "get",
 														label: "phone_estelle",
 													},
 													{
 														type: "union",
 														unionType: "not",
 														condition: {
-															type: "labelcondition",
-															operator: "started",
+															type: "value",
+															storageType: "label",
+															storageOperationType: "get",
 															label: "bored_of_paris",
 														},
 													},
@@ -696,8 +707,9 @@ test('Conditional Choices', async () => {
 										type: "union",
 										unionType: "not",
 										condition: {
-											type: "labelcondition",
-											operator: "started",
+											type: "value",
+											storageType: "label",
+											storageOperationType: "get",
 											label: "bored_of_paris",
 										},
 									},
@@ -706,6 +718,27 @@ test('Conditional Choices', async () => {
 							then: {
 								text: " Wait. Go where? I'm confused. ",
 								label: "visit_paris_|_c-3",
+								props: {},
+								type: "call",
+								oneTime: true,
+							},
+						},
+						{
+							type: "ifelse",
+							condition: {
+								type: "compare",
+								operator: ">",
+								leftValue: 3,
+								rightValue: {
+									type: "value",
+									storageType: "label",
+									storageOperationType: "get",
+									label: "visit_paris",
+								},
+							},
+							then: {
+								text: "Flat-out arrest Mr Jefferson",
+								label: "visit_paris_|_c-4",
 								props: {},
 								type: "call",
 								oneTime: true,
@@ -740,6 +773,7 @@ test('Conditional Choices', async () => {
 	[Return to Paris] -> visit_paris
 *	{ visit_paris.met_estelle } [ Telephone Mme Estelle ] -> phone_estelle
 *	{ (not (visit_paris or phone_estelle || bored_of_paris) && (phone_estelle || not bored_of_paris) && (phone_estelle || not bored_of_paris)) || not bored_of_paris } [ Wait. Go where? I'm confused. ] -> bored_of_paris
+* 	{visit_paris > 3} [Flat-out arrest Mr Jefferson]
 = met_estelle
 met_estelle
 -> DONE

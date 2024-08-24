@@ -9,8 +9,9 @@ export function getConditional<T>(element: T, data: (ReadCount | NativeFunctions
         data.forEach((item) => {
             if (typeof item === "object" && "CNT?" in item) {
                 conditions.push({
-                    type: "labelcondition",
-                    operator: "started",
+                    type: "value",
+                    storageType: "label",
+                    storageOperationType: "get",
                     label: getLabelByStandardDivert(item["CNT?"], labelKey),
                 })
             }
@@ -45,6 +46,26 @@ export function getConditional<T>(element: T, data: (ReadCount | NativeFunctions
                     }
                     conditions[conditions.length - 1] = i
                 }
+            }
+            else if (item === "==" || item === "!=" || item === "<" || item === "<=" || item === ">" || item === ">=") {
+                if (conditions.length < 2) {
+                    console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
+                }
+                else {
+                    let i: PixiVNJsonConditions = {
+                        type: "compare",
+                        operator: item,
+                        leftValue: conditions[conditions.length - 1],
+                        rightValue: conditions[conditions.length - 2]
+                    }
+                    // remove last two elements
+                    conditions.pop()
+                    conditions.pop()
+                    conditions.push(i)
+                }
+            }
+            else {
+                conditions.push(item)
             }
         })
         if (conditions.length === 0) {
