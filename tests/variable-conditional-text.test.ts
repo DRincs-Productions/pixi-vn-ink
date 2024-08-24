@@ -15,7 +15,6 @@ test('Sequences (the default)', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: false,
 				},
 			],
 			"loop_|_c-1": [
@@ -45,8 +44,6 @@ test('Sequences (the default)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 					},
-					glueEnabled: false,
-					goNextStep: false,
 				},
 				{
 					dialogue: {
@@ -59,8 +56,6 @@ test('Sequences (the default)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 					},
-					glueEnabled: false,
-					goNextStep: false,
 				},
 				{
 					choices: [
@@ -105,7 +100,6 @@ test('Cycles (marked with a &)', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: false,
 				},
 			],
 			"loop_|_c-1": [
@@ -183,7 +177,6 @@ test('Once-only (marked with a !)', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: false,
 				},
 			],
 			"loop_|_c-1": [
@@ -212,24 +205,20 @@ test('Once-only (marked with a !)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 					},
-					glueEnabled: false,
-					goNextStep: false,
 				},
 				{
 					choices: [
 						{
 							text: " Loop ",
 							label: "loop_|_c-0",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: false,
 						},
 						{
 							text: " Exit ",
 							label: "loop_|_c-1",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: false,
 						},
@@ -258,7 +247,6 @@ test('Shuffles (marked with a ~)', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: false,
 				},
 			],
 			"loop_|_c-1": [

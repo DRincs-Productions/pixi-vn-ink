@@ -8,6 +8,7 @@ import { getLabelChoice } from './ChoiceInfoConverter';
 import { getConditional } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { unionStringOrArray } from './utility';
+import { getVariableText } from './VariableTextUtility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -69,6 +70,17 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
         delete shareData.preDialog[labelKey]
         isNewLine = false
     }
+    if (items.includes("visit")) {
+        let item = getVariableText(items as any)
+        if (!isNewLine && labelSteps.length > 0) {
+            labelSteps[labelSteps.length - 1].glueEnabled = true
+            labelSteps[labelSteps.length - 1].goNextStep = true
+        }
+        labelSteps.push({
+            dialogue: item,
+        })
+        return
+    }
     items.forEach((v) => {
         if (isInEnv) {
             envList.push(v)
@@ -92,7 +104,16 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                             labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
                         }
                         else if ("type" in newDialog) {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>", newDialog, v)
+                            if (newDialog.type === "stepswitch") {
+                                labelSteps[labelSteps.length - 1].glueEnabled = true
+                                labelSteps[labelSteps.length - 1].goNextStep = true
+                                labelSteps.push({
+                                    dialogue: v.substring(1)
+                                })
+                            }
+                            else {
+                                console.error("[Pixi’VN Ink] Unhandled case: newDialog.type is string", newDialog, v)
+                            }
                         }
                         else if (newDialog.text === "string" || newDialog.text instanceof Array || !newDialog.text) {
                             newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))

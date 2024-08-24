@@ -86,7 +86,6 @@ test('The first stitch is the default', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: undefined,
 				},
 			],
 			"the_orient_express_|_c-1": [
@@ -96,7 +95,6 @@ test('The first stitch is the default', async () => {
 						type: "call",
 					},
 					glueEnabled: undefined,
-					goNextStep: undefined,
 				},
 			],
 			"the_orient_express_|_in_first_class": [
