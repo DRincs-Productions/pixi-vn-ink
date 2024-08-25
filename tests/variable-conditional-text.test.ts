@@ -32,29 +32,47 @@ test('Sequences (the default)', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"\"Three!\"",
-							"\"Two!\"",
-							"\"One!\"",
-							"There was the white noise racket of an explosion.",
-							"But it was just static.",
+							{
+								dialogue: "\"Three!\"",
+							},
+							{
+								dialogue: "\"Two!\"",
+							},
+							{
+								dialogue: "\"One!\"",
+							},
+							{
+								dialogue: "There was the white noise racket of an explosion.",
+							},
+							{
+								dialogue: "But it was just static.",
+							},
 						],
 						choiceType: "sequential",
 						end: undefined,
+						nestedId: undefined,
 					},
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"I bought a coffee with my five-pound note.",
-							"I bought a second coffee for my friend.",
-							"I didn't have enough money to buy any more coffee.",
+							{
+								dialogue: "I bought a coffee with my five-pound note.",
+							},
+							{
+								dialogue: "I bought a second coffee for my friend.",
+							},
+							{
+								dialogue: "I didn't have enough money to buy any more coffee.",
+							},
 						],
 						choiceType: "sequential",
 						end: undefined,
+						nestedId: undefined,
 					},
 				},
 				{
@@ -117,18 +135,33 @@ test('Cycles (marked with a &)', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"Monday",
-							"Tuesday",
-							"Wednesday",
-							"Thursday",
-							"Friday",
-							"Saturday",
-							"Sunday",
+							{
+								dialogue: "Monday",
+							},
+							{
+								dialogue: "Tuesday",
+							},
+							{
+								dialogue: "Wednesday",
+							},
+							{
+								dialogue: "Thursday",
+							},
+							{
+								dialogue: "Friday",
+							},
+							{
+								dialogue: "Saturday",
+							},
+							{
+								dialogue: "Sunday",
+							},
 						],
 						choiceType: "loop",
+						nestedId: undefined,
 					},
 					glueEnabled: true,
 					goNextStep: true,
@@ -194,16 +227,25 @@ test('Once-only (marked with a !)', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"I laughed politely.",
-							"I smiled.",
-							"I grimaced.",
-							"I promised myself to not react again.",
+							{
+								dialogue: "I laughed politely.",
+							},
+							{
+								dialogue: "I smiled.",
+							},
+							{
+								dialogue: "I grimaced.",
+							},
+							{
+								dialogue: "I promised myself to not react again.",
+							},
 						],
 						choiceType: "sequential",
 						end: undefined,
+						nestedId: undefined,
 					},
 				},
 				{
@@ -264,11 +306,15 @@ test('Shuffles (marked with a ~)', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"Heads",
-							"Tails",
+							{
+								dialogue: "Heads",
+							},
+							{
+								dialogue: "Tails",
+							},
 						],
 						choiceType: "random",
 					},

@@ -7,8 +7,7 @@ import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
 import { getConditional } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
-import { unionStringOrArray } from './utility';
-import { getVariableText } from './VariableTextUtility';
+import { getVariableStep } from './VariableTextUtility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -71,13 +70,13 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
         isNewLine = false
     }
     if (items.includes("visit")) {
-        let item = getVariableText(items as any)
+        let item = getVariableStep(items as any, labelKey)
         if (!isNewLine && labelSteps.length > 0) {
             labelSteps[labelSteps.length - 1].glueEnabled = true
             labelSteps[labelSteps.length - 1].goNextStep = true
         }
         labelSteps.push({
-            dialogue: item,
+            conditionalStep: item,
         })
         return
     }
@@ -98,30 +97,11 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                             dialogue: v.substring(1)
                         })
                     } else {
-                        let newDialog = labelSteps[labelSteps.length - 1].dialogue
-                        // if is a string or an array
-                        if (typeof newDialog === "string" || newDialog instanceof Array || !newDialog) {
-                            labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
-                        }
-                        else if ("type" in newDialog) {
-                            if (newDialog.type === "stepswitch") {
-                                labelSteps[labelSteps.length - 1].glueEnabled = true
-                                labelSteps[labelSteps.length - 1].goNextStep = true
-                                labelSteps.push({
-                                    dialogue: v.substring(1)
-                                })
-                            }
-                            else {
-                                console.error("[Pixi’VN Ink] Unhandled case: newDialog.type is string", newDialog, v)
-                            }
-                        }
-                        else if (newDialog.text === "string" || newDialog.text instanceof Array || !newDialog.text) {
-                            newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
-                            labelSteps[labelSteps.length - 1].dialogue = newDialog
-                        }
-                        else {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined", newDialog, v)
-                        }
+                        labelSteps[labelSteps.length - 1].glueEnabled = true
+                        labelSteps[labelSteps.length - 1].goNextStep = true
+                        labelSteps.push({
+                            dialogue: v.substring(1)
+                        })
                     }
                 } else {
                     labelSteps.push({
