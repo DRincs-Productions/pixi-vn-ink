@@ -11,8 +11,8 @@ type Item = {
     [key: string]: ListItem[] | number,
 }
 
-export function getVariableStep(items: (number | ControlCommands | StandardDivert | NativeFunctions | TextType | Item)[], labelKey: string, nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonLabelStep> {
-    let elements: PixiVNJsonLabelStep[] = []
+export function getVariableStep(items: (number | ControlCommands | StandardDivert | NativeFunctions | TextType | Item)[], labelKey: string, nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonLabelStep[] | PixiVNJsonLabelStep> {
+    let elements: (PixiVNJsonLabelStep[] | PixiVNJsonLabelStep)[] = []
     let type: "random" | "sequential" | "loop" = "sequential"
     let haveFixedEnd: boolean = true
     let currentIndex: number | undefined = undefined
@@ -42,6 +42,7 @@ export function getVariableStep(items: (number | ControlCommands | StandardDiver
         if (Array.isArray(value) && value.length > 3) {
             // remove the first item and the last two
             value = value.slice(1, value.length - 2)
+            let itemList: PixiVNJsonLabelStep[] = []
             value.forEach((v) => {
                 let item: PixiVNJsonLabelStep = {}
                 if (typeof v === "string" && v.startsWith("^")) {
@@ -68,8 +69,14 @@ export function getVariableStep(items: (number | ControlCommands | StandardDiver
                 else if (typeof v === "string" && v === "done") {
                     item.end = "label_end"
                 }
-                elements.push(item)
+                itemList.push(item)
             })
+            if (itemList.length === 1) {
+                elements.push(itemList[0])
+            }
+            else {
+                elements.push(itemList)
+            }
         }
         else {
             console.error("[Pixi’VN Ink] Unhandled case: value is not an array", value)
@@ -77,7 +84,7 @@ export function getVariableStep(items: (number | ControlCommands | StandardDiver
     })
 
     if (type === "sequential") {
-        let res: PixiVNJsonStepSwitch<PixiVNJsonLabelStep> = {
+        let res: PixiVNJsonStepSwitch<PixiVNJsonLabelStep[] | PixiVNJsonLabelStep> = {
             type: "stepswitch",
             elements: elements,
             choiceType: type,
@@ -86,7 +93,7 @@ export function getVariableStep(items: (number | ControlCommands | StandardDiver
         }
         return res
     }
-    let res: PixiVNJsonStepSwitch<PixiVNJsonLabelStep> = {
+    let res: PixiVNJsonStepSwitch<PixiVNJsonLabelStep[] | PixiVNJsonLabelStep> = {
         type: "stepswitch",
         elements: elements,
         choiceType: type,
