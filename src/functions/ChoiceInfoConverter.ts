@@ -5,9 +5,10 @@ import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
 import { unionStringOrArray } from './utility';
+import { ConditionalList, getVariableChoise, VariableChoiseText } from './VariableTextUtility';
 
-export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo)[], result: LabelChoiceRes, lastLabel?: string) {
-    let text: string = ""
+export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[], result: LabelChoiceRes, lastLabel?: string) {
+    let text: (string | VariableChoiseText)[] = []
     let label: string = ""
     let preDialog: string = ""
     let onetime: boolean = false
@@ -17,11 +18,17 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
         if (typeof v === "string") {
             // Dialog
             if (v.startsWith("^")) {
-                text = v.substring(1)
+                text.push(v.substring(1))
             }
             else if (nativeFunctions.includes(v as NativeFunctions)) {
                 condition.push(v as NativeFunctions)
             }
+        }
+        else if (Array.isArray(v) && v.includes("visit")) {
+            let item: VariableChoiseText = {
+                conditionalChoice: getVariableChoise(v, lastLabel)
+            }
+            text.push(item)
         }
         else if (v && typeof v === "object") {
             // if is a choice
@@ -41,7 +48,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
                         result[lastLabel].text = unionStringOrArray(t, result[lastLabel].text)
                     }
                     else {
-                        text = t
+                        text.push(t)
                         preDialog = t
                     }
                 }
@@ -53,7 +60,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
         else {
             condition.push(v)
         }
-        if (text && label) {
+        if (text.length > 0 && label) {
             if (result[label]) {
                 result[label].text = unionStringOrArray(text, result[label].text)
             }

@@ -474,12 +474,14 @@ test('Examples', async () => {
 										{
 											dialogue: "No good. Where is he?",
 										},
-										{
-											dialogue: "Ah-ha! Got him! ",
-										},
-										{
-											end: "game_end",
-										},
+										[
+											{
+												dialogue: "Ah-ha! Got him! ",
+											},
+											{
+												end: "game_end",
+											},
+										],
 									],
 									choiceType: "random",
 								},
@@ -537,7 +539,7 @@ test('Examples', async () => {
 										choiceType: "loop",
 									},
 								},
-							]
+							],
 						],
 						choiceType: "loop",
 					},
@@ -605,35 +607,121 @@ test('Examples', async () => {
 				{
 					choices: [
 						{
-							text: " top-left",
+							text: [
+								{
+									conditionalChoice: {
+										type: "stepswitch",
+										elements: [
+											{
+												text: "Hit",
+											},
+											{
+												text: "Smash",
+											},
+											{
+												text: "Try",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+								" top-left",
+							],
 							label: "whack_a_mole_|_c-0",
 							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
-							text: " top-right",
+							text: [
+								{
+									conditionalChoice: {
+										type: "stepswitch",
+										elements: [
+											{
+												text: "Whallop",
+											},
+											{
+												text: "Splat",
+											},
+											{
+												text: "Whack",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+								" top-right",
+							],
 							label: "whack_a_mole_|_c-1",
 							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
-							text: " middle",
+							text: [
+								{
+									conditionalChoice: {
+										type: "stepswitch",
+										elements: [
+											{
+												text: "Blast",
+											},
+											{
+												text: "Hammer",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+								" middle",
+							],
 							label: "whack_a_mole_|_c-2",
 							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
-							text: " bottom-left",
+							text: [
+								{
+									conditionalChoice: {
+										type: "stepswitch",
+										elements: [
+											{
+												text: "Clobber",
+											},
+											{
+												text: "Bosh",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+								" bottom-left",
+							],
 							label: "whack_a_mole_|_c-3",
 							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
-							text: " bottom-right",
+							text: [
+								{
+									conditionalChoice: {
+										type: "stepswitch",
+										elements: [
+											{
+												text: "Nail",
+											},
+											{
+												text: "Thump",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+								" bottom-right",
+							],
 							label: "whack_a_mole_|_c-4",
 							props: {},
 							type: "call",
