@@ -15,7 +15,6 @@ export function getVariableStep(items: (number | ControlCommands | StandardDiver
     let elements: (PixiVNJsonLabelStep[] | PixiVNJsonLabelStep)[] = []
     let type: "random" | "sequential" | "loop" = "sequential"
     let haveFixedEnd: boolean = true
-    let currentIndex: number | undefined = undefined
 
     items.forEach((item) => {
         if (item === "%") {
@@ -28,11 +27,7 @@ export function getVariableStep(items: (number | ControlCommands | StandardDiver
             type = "random"
         }
         if (item === "env") {
-            currentIndex = undefined
             haveFixedEnd = true
-        }
-        if (typeof item === "number") {
-            currentIndex = item
         }
     })
 
