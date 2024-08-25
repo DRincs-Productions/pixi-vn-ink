@@ -455,13 +455,39 @@ test('Examples', async () => {
 			],
 			whack_a_mole: [
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"I heft the hammer.",
+							{
+								dialogue: "I heft the hammer.",
+							},
+							{
+								conditionalStep: {
+									type: "stepswitch",
+									elements: [
+										{
+											dialogue: "Missed!",
+										},
+										{
+											dialogue: "Nothing!",
+										},
+										{
+											dialogue: "No good. Where is he?",
+										},
+										{
+											dialogue: "Ah-ha! Got him! ",
+										},
+										{
+											end: "game_end",
+										},
+									],
+									choiceType: "random",
+								},
+							},
 						],
 						choiceType: "sequential",
 						end: undefined,
+						nestedId: undefined,
 					},
 				},
 				{
