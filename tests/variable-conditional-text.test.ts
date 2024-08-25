@@ -496,11 +496,48 @@ test('Examples', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"mole",
-							" ",
+							{
+								dialogue: "mole",
+							},
+							[
+								{
+									conditionalStep: {
+										type: "stepswitch",
+										elements: [
+											{
+												dialogue: "nasty",
+											},
+											{
+												dialogue: "blasted",
+											},
+											{
+												dialogue: "foul",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+								{
+									dialogue: " ",
+								},
+								{
+									conditionalStep: {
+										type: "stepswitch",
+										elements: [
+											{
+												dialogue: "creature",
+											},
+											{
+												dialogue: "rodent",
+											},
+										],
+										choiceType: "loop",
+									},
+								},
+							]
 						],
 						choiceType: "loop",
 					},
@@ -513,18 +550,31 @@ test('Examples', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"in here somewhere",
-							"hiding somewhere",
-							"still at large",
-							"laughing at me",
-							"still unwhacked",
-							"doomed",
+							{
+								dialogue: "in here somewhere",
+							},
+							{
+								dialogue: "hiding somewhere",
+							},
+							{
+								dialogue: "still at large",
+							},
+							{
+								dialogue: "laughing at me",
+							},
+							{
+								dialogue: "still unwhacked",
+							},
+							{
+								dialogue: "doomed",
+							},
 						],
 						choiceType: "sequential",
 						end: undefined,
+						nestedId: undefined,
 					},
 					glueEnabled: true,
 					goNextStep: true,
@@ -537,14 +587,19 @@ test('Examples', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
-							"I'll show him!",
-							"But this time he won't escape!",
+							{
+								dialogue: "I'll show him!",
+							},
+							{
+								dialogue: "But this time he won't escape!",
+							},
 						],
 						choiceType: "sequential",
 						end: undefined,
+						nestedId: undefined,
 					},
 				},
 				{
@@ -552,40 +607,35 @@ test('Examples', async () => {
 						{
 							text: " top-left",
 							label: "whack_a_mole_|_c-0",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: " top-right",
 							label: "whack_a_mole_|_c-1",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: " middle",
 							label: "whack_a_mole_|_c-2",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: " bottom-left",
 							label: "whack_a_mole_|_c-3",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: " bottom-right",
 							label: "whack_a_mole_|_c-4",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
