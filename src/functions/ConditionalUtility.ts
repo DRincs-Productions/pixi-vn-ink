@@ -1,10 +1,11 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonConditions } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalResultWithDefaultElement, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitch } from "@drincs/pixi-vn";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { getLabelByStandardDivert } from "./DivertUtility";
+import { getVariableText } from "./VariableTextUtility";
 
 export function getConditional<T>(then: T | PixiVNJsonConditionalStatements<T>, data: (ReadCount | NativeFunctions)[], labelKey: string, elseThen?: T | PixiVNJsonConditionalStatements<T>): T | PixiVNJsonConditionalStatements<T> {
     if (data.length > 0) {
@@ -115,7 +116,7 @@ export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])
     }
     return undefined
 }
-function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string>)[], labelKey: string) {
+function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string> | PixiVNJsonConditionalResultWithDefaultElement<string>[]>)[], labelKey: string) {
     let isInEnv = false
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
@@ -123,7 +124,15 @@ function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonCondi
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
             item.b.forEach((rootItem) => {
-                if (isInEnv) {
+                if (rootItem instanceof Array) {
+                    if (rootItem.includes("visit")) {
+                        let i = getVariableText(rootItem as any, labelKey)
+                        if (i) {
+                            res.push(i)
+                        }
+                    }
+                }
+                else if (isInEnv) {
                     if (rootItem && typeof rootItem === "object" && "CNT?" in rootItem) {
                         isConditionalText = true
                         conditionalList.push(rootItem)

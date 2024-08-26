@@ -609,17 +609,21 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									conditionalChoice: {
+									type: "crwde",
+									secondConditionalItem: {
 										type: "stepswitch",
 										elements: [
 											{
-												text: "Hit",
+												type: "crwde",
+												firstItem: "Hit",
 											},
 											{
-												text: "Smash",
+												type: "crwde",
+												firstItem: "Smash",
 											},
 											{
-												text: "Try",
+												type: "crwde",
+												firstItem: "Try",
 											},
 										],
 										choiceType: "loop",
@@ -635,17 +639,21 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									conditionalChoice: {
+									type: "crwde",
+									secondConditionalItem: {
 										type: "stepswitch",
 										elements: [
 											{
-												text: "Whallop",
+												type: "crwde",
+												firstItem: "Whallop",
 											},
 											{
-												text: "Splat",
+												type: "crwde",
+												firstItem: "Splat",
 											},
 											{
-												text: "Whack",
+												type: "crwde",
+												firstItem: "Whack",
 											},
 										],
 										choiceType: "loop",
@@ -661,14 +669,17 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									conditionalChoice: {
+									type: "crwde",
+									secondConditionalItem: {
 										type: "stepswitch",
 										elements: [
 											{
-												text: "Blast",
+												type: "crwde",
+												firstItem: "Blast",
 											},
 											{
-												text: "Hammer",
+												type: "crwde",
+												firstItem: "Hammer",
 											},
 										],
 										choiceType: "loop",
@@ -684,14 +695,17 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									conditionalChoice: {
+									type: "crwde",
+									secondConditionalItem: {
 										type: "stepswitch",
 										elements: [
 											{
-												text: "Clobber",
+												type: "crwde",
+												firstItem: ["Clobber"],
 											},
 											{
-												text: "Bosh",
+												type: "crwde",
+												firstItem: ["Bosh"],
 											},
 										],
 										choiceType: "loop",
@@ -707,14 +721,17 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									conditionalChoice: {
+									type: "crwde",
+									secondConditionalItem: {
 										type: "stepswitch",
 										elements: [
 											{
-												text: "Nail",
+												type: "crwde",
+												firstItem: "Nail",
 											},
 											{
-												text: "Thump",
+												type: "crwde",
+												firstItem: "Thump",
 											},
 										],
 										choiceType: "loop",
@@ -904,7 +921,7 @@ test('Conditional Text', async () => {
 === met_blofeld ===
 {met_blofeld: "I saw him. Only for a moment." }
 "His real name was {met_blofeld.learned_his_name: Franz|a secret}."
-{met_blofeld: "I saw him. Only for a moment. His real name was {met_blofeld.learned_his_name: Franz|kept a secret}." | "I missed him. Was he particularly evil?" }
+{met_blofeld: "I saw him. Only for a moment. His real name was {a|b|{met_blofeld: c}} {met_blofeld.learned_his_name: Franz|kept a secret}." | "I missed him. Was he particularly evil?" }
 + [ Loop ] -> met_blofeld
 + [ learned_his_name ] -> learned_his_name
 + [ Exit ] -> END

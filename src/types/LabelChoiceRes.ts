@@ -1,10 +1,10 @@
-import { VariableChoiseText } from "../functions/VariableTextUtility"
+import { PixiVNJsonConditionalResultWithDefaultElement } from "@drincs/pixi-vn"
 import NativeFunctions from "./parserItems/NativeFunctions"
 import ReadCount from "./parserItems/ReadCount"
 
 type LabelChoiceRes = {
     [label: string]: {
-        text: string | (string | VariableChoiseText)[]
+        text: string | (string | PixiVNJsonConditionalResultWithDefaultElement<string>)[]
         preDialog?: { text: string }
         onetime: boolean
         conditions: (ReadCount | NativeFunctions)[]
