@@ -110,15 +110,19 @@ export function getVariableStep(items: ConditionalList, labelKey: string = "", n
 
 export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string>[] | PixiVNJsonConditionalResultWithDefaultElement<string>> {
     return getVariableItem((v, itemList) => {
-        let item: PixiVNJsonConditionalResultWithDefaultElement<string> = {
-            type: "crwde",
-        }
+        let item: PixiVNJsonConditionalResultWithDefaultElement<string> | undefined = undefined
         if (typeof v === "string" && v.startsWith("^")) {
-            item.firstItem = v.substring(1)
+            item = {
+                type: "crwde",
+                firstItem: v.substring(1)
+            }
         }
         else if (Array.isArray(v)) {
             if (v.includes("visit")) {
-                item.secondConditionalItem = getVariableText(v, labelKey, nestedId)
+                item = {
+                    type: "crwde",
+                    secondConditionalItem: getVariableText(v, labelKey, nestedId)
+                }
             }
             else if (v.includes("nop")) {
                 let i = getConditionalText(v, labelKey)
@@ -128,6 +132,8 @@ export function getVariableText(items: ConditionalList, labelKey: string = "", n
                 console.error("[Pixi’VN Ink] Unhandled case: value is an array", v)
             }
         }
-        itemList.push(item)
+        if (item) {
+            itemList.push(item)
+        }
     }, items, labelKey, nestedId)
 }
