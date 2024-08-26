@@ -752,7 +752,132 @@ test('Examples', async () => {
 
 test('Examples 2', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"turn_on_television_|_c-0": [
+				{
+					dialogue: "\t \t\t",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "turn_on_television",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			"turn_on_television_|_c-1": [
+				{
+					dialogue: "\t",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "go_outside_instead",
+						type: "call",
+					},
+					glueEnabled: true,
+				},
+			],
+			turn_on_television: [
+				{
+					dialogue: "I turned on the television ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					conditionalStep: {
+						type: "stepswitch",
+						elements: [
+							{
+								dialogue: "for the first time",
+							},
+							{
+								dialogue: "for the second time",
+							},
+							{
+								dialogue: "again",
+							},
+							{
+								dialogue: "once more",
+							},
+						],
+						choiceType: "sequential",
+						end: undefined,
+						nestedId: undefined,
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ", but there was ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					conditionalStep: {
+						type: "stepswitch",
+						elements: [
+							{
+								dialogue: "nothing good on, so I turned it off again",
+							},
+							{
+								dialogue: "still nothing worth watching",
+							},
+							{
+								dialogue: "even less to hold my interest than before",
+							},
+							{
+								dialogue: "nothing but rubbish",
+							},
+							{
+								dialogue: "a program about sharks and I don't like sharks",
+							},
+							{
+								dialogue: "nothing on",
+							},
+						],
+						choiceType: "sequential",
+						end: undefined,
+						nestedId: undefined,
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ".",
+				},
+				{
+					choices: [
+						{
+							text: [
+								"Try it again",
+							],
+							label: "turn_on_television_|_c-0",
+							props: {
+							},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: [
+								"Go outside instead",
+							],
+							label: "turn_on_television_|_c-1",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			go_outside_instead: [
+				{
+					end: "game_end",
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> turn_on_television
