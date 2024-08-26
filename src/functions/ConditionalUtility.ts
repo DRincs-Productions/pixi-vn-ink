@@ -137,9 +137,12 @@ function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonCondi
                         isInEnv = true
                     }
                     else if (rootItem == 'nop' && isConditionalText) {
-                        getConditionalText(conditionalList as any[], labelKey)
+                        let i = getConditionalText(conditionalList as any[], labelKey)
                         isConditionalText = false
                         conditionalList = []
+                        if (i) {
+                            res.push(i)
+                        }
                     }
                 }
             })
