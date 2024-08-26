@@ -85,7 +85,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
     rootList.forEach((rootItem, index) => {
         if (isInEnv) {
             if (rootItem && typeof rootItem === "object" && "CNT?" in rootItem) {
-                if (index - 1 > 0 && rootList[index - 1] == "ev") {
+                if (index > 0 && rootList[index - 1] == "ev") {
                     isConditionalText = true
                     conditionalList.push(rootItem)
                 } else {
