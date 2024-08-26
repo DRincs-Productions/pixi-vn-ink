@@ -99,16 +99,16 @@ export function getConditional<T>(then: T | PixiVNJsonConditionalStatements<T>, 
     return then
 }
 
-export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])[], labelKey: string): PixiVNJsonConditionalStatements<string> | undefined {
+export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])[], labelKey: string, nestedId: string | undefined = undefined): PixiVNJsonConditionalStatements<string> | undefined {
     if (data.length === 2) {
         let then: (string | PixiVNJsonConditionalStatements<string>)[] = []
-        getThen(data[1] as any, then, labelKey)
+        getThen(data[1] as any, then, labelKey, nestedId)
         console.log(data)
     } else if (data.length === 3) {
         let then: (string | PixiVNJsonConditionalStatements<string>)[] = []
         let elseThen: (string | PixiVNJsonConditionalStatements<string>)[] = []
-        getThen(data[1] as any, then, labelKey)
-        getThen(data[2] as any, elseThen, labelKey)
+        getThen(data[1] as any, then, labelKey, nestedId)
+        getThen(data[2] as any, elseThen, labelKey, nestedId)
         console.log(data)
     }
     else {
@@ -116,7 +116,7 @@ export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])
     }
     return undefined
 }
-function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string> | PixiVNJsonConditionalResultWithDefaultElement<string>[]>)[], labelKey: string) {
+function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string> | PixiVNJsonConditionalResultWithDefaultElement<string>[]>)[], labelKey: string, nestedId: string | undefined = undefined) {
     let isInEnv = false
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
@@ -126,7 +126,7 @@ function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonCondi
             item.b.forEach((rootItem) => {
                 if (rootItem instanceof Array) {
                     if (rootItem.includes("visit")) {
-                        let i = getVariableText(rootItem as any, labelKey)
+                        let i = getVariableText(rootItem as any, labelKey, nestedId)
                         if (i) {
                             res.push(i)
                         }
@@ -146,7 +146,7 @@ function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonCondi
                         isInEnv = true
                     }
                     else if (rootItem == 'nop' && isConditionalText) {
-                        let i = getConditionalText(conditionalList as any[], labelKey)
+                        let i = getConditionalText(conditionalList as any[], labelKey, nestedId)
                         isConditionalText = false
                         conditionalList = []
                         if (i) {
