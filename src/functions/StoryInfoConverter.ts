@@ -5,7 +5,7 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
-import { getConditional } from './ConditionalUtility';
+import { getConditional, getConditionalText } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { getVariableStep } from './VariableTextUtility';
 
@@ -59,9 +59,11 @@ function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJs
 type ShareData = {
     preDialog: { [label: string]: { text: string } }
 }
-function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
+function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
     let isInEnv = false
-    let envList: RootParserItemType[] = []
+    let choiseList: RootParserItemType[] = []
+    let isConditionalText = false
+    let conditionalList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
         labelSteps.push({
             dialogue: shareData.preDialog[labelKey].text
@@ -69,8 +71,8 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
         delete shareData.preDialog[labelKey]
         isNewLine = false
     }
-    if (items.includes("visit")) {
-        let item = getVariableStep(items as any, labelKey)
+    if (rootList.includes("visit")) {
+        let item = getVariableStep(rootList as any, labelKey)
         if (!isNewLine && labelSteps.length > 0) {
             labelSteps[labelSteps.length - 1].glueEnabled = true
             labelSteps[labelSteps.length - 1].goNextStep = true
@@ -80,72 +82,94 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
         })
         return
     }
-    items.forEach((v) => {
+    rootList.forEach((rootItem, index) => {
         if (isInEnv) {
-            envList.push(v)
-            if (typeof v === "string" && v == "/ev") {
-                isInEnv = false
+            if (rootItem && typeof rootItem === "object" && "CNT?" in rootItem) {
+                if (index - 1 > 0 && rootList[index - 1] == "ev") {
+                    isConditionalText = true
+                    conditionalList.push(rootItem)
+                } else {
+                    choiseList.push(rootItem)
+                }
+                isNewLine = false
+            }
+            else {
+                choiseList.push(rootItem)
+                if (typeof rootItem === "string" && rootItem == "/ev") {
+                    isInEnv = false
+                    choiseList.push(rootItem)
+                }
             }
         }
-        else if (typeof v === "string") {
+        else if (typeof rootItem === "string") {
             // Dialog
-            if (v.startsWith("^")) {
+            if (rootItem.startsWith("^")) {
                 if (!isNewLine && labelSteps.length > 0) {
                     // in this case: <> text
                     if (labelSteps[labelSteps.length - 1].glueEnabled) {
                         labelSteps.push({
-                            dialogue: v.substring(1)
+                            dialogue: rootItem.substring(1)
                         })
                     } else {
                         labelSteps[labelSteps.length - 1].glueEnabled = true
                         labelSteps[labelSteps.length - 1].goNextStep = true
                         labelSteps.push({
-                            dialogue: v.substring(1)
+                            dialogue: rootItem.substring(1)
                         })
                     }
                 } else {
                     labelSteps.push({
-                        dialogue: v.substring(1)
+                        dialogue: rootItem.substring(1)
                     })
                 }
                 isNewLine = false
             }
-            else if (v == "ev") {
+            else if (rootItem == "ev") {
                 isInEnv = true
             }
-            else if (v == "\n") {
+            else if (rootItem == "\n") {
                 isNewLine = true
             }
-            else if (v == "done") {
+            else if (rootItem == "done") {
                 labelSteps.push({
                     end: "label_end"
                 })
                 isNewLine = false
             }
-            else if (v == "end") {
+            else if (rootItem == "end") {
                 labelSteps.push({
                     end: "game_end"
                 })
                 isNewLine = false
             }
-            else if (v == "<>") {
+            else if (rootItem == "<>") {
                 labelSteps.push({
                     glueEnabled: true,
                     goNextStep: true,
                 })
                 isNewLine = false
             }
+            else if (rootItem == 'nop' && isConditionalText) {
+                getConditionalText(conditionalList as any[], labelKey)
+                isConditionalText = false
+                conditionalList = []
+            }
         }
-        else if (v instanceof Array) {
-            getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
+        else if (rootItem instanceof Array) {
+            if (isConditionalText) {
+                conditionalList.push(rootItem)
+            }
+            else {
+                getLabel(rootItem, labelKey, labelSteps, subLabels, shareData, isNewLine)
+            }
         }
-        else if (v && typeof v === "object") {
-            if ("->" in v && typeof v["->"] === "string"
+        else if (rootItem && typeof rootItem === "object") {
+            if ("->" in rootItem && typeof rootItem["->"] === "string"
                 // {->: '.^.^.2.s'}
-                && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
+                && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(rootItem["->"])
             ) {
                 let glueEnabled = isNewLine ? undefined : true
-                let labelIdToOpen = getLabelByStandardDivert(v["->"], labelKey)
+                let labelIdToOpen = getLabelByStandardDivert(rootItem["->"], labelKey)
                 if (!isNewLine && labelSteps.length > 0) {
                     labelSteps[labelSteps.length - 1].goNextStep = true
                 }
@@ -158,27 +182,27 @@ function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: Pix
                 })
                 isNewLine = false
             }
-            else if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
-                envList.push(v)
+            else if ("*" in rootItem && typeof rootItem["*"] === "string" && rootItem["*"].includes("c")) {
+                choiseList.push(rootItem)
                 isNewLine = false
             }
             // if is choise info
-            else if ("s" in v && v["s"] instanceof Array) {
-                envList.push(v)
+            else if ("s" in rootItem && rootItem["s"] instanceof Array) {
+                choiseList.push(rootItem)
                 isNewLine = false
             }
-            else if ("CNT?" in v) {
-                envList.push(v)
+            else if ("CNT?" in rootItem) {
+                choiseList.push(rootItem)
                 isNewLine = false
             }
             else {
-                addLabels(v, subLabels, labelKey, shareData)
+                addLabels(rootItem, subLabels, labelKey, shareData)
             }
         }
     })
-    if (envList.length > 0) {
+    if (choiseList.length > 0) {
         let choices: LabelChoiceRes = {}
-        getLabelChoice(envList as any, choices)
+        getLabelChoice(choiseList as any, choices)
         for (const [key, value] of Object.entries(choices)) {
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
