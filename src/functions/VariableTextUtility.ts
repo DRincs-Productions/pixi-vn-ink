@@ -87,6 +87,13 @@ export function getVariableStep(items: ConditionalList, labelKey: string = "", n
             if (v.includes("visit")) {
                 item.conditionalStep = getVariableStep(v, labelKey, nestedId)
             }
+            // TODO: Implement nop
+            // else if (v.includes("nop")) {
+            //     let i = getConditionalText(v, labelKey)
+            //     if (i) {
+            //         item.dialogue = i
+            //     }
+            // }
             else {
                 console.error("[Pixi’VN Ink] Unhandled case: value is an array", v)
             }
