@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultWithDefaultElement, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn"
+import { PixiVNJsonConditionalResultWithDefaultElement, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
@@ -6,7 +6,7 @@ import TextType from "../types/parserItems/TextType"
 import { getConditionalText } from "./ConditionalUtility"
 import { getLabelByStandardDivert } from "./DivertUtility"
 
-export function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<T[] | T> {
+function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items: ConditionalList, _labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<T[] | T> {
     let elements: (T | T[])[] = []
     let type: "random" | "sequential" | "loop" = "sequential"
     let haveFixedEnd: boolean = true
@@ -108,9 +108,9 @@ export function getVariableStep(items: ConditionalList, labelKey: string = "", n
     }, items, labelKey, nestedId)
 }
 
-export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string>[] | PixiVNJsonConditionalResultWithDefaultElement<string>> {
+export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>[] | PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>> {
     return getVariableItem((v, itemList) => {
-        let item: PixiVNJsonConditionalResultWithDefaultElement<string> | undefined = undefined
+        let item: PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>> | undefined = undefined
         if (typeof v === "string" && v.startsWith("^")) {
             item = {
                 type: "crwde",
@@ -126,7 +126,12 @@ export function getVariableText(items: ConditionalList, labelKey: string = "", n
             }
             else if (v.includes("nop")) {
                 let i = getConditionalText(v, labelKey)
-                // TODO to add
+                if (i) {
+                    item = {
+                        type: "crwde",
+                        firstItem: i
+                    }
+                }
             }
             else {
                 console.error("[Pixi’VN Ink] Unhandled case: value is an array", v)

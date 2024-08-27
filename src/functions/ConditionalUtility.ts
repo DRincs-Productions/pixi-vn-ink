@@ -116,7 +116,7 @@ export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])
     }
     return undefined
 }
-function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string> | PixiVNJsonConditionalResultWithDefaultElement<string>[]>)[], labelKey: string, nestedId: string | undefined = undefined) {
+function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>> | PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>[]>)[], labelKey: string, nestedId: string | undefined = undefined) {
     let isInEnv = false
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
