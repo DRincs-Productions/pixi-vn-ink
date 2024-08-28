@@ -1,12 +1,9 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
+import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
 import TextType from "../types/parserItems/TextType"
 import { getConditionalValue } from "./ConditionalUtility"
-import { getLabelByStandardDivert } from "./DivertUtility"
-
-
 
 type ListItem = StandardDivert | "pop" | TextType | null
 type Item = {
@@ -16,60 +13,30 @@ type Item = {
 
 export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | Item)[]
 
-export function getVariableStep(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonLabelStep[] | PixiVNJsonLabelStep> {
-    return getVariableItem((v, itemList) => {
-        let item: PixiVNJsonLabelStep = {}
-        if (typeof v === "string" && v.startsWith("^")) {
-            item.dialogue = v.substring(1)
-        }
-        else if (Array.isArray(v)) {
-            if (v.includes("visit")) {
-                item.conditionalStep = getVariableStep(v, labelKey, nestedId)
-            }
-            else if (v.includes("nop")) {
-                let i = getConditionalValue(v, labelKey)
-                if (i) {
-                    item.dialogue = i
-                }
-            }
-            else {
-                console.error("[Pixi’VN Ink] Unhandled case: value is an array", v)
-            }
-        }
-        else if (v && typeof v === "object" && "->" in v && typeof v["->"] === "string") {
-            let label = getLabelByStandardDivert(v["->"], labelKey)
-            item.labelToOpen = {
-                label: label,
-                type: "call",
-            }
-        }
-        else if (typeof v === "string" && v === "end") {
-            item.end = "game_end"
-        }
-        else if (typeof v === "string" && v === "done") {
-            item.end = "label_end"
-        }
-        itemList.push(item)
-    }, items, labelKey, nestedId)
-}
-
 export function getVariableValue<T>(
     items: ConditionalList,
-    addElement: (list: (T | PixiVNJsonStepSwitchElementType<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
+    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>) => void,
+    addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
     labelKey: string = "",
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
     return getVariableItem<T>((v, itemList) => {
-        let item: PixiVNJsonStepSwitchElementsType<T> | undefined = undefined
-        if (typeof v === "string" && v.startsWith("^")) {
-            addElement(itemList, v.substring(1))
+        if (typeof v === "string") {
+            // TODO v.startsWith("^")
+            // else if (typeof v === "string" && v === "end") {
+            //     addElement(itemList, v)
+            // }
+            // else if (typeof v === "string" && v === "done") {
+            //     addElement(itemList, v)
+            // }
+            addElement(itemList, v)
         }
         else if (Array.isArray(v)) {
             if (v.includes("visit")) {
-                addElement(itemList, getVariableValue(v, addElement, labelKey, nestedId))
+                addElement(itemList, getVariableValue(v, addElement, addConditionalElement, labelKey, nestedId))
             }
             else if (v.includes("nop")) {
-                let i = getConditionalValue(v, addElement, labelKey)
+                let i = getConditionalValue(v, addConditionalElement, addElement, labelKey)
                 if (i) {
                     addElement(itemList, i)
                 }
@@ -78,8 +45,14 @@ export function getVariableValue<T>(
                 console.error("[Pixi’VN Ink] Unhandled case: value is an array", v)
             }
         }
-        if (item) {
-            addElement(itemList, item)
+        else if (v && typeof v === "object" && "->" in v && typeof v["->"] === "string") {
+            // TODO
+            // let label = getLabelByStandardDivert(v["->"], labelKey)
+            // item.labelToOpen = {
+            //     label: label,
+            //     type: "call",
+            // }
+            addElement(itemList, v)
         }
     }, items, labelKey, nestedId)
 }

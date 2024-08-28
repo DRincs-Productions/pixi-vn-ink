@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
@@ -101,7 +101,8 @@ export function getConditionalChoice<T>(then: T | PixiVNJsonConditionalStatement
 
 export function getConditionalValue<T>(
     data: (ReadCount | (StandardDivert | Cond)[])[],
-    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: any) => void,
+    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>) => void,
     labelKey: string,
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalStatements<T> | undefined {
@@ -114,7 +115,7 @@ export function getConditionalValue<T>(
         condition = data[0] as ReadCount
     }
     if (data.length === 2 && condition) {
-        let then = getThen(data[1] as any, addElement, labelKey, nestedId)
+        let then = getThen(data[1] as any, addElement, addSwitchElemen, labelKey, nestedId)
         return {
             type: "ifelse",
             condition: {
@@ -126,8 +127,8 @@ export function getConditionalValue<T>(
             then: then
         }
     } else if (data.length === 3 && condition) {
-        let then = getThen(data[1] as any, addElement, labelKey, nestedId)
-        let elseThen = getThen(data[2] as any, addElement, labelKey, nestedId)
+        let then = getThen(data[1] as any, addElement, addSwitchElemen, labelKey, nestedId)
+        let elseThen = getThen(data[2] as any, addElement, addSwitchElemen, labelKey, nestedId)
         return {
             type: "ifelse",
             condition: {
@@ -149,6 +150,7 @@ export function getConditionalValue<T>(
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
     addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>) => void,
     labelKey: string,
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {
@@ -167,7 +169,7 @@ function getThen<T>(
             item.b.forEach((rootItem) => {
                 if (rootItem instanceof Array) {
                     if (rootItem.includes("visit")) {
-                        let i = getVariableValue<T>(rootItem as any, addElement, labelKey, nestedId)
+                        let i = getVariableValue<T>(rootItem as any, addSwitchElemen, addElement, labelKey, nestedId)
                         if (i) {
                             addElement(res, i)
                         }
@@ -180,19 +182,23 @@ function getThen<T>(
                     }
                 }
                 else if (typeof rootItem === "string") {
-                    if (rootItem.startsWith("^")) {
-                        addElement(res, rootItem.substring(1))
-                    }
-                    else if (rootItem == "ev") {
+                    if (rootItem == "ev") {
                         isInEnv = true
                     }
                     else if (rootItem == 'nop' && isConditionalText) {
-                        let i = getConditionalValue(conditionalList as any[], addElement, labelKey, nestedId)
+                        let i = getConditionalValue(conditionalList as any[], addElement, addSwitchElemen, labelKey, nestedId)
                         isConditionalText = false
                         conditionalList = []
                         if (i) {
                             addElement(res, i)
                         }
+                    }
+                    else {
+                        // TODO
+                        // if (rootItem.startsWith("^")) {
+                        //     addElement(res, rootItem.substring(1))
+                        // }
+                        addElement(res, rootItem)
                     }
                 }
             })
