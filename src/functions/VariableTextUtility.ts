@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultWithDefaultElement, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn"
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
@@ -115,9 +115,9 @@ export function getVariableStep(items: ConditionalList, labelKey: string = "", n
     }, items, labelKey, nestedId)
 }
 
-export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>[] | PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>> {
+export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>[] | PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>> {
     return getVariableItem((v, itemList) => {
-        let item: PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>> | undefined = undefined
+        let item: PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>> | undefined = undefined
         if (typeof v === "string" && v.startsWith("^")) {
             item = {
                 type: "crwde",

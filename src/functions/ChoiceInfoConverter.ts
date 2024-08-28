@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultWithDefaultElement, PixiVNJsonConditionalStatements } from '@drincs/pixi-vn';
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements } from '@drincs/pixi-vn';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import ChoicePoint, { ChoiceInfo } from '../types/parserItems/ChoicePoint';
 import NativeFunctions, { nativeFunctions } from '../types/parserItems/NativeFunctions';
@@ -9,7 +9,7 @@ import { unionStringOrArray } from './utility';
 import { ConditionalList, getVariableText } from './VariableTextUtility';
 
 export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[], result: LabelChoiceRes, lastLabel?: string) {
-    let text: (string | PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>)[] = []
+    let text: (string | PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>)[] = []
     let label: string = ""
     let preDialog: string = ""
     let onetime: boolean = false
@@ -27,7 +27,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
         }
         else if (Array.isArray(v) && v.includes("visit")) {
             let secondConditionalItem = getVariableText(v, lastLabel)
-            let item: PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>> = {
+            let item: PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>> = {
                 type: "crwde",
                 secondConditionalItem: secondConditionalItem
             }

@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultWithDefaultElement, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitch } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitch } from "@drincs/pixi-vn";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
@@ -116,7 +116,7 @@ export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])
     }
     return undefined
 }
-function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>> | PixiVNJsonConditionalResultWithDefaultElement<string | PixiVNJsonConditionalStatements<string>>[]>)[], labelKey: string, nestedId: string | undefined = undefined) {
+function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string> | PixiVNJsonStepSwitch<PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>> | PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>[]>)[], labelKey: string, nestedId: string | undefined = undefined) {
     let isInEnv = false
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
