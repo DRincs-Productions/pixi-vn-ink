@@ -7,7 +7,7 @@ import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { getLabelByStandardDivert } from "./DivertUtility";
 import { getVariableText } from "./VariableTextUtility";
 
-export function getConditional<T>(then: T | PixiVNJsonConditionalStatements<T>, data: (ReadCount | NativeFunctions)[], labelKey: string, elseThen?: T | PixiVNJsonConditionalStatements<T>): T | PixiVNJsonConditionalStatements<T> {
+export function getConditionalChoice<T>(then: T | PixiVNJsonConditionalStatements<T>, data: (ReadCount | NativeFunctions)[], labelKey: string, elseThen?: T | PixiVNJsonConditionalStatements<T>): T | PixiVNJsonConditionalStatements<T> {
     if (data.length > 0) {
         let conditions: PixiVNJsonConditions[] = []
         data.forEach((item) => {

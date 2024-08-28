@@ -5,7 +5,7 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
-import { getConditional, getConditionalText } from './ConditionalUtility';
+import { getConditionalChoice, getConditionalText } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { getVariableStep } from './VariableTextUtility';
 
@@ -221,7 +221,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                         type: "call",
                         oneTime: value.onetime,
                     }
-                    choices.push(getConditional(c, value.conditions, labelKey))
+                    choices.push(getConditionalChoice(c, value.conditions, labelKey))
                 }
                 else {
                     console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
@@ -237,7 +237,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                     oneTime: value.onetime,
                 }
                 labelSteps.push({
-                    choices: [getConditional(c, value.conditions, labelKey)]
+                    choices: [getConditionalChoice(c, value.conditions, labelKey)]
                 })
             }
             if (value.preDialog) {
