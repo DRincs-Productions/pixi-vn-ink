@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonConditions } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions } from "@drincs/pixi-vn";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
@@ -100,29 +100,59 @@ export function getConditional<T>(then: T | PixiVNJsonConditionalStatements<T>, 
 }
 
 export function getConditionalText(data: (ReadCount | (StandardDivert | Cond)[])[], labelKey: string, nestedId: string | undefined = undefined): PixiVNJsonConditionalStatements<string> | undefined {
-    if (data.length === 2) {
-        let then: (string | PixiVNJsonConditionalStatements<string>)[] = []
-        getThen(data[1] as any, then, labelKey, nestedId)
-        console.log(data)
-    } else if (data.length === 3) {
-        let then: (string | PixiVNJsonConditionalStatements<string>)[] = []
-        let elseThen: (string | PixiVNJsonConditionalStatements<string>)[] = []
-        getThen(data[1] as any, then, labelKey, nestedId)
-        getThen(data[2] as any, elseThen, labelKey, nestedId)
-        console.log(data)
+    if (data.length === 0) {
+        console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
+        return undefined
+    }
+    let condition: ReadCount | undefined = undefined
+    if (typeof data[0] === "object" && "CNT?" in data[0]) {
+        condition = data[0] as ReadCount
+    }
+    if (data.length === 2 && condition) {
+        let then = getThen(data[1] as any, labelKey, nestedId)
+        return {
+            type: "ifelse",
+            condition: {
+                type: "value",
+                storageType: "label",
+                storageOperationType: "get",
+                label: getLabelByStandardDivert(getLabelByStandardDivert(condition["CNT?"], labelKey), labelKey),
+            },
+            then: then
+        }
+    } else if (data.length === 3 && condition) {
+        let then = getThen(data[1] as any, labelKey, nestedId)
+        let elseThen = getThen(data[2] as any, labelKey, nestedId)
+        return {
+            type: "ifelse",
+            condition: {
+                type: "value",
+                storageType: "label",
+                storageOperationType: "get",
+                label: getLabelByStandardDivert(getLabelByStandardDivert(condition["CNT?"], labelKey), labelKey),
+            },
+            then: then,
+            else: elseThen
+        }
     }
     else {
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
     }
     return undefined
 }
-function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonConditionalStatements<string>)[], labelKey: string, nestedId: string | undefined = undefined) {
+function getThen(cond: (StandardDivert | Cond)[], labelKey: string, nestedId: string | undefined = undefined): PixiVNJsonConditionalResultToCombine<string> | string | PixiVNJsonConditionalStatements<string> {
+    let res: (string | PixiVNJsonConditionalStatements<string>)[] = []
     let isInEnv = false
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
 
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
+            if (item.b.length > 2) {
+                // remove the last 2 items
+                item.b.pop()
+                item.b.pop()
+            }
             item.b.forEach((rootItem) => {
                 if (rootItem instanceof Array) {
                     if (rootItem.includes("visit")) {
@@ -157,4 +187,13 @@ function getThen(cond: (StandardDivert | Cond)[], res: (string | PixiVNJsonCondi
             })
         }
     }
+    if (res.length === 1) {
+        return res[0]
+    }
+    let combinateRes: PixiVNJsonConditionalResultToCombine<string> = {
+        type: "resulttocombine",
+        combine: "cross",
+        secondConditionalItem: res,
+    }
+    return combinateRes
 }

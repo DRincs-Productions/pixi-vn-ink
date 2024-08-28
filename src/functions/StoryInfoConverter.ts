@@ -150,7 +150,12 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                getConditionalText(conditionalList as any[], labelKey)
+                let res = getConditionalText(conditionalList as any[], labelKey)
+                if (res) {
+                    labelSteps.push({
+                        dialogue: res
+                    })
+                }
                 isConditionalText = false
                 conditionalList = []
             }
