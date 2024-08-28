@@ -919,7 +919,7 @@ test('Conditional Text', async () => {
 	let res = convertInkText(`
 -> met_blofeld
 === met_blofeld ===
-{met_blofeld: "I saw him. Only for a moment." }
+{met_blofeld && met_blofeld: "I saw him. Only for a moment." }
 "His real name was {met_blofeld.learned_his_name: Franz|a secret}."
 {met_blofeld: "I saw him. Only for a moment. His real name was {met_blofeld.learned_his_name: Franz|kept a secret}." | "I missed him. Was he particularly evil?" }
 {met_blofeld: "Letter: {a|b|{met_blofeld: {c|d}}}" }
