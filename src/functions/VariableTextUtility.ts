@@ -15,30 +15,23 @@ export type ConditionalList = (number | ControlCommands | StandardDivert | Nativ
 
 export function getVariableValue<T>(
     items: ConditionalList,
-    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>) => void,
-    addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
+    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
     labelKey: string = "",
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
     return getVariableItem<T>((v, itemList) => {
         if (typeof v === "string") {
-            // TODO v.startsWith("^")
-            // else if (typeof v === "string" && v === "end") {
-            //     addElement(itemList, v)
-            // }
-            // else if (typeof v === "string" && v === "done") {
-            //     addElement(itemList, v)
-            // }
-            addElement(itemList, v)
+            addElement(itemList, v, labelKey)
         }
         else if (Array.isArray(v)) {
             if (v.includes("visit")) {
-                addElement(itemList, getVariableValue(v, addElement, addConditionalElement, labelKey, nestedId))
+                addElement(itemList, getVariableValue(v, addElement, addConditionalElement, labelKey, nestedId), labelKey)
             }
             else if (v.includes("nop")) {
                 let i = getConditionalValue(v, addConditionalElement, addElement, labelKey)
                 if (i) {
-                    addElement(itemList, i)
+                    addElement(itemList, i, labelKey)
                 }
             }
             else {
@@ -46,13 +39,7 @@ export function getVariableValue<T>(
             }
         }
         else if (v && typeof v === "object" && "->" in v && typeof v["->"] === "string") {
-            // TODO
-            // let label = getLabelByStandardDivert(v["->"], labelKey)
-            // item.labelToOpen = {
-            //     label: label,
-            //     type: "call",
-            // }
-            addElement(itemList, v)
+            addElement(itemList, v, labelKey)
         }
     }, items, labelKey, nestedId)
 }

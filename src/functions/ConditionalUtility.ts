@@ -101,8 +101,8 @@ export function getConditionalChoice<T>(then: T | PixiVNJsonConditionalStatement
 
 export function getConditionalValue<T>(
     data: (ReadCount | (StandardDivert | Cond)[])[],
-    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>) => void,
+    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
     labelKey: string,
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalStatements<T> | undefined {
@@ -149,8 +149,8 @@ export function getConditionalValue<T>(
 
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
-    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>) => void,
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>) => void,
+    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
     labelKey: string,
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {
@@ -171,7 +171,7 @@ function getThen<T>(
                     if (rootItem.includes("visit")) {
                         let i = getVariableValue<T>(rootItem as any, addSwitchElemen, addElement, labelKey, nestedId)
                         if (i) {
-                            addElement(res, i)
+                            addElement(res, i, labelKey)
                         }
                     }
                 }
@@ -190,15 +190,11 @@ function getThen<T>(
                         isConditionalText = false
                         conditionalList = []
                         if (i) {
-                            addElement(res, i)
+                            addElement(res, i, labelKey)
                         }
                     }
                     else {
-                        // TODO
-                        // if (rootItem.startsWith("^")) {
-                        //     addElement(res, rootItem.substring(1))
-                        // }
-                        addElement(res, rootItem)
+                        addElement(res, rootItem, labelKey)
                     }
                 }
             })

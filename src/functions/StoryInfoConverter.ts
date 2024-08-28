@@ -5,9 +5,9 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
+import { addConditionalElementStep, addConditionalElementText, addSwitchElemenStep, addSwitchElemenText } from './ConditionalSubUtility';
 import { getConditionalChoice, getConditionalValue } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
-import { getVariableStep } from './VariableTextUtility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -72,7 +72,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
         isNewLine = false
     }
     if (rootList.includes("visit")) {
-        let item = getVariableStep(rootList as any, labelKey)
+        let item = getConditionalValue(rootList as any, addConditionalElementStep, addSwitchElemenStep, labelKey)
         if (!isNewLine && labelSteps.length > 0) {
             labelSteps[labelSteps.length - 1].glueEnabled = true
             labelSteps[labelSteps.length - 1].goNextStep = true
@@ -150,7 +150,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                let res = getConditionalValue(conditionalList as any[], labelKey)
+                let res = getConditionalValue(conditionalList as any[], addConditionalElementText, addSwitchElemenText, labelKey)
                 if (res) {
                     labelSteps.push({
                         dialogue: res

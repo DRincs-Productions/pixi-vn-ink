@@ -5,6 +5,7 @@ import NativeFunctions, { nativeFunctions } from '../types/parserItems/NativeFun
 import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
+import { addConditionalElementText, addSwitchElemenText } from './ConditionalSubUtility';
 import { unionStringOrArray } from './utility';
 import { ConditionalList, getVariableValue } from './VariableTextUtility';
 
@@ -26,7 +27,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
             }
         }
         else if (Array.isArray(v) && v.includes("visit")) {
-            let secondConditionalItem = getVariableValue(v, lastLabel)
+            let secondConditionalItem = getVariableValue<string>(v, addSwitchElemenText, addConditionalElementText, lastLabel)
             text.push(secondConditionalItem)
         }
         else if (v && typeof v === "object") {
