@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn"
+import { PixiVNJsonLabelStep, PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
@@ -6,8 +6,8 @@ import TextType from "../types/parserItems/TextType"
 import { getConditionalText } from "./ConditionalUtility"
 import { getLabelByStandardDivert } from "./DivertUtility"
 
-function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items: ConditionalList, _labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<T[] | T> {
-    let elements: (T | T[])[] = []
+function getVariableItem<T>(addList: (item: ListItem, list: PixiVNJsonStepSwitchElementType<T>[]) => void, items: ConditionalList, _labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<T> {
+    let elements: PixiVNJsonStepSwitchElementsType<T> = []
     let type: "random" | "sequential" | "loop" = "sequential"
     let haveFixedEnd: boolean = true
 
@@ -34,7 +34,7 @@ function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items:
         if (Array.isArray(value) && value.length > 3) {
             // remove the first item and the last two
             value = value.slice(1, value.length - 2)
-            let itemList: T[] = []
+            let itemList: PixiVNJsonStepSwitchElementType<T>[] = []
             value.forEach((v) => {
                 addList(v, itemList)
             })
@@ -42,7 +42,11 @@ function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items:
                 elements.push(itemList[0])
             }
             else {
-                elements.push(itemList)
+                elements.push({
+                    type: "resulttocombine",
+                    combine: "cross",
+                    secondConditionalItem: itemList
+                })
             }
         }
         else {
@@ -51,7 +55,7 @@ function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items:
     })
 
     if (type === "sequential") {
-        let res: PixiVNJsonStepSwitch<T[] | T> = {
+        let res: PixiVNJsonStepSwitch<T> = {
             type: "stepswitch",
             elements: elements,
             choiceType: type,
@@ -60,7 +64,7 @@ function getVariableItem<T>(addList: (item: ListItem, list: T[]) => void, items:
         }
         return res
     }
-    let res: PixiVNJsonStepSwitch<T[] | T> = {
+    let res: PixiVNJsonStepSwitch<T> = {
         type: "stepswitch",
         elements: elements,
         choiceType: type,
@@ -87,13 +91,12 @@ export function getVariableStep(items: ConditionalList, labelKey: string = "", n
             if (v.includes("visit")) {
                 item.conditionalStep = getVariableStep(v, labelKey, nestedId)
             }
-            // TODO: Implement nop
-            // else if (v.includes("nop")) {
-            //     let i = getConditionalText(v, labelKey)
-            //     if (i) {
-            //         item.dialogue = i
-            //     }
-            // }
+            else if (v.includes("nop")) {
+                let i = getConditionalText(v, labelKey)
+                if (i) {
+                    item.dialogue = i
+                }
+            }
             else {
                 console.error("[Pixi’VN Ink] Unhandled case: value is an array", v)
             }
@@ -115,29 +118,20 @@ export function getVariableStep(items: ConditionalList, labelKey: string = "", n
     }, items, labelKey, nestedId)
 }
 
-export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>[] | PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>> {
-    return getVariableItem((v, itemList) => {
-        let item: PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>> | undefined = undefined
+export function getVariableText(items: ConditionalList, labelKey: string = "", nestedId: string | undefined = undefined): PixiVNJsonStepSwitch<string> {
+    return getVariableItem<string>((v, itemList) => {
+        let item: PixiVNJsonStepSwitchElementsType<string> | undefined = undefined
         if (typeof v === "string" && v.startsWith("^")) {
-            item = {
-                type: "crwde",
-                firstItem: v.substring(1)
-            }
+            itemList.push(v.substring(1))
         }
         else if (Array.isArray(v)) {
             if (v.includes("visit")) {
-                item = {
-                    type: "crwde",
-                    secondConditionalItem: getVariableText(v, labelKey, nestedId)
-                }
+                itemList.push(getVariableText(v, labelKey, nestedId))
             }
             else if (v.includes("nop")) {
                 let i = getConditionalText(v, labelKey)
                 if (i) {
-                    item = {
-                        type: "crwde",
-                        firstItem: i
-                    }
+                    itemList.push(i)
                 }
             }
             else {

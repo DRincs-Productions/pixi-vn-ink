@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements } from '@drincs/pixi-vn';
+import { PixiVNJsonConditionalStatements } from '@drincs/pixi-vn';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import ChoicePoint, { ChoiceInfo } from '../types/parserItems/ChoicePoint';
 import NativeFunctions, { nativeFunctions } from '../types/parserItems/NativeFunctions';
@@ -9,7 +9,7 @@ import { unionStringOrArray } from './utility';
 import { ConditionalList, getVariableText } from './VariableTextUtility';
 
 export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[], result: LabelChoiceRes, lastLabel?: string) {
-    let text: (string | PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>>)[] = []
+    let text: (string | PixiVNJsonConditionalStatements<string>)[] = []
     let label: string = ""
     let preDialog: string = ""
     let onetime: boolean = false
@@ -27,11 +27,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
         }
         else if (Array.isArray(v) && v.includes("visit")) {
             let secondConditionalItem = getVariableText(v, lastLabel)
-            let item: PixiVNJsonConditionalResultToCombine<string | PixiVNJsonConditionalStatements<string>> = {
-                type: "crwde",
-                secondConditionalItem: secondConditionalItem
-            }
-            text.push(item)
+            text.push(secondConditionalItem)
         }
         else if (v && typeof v === "object") {
             // if is a choice
@@ -65,7 +61,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
         }
         if (text.length > 0 && label) {
             if (result[label]) {
-                result[label].text = unionStringOrArray(text, result[label].text)
+                result[label].text = unionStringOrArray<string | (string | PixiVNJsonConditionalStatements<string>)>(text, result[label].text)
             }
             else {
                 result[label] = { text: text, onetime: onetime, conditions: condition }
