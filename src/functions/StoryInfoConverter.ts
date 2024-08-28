@@ -5,7 +5,7 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
-import { getConditionalChoice, getConditionalText } from './ConditionalUtility';
+import { getConditionalChoice, getConditionalValue } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { getVariableStep } from './VariableTextUtility';
 
@@ -150,7 +150,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                let res = getConditionalText(conditionalList as any[], labelKey)
+                let res = getConditionalValue(conditionalList as any[], labelKey)
                 if (res) {
                     labelSteps.push({
                         dialogue: res
