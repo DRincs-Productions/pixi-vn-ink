@@ -91,7 +91,8 @@ export function addSwitchElemenStep(
             labelToOpen: {
                 label: label,
                 type: "call",
-            }
+            },
+            // TODO glueEnabled: glueEnabled,
         })
     }
 }
