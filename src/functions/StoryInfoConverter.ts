@@ -5,7 +5,7 @@ import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
-import { addConditionalElementStep, addConditionalElementText, addSwitchElemenStep, addSwitchElemenText } from './ConditionalSubUtility';
+import { addConditionalElementStep, addSwitchElemenStep } from './ConditionalSubUtility';
 import { getConditional, getConditionalValue } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { getVariableValue } from './VariableTextUtility';
@@ -101,10 +101,10 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else {
-                if (isConditionalText) {
-                    conditionalList.push(rootItem)
-                }
-                else if (typeof rootItem === "string" && rootItem == "/ev") {
+                if (typeof rootItem === "string" && rootItem == "/ev") {
+                    if (isConditionalText) {
+                        conditionalList.push(rootItem)
+                    }
                     isInEnv = false
                     choiseList.push(rootItem)
                 }
@@ -168,10 +168,10 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                let res = getConditionalValue(conditionalList as any[], addConditionalElementText, addSwitchElemenText, labelKey)
+                let res = getConditionalValue(conditionalList as any[], addConditionalElementStep, addSwitchElemenStep, labelKey)
                 if (res) {
                     labelSteps.push({
-                        dialogue: res
+                        conditionalStep: res
                     })
                 }
                 isConditionalText = false
