@@ -8,6 +8,7 @@ import { getLabelChoice } from './ChoiceInfoConverter';
 import { addConditionalElementStep, addConditionalElementText, addSwitchElemenStep, addSwitchElemenText } from './ConditionalSubUtility';
 import { getConditional, getConditionalValue } from './ConditionalUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
+import { getVariableValue } from './VariableTextUtility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -72,7 +73,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
         isNewLine = false
     }
     if (rootList.includes("visit")) {
-        let item = getConditionalValue(rootList as any, addConditionalElementStep, addSwitchElemenStep, labelKey)
+        let item = getVariableValue(rootList as any, addSwitchElemenStep, addConditionalElementStep, labelKey)
         if (item) {
             if (!isNewLine && labelSteps.length > 0) {
                 labelSteps[labelSteps.length - 1].glueEnabled = true
