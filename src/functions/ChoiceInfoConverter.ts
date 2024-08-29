@@ -16,32 +16,32 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
     let onetime: boolean = false
     let condition: (ReadCount | NativeFunctions)[] = []
     for (let index = 0; index < items.length; index++) {
-        let v = items[index]
-        if (typeof v === "string") {
+        let rootItem = items[index]
+        if (typeof rootItem === "string") {
             // Dialog
-            if (v.startsWith("^")) {
-                text.push(v.substring(1))
+            if (rootItem.startsWith("^")) {
+                text.push(rootItem.substring(1))
             }
-            else if (nativeFunctions.includes(v as NativeFunctions)) {
-                condition.push(v as NativeFunctions)
+            else if (nativeFunctions.includes(rootItem as NativeFunctions)) {
+                condition.push(rootItem as NativeFunctions)
             }
         }
-        else if (Array.isArray(v) && v.includes("visit")) {
-            let secondConditionalItem = getVariableValue<string>(v, addSwitchElemenText, addConditionalElementText, lastLabel)
+        else if (Array.isArray(rootItem) && rootItem.includes("visit")) {
+            let secondConditionalItem = getVariableValue<string>(rootItem, addSwitchElemenText, addConditionalElementText, lastLabel)
             text.push(secondConditionalItem)
         }
-        else if (v && typeof v === "object") {
+        else if (rootItem && typeof rootItem === "object") {
             // if is a choice
-            if ("*" in v && typeof v["*"] && typeof v["*"] === "string" && v["*"].includes("c")) {
-                let l = "c" + v["*"].split("c")[1]
+            if ("*" in rootItem && typeof rootItem["*"] && typeof rootItem["*"] === "string" && rootItem["*"].includes("c")) {
+                let l = "c" + rootItem["*"].split("c")[1]
                 label = l
-                if (v.flg & 0x10) {
+                if (rootItem.flg & 0x10) {
                     onetime = true
                 }
             }
             // if is choise info
-            else if ("s" in v && v["s"] instanceof Array) {
-                let t = findChoiceText(v["s"])
+            else if ("s" in rootItem && rootItem["s"] instanceof Array) {
+                let t = findChoiceText(rootItem["s"])
                 if (t) {
                     if (lastLabel && result[lastLabel]) {
                         result[lastLabel].preDialog = { text: t }
@@ -53,12 +53,12 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
                     }
                 }
             }
-            else if ("CNT?" in v) {
-                condition.push(v)
+            else if ("CNT?" in rootItem) {
+                condition.push(rootItem)
             }
         }
         else {
-            condition.push(v)
+            condition.push(rootItem)
         }
         if (text.length > 0 && label) {
             if (result[label]) {
