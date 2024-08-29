@@ -73,13 +73,15 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
     }
     if (rootList.includes("visit")) {
         let item = getConditionalValue(rootList as any, addConditionalElementStep, addSwitchElemenStep, labelKey)
-        if (!isNewLine && labelSteps.length > 0) {
-            labelSteps[labelSteps.length - 1].glueEnabled = true
-            labelSteps[labelSteps.length - 1].goNextStep = true
+        if (item) {
+            if (!isNewLine && labelSteps.length > 0) {
+                labelSteps[labelSteps.length - 1].glueEnabled = true
+                labelSteps[labelSteps.length - 1].goNextStep = true
+            }
+            labelSteps.push({
+                conditionalStep: item,
+            })
         }
-        labelSteps.push({
-            conditionalStep: item,
-        })
         return
     }
     rootList.forEach((rootItem, index) => {
