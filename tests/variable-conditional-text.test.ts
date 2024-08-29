@@ -799,9 +799,7 @@ test('Examples 2', async () => {
 				{
 					choices: [
 						{
-							text: [
-								"Try it again",
-							],
+							text: "Try it again",
 							label: "turn_on_television_|_c-0",
 							props: {
 							},
@@ -809,9 +807,7 @@ test('Examples 2', async () => {
 							oneTime: false,
 						},
 						{
-							text: [
-								"Go outside instead",
-							],
+							text: "Go outside instead",
 							label: "turn_on_television_|_c-1",
 							props: {
 							},
