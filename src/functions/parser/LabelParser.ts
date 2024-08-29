@@ -28,10 +28,7 @@ export function parseLabel<T>(
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
-        addElement(itemList, shareData.preDialog[labelKey].text, labelKey)
-        // TODO itemList.push({
-        // TODO     dialogue: shareData.preDialog[labelKey].text
-        // TODO })
+        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey)
         delete shareData.preDialog[labelKey]
         isNewLine = false
     }
@@ -88,9 +85,6 @@ export function parseLabel<T>(
                     }
                 }
                 addElement(itemList, shareData.preDialog[labelKey].text, labelKey)
-                // TODO itemList.push({
-                // TODO     dialogue: rootItem.substring(1)
-                // TODO })
                 isNewLine = false
             }
             else if (rootItem == "ev") {
