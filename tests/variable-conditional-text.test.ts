@@ -801,16 +801,14 @@ test('Examples 2', async () => {
 						{
 							text: "Try it again",
 							label: "turn_on_television_|_c-0",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: false,
 						},
 						{
 							text: "Go outside instead",
 							label: "turn_on_television_|_c-1",
-							props: {
-							},
+							props: {},
 							type: "call",
 							oneTime: true,
 						},
