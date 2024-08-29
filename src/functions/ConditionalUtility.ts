@@ -7,7 +7,7 @@ import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { getLabelByStandardDivert } from "./DivertUtility";
 import { getVariableValue } from "./VariableTextUtility";
 
-export function getConditionalChoice<T>(
+export function getConditional<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
     data: (ReadCount | NativeFunctions)[],
     labelKey: string,
@@ -135,7 +135,7 @@ export function getConditionalValue<T>(
 
     let then = getThen(data[0] as any, addElement, addSwitchElemen, labelKey, nestedId)
     let elseThen = data.length > 1 ? getThen(data[1] as any, addElement, addSwitchElemen, labelKey, nestedId) : undefined
-    return getConditionalChoice<T>(then, condition, labelKey, elseThen)
+    return getConditional<T>(then, condition, labelKey, elseThen)
 }
 
 function getThen<T>(
@@ -158,7 +158,7 @@ function getThen<T>(
                 item.b.pop()
             }
             item.b.forEach((rootItem) => {
-                if (rootItem instanceof Array) {
+                if (Array.isArray(rootItem)) {
                     if (rootItem.includes("visit")) {
                         let i = getVariableValue<T>(rootItem as any, addSwitchElemen, addElement, labelKey, nestedId)
                         if (i) {
