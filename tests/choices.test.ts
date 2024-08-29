@@ -87,7 +87,12 @@ test('Choices test 3', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialogue: ["Hello ", " right back to you!",],
+					dialogue: "Hello ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " right back to you!",
 				},
 				{
 					dialogue: "Nice to hear from you!",

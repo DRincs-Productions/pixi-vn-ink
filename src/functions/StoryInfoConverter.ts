@@ -221,17 +221,17 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
             let c: PixiVNJsonChoice = {
-                text: value.text,
+                text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
                 type: "call",
                 oneTime: value.onetime,
             }
-            let conditional = getConditional(c, value.conditions, labelKey)
-            if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
+            let choice = getConditional(c, value.conditions, labelKey) || c
+            if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1] && labelSteps[labelSteps.length - 1].choices) {
                 let choices = labelSteps[labelSteps.length - 1].choices
-                if (choices && Array.isArray(choices) && conditional) {
-                    choices.push(conditional)
+                if (choices && Array.isArray(choices)) {
+                    choices.push(choice)
                 }
                 else {
                     console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
@@ -239,11 +239,9 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 labelSteps[labelSteps.length - 1].choices = choices
             }
             else {
-                if (choices && Array.isArray(choices) && conditional) {
-                    labelSteps.push({
-                        choices: [conditional]
-                    })
-                }
+                labelSteps.push({
+                    choices: [choice]
+                })
             }
             if (value.preDialog) {
                 shareData.preDialog[newKey] = {
