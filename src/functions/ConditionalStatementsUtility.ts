@@ -5,7 +5,7 @@ import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { getLabelByStandardDivert } from "./DivertUtility";
-import { getVariableValue } from "./VariableTextUtility";
+import { getSwitchValue } from "./SwitchUtility";
 
 export function getConditional<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
@@ -160,7 +160,7 @@ function getThen<T>(
             item.b.forEach((rootItem) => {
                 if (Array.isArray(rootItem)) {
                     if (rootItem.includes("visit")) {
-                        let i = getVariableValue<T>(rootItem as any, addSwitchElemen, addElement, labelKey, nestedId)
+                        let i = getSwitchValue<T>(rootItem as any, addSwitchElemen, addElement, labelKey, nestedId)
                         if (i) {
                             addElement(res, i, labelKey)
                         }

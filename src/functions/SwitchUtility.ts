@@ -4,7 +4,7 @@ import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
 import RootParserItemType from "../types/parserItems/RootParserItemType"
 import TextType from "../types/parserItems/TextType"
-import { getConditionalValue } from "./ConditionalUtility"
+import { getConditionalValue } from "./ConditionalStatementsUtility"
 
 type ListItem = StandardDivert | "pop" | TextType | null
 type Item = {
@@ -14,7 +14,7 @@ type Item = {
 
 export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | Item)[]
 
-export function getVariableValue<T>(
+export function getSwitchValue<T>(
     items: ConditionalList,
     addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
     addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
@@ -56,7 +56,7 @@ export function getVariableValue<T>(
             value.forEach((rootItem) => {
                 if (Array.isArray(rootItem)) {
                     if (rootItem.includes("visit")) {
-                        addElement(itemList, getVariableValue(rootItem, addElement, addConditionalElement, labelKey, nestedId), labelKey)
+                        addElement(itemList, getSwitchValue(rootItem, addElement, addConditionalElement, labelKey, nestedId), labelKey)
                     } else {
                         if (isConditionalText) {
                             conditionalList.push(rootItem)

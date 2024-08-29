@@ -6,8 +6,8 @@ import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
 import { addConditionalElementText, addSwitchElemenText } from './ConditionalSubUtility';
+import { ConditionalList, getSwitchValue } from './SwitchUtility';
 import { unionStringOrArray } from './utility';
-import { ConditionalList, getVariableValue } from './VariableTextUtility';
 
 export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[], result: LabelChoiceRes, lastLabel?: string) {
     let text: (string | PixiVNJsonConditionalStatements<string>)[] = []
@@ -27,7 +27,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
             }
         }
         else if (Array.isArray(rootItem) && rootItem.includes("visit")) {
-            let secondConditionalItem = getVariableValue<string>(rootItem, addSwitchElemenText, addConditionalElementText, lastLabel)
+            let secondConditionalItem = getSwitchValue<string>(rootItem, addSwitchElemenText, addConditionalElementText, lastLabel)
             text.push(secondConditionalItem)
         }
         else if (rootItem && typeof rootItem === "object") {
