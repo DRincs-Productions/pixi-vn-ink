@@ -840,7 +840,232 @@ I turned on the television {for the first time|for the second time|again|once mo
  */
 test('Conditional Text', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"met_blofeld_|_c-0": [
+				{
+					labelToOpen: {
+						label: "met_blofeld",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"met_blofeld_|_c-1": [
+				{
+					labelToOpen: {
+						label: "met_blofeld_|_learned_his_name",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"met_blofeld_|_c-2": [
+				{
+					end: "game_end",
+				},
+			],
+			"met_blofeld_|_learned_his_name": [
+				{
+					dialogue: "learned_his_name",
+				},
+				{
+					labelToOpen: {
+						label: "met_blofeld",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			met_blofeld: [
+				{
+					dialogue: {
+						type: "ifelse",
+						condition: {
+							type: "union",
+							unionType: "and",
+							conditions: [
+								{
+									type: "value",
+									storageType: "label",
+									storageOperationType: "get",
+									label: "met_blofeld",
+								},
+								{
+									type: "value",
+									storageType: "label",
+									storageOperationType: "get",
+									label: "met_blofeld",
+								},
+							],
+						},
+						then: " \"I saw him. Only for a moment.\" ",
+						else: undefined,
+					},
+				},
+				{
+					dialogue: "\"His real name was ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: {
+						type: "ifelse",
+						condition: {
+							type: "value",
+							storageType: "label",
+							storageOperationType: "get",
+							label: "met_blofeld_|_learned_his_name",
+						},
+						then: " Franz",
+						else: "a secret",
+					},
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ".\"",
+				},
+				{
+					dialogue: {
+						type: "ifelse",
+						condition: {
+							type: "value",
+							storageType: "label",
+							storageOperationType: "get",
+							label: "met_blofeld",
+						},
+						then: {
+							type: "resulttocombine",
+							combine: "cross",
+							secondConditionalItem: [
+								" \"I saw him. Only for a moment. His real name was ",
+								{
+									type: "ifelse",
+									condition: {
+										type: "value",
+										storageType: "label",
+										storageOperationType: "get",
+										label: "met_blofeld_|_learned_his_name",
+									},
+									then: " Franz",
+									else: "kept a secret",
+								},
+								".\" ",
+							],
+						},
+						else: " [ Loop ] ",
+					},
+				},
+				{
+					dialogue: {
+						type: "ifelse",
+						condition: {
+							type: "value",
+							storageType: "label",
+							storageOperationType: "get",
+							label: "met_blofeld",
+						},
+						then: {
+							type: "resulttocombine",
+							combine: "cross",
+							secondConditionalItem: [
+								" \"Letter: ",
+								{
+									type: "stepswitch",
+									elements: [
+										"a",
+										"b",
+										{
+											type: "ifelse",
+											condition: {
+												type: "value",
+												storageType: "label",
+												storageOperationType: "get",
+												label: "met_blofeld",
+											},
+											then: {
+												type: "resulttocombine",
+												combine: "cross",
+												secondConditionalItem: [
+													" ",
+													{
+														type: "stepswitch",
+														elements: [
+															"c",
+															"d",
+														],
+														choiceType: "sequential",
+														end: undefined,
+														nestedId: undefined,
+													},
+												],
+											},
+											else: undefined,
+										},
+									],
+									choiceType: "sequential",
+									end: undefined,
+									nestedId: undefined,
+								},
+								"\" ",
+							],
+						},
+						else: undefined,
+					},
+				},
+				{
+					dialogue: {
+						type: "ifelse",
+						condition: {
+							type: "value",
+							storageType: "label",
+							storageOperationType: "get",
+							label: "met_blofeld_|_learned_his_name",
+						},
+						then: " \"OK\" ",
+						else: " ",
+					},
+				},
+				{
+					dialogue: {
+						type: "ifelse",
+						condition: {
+							type: "value",
+							storageType: "label",
+							storageOperationType: "get",
+							label: "met_blofeld_|_learned_his_name",
+						},
+						then: " \"OK\" ",
+						else: " ",
+					},
+				},
+				{
+					choices: [
+						{
+							text: " Loop ",
+							label: "met_blofeld_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: " learned_his_name ",
+							label: "met_blofeld_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+						{
+							text: " Exit ",
+							label: "met_blofeld_|_c-2",
+							props: {},
+							type: "call",
+							oneTime: false,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> met_blofeld
