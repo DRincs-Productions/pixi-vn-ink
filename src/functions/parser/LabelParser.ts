@@ -1,12 +1,9 @@
 import { PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
-import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../../constant';
 import InkRootType from '../../types/InkRootType';
-import LabelChoiceRes from '../../types/LabelChoiceRes';
 import { StandardDivert } from '../../types/parserItems/Divert';
 import RootParserItemType from '../../types/parserItems/RootParserItemType';
-import { getLabelChoice } from '../ChoiceInfoConverter';
-import { getConditional, getConditionalValue } from '../ConditionalStatementsUtility';
+import { getConditionalValue } from '../ConditionalStatementsUtility';
 import { addConditionalElementStep, addSwitchElemenStep } from '../ConditionalSubUtility';
 import { getLabelByStandardDivert } from '../DivertUtility';
 import { getSwitchValue } from '../SwitchUtility';
@@ -168,40 +165,41 @@ export function parseLabel<T>(
         }
     })
     if (choiseList.length > 0) {
-        let choices: LabelChoiceRes = {}
-        getLabelChoice(choiseList as any, choices)
-        for (const [key, value] of Object.entries(choices)) {
-            let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
-            // if last step is choice
-            let c: PixiVNJsonChoice = {
-                text: value.text.length === 1 ? value.text[0] : value.text,
-                label: newKey,
-                props: {},
-                type: "call",
-                oneTime: value.onetime,
-            }
-            let choice = getConditional(c, value.conditions, labelKey) || c
-            if (itemList.length > 0 && "choices" in itemList[itemList.length - 1] && itemList[itemList.length - 1].choices) {
-                let choices = itemList[itemList.length - 1].choices
-                if (choices && Array.isArray(choices)) {
-                    choices.push(choice)
-                }
-                else {
-                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
-                }
-                itemList[itemList.length - 1].choices = choices
-            }
-            else {
-                itemList.push({
-                    choices: [choice]
-                })
-            }
-            if (value.preDialog) {
-                shareData.preDialog[newKey] = {
-                    text: value.preDialog.text
-                }
-            }
-        }
+        addLabels(choiseList, labelKey, shareData)
+        // let choices: LabelChoiceRes = {}
+        // getLabelChoice(choiseList as any, choices)
+        // for (const [key, value] of Object.entries(choices)) {
+        //     let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
+        //     // if last step is choice
+        //     let c: PixiVNJsonChoice = {
+        //         text: value.text.length === 1 ? value.text[0] : value.text,
+        //         label: newKey,
+        //         props: {},
+        //         type: "call",
+        //         oneTime: value.onetime,
+        //     }
+        //     let choice = getConditional(c, value.conditions, labelKey) || c
+        //     if (itemList.length > 0 && "choices" in itemList[itemList.length - 1] && itemList[itemList.length - 1].choices) {
+        //         let choices = itemList[itemList.length - 1].choices
+        //         if (choices && Array.isArray(choices)) {
+        //             choices.push(choice)
+        //         }
+        //         else {
+        //             console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
+        //         }
+        //         itemList[itemList.length - 1].choices = choices
+        //     }
+        //     else {
+        //         itemList.push({
+        //             choices: [choice]
+        //         })
+        //     }
+        //     if (value.preDialog) {
+        //         shareData.preDialog[newKey] = {
+        //             text: value.preDialog.text
+        //         }
+        //     }
+        // }
     }
     // * [Open the gate] -> paragraph_2
     if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && itemList.length == 2
