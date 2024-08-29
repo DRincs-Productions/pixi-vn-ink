@@ -462,19 +462,21 @@ test('Examples', async () => {
 								dialogue: "I heft the hammer.",
 							},
 							{
-								conditionalStep: {
-									type: "stepswitch",
-									elements: [
-										{
-											dialogue: "Missed!",
-										},
-										{
-											dialogue: "Nothing!",
-										},
-										{
-											dialogue: "No good. Where is he?",
-										},
-										[
+								type: "stepswitch",
+								elements: [
+									{
+										dialogue: "Missed!",
+									},
+									{
+										dialogue: "Nothing!",
+									},
+									{
+										dialogue: "No good. Where is he?",
+									},
+									{
+										type: "resulttocombine",
+										combine: "cross",
+										secondConditionalItem: [
 											{
 												dialogue: "Ah-ha! Got him! ",
 											},
@@ -482,9 +484,9 @@ test('Examples', async () => {
 												end: "game_end",
 											},
 										],
-									],
-									choiceType: "random",
-								},
+									},
+								],
+								choiceType: "random",
 							},
 						],
 						choiceType: "sequential",
@@ -504,9 +506,11 @@ test('Examples', async () => {
 							{
 								dialogue: "mole",
 							},
-							[
-								{
-									conditionalStep: {
+							{
+								type: "resulttocombine",
+								combine: "cross",
+								secondConditionalItem: [
+									{
 										type: "stepswitch",
 										elements: [
 											{
@@ -521,12 +525,10 @@ test('Examples', async () => {
 										],
 										choiceType: "loop",
 									},
-								},
-								{
-									dialogue: " ",
-								},
-								{
-									conditionalStep: {
+									{
+										dialogue: " ",
+									},
+									{
 										type: "stepswitch",
 										elements: [
 											{
@@ -538,8 +540,8 @@ test('Examples', async () => {
 										],
 										choiceType: "loop",
 									},
-								},
-							],
+								],
+							},
 						],
 						choiceType: "loop",
 					},
@@ -583,8 +585,6 @@ test('Examples', async () => {
 				},
 				{
 					dialogue: ". ",
-				},
-				{
 					glueEnabled: true,
 					goNextStep: true,
 				},
@@ -609,25 +609,9 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									type: "crwde",
-									secondConditionalItem: {
-										type: "stepswitch",
-										elements: [
-											{
-												type: "crwde",
-												firstItem: "Hit",
-											},
-											{
-												type: "crwde",
-												firstItem: "Smash",
-											},
-											{
-												type: "crwde",
-												firstItem: "Try",
-											},
-										],
-										choiceType: "loop",
-									},
+									type: "stepswitch",
+									elements: ["Hit", "Smash", "Try",],
+									choiceType: "loop",
 								},
 								" top-left",
 							],
@@ -639,25 +623,9 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									type: "crwde",
-									secondConditionalItem: {
-										type: "stepswitch",
-										elements: [
-											{
-												type: "crwde",
-												firstItem: "Whallop",
-											},
-											{
-												type: "crwde",
-												firstItem: "Splat",
-											},
-											{
-												type: "crwde",
-												firstItem: "Whack",
-											},
-										],
-										choiceType: "loop",
-									},
+									type: "stepswitch",
+									elements: ["Whallop", "Splat", "Whack",],
+									choiceType: "loop",
 								},
 								" top-right",
 							],
@@ -669,21 +637,9 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									type: "crwde",
-									secondConditionalItem: {
-										type: "stepswitch",
-										elements: [
-											{
-												type: "crwde",
-												firstItem: "Blast",
-											},
-											{
-												type: "crwde",
-												firstItem: "Hammer",
-											},
-										],
-										choiceType: "loop",
-									},
+									type: "stepswitch",
+									elements: ["Blast", "Hammer",],
+									choiceType: "loop",
 								},
 								" middle",
 							],
@@ -695,21 +651,9 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									type: "crwde",
-									secondConditionalItem: {
-										type: "stepswitch",
-										elements: [
-											{
-												type: "crwde",
-												firstItem: ["Clobber"],
-											},
-											{
-												type: "crwde",
-												firstItem: ["Bosh"],
-											},
-										],
-										choiceType: "loop",
-									},
+									type: "stepswitch",
+									elements: ["Clobber", "Bosh",],
+									choiceType: "loop",
 								},
 								" bottom-left",
 							],
@@ -721,21 +665,9 @@ test('Examples', async () => {
 						{
 							text: [
 								{
-									type: "crwde",
-									secondConditionalItem: {
-										type: "stepswitch",
-										elements: [
-											{
-												type: "crwde",
-												firstItem: "Nail",
-											},
-											{
-												type: "crwde",
-												firstItem: "Thump",
-											},
-										],
-										choiceType: "loop",
-									},
+									type: "stepswitch",
+									elements: ["Nail", "Thump",],
+									choiceType: "loop",
 								},
 								" bottom-right",
 							],
