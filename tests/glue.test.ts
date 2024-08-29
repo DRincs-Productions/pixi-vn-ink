@@ -47,8 +47,6 @@ test('Glue', async () => {
             hurry_home: [
                 {
                     dialogue: "We hurried home ",
-                },
-                {
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -58,7 +56,6 @@ test('Glue', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             to_savile_row: [
@@ -71,7 +68,6 @@ test('Glue', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             as_fast_as_we_could: [

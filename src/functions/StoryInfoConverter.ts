@@ -155,10 +155,16 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else if (rootItem == "<>") {
-                labelSteps.push({
-                    glueEnabled: true,
-                    goNextStep: true,
-                })
+                if (labelSteps.length > 0) {
+                    labelSteps[labelSteps.length - 1].glueEnabled = true
+                    labelSteps[labelSteps.length - 1].goNextStep = true
+                }
+                else {
+                    labelSteps.push({
+                        glueEnabled: true,
+                        goNextStep: true,
+                    })
+                }
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
