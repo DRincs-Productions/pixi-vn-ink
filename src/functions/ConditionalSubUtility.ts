@@ -2,7 +2,7 @@ import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwi
 import { StandardDivert } from "../types/parserItems/Divert";
 import { getLabelByStandardDivert } from "./DivertUtility";
 
-export function addConditionalElementText(list: (string | PixiVNJsonConditionalStatements<string>)[], item: string | PixiVNJsonConditionalStatements<string>) {
+export function addConditionalElementText(list: (string | PixiVNJsonConditionalStatements<string>)[], item: string | StandardDivert | PixiVNJsonConditionalStatements<string>) {
     if (!item) {
         return
     }
@@ -32,7 +32,7 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
 
 export function addConditionalElementStep(
     list: (PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>)[],
-    item: string | PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
+    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
     labelKey: string
 ) {
     if (!item) {

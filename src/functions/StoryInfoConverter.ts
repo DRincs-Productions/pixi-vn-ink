@@ -88,13 +88,22 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 if (index > 0 && rootList[index - 1] == "ev") {
                     isConditionalText = true
                     conditionalList.push(rootItem)
-                } else {
+                }
+                else if (isConditionalText) {
+                    conditionalList.push(rootItem)
+                }
+                else {
                     choiseList.push(rootItem)
                 }
                 isNewLine = false
             }
             else {
+                if (isConditionalText) {
+                    conditionalList.push(rootItem)
+            }
+            else {
                 choiseList.push(rootItem)
+                }
                 if (typeof rootItem === "string" && rootItem == "/ev") {
                     isInEnv = false
                     choiseList.push(rootItem)

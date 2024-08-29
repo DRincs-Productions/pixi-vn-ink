@@ -16,7 +16,7 @@ export type ConditionalList = (number | ControlCommands | StandardDivert | Nativ
 export function getVariableValue<T>(
     items: ConditionalList,
     addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
-    addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
+    addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
     labelKey: string = "",
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
