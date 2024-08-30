@@ -32,6 +32,7 @@ test('Sequences (the default)', async () => {
 					goNextStep: true,
 				},
 				{
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -53,8 +54,10 @@ test('Sequences (the default)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
+					},
 				},
 				{
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -70,6 +73,7 @@ test('Sequences (the default)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
+					},
 				},
 				{
 					choices: [
@@ -157,7 +161,6 @@ test('Cycles (marked with a &)', async () => {
 							},
 						],
 						choiceType: "loop",
-						nestedId: undefined,
 					},
 					glueEnabled: true,
 					goNextStep: true,
@@ -223,6 +226,7 @@ test('Once-only (marked with a !)', async () => {
 					goNextStep: true,
 				},
 				{
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -241,6 +245,7 @@ test('Once-only (marked with a !)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
+					},
 				},
 				{
 					choices: [
@@ -449,12 +454,14 @@ test('Examples', async () => {
 			],
 			whack_a_mole: [
 				{
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
 								dialogue: "I heft the hammer.",
 							},
 							{
+								conditionalStep: {
 								type: "stepswitch",
 								elements: [
 									{
@@ -480,11 +487,13 @@ test('Examples', async () => {
 									},
 								],
 								choiceType: "random",
+								},
 							},
 						],
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
+					},
 				},
 				{
 					dialogue: "The ",
@@ -503,6 +512,7 @@ test('Examples', async () => {
 								combine: "cross",
 								secondConditionalItem: [
 									{
+										conditionalStep: {
 										type: "stepswitch",
 										elements: [
 											{
@@ -516,6 +526,7 @@ test('Examples', async () => {
 											},
 										],
 										choiceType: "loop",
+										},
 									},
 									{
 										dialogue: " ",
@@ -523,6 +534,7 @@ test('Examples', async () => {
 										goNextStep: true,
 									},
 									{
+										conditionalStep: {
 										type: "stepswitch",
 										elements: [
 											{
@@ -533,6 +545,7 @@ test('Examples', async () => {
 											},
 										],
 										choiceType: "loop",
+										},
 									},
 								],
 							},
@@ -583,6 +596,7 @@ test('Examples', async () => {
 					goNextStep: true,
 				},
 				{
+					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -595,6 +609,7 @@ test('Examples', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
+					},
 				},
 				{
 					choices: [
@@ -870,7 +885,7 @@ test('Conditional Text', async () => {
 			],
 			met_blofeld: [
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "ifelse",
 						condition: {
 							type: "union",
@@ -890,7 +905,9 @@ test('Conditional Text', async () => {
 								},
 							],
 						},
-						then: " \"I saw him. Only for a moment.\" ",
+						then: {
+							dialogue: " \"I saw him. Only for a moment.\" ",
+						},
 						else: undefined,
 					},
 				},
@@ -900,7 +917,7 @@ test('Conditional Text', async () => {
 					goNextStep: true,
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "ifelse",
 						condition: {
 							type: "value",
@@ -908,8 +925,12 @@ test('Conditional Text', async () => {
 							storageOperationType: "get",
 							label: "met_blofeld_|_learned_his_name",
 						},
-						then: " Franz",
-						else: "a secret",
+						then: {
+							dialogue: " Franz",
+						},
+						else: {
+							dialogue: "a secret",
+						},
 					},
 					glueEnabled: true,
 					goNextStep: true,
@@ -918,7 +939,7 @@ test('Conditional Text', async () => {
 					dialogue: ".\"",
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "ifelse",
 						condition: {
 							type: "value",
