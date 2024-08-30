@@ -6,7 +6,7 @@ import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
 import { getConditional, getConditionalValue } from './ConditionalStatementsUtility';
-import { addConditionalElementStep, addSwitchElemenStep } from './ConditionalSubUtility';
+import { addSwitchElemenStep } from './ConditionalSubUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
 import { getSwitchValue } from './SwitchUtility';
 
@@ -73,7 +73,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
         isNewLine = false
     }
     if (rootList.includes("visit")) {
-        let item = getSwitchValue(rootList as any, addSwitchElemenStep, addConditionalElementStep, labelKey)
+        let item = getSwitchValue(rootList as any, addSwitchElemenStep, labelKey)
         if (item) {
             if (!isNewLine && labelSteps.length > 0) {
                 labelSteps[labelSteps.length - 1].glueEnabled = true
@@ -168,7 +168,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                let res = getConditionalValue(conditionalList as any[], addConditionalElementStep, addSwitchElemenStep, labelKey)
+                let res = getConditionalValue(conditionalList as any[], addSwitchElemenStep, labelKey)
                 if (res) {
                     labelSteps.push({
                         conditionalStep: res

@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
+import { PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
@@ -17,7 +17,6 @@ export type ConditionalList = (number | ControlCommands | StandardDivert | Nativ
 export function getSwitchValue<T>(
     items: ConditionalList,
     addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
-    addConditionalElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
     labelKey: string = "",
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
@@ -56,7 +55,7 @@ export function getSwitchValue<T>(
             value.forEach((rootItem) => {
                 if (Array.isArray(rootItem)) {
                     if (rootItem.includes("visit")) {
-                        addElement(itemList, getSwitchValue(rootItem, addElement, addConditionalElement, labelKey, nestedId), labelKey)
+                        addElement(itemList, getSwitchValue(rootItem, addElement, labelKey, nestedId), labelKey)
                     } else {
                         if (isConditionalText) {
                             conditionalList.push(rootItem)
@@ -89,7 +88,7 @@ export function getSwitchValue<T>(
                         isInEnv = true
                     }
                     else if (rootItem == 'nop' && isConditionalText) {
-                        let i = getConditionalValue(conditionalList as any[], addConditionalElement, addElement, labelKey, nestedId)
+                        let i = getConditionalValue(conditionalList as any[], addElement, labelKey, nestedId)
                         isConditionalText = false
                         conditionalList = []
                         if (i) {

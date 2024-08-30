@@ -33,13 +33,28 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
 export function addConditionalElementStep(
     list: (PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>)[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
-    labelKey: string
+    labelKey: string,
+    isNewLine: boolean = true
 ) {
     if (!item) {
         return
     }
     if (typeof item === "string") {
         if (item.startsWith("^")) {
+            if (!isNewLine && list.length > 0) {
+                let prevItem = list[list.length - 1]
+                if (typeof prevItem === "object" && "type" in prevItem) {
+                    prevItem = {
+                        conditionalStep: prevItem,
+                    }
+                }
+                // in this case: <> text
+                if (!prevItem.glueEnabled) {
+                    prevItem.glueEnabled = true
+                    prevItem.goNextStep = true
+                }
+                list[list.length - 1] = prevItem
+            }
             list.push({ dialogue: item.substring(1) })
         }
         else if (item === "end") {
@@ -48,17 +63,48 @@ export function addConditionalElementStep(
         else if (item === "done") {
             list.push({ end: "label_end" })
         }
+        else if (item == "<>") {
+            if (list.length > 0) {
+                let prevItem = list[list.length - 1]
+                if (typeof prevItem === "object" && "type" in prevItem) {
+                    prevItem = {
+                        conditionalStep: prevItem,
+                    }
+                }
+                prevItem.glueEnabled = true
+                prevItem.goNextStep = true
+                list[list.length - 1] = prevItem
+            }
+            else {
+                list.push({
+                    glueEnabled: true,
+                    goNextStep: true,
+                })
+            }
+        }
     }
     else if (typeof item === "object" && "type" in item) {
         list.push(item)
     }
     else if (typeof item === "object" && "->" in item) {
-        let label = getLabelByStandardDivert((item as any)["->"], labelKey)
+        let glueEnabled = isNewLine ? undefined : true
+        let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
+        if (!isNewLine && list.length > 0) {
+            let prevItem = list[list.length - 1]
+            if (typeof prevItem === "object" && "type" in prevItem) {
+                prevItem = {
+                    conditionalStep: prevItem,
+                }
+            }
+            prevItem.goNextStep = true
+            list[list.length - 1] = prevItem
+        }
         list.push({
             labelToOpen: {
-                label: label,
+                label: labelIdToOpen,
                 type: "call",
-            }
+            },
+            glueEnabled: glueEnabled,
         })
     }
 }
@@ -68,31 +114,5 @@ export function addSwitchElemenStep(
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>,
     labelKey: string
 ) {
-    if (!item) {
-        return
-    }
-    if (typeof item === "string") {
-        if (item.startsWith("^")) {
-            list.push({ dialogue: item.substring(1) })
-        }
-        else if (item === "end") {
-            list.push({ end: "game_end" })
-        }
-        else if (item === "done") {
-            list.push({ end: "label_end" })
-        }
-    }
-    else if (typeof item === "object" && "type" in item) {
-        list.push(item)
-    }
-    else if (typeof item === "object" && "->" in item) {
-        let label = getLabelByStandardDivert(item["->"], labelKey)
-        list.push({
-            labelToOpen: {
-                label: label,
-                type: "call",
-            },
-            // TODO glueEnabled: glueEnabled,
-        })
-    }
+    return addConditionalElementStep(list as any, item as any, labelKey)
 }

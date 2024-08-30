@@ -1,23 +1,28 @@
-import { PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
+import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../../constant';
 import InkRootType from '../../types/InkRootType';
 import { StandardDivert } from '../../types/parserItems/Divert';
 import RootParserItemType from '../../types/parserItems/RootParserItemType';
 import { getConditionalValue } from '../ConditionalStatementsUtility';
-import { addConditionalElementStep, addSwitchElemenStep } from '../ConditionalSubUtility';
-import { getLabelByStandardDivert } from '../DivertUtility';
 import { getSwitchValue } from '../SwitchUtility';
 
-type ShareData = {
+export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string } }
 }
 export function parseLabel<T>(
     rootList: RootParserItemType[],
     labelKey: string,
-    shareData: ShareData,
-    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    shareData: ShareDataParserLabel,
+    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string, isNewLine: boolean) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
     isNewLine: boolean = true,
-    addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareData) => void
+    addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
+    addChoiseList: (
+        choiseList: RootParserItemType[],
+        itemList: (T | PixiVNJsonConditionalStatements<T>)[],
+        labelKey: string,
+        shareData: ShareDataParserLabel,
+    ) => void
 ) {
     let itemList: T[] = []
     let isInEnv = false
@@ -25,21 +30,17 @@ export function parseLabel<T>(
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
-        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey)
+        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, isNewLine)
         delete shareData.preDialog[labelKey]
         isNewLine = false
     }
     if (rootList.includes("visit")) {
-        let item = getSwitchValue(rootList as any, addSwitchElemenStep, addConditionalElementStep, labelKey)
+        let item = getSwitchValue<T>(rootList as any, addSwitchElemen, labelKey)
         if (item) {
             if (!isNewLine && itemList.length > 0) {
-                itemList[itemList.length - 1].glueEnabled = true
-                itemList[itemList.length - 1].goNextStep = true
+                addElement(itemList, "<>", labelKey, isNewLine)
             }
-            addElement(itemList, shareData.preDialog[labelKey].text, labelKey)
-            // TODO itemList.push({
-            // TODO     conditionalStep: item,
-            // TODO })
+            addElement(itemList, item, labelKey, isNewLine)
         }
         return
     }
@@ -74,14 +75,7 @@ export function parseLabel<T>(
         else if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                if (!isNewLine && itemList.length > 0) {
-                    // in this case: <> text
-                    if (!itemList[itemList.length - 1].glueEnabled) {
-                        itemList[itemList.length - 1].glueEnabled = true
-                        itemList[itemList.length - 1].goNextStep = true
-                    }
-                }
-                addElement(itemList, shareData.preDialog[labelKey].text, labelKey)
+                addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }
             else if (rootItem == "ev") {
@@ -91,29 +85,17 @@ export function parseLabel<T>(
                 isNewLine = true
             }
             else if (rootItem == "done" || rootItem == "end") {
-                addElement(itemList, rootItem, labelKey)
+                addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }
             else if (rootItem == "<>") {
-                if (itemList.length > 0) {
-                    itemList[itemList.length - 1].glueEnabled = true
-                    itemList[itemList.length - 1].goNextStep = true
-                }
-                else {
-                    itemList.push({
-                        glueEnabled: true,
-                        goNextStep: true,
-                    })
-                }
+                addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                let res = getConditionalValue(conditionalList as any[], addConditionalElementStep, addSwitchElemenStep, labelKey)
+                let res = getConditionalValue<T>(conditionalList as any[], addSwitchElemen, labelKey)
                 if (res) {
-                    // TODO itemList.push({
-                    // TODO     conditionalStep: res
-                    // TODO })
-                    addElement(itemList, rootItem, labelKey)
+                    addElement(itemList, res, labelKey, isNewLine)
                 }
                 isConditionalText = false
                 conditionalList = []
@@ -124,7 +106,7 @@ export function parseLabel<T>(
                 conditionalList.push(rootItem)
             }
             else {
-                parseLabel(rootItem, labelKey, shareData, addElement, isNewLine, addLabels)
+                parseLabel(rootItem, labelKey, shareData, addElement, addSwitchElemen, isNewLine, addLabels, addChoiseList)
             }
         }
         else if (rootItem && typeof rootItem === "object") {
@@ -132,18 +114,7 @@ export function parseLabel<T>(
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(rootItem["->"])
             ) {
-                let glueEnabled = isNewLine ? undefined : true
-                let labelIdToOpen = getLabelByStandardDivert(rootItem["->"], labelKey)
-                if (!isNewLine && itemList.length > 0) {
-                    itemList[itemList.length - 1].goNextStep = true
-                }
-                itemList.push({
-                    labelToOpen: {
-                        label: labelIdToOpen,
-                        type: "call",
-                    },
-                    glueEnabled: glueEnabled,
-                })
+                addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }
             else if ("*" in rootItem && typeof rootItem["*"] === "string" && rootItem["*"].includes("c")) {
@@ -164,49 +135,21 @@ export function parseLabel<T>(
             }
         }
     })
-    if (choiseList.length > 0) {
-        addLabels(choiseList, labelKey, shareData)
-        // let choices: LabelChoiceRes = {}
-        // getLabelChoice(choiseList as any, choices)
-        // for (const [key, value] of Object.entries(choices)) {
-        //     let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
-        //     // if last step is choice
-        //     let c: PixiVNJsonChoice = {
-        //         text: value.text.length === 1 ? value.text[0] : value.text,
-        //         label: newKey,
-        //         props: {},
-        //         type: "call",
-        //         oneTime: value.onetime,
-        //     }
-        //     let choice = getConditional(c, value.conditions, labelKey) || c
-        //     if (itemList.length > 0 && "choices" in itemList[itemList.length - 1] && itemList[itemList.length - 1].choices) {
-        //         let choices = itemList[itemList.length - 1].choices
-        //         if (choices && Array.isArray(choices)) {
-        //             choices.push(choice)
-        //         }
-        //         else {
-        //             console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
-        //         }
-        //         itemList[itemList.length - 1].choices = choices
-        //     }
-        //     else {
-        //         itemList.push({
-        //             choices: [choice]
-        //         })
-        //     }
-        //     if (value.preDialog) {
-        //         shareData.preDialog[newKey] = {
-        //             text: value.preDialog.text
-        //         }
-        //     }
-        // }
-    }
+    addChoiseList(choiseList, itemList, labelKey, shareData)
     // * [Open the gate] -> paragraph_2
     if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && itemList.length == 2
-        && itemList[0].dialogue == " " && itemList[1].labelToOpen
     ) {
-        // remove first step
-        itemList.shift()
-        itemList[0].glueEnabled = undefined
+        let firstItem = itemList[0]
+        let secondItem = itemList[1]
+        if (firstItem && secondItem
+            && typeof firstItem === "object" && "dialogue" in firstItem
+            && typeof secondItem === "object" && "labelToOpen" in secondItem
+            && firstItem.dialogue == " " && secondItem.labelToOpen
+        ) {
+            // remove first step
+            itemList.shift();
+            (secondItem as any).glueEnabled = undefined
+            itemList[0] = secondItem
+        }
     }
 }

@@ -107,7 +107,6 @@ export function getConditional<T>(
 
 export function getConditionalValue<T>(
     preData: (ReadCount | (StandardDivert | Cond)[])[],
-    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
     addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
     labelKey: string,
     nestedId: string | undefined = undefined
@@ -133,14 +132,13 @@ export function getConditionalValue<T>(
         return undefined
     }
 
-    let then = getThen(data[0] as any, addElement, addSwitchElemen, labelKey, nestedId)
-    let elseThen = data.length > 1 ? getThen(data[1] as any, addElement, addSwitchElemen, labelKey, nestedId) : undefined
+    let then = getThen(data[0] as any, addSwitchElemen, labelKey, nestedId)
+    let elseThen = data.length > 1 ? getThen(data[1] as any, addSwitchElemen, labelKey, nestedId) : undefined
     return getConditional<T>(then, condition, labelKey, elseThen)
 }
 
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
-    addElement: (list: (T | PixiVNJsonConditionalStatements<T>)[], item: T | string | StandardDivert | PixiVNJsonConditionalStatements<T>, labelKey: string) => void,
     addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
     labelKey: string,
     nestedId: string | undefined = undefined
@@ -160,9 +158,9 @@ function getThen<T>(
             item.b.forEach((rootItem) => {
                 if (Array.isArray(rootItem)) {
                     if (rootItem.includes("visit")) {
-                        let i = getSwitchValue<T>(rootItem as any, addSwitchElemen, addElement, labelKey, nestedId)
+                        let i = getSwitchValue<T>(rootItem as any, addSwitchElemen, labelKey, nestedId)
                         if (i) {
-                            addElement(res, i, labelKey)
+                            addSwitchElemen(res, i, labelKey)
                         }
                     } else {
                         if (isConditionalText) {
@@ -187,19 +185,19 @@ function getThen<T>(
                         isInEnv = true
                     }
                     else if (rootItem == 'nop' && isConditionalText) {
-                        let i = getConditionalValue(conditionalList as any[], addElement, addSwitchElemen, labelKey, nestedId)
+                        let i = getConditionalValue(conditionalList as any[], addSwitchElemen, labelKey, nestedId)
                         isConditionalText = false
                         conditionalList = []
                         if (i) {
-                            addElement(res, i, labelKey)
+                            addSwitchElemen(res, i, labelKey)
                         }
                     }
                     else {
-                        addElement(res, rootItem, labelKey)
+                        addSwitchElemen(res, rootItem, labelKey)
                     }
                 }
                 else if (rootItem && typeof rootItem === "object" && "->" in rootItem) {
-                    addElement(res, rootItem, labelKey)
+                    addSwitchElemen(res, rootItem, labelKey)
                 }
             })
         }
