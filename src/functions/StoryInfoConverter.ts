@@ -1,13 +1,10 @@
 import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
-import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import { addSwitchElemenStep } from '../parser/AddingElements';
+import { parseLabel, ShareDataParserLabel } from '../parser/LabelParser';
 import InkRootType from '../types/InkRootType';
-import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
-import { getLabelChoice } from './ChoiceInfoConverter';
-import { getConditional } from './ConditionalUtility';
-import { getLabelByStandardDivert } from './DivertUtility';
-import { unionStringOrArray } from './utility';
+import { addChoiseIntoList } from './ChoiceInfoConverter';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -34,7 +31,12 @@ function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType
     }
 }
 
-function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareData = { preDialog: {} }) {
+export function addLabels(
+    storyItem: InkRootType | RootParserItemType,
+    result: PixiVNJsonLabels,
+    dadLabelKey: string = "",
+    shareData: ShareDataParserLabel = { preDialog: {} }
+) {
     if (storyItem === null) {
         return
     }
@@ -45,7 +47,9 @@ function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJs
             let labels: PixiVNJsonLabel = []
             let subLabels: PixiVNJsonLabels = {}
             let labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key
-            getLabel(value, labelName, labels, subLabels, shareData)
+            parseLabel(value, labelName, shareData, labels, addSwitchElemenStep, addSwitchElemenStep, (storyItem, dadLabelKey, shareData) => {
+                addLabels(storyItem, subLabels, dadLabelKey, shareData)
+            }, addChoiseIntoList)
             for (const [subKey, subValue] of Object.entries(subLabels)) {
                 result[subKey] = subValue
             }
@@ -53,176 +57,5 @@ function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJs
                 result[labelName] = labels
             }
         }
-    }
-}
-
-type ShareData = {
-    preDialog: { [label: string]: { text: string } }
-}
-function getLabel(items: RootParserItemType[], labelKey: string, labelSteps: PixiVNJsonLabel, subLabels: PixiVNJsonLabels, shareData: ShareData, isNewLine: boolean = true) {
-    let isInEnv = false
-    let envList: RootParserItemType[] = []
-    if (shareData.preDialog[labelKey]) {
-        labelSteps.push({
-            dialogue: shareData.preDialog[labelKey].text
-        })
-        delete shareData.preDialog[labelKey]
-        isNewLine = false
-    }
-    items.forEach((v) => {
-        if (isInEnv) {
-            envList.push(v)
-            if (typeof v === "string" && v == "/ev") {
-                isInEnv = false
-            }
-        }
-        else if (typeof v === "string") {
-            // Dialog
-            if (v.startsWith("^")) {
-                if (!isNewLine && labelSteps.length > 0) {
-                    // in this case: <> text
-                    if (labelSteps[labelSteps.length - 1].glueEnabled) {
-                        labelSteps.push({
-                            dialogue: v.substring(1)
-                        })
-                    } else {
-                        let newDialog = labelSteps[labelSteps.length - 1].dialogue
-                        // if is a string or an array
-                        if (typeof newDialog === "string" || newDialog instanceof Array || !newDialog) {
-                            labelSteps[labelSteps.length - 1].dialogue = unionStringOrArray(newDialog, v.substring(1))
-                        }
-                        else if ("type" in newDialog) {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog is PixiVNJsonDialog<PixiVNJsonDialogText>", newDialog, v)
-                        }
-                        else if (newDialog.text === "string" || newDialog.text instanceof Array || !newDialog.text) {
-                            newDialog.text = unionStringOrArray(newDialog.text, v.substring(1))
-                            labelSteps[labelSteps.length - 1].dialogue = newDialog
-                        }
-                        else {
-                            console.error("[Pixi’VN Ink] Unhandled case: newDialog.text is PixiVNJsonConditionalStatements<string> | undefined", newDialog, v)
-                        }
-                    }
-                } else {
-                    labelSteps.push({
-                        dialogue: v.substring(1)
-                    })
-                }
-                isNewLine = false
-            }
-            else if (v == "ev") {
-                isInEnv = true
-            }
-            else if (v == "\n") {
-                isNewLine = true
-            }
-            else if (v == "done") {
-                labelSteps.push({
-                    end: "label_end"
-                })
-                isNewLine = false
-            }
-            else if (v == "end") {
-                labelSteps.push({
-                    end: "game_end"
-                })
-                isNewLine = false
-            }
-            else if (v == "<>") {
-                labelSteps.push({
-                    glueEnabled: true,
-                    goNextStep: true,
-                })
-                isNewLine = false
-            }
-        }
-        else if (v instanceof Array) {
-            getLabel(v, labelKey, labelSteps, subLabels, shareData, isNewLine)
-        }
-        else if (v && typeof v === "object") {
-            if ("->" in v && typeof v["->"] === "string"
-                // {->: '.^.^.2.s'}
-                && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(v["->"])
-            ) {
-                let glueEnabled = isNewLine ? undefined : true
-                let labelIdToOpen = getLabelByStandardDivert(v["->"], labelKey)
-                if (!isNewLine && labelSteps.length > 0) {
-                    labelSteps[labelSteps.length - 1].goNextStep = true
-                }
-                labelSteps.push({
-                    labelToOpen: {
-                        label: labelIdToOpen,
-                        type: "call",
-                    },
-                    glueEnabled: glueEnabled,
-                })
-                isNewLine = false
-            }
-            else if ("*" in v && typeof v["*"] === "string" && v["*"].includes("c")) {
-                envList.push(v)
-                isNewLine = false
-            }
-            // if is choise info
-            else if ("s" in v && v["s"] instanceof Array) {
-                envList.push(v)
-                isNewLine = false
-            }
-            else if ("CNT?" in v) {
-                envList.push(v)
-                isNewLine = false
-            }
-            else {
-                addLabels(v, subLabels, labelKey, shareData)
-            }
-        }
-    })
-    if (envList.length > 0) {
-        let choices: LabelChoiceRes = {}
-        getLabelChoice(envList as any, choices)
-        for (const [key, value] of Object.entries(choices)) {
-            let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
-            // if last step is choice
-            if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1]) {
-                let choices = labelSteps[labelSteps.length - 1].choices
-                if (choices && Array.isArray(choices)) {
-                    let c: PixiVNJsonChoice = {
-                        text: value.text,
-                        label: newKey,
-                        props: {},
-                        type: "call",
-                        oneTime: value.onetime,
-                    }
-                    choices.push(getConditional(c, value.conditions, labelKey))
-                }
-                else {
-                    console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
-                }
-                labelSteps[labelSteps.length - 1].choices = choices
-            }
-            else {
-                let c: PixiVNJsonChoice = {
-                    text: value.text,
-                    label: newKey,
-                    props: {},
-                    type: "call",
-                    oneTime: value.onetime,
-                }
-                labelSteps.push({
-                    choices: [getConditional(c, value.conditions, labelKey)]
-                })
-            }
-            if (value.preDialog) {
-                shareData.preDialog[newKey] = {
-                    text: value.preDialog.text
-                }
-            }
-        }
-    }
-    // * [Open the gate] -> paragraph_2
-    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && labelSteps.length == 2
-        && labelSteps[0].dialogue == " " && labelSteps[1].labelToOpen
-    ) {
-        // remove first step
-        labelSteps.shift()
-        labelSteps[0].glueEnabled = undefined
     }
 }

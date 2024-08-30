@@ -47,8 +47,6 @@ test('Glue', async () => {
             hurry_home: [
                 {
                     dialogue: "We hurried home ",
-                },
-                {
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -58,7 +56,6 @@ test('Glue', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             to_savile_row: [
@@ -71,7 +68,6 @@ test('Glue', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             as_fast_as_we_could: [
@@ -108,7 +104,12 @@ test('Branching and joining', async () => {
         labels: {
             "back_in_london_|_c-0": [
                 {
-                    dialogue: ["\"There is not a moment to lose!\"", " I declared.",],
+                    dialogue: "\"There is not a moment to lose!\"",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I declared.",
                 },
                 {
                     labelToOpen: {
@@ -116,12 +117,16 @@ test('Branching and joining', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             "back_in_london_|_c-1": [
                 {
-                    dialogue: ["\"Monsieur, let us savour this moment!\"", " I declared.",],
+                    dialogue: "\"Monsieur, let us savour this moment!\"",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I declared.",
                 },
                 {
                     dialogue: "My master clouted me firmly around the head and dragged me out of the door.",
@@ -132,7 +137,6 @@ test('Branching and joining', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             "back_in_london_|_c-2": [
@@ -142,7 +146,6 @@ test('Branching and joining', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             back_in_london: [
@@ -198,7 +201,6 @@ test('Branching and joining', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             as_fast_as_we_could: [

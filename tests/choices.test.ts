@@ -87,7 +87,12 @@ test('Choices test 3', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialogue: ["Hello ", " right back to you!",],
+					dialogue: "Hello ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " right back to you!",
 				},
 				{
 					dialogue: "Nice to hear from you!",
@@ -125,7 +130,12 @@ test('Choices test 4', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialogue: ["\"I am somewhat tired", ",\" I repeated.",],
+					dialogue: "\"I am somewhat tired",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ",\" I repeated.",
 				},
 				{
 					dialogue: "\"Really,\" he responded. \"How deleterious.\"",
@@ -163,7 +173,12 @@ test('Choices test 5', async () => {
 		labels: {
 			"test_|_c-0": [
 				{
-					dialogue: ["\"I am somewhat tired", ",\" I repeated.",],
+					dialogue: "\"I am somewhat tired",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ",\" I repeated.",
 				},
 				{
 					dialogue: "\"Really,\" he responded. \"How deleterious.\"",
@@ -171,7 +186,12 @@ test('Choices test 5', async () => {
 			],
 			"test_|_c-1": [
 				{
-					dialogue: ["\"Nothing, Monsieur!\"", " I replied.",],
+					dialogue: "\"Nothing, Monsieur!\"",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " I replied.",
 				},
 				{
 					dialogue: "\"Very good, then.\"",
@@ -179,7 +199,12 @@ test('Choices test 5', async () => {
 			],
 			"test_|_c-2": [
 				{
-					dialogue: ["\"I said, this journey is appalling", " and I want no more of it.\"",],
+					dialogue: "\"I said, this journey is appalling",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " and I want no more of it.\"",
 				},
 				{
 					dialogue: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
@@ -192,9 +217,7 @@ test('Choices test 5', async () => {
 				{
 					choices: [
 						{
-							text: [
-								"\"I am somewhat tired", ".\"",
-							],
+							text: ["\"I am somewhat tired", ".\"",],
 							label: "test_|_c-0",
 							oneTime: true,
 							props: {},
@@ -353,7 +376,12 @@ test('Example of a fallback choice', async () => {
 		labels: {
 			"find_help_|_c-0": [
 				{
-					dialogue: ["The woman in the hat", " pushes you roughly aside. ",],
+					dialogue: "The woman in the hat",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " pushes you roughly aside. ",
 					goNextStep: true,
 				},
 				{
@@ -366,7 +394,12 @@ test('Example of a fallback choice', async () => {
 			],
 			"find_help_|_c-1": [
 				{
-					dialogue: ["The man with the briefcase", " looks disgusted as you stumble past him. ",],
+					dialogue: "The man with the briefcase",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " looks disgusted as you stumble past him. ",
 					goNextStep: true,
 				},
 				{
