@@ -1,10 +1,12 @@
 import { PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
+import { addChoiseIntoList } from "../functions/ChoiceInfoConverter"
+import InkRootType from "../types/InkRootType"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
 import RootParserItemType from "../types/parserItems/RootParserItemType"
 import TextType from "../types/parserItems/TextType"
-import { getConditionalValue } from "./ConditionalStatementsParser"
+import { parseLabel, ShareDataParserLabel } from "./LabelParser"
 
 type ListItem = StandardDivert | "pop" | TextType | null
 type Item = {
@@ -17,7 +19,9 @@ export type ConditionalList = (number | ControlCommands | StandardDivert | Nativ
 export function parserSwitch<T>(
     items: ConditionalList,
     addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string = "",
+    shareData: ShareDataParserLabel,
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
     let elements: PixiVNJsonStepSwitchElementsType<T> = []
@@ -47,62 +51,12 @@ export function parserSwitch<T>(
         if (Array.isArray(value) && value.length > 3) {
             // remove the first item and the last two
             value = value.slice(1, value.length - 2)
-            let itemList: PixiVNJsonStepSwitchElementType<T>[] = []
+            let itemList: T[] = []
             let isInEnv = false
             let isConditionalText = false
             let conditionalList: RootParserItemType[] = []
 
-            value.forEach((rootItem) => {
-                if (Array.isArray(rootItem)) {
-                    if (rootItem.includes("visit")) {
-                        addElement(itemList, parserSwitch(rootItem, addElement, labelKey, nestedId), labelKey)
-                    } else {
-                        if (isConditionalText) {
-                            conditionalList.push(rootItem)
-                        }
-                    }
-                    // else if (rootItem.includes("nop")) {
-                    //     let i = getConditionalValue(rootItem, addConditionalElement, addElement, labelKey)
-                    //     if (i) {
-                    //         addElement(itemList, i, labelKey)
-                    //     }
-                    // }
-                    // else {
-                    //     console.error("[Pixi’VN Ink] Unhandled case: value is an array", rootItem)
-                    // }
-                }
-                else if (isInEnv) {
-                    if (rootItem && typeof rootItem === "object" && "CNT?" in rootItem) {
-                        isConditionalText = true
-                        conditionalList.push(rootItem)
-                    }
-                    else {
-                        if (rootItem && typeof rootItem === "string" && rootItem === "/ev") {
-                            isInEnv = false
-                        }
-                        conditionalList.push(rootItem)
-                    }
-                }
-                else if (typeof rootItem === "string") {
-                    if (rootItem == "ev") {
-                        isInEnv = true
-                    }
-                    else if (rootItem == 'nop' && isConditionalText) {
-                        let i = getConditionalValue(conditionalList as any[], addElement, labelKey, nestedId)
-                        isConditionalText = false
-                        conditionalList = []
-                        if (i) {
-                            addElement(itemList, i, labelKey)
-                        }
-                    }
-                    else {
-                        addElement(itemList, rootItem, labelKey)
-                    }
-                }
-                else if (rootItem && typeof rootItem === "object" && "->" in rootItem && typeof rootItem["->"] === "string") {
-                    addElement(itemList, rootItem, labelKey)
-                }
-            })
+            parseLabel<T>(value, labelKey, shareData, itemList, addElement, addElement, addLabels, addChoiseIntoList, nestedId)
             if (itemList.length === 1) {
                 elements.push(itemList[0])
             }

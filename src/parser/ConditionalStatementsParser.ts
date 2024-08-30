@@ -1,11 +1,13 @@
 import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
-import { getLabelByStandardDivert } from "../functions/DivertUtility";
+import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
+import InkRootType from "../types/InkRootType";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
-import { parserSwitch } from "./SwitchParser";
+import { getLabelByStandardDivert } from "../utility/DivertUtility";
+import { parseLabel, ShareDataParserLabel } from "./LabelParser";
 
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
@@ -108,7 +110,9 @@ export function parserConditionalStatements<T>(
 export function getConditionalValue<T>(
     preData: (ReadCount | (StandardDivert | Cond)[])[],
     addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
+    shareData: ShareDataParserLabel,
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalStatements<T> | undefined {
     if (preData.length === 0) {
@@ -132,21 +136,20 @@ export function getConditionalValue<T>(
         return undefined
     }
 
-    let then = getThen(data[0] as any, addSwitchElemen, labelKey, nestedId)
-    let elseThen = data.length > 1 ? getThen(data[1] as any, addSwitchElemen, labelKey, nestedId) : undefined
+    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
+    let elseThen = data.length > 1 ? getThen(data[1] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId) : undefined
     return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
 }
 
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
     addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
+    shareData: ShareDataParserLabel,
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {
-    let res: (T | PixiVNJsonConditionalStatements<T>)[] = []
-    let isInEnv = false
-    let isConditionalText = false
-    let conditionalList: RootParserItemType[] = []
+    let res: T[] = []
 
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
@@ -155,51 +158,7 @@ function getThen<T>(
                 item.b.pop()
                 item.b.pop()
             }
-            item.b.forEach((rootItem) => {
-                if (Array.isArray(rootItem)) {
-                    if (rootItem.includes("visit")) {
-                        let i = parserSwitch<T>(rootItem as any, addSwitchElemen, labelKey, nestedId)
-                        if (i) {
-                            addSwitchElemen(res, i, labelKey)
-                        }
-                    } else {
-                        if (isConditionalText) {
-                            conditionalList.push(rootItem)
-                        }
-                    }
-                }
-                else if (isInEnv) {
-                    if (rootItem && typeof rootItem === "object" && "CNT?" in rootItem) {
-                        isConditionalText = true
-                        conditionalList.push(rootItem)
-                    }
-                    else {
-                        if (rootItem && typeof rootItem === "string" && rootItem === "/ev") {
-                            isInEnv = false
-                        }
-                        conditionalList.push(rootItem)
-                    }
-                }
-                else if (typeof rootItem === "string") {
-                    if (rootItem == "ev") {
-                        isInEnv = true
-                    }
-                    else if (rootItem == 'nop' && isConditionalText) {
-                        let i = getConditionalValue(conditionalList as any[], addSwitchElemen, labelKey, nestedId)
-                        isConditionalText = false
-                        conditionalList = []
-                        if (i) {
-                            addSwitchElemen(res, i, labelKey)
-                        }
-                    }
-                    else {
-                        addSwitchElemen(res, rootItem, labelKey)
-                    }
-                }
-                else if (rootItem && typeof rootItem === "object" && "->" in rootItem) {
-                    addSwitchElemen(res, rootItem, labelKey)
-                }
-            })
+            parseLabel<T>(item.b, labelKey, shareData, res, addSwitchElemen, addSwitchElemen, addLabels, addChoiseIntoList, nestedId)
         }
     }
     if (res.length === 1) {

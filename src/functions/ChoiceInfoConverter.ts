@@ -1,6 +1,7 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep } from '@drincs/pixi-vn';
+import { PixiVNJsonConditionalStatements } from '@drincs/pixi-vn';
 import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import { addSwitchElemenText } from '../parser/AddingElements';
 import { parserConditionalStatements } from '../parser/ConditionalStatementsParser';
 import { ShareDataParserLabel } from '../parser/LabelParser';
 import { ConditionalList, parserSwitch } from '../parser/SwitchParser';
@@ -10,12 +11,11 @@ import NativeFunctions, { nativeFunctions } from '../types/parserItems/NativeFun
 import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
-import { addSwitchElemenText } from './ConditionalSubUtility';
-import { unionStringOrArray } from './utility';
+import { unionStringOrArray } from '../utility/ArrayUtility';
 
-export function addChoiseIntoList(
+export function addChoiseIntoList<T>(
     choiseList: RootParserItemType[],
-    itemList: (PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>)[],
+    itemList: (T | PixiVNJsonConditionalStatements<T>)[],
     labelKey: string,
     shareData: ShareDataParserLabel,
 ) {
@@ -34,12 +34,14 @@ export function addChoiseIntoList(
             }
             let choice = parserConditionalStatements(c, value.conditions, labelKey) || c
             let prevItem = itemList[itemList.length - 1]
-            if (typeof prevItem === "object" && "type" in prevItem) {
+            if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
                 prevItem = {
                     conditionalStep: prevItem,
-                }
+                } as T
             }
-            if (itemList.length > 0 && "choices" in prevItem && prevItem.choices) {
+            if (itemList.length > 0 &&
+                typeof prevItem === "object" && prevItem
+                && "choices" in prevItem && prevItem.choices) {
                 let choices = prevItem.choices
                 if (choices && Array.isArray(choices)) {
                     choices.push(choice)
@@ -52,7 +54,7 @@ export function addChoiseIntoList(
             else {
                 itemList.push({
                     choices: [choice]
-                })
+                } as T)
             }
             if (value.preDialog) {
                 shareData.preDialog[newKey] = {
@@ -81,7 +83,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
             }
         }
         else if (Array.isArray(rootItem) && rootItem.includes("visit")) {
-            let secondConditionalItem = parserSwitch<string>(rootItem, addSwitchElemenText, lastLabel)
+            let secondConditionalItem = parserSwitch<string>(rootItem, addSwitchElemenText, (_storyItem, _dadLabelKey, _shareData) => { }, lastLabel, { preDialog: {} })
             text.push(secondConditionalItem)
         }
         else if (rootItem && typeof rootItem === "object") {

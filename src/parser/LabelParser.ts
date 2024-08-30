@@ -23,8 +23,9 @@ export function parseLabel<T>(
         labelKey: string,
         shareData: ShareDataParserLabel,
     ) => void,
+    nestedId: string | undefined = undefined,
     isNewLine: boolean = true,
-): T[] {
+) {
     let isInEnv = false
     let choiseList: RootParserItemType[] = []
     let isConditionalText = false
@@ -36,14 +37,14 @@ export function parseLabel<T>(
         delete shareData.preDialog[labelKey]
     }
     if (rootList.includes("visit")) {
-        let item = parserSwitch<T>(rootList as any, addSwitchElemen, labelKey)
+        let item = parserSwitch<T>(rootList as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
         if (item) {
             if (!isNewLine && itemList.length > 0) {
                 addElement(itemList, "<>", labelKey, isNewLine)
             }
             addElement(itemList, item, labelKey, isNewLine)
         }
-        return itemList
+        return
     }
     rootList.forEach((rootItem, index) => {
         if (isInEnv) {
@@ -94,7 +95,7 @@ export function parseLabel<T>(
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
-                let res = getConditionalValue<T>(conditionalList as any[], addSwitchElemen, labelKey)
+                let res = getConditionalValue<T>(conditionalList as any[], addSwitchElemen, addLabels, labelKey, shareData, nestedId)
                 if (res) {
                     addElement(itemList, res, labelKey, isNewLine)
                 }
@@ -107,7 +108,7 @@ export function parseLabel<T>(
                 conditionalList.push(rootItem)
             }
             else {
-                parseLabel(rootItem, labelKey, shareData, itemList, addElement, addSwitchElemen, addLabels, addChoiseList, isNewLine)
+                parseLabel(rootItem, labelKey, shareData, itemList, addElement, addSwitchElemen, addLabels, addChoiseList, nestedId, isNewLine)
             }
         }
         else if (rootItem && typeof rootItem === "object") {
@@ -152,5 +153,5 @@ export function parseLabel<T>(
             itemList[0] = secondItem
         }
     }
-    return itemList
+    return
 }

@@ -1,20 +1,6 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import { StandardDivert } from "../types/parserItems/Divert";
-import { getLabelByStandardDivert } from "./DivertUtility";
-
-export function addConditionalElementText(list: (string | PixiVNJsonConditionalStatements<string>)[], item: string | StandardDivert | PixiVNJsonConditionalStatements<string>) {
-    if (!item) {
-        return
-    }
-    if (typeof item === "string") {
-        if (item.startsWith("^")) {
-            list.push(item.substring(1))
-        }
-    }
-    else if (typeof item === "object" && "type" in item) {
-        list.push(item)
-    }
-}
+import { getLabelByStandardDivert } from "../utility/DivertUtility";
 
 export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string>) {
     if (!item) {
@@ -30,6 +16,14 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
     }
 }
 
+export function addSwitchElemenStep(
+    list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
+    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>,
+    labelKey: string,
+    isNewLine: boolean = true
+) {
+    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine)
+}
 function addConditionalElementStep(
     list: (PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>)[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
@@ -107,13 +101,4 @@ function addConditionalElementStep(
             glueEnabled: glueEnabled,
         })
     }
-}
-
-export function addSwitchElemenStep(
-    list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
-    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>,
-    labelKey: string,
-    isNewLine: boolean = true
-) {
-    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine)
 }

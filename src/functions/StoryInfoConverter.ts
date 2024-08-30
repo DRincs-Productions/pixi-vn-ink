@@ -1,10 +1,10 @@
 import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import { addSwitchElemenStep } from '../parser/AddingElements';
 import { parseLabel, ShareDataParserLabel } from '../parser/LabelParser';
 import InkRootType from '../types/InkRootType';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { addChoiseIntoList } from './ChoiceInfoConverter';
-import { addSwitchElemenStep } from './ConditionalSubUtility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -31,7 +31,12 @@ function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType
     }
 }
 
-function addLabels(storyItem: InkRootType | RootParserItemType, result: PixiVNJsonLabels, dadLabelKey: string = "", shareData: ShareDataParserLabel = { preDialog: {} }) {
+export function addLabels(
+    storyItem: InkRootType | RootParserItemType,
+    result: PixiVNJsonLabels,
+    dadLabelKey: string = "",
+    shareData: ShareDataParserLabel = { preDialog: {} }
+) {
     if (storyItem === null) {
         return
     }
