@@ -1,13 +1,13 @@
 import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { getLabelByStandardDivert } from "../functions/DivertUtility";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
-import { getLabelByStandardDivert } from "./DivertUtility";
-import { getSwitchValue } from "./SwitchUtility";
+import { parserSwitch } from "./SwitchParser";
 
-export function getConditional<T>(
+export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
     data: (ReadCount | NativeFunctions)[],
     labelKey: string,
@@ -134,7 +134,7 @@ export function getConditionalValue<T>(
 
     let then = getThen(data[0] as any, addSwitchElemen, labelKey, nestedId)
     let elseThen = data.length > 1 ? getThen(data[1] as any, addSwitchElemen, labelKey, nestedId) : undefined
-    return getConditional<T>(then, condition, labelKey, elseThen)
+    return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
 }
 
 function getThen<T>(
@@ -158,7 +158,7 @@ function getThen<T>(
             item.b.forEach((rootItem) => {
                 if (Array.isArray(rootItem)) {
                     if (rootItem.includes("visit")) {
-                        let i = getSwitchValue<T>(rootItem as any, addSwitchElemen, labelKey, nestedId)
+                        let i = parserSwitch<T>(rootItem as any, addSwitchElemen, labelKey, nestedId)
                         if (i) {
                             addSwitchElemen(res, i, labelKey)
                         }

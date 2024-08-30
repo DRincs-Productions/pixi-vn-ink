@@ -1,16 +1,16 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep } from '@drincs/pixi-vn';
 import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import { parserConditionalStatements } from '../parser/ConditionalStatementsParser';
+import { ShareDataParserLabel } from '../parser/LabelParser';
+import { ConditionalList, parserSwitch } from '../parser/SwitchParser';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import ChoicePoint, { ChoiceInfo } from '../types/parserItems/ChoicePoint';
 import NativeFunctions, { nativeFunctions } from '../types/parserItems/NativeFunctions';
 import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
-import { getConditional } from './ConditionalStatementsUtility';
 import { addSwitchElemenText } from './ConditionalSubUtility';
-import { ShareDataParserLabel } from './parser/LabelParser';
-import { ConditionalList, getSwitchValue } from './SwitchUtility';
 import { unionStringOrArray } from './utility';
 
 export function addChoiseIntoList(
@@ -32,7 +32,7 @@ export function addChoiseIntoList(
                 type: "call",
                 oneTime: value.onetime,
             }
-            let choice = getConditional(c, value.conditions, labelKey) || c
+            let choice = parserConditionalStatements(c, value.conditions, labelKey) || c
             let prevItem = itemList[itemList.length - 1]
             if (typeof prevItem === "object" && "type" in prevItem) {
                 prevItem = {
@@ -81,7 +81,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
             }
         }
         else if (Array.isArray(rootItem) && rootItem.includes("visit")) {
-            let secondConditionalItem = getSwitchValue<string>(rootItem, addSwitchElemenText, lastLabel)
+            let secondConditionalItem = parserSwitch<string>(rootItem, addSwitchElemenText, lastLabel)
             text.push(secondConditionalItem)
         }
         else if (rootItem && typeof rootItem === "object") {

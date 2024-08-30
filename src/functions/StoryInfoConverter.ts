@@ -1,14 +1,14 @@
 import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
 import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import { getConditionalValue, parserConditionalStatements } from '../parser/ConditionalStatementsParser';
+import { parserSwitch } from '../parser/SwitchParser';
 import InkRootType from '../types/InkRootType';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getLabelChoice } from './ChoiceInfoConverter';
-import { getConditional, getConditionalValue } from './ConditionalStatementsUtility';
 import { addSwitchElemenStep } from './ConditionalSubUtility';
 import { getLabelByStandardDivert } from './DivertUtility';
-import { getSwitchValue } from './SwitchUtility';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {
@@ -73,7 +73,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
         isNewLine = false
     }
     if (rootList.includes("visit")) {
-        let item = getSwitchValue(rootList as any, addSwitchElemenStep, labelKey)
+        let item = parserSwitch(rootList as any, addSwitchElemenStep, labelKey)
         if (item) {
             if (!isNewLine && labelSteps.length > 0) {
                 labelSteps[labelSteps.length - 1].glueEnabled = true
@@ -236,7 +236,7 @@ function getLabel(rootList: RootParserItemType[], labelKey: string, labelSteps: 
                 type: "call",
                 oneTime: value.onetime,
             }
-            let choice = getConditional(c, value.conditions, labelKey) || c
+            let choice = parserConditionalStatements(c, value.conditions, labelKey) || c
             if (labelSteps.length > 0 && "choices" in labelSteps[labelSteps.length - 1] && labelSteps[labelSteps.length - 1].choices) {
                 let choices = labelSteps[labelSteps.length - 1].choices
                 if (choices && Array.isArray(choices)) {

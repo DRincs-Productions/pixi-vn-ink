@@ -1,10 +1,10 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
-import { CHOISE_LABEL_KEY_SEPARATOR } from '../../constant';
-import InkRootType from '../../types/InkRootType';
-import { StandardDivert } from '../../types/parserItems/Divert';
-import RootParserItemType from '../../types/parserItems/RootParserItemType';
-import { getConditionalValue } from '../ConditionalStatementsUtility';
-import { getSwitchValue } from '../SwitchUtility';
+import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import InkRootType from '../types/InkRootType';
+import { StandardDivert } from '../types/parserItems/Divert';
+import RootParserItemType from '../types/parserItems/RootParserItemType';
+import { getConditionalValue } from './ConditionalStatementsParser';
+import { parserSwitch } from './SwitchParser';
 
 export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string } }
@@ -35,7 +35,7 @@ export function parseLabel<T>(
         isNewLine = false
     }
     if (rootList.includes("visit")) {
-        let item = getSwitchValue<T>(rootList as any, addSwitchElemen, labelKey)
+        let item = parserSwitch<T>(rootList as any, addSwitchElemen, labelKey)
         if (item) {
             if (!isNewLine && itemList.length > 0) {
                 addElement(itemList, "<>", labelKey, isNewLine)
