@@ -52,9 +52,6 @@ export function parserSwitch<T>(
             // remove the first item and the last two
             value = value.slice(1, value.length - 2)
             let itemList: T[] = []
-            let isInEnv = false
-            let isConditionalText = false
-            let conditionalList: RootParserItemType[] = []
 
             parseLabel<T>(value, labelKey, shareData, itemList, addElement, addElement, addLabels, addChoiseIntoList, nestedId)
             if (itemList.length === 1) {

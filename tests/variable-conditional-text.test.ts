@@ -868,6 +868,9 @@ test('Conditional Text', async () => {
 			],
 			"met_blofeld_|_c-2": [
 				{
+					dialogue: " ",
+				},
+				{
 					end: "game_end",
 				},
 			],
@@ -913,8 +916,6 @@ test('Conditional Text', async () => {
 				},
 				{
 					dialogue: "\"His real name was ",
-					glueEnabled: true,
-					goNextStep: true,
 				},
 				{
 					conditionalStep: {
@@ -979,15 +980,21 @@ test('Conditional Text', async () => {
 							],
 						},
 						else: {
-							choices: [
+							type: "resulttocombine",
+							combine: "cross",
+							secondConditionalItem: [
 								{
-									text: " Loop ",
-									label: "met_blofeld_|_^.^",
-									props: {},
-									type: "call",
-									oneTime: false,
-								}
-							]
+									dialogue: " [ Loop ] ",
+									goNextStep: true,
+								},
+								{
+									labelToOpen: {
+										label: "met_blofeld",
+										type: "call",
+									},
+									glueEnabled: true,
+								},
+							],
 						},
 					},
 				},
