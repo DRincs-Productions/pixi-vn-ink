@@ -19,6 +19,21 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
     }
     else if (
         // if there are a sub label "=label"
+        (new RegExp(/^\.\^\.\^\.\^\..*$/)).test(divertName)
+        && labelKey
+    ) {
+        let endOfLabel = divertName.substring(7)
+        return labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+    }
+    else if (
+        // if there are a sub label "=label"
+        (new RegExp(/^\.\^\.\^\.\^.*$/)).test(divertName)
+        && labelKey
+    ) {
+        return labelKey
+    }
+    else if (
+        // if there are a sub label "=label"
         (new RegExp(/^\.\^\.\^\..*$/)).test(divertName)
         && labelKey
     ) {
@@ -49,6 +64,13 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
     ) {
         let endOfLabel = divertName.substring(3)
         return labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+    }
+    else if (
+        // if there are a sub label "=label"
+        (new RegExp(/^\.\^.*$/)).test(divertName)
+        && labelKey
+    ) {
+        return labelKey
     }
     return divertName
 }
