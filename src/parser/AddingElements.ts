@@ -25,7 +25,7 @@ export function addSwitchElemenStep(
     return addConditionalElementStep(list as any, item as any, labelKey, isNewLine)
 }
 function addConditionalElementStep(
-    list: (PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>)[],
+    list: PixiVNJsonLabelStep[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
     labelKey: string,
     isNewLine: boolean
@@ -37,11 +37,6 @@ function addConditionalElementStep(
         if (item.startsWith("^")) {
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1]
-                if (typeof prevItem === "object" && "type" in prevItem) {
-                    prevItem = {
-                        conditionalStep: prevItem,
-                    }
-                }
                 // in this case: <> text
                 if (!prevItem.glueEnabled) {
                     prevItem.glueEnabled = true
@@ -60,11 +55,6 @@ function addConditionalElementStep(
         else if (item == "<>") {
             if (list.length > 0) {
                 let prevItem = list[list.length - 1]
-                if (typeof prevItem === "object" && "type" in prevItem) {
-                    prevItem = {
-                        conditionalStep: prevItem,
-                    }
-                }
                 prevItem.glueEnabled = true
                 prevItem.goNextStep = true
                 list[list.length - 1] = prevItem
@@ -78,18 +68,13 @@ function addConditionalElementStep(
         }
     }
     else if (typeof item === "object" && "type" in item) {
-        list.push(item)
+        list.push({ conditionalStep: item })
     }
     else if (typeof item === "object" && "->" in item) {
         let glueEnabled = isNewLine ? undefined : true
         let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
         if (!isNewLine && list.length > 0) {
             let prevItem = list[list.length - 1]
-            if (typeof prevItem === "object" && "type" in prevItem) {
-                prevItem = {
-                    conditionalStep: prevItem,
-                }
-            }
             prevItem.goNextStep = true
             list[list.length - 1] = prevItem
         }
