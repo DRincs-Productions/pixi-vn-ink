@@ -462,31 +462,31 @@ test('Examples', async () => {
 							},
 							{
 								conditionalStep: {
-								type: "stepswitch",
-								elements: [
-									{
-										dialogue: "Missed!",
-									},
-									{
-										dialogue: "Nothing!",
-									},
-									{
-										dialogue: "No good. Where is he?",
-									},
-									{
-										type: "resulttocombine",
-										combine: "cross",
-										secondConditionalItem: [
-											{
-												dialogue: "Ah-ha! Got him! ",
-											},
-											{
-												end: "game_end",
-											},
-										],
-									},
-								],
-								choiceType: "random",
+									type: "stepswitch",
+									elements: [
+										{
+											dialogue: "Missed!",
+										},
+										{
+											dialogue: "Nothing!",
+										},
+										{
+											dialogue: "No good. Where is he?",
+										},
+										{
+											type: "resulttocombine",
+											combine: "cross",
+											secondConditionalItem: [
+												{
+													dialogue: "Ah-ha! Got him! ",
+												},
+												{
+													end: "game_end",
+												},
+											],
+										},
+									],
+									choiceType: "random",
 								},
 							},
 						],
@@ -513,19 +513,19 @@ test('Examples', async () => {
 								secondConditionalItem: [
 									{
 										conditionalStep: {
-										type: "stepswitch",
-										elements: [
-											{
-												dialogue: "nasty",
-											},
-											{
-												dialogue: "blasted",
-											},
-											{
-												dialogue: "foul",
-											},
-										],
-										choiceType: "loop",
+											type: "stepswitch",
+											elements: [
+												{
+													dialogue: "nasty",
+												},
+												{
+													dialogue: "blasted",
+												},
+												{
+													dialogue: "foul",
+												},
+											],
+											choiceType: "loop",
 										},
 									},
 									{
@@ -535,16 +535,16 @@ test('Examples', async () => {
 									},
 									{
 										conditionalStep: {
-										type: "stepswitch",
-										elements: [
-											{
-												dialogue: "creature",
-											},
-											{
-												dialogue: "rodent",
-											},
-										],
-										choiceType: "loop",
+											type: "stepswitch",
+											elements: [
+												{
+													dialogue: "creature",
+												},
+												{
+													dialogue: "rodent",
+												},
+											],
+											choiceType: "loop",
 										},
 									},
 								],
@@ -951,26 +951,48 @@ test('Conditional Text', async () => {
 							type: "resulttocombine",
 							combine: "cross",
 							secondConditionalItem: [
-								" \"I saw him. Only for a moment. His real name was ",
 								{
-									type: "ifelse",
-									condition: {
-										type: "value",
-										storageType: "label",
-										storageOperationType: "get",
-										label: "met_blofeld_|_learned_his_name",
-									},
-									then: " Franz",
-									else: "kept a secret",
+									dialogue: " \"I saw him. Only for a moment. His real name was ",
 								},
-								".\" ",
+								{
+									conditionalStep: {
+										type: "ifelse",
+										condition: {
+											type: "value",
+											storageType: "label",
+											storageOperationType: "get",
+											label: "met_blofeld_|_learned_his_name",
+										},
+										then: {
+											dialogue: " Franz",
+										},
+										else: {
+											dialogue: "kept a secret",
+										},
+									},
+									glueEnabled: true,
+									goNextStep: true,
+								},
+								{
+									dialogue: ".\" ",
+								},
 							],
 						},
-						else: " [ Loop ] ",
+						else: {
+							choices: [
+								{
+									text: " Loop ",
+									label: "met_blofeld_|_^.^",
+									props: {},
+									type: "call",
+									oneTime: false,
+								}
+							]
+						},
 					},
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "ifelse",
 						condition: {
 							type: "value",
@@ -982,52 +1004,78 @@ test('Conditional Text', async () => {
 							type: "resulttocombine",
 							combine: "cross",
 							secondConditionalItem: [
-								" \"Letter: ",
 								{
-									type: "stepswitch",
-									elements: [
-										"a",
-										"b",
-										{
-											type: "ifelse",
-											condition: {
-												type: "value",
-												storageType: "label",
-												storageOperationType: "get",
-												label: "met_blofeld",
-											},
-											then: {
-												type: "resulttocombine",
-												combine: "cross",
-												secondConditionalItem: [
-													" ",
-													{
-														type: "stepswitch",
-														elements: [
-															"c",
-															"d",
-														],
-														choiceType: "sequential",
-														end: undefined,
-														nestedId: undefined,
-													},
-												],
-											},
-											else: undefined,
-										},
-									],
-									choiceType: "sequential",
-									end: undefined,
-									nestedId: undefined,
+									dialogue: " \"Letter: ",
+									glueEnabled: true,
+									goNextStep: true,
 								},
-								"\" ",
+								{
+									conditionalStep: {
+										type: "stepswitch",
+										elements: [
+											{
+												dialogue: "a",
+											},
+											{
+												dialogue: "b",
+											},
+											{
+												conditionalStep: {
+													type: "ifelse",
+													condition: {
+														type: "value",
+														storageType: "label",
+														storageOperationType: "get",
+														label: "met_blofeld",
+													},
+													then: {
+														type: "resulttocombine",
+														combine: "cross",
+														secondConditionalItem: [
+															{
+																dialogue: " ",
+																glueEnabled: true,
+																goNextStep: true,
+															},
+															{
+																conditionalStep: {
+																	type: "stepswitch",
+																	elements: [
+																		{
+																			dialogue: "c",
+																		},
+																		{
+																			dialogue: "d",
+																		},
+																	],
+																	choiceType: "sequential",
+																	end: undefined,
+																	nestedId: undefined,
+																},
+															},
+														],
+													},
+													else: undefined,
+												},
+											},
+										],
+										choiceType: "sequential",
+										end: undefined,
+										nestedId: undefined,
+									},
+									glueEnabled: true,
+									goNextStep: true,
+								},
+								{
+									dialogue: "\" ",
+								},
 							],
 						},
 						else: undefined,
 					},
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "ifelse",
 						condition: {
 							type: "value",
@@ -1035,12 +1083,30 @@ test('Conditional Text', async () => {
 							storageOperationType: "get",
 							label: "met_blofeld_|_learned_his_name",
 						},
-						then: " \"OK\" ",
-						else: " ",
+						then: {
+							dialogue: " \"OK\" ",
+						},
+						else: {
+							type: "resulttocombine",
+							combine: "cross",
+							secondConditionalItem: [
+								{
+									dialogue: " ",
+									goNextStep: true,
+								},
+								{
+									labelToOpen: {
+										label: "met_blofeld_|_learned_his_name",
+										type: "call",
+									},
+									glueEnabled: true,
+								},
+							],
+						},
 					},
 				},
 				{
-					dialogue: {
+					conditionalStep: {
 						type: "ifelse",
 						condition: {
 							type: "value",
@@ -1048,8 +1114,21 @@ test('Conditional Text', async () => {
 							storageOperationType: "get",
 							label: "met_blofeld_|_learned_his_name",
 						},
-						then: " \"OK\" ",
-						else: " ",
+						then: {
+							dialogue: " \"OK\" ",
+						},
+						else: {
+							type: "resulttocombine",
+							combine: "cross",
+							secondConditionalItem: [
+								{
+									dialogue: " ",
+								},
+								{
+									end: "game_end",
+								},
+							],
+						},
 					},
 				},
 				{
