@@ -32,7 +32,6 @@ test('Sequences (the default)', async () => {
 					goNextStep: true,
 				},
 				{
-					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -54,10 +53,8 @@ test('Sequences (the default)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
-					},
 				},
 				{
-					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -73,7 +70,6 @@ test('Sequences (the default)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
-					},
 				},
 				{
 					choices: [
@@ -227,7 +223,6 @@ test('Once-only (marked with a !)', async () => {
 					goNextStep: true,
 				},
 				{
-					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -246,7 +241,6 @@ test('Once-only (marked with a !)', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
-					},
 				},
 				{
 					choices: [
@@ -455,7 +449,6 @@ test('Examples', async () => {
 			],
 			whack_a_mole: [
 				{
-					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -492,7 +485,6 @@ test('Examples', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
-					},
 				},
 				{
 					dialogue: "The ",
@@ -527,6 +519,8 @@ test('Examples', async () => {
 									},
 									{
 										dialogue: " ",
+										glueEnabled: true,
+										goNextStep: true,
 									},
 									{
 										type: "stepswitch",
@@ -589,7 +583,6 @@ test('Examples', async () => {
 					goNextStep: true,
 				},
 				{
-					conditionalStep: {
 						type: "stepswitch",
 						elements: [
 							{
@@ -602,7 +595,6 @@ test('Examples', async () => {
 						choiceType: "sequential",
 						end: undefined,
 						nestedId: undefined,
-					},
 				},
 				{
 					choices: [
