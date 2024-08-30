@@ -13,26 +13,27 @@ export function parseLabel<T>(
     rootList: RootParserItemType[],
     labelKey: string,
     shareData: ShareDataParserLabel,
+    itemList: T[] = [],
     addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string, isNewLine: boolean) => void,
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
-    isNewLine: boolean = true,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string, isNewLine?: boolean) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     addChoiseList: (
         choiseList: RootParserItemType[],
         itemList: (T | PixiVNJsonConditionalStatements<T>)[],
         labelKey: string,
         shareData: ShareDataParserLabel,
-    ) => void
-) {
-    let itemList: T[] = []
+    ) => void,
+    isNewLine: boolean = true,
+): T[] {
     let isInEnv = false
     let choiseList: RootParserItemType[] = []
     let isConditionalText = false
     let conditionalList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
+        // *	Hello [back!] right back to you!
+        isNewLine = false
         addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, isNewLine)
         delete shareData.preDialog[labelKey]
-        isNewLine = false
     }
     if (rootList.includes("visit")) {
         let item = parserSwitch<T>(rootList as any, addSwitchElemen, labelKey)
@@ -42,7 +43,7 @@ export function parseLabel<T>(
             }
             addElement(itemList, item, labelKey, isNewLine)
         }
-        return
+        return itemList
     }
     rootList.forEach((rootItem, index) => {
         if (isInEnv) {
@@ -106,7 +107,7 @@ export function parseLabel<T>(
                 conditionalList.push(rootItem)
             }
             else {
-                parseLabel(rootItem, labelKey, shareData, addElement, addSwitchElemen, isNewLine, addLabels, addChoiseList)
+                parseLabel(rootItem, labelKey, shareData, itemList, addElement, addSwitchElemen, addLabels, addChoiseList, isNewLine)
             }
         }
         else if (rootItem && typeof rootItem === "object") {
@@ -137,8 +138,7 @@ export function parseLabel<T>(
     })
     addChoiseList(choiseList, itemList, labelKey, shareData)
     // * [Open the gate] -> paragraph_2
-    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && itemList.length == 2
-    ) {
+    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && itemList.length == 2) {
         let firstItem = itemList[0]
         let secondItem = itemList[1]
         if (firstItem && secondItem
@@ -152,4 +152,5 @@ export function parseLabel<T>(
             itemList[0] = secondItem
         }
     }
+    return itemList
 }

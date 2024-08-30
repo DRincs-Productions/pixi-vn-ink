@@ -30,11 +30,11 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
     }
 }
 
-export function addConditionalElementStep(
+function addConditionalElementStep(
     list: (PixiVNJsonLabelStep | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>)[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
     labelKey: string,
-    isNewLine: boolean = true
+    isNewLine: boolean
 ) {
     if (!item) {
         return
@@ -112,7 +112,8 @@ export function addConditionalElementStep(
 export function addSwitchElemenStep(
     list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>,
-    labelKey: string
+    labelKey: string,
+    isNewLine: boolean = true
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey)
+    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine)
 }
