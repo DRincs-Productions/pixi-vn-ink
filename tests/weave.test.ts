@@ -1110,7 +1110,178 @@ test('Example: a conversation with nested nodes', async () => {
  */
 test('Gathers and options can be labelled', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "meet_guard_|_c-0": [
+                {
+                    dialogue: "'Greetings.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_c-1": [
+                {
+                    dialogue: "'Get out of my way",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ",' you tell the guard.",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_g-0_|_c-2": [
+                {
+                    dialogue: "'Having a nice day?' ",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-1",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_g-0_|_c-3": [
+                {
+                    dialogue: "'Hmm?'",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " you reply.",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-1",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_g-0_|_c-4": [
+                {
+                    dialogue: " \t ",
+                },
+                {
+                    dialogue: "You shove him sharply. He stares in reply, and draws his sword!",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-1",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "meet_guard_|_g-0": [
+                {
+                    dialogue: "'Hmm,' replies the guard.",
+                },
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "meet_guard_|_c-0",
+                            },
+                            then: {
+                                text: "'Having a nice day?' ",
+                                label: "meet_guard_|_g-0_|_c-2",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                        {
+                            text: "'Hmm?'",
+                            label: "meet_guard_|_g-0_|_c-3",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "meet_guard_|_c-1",
+                            },
+                            then: {
+                                text: "Shove him aside",
+                                label: "meet_guard_|_g-0_|_c-4",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            "meet_guard_|_g-1": [
+                {
+                    dialogue: "'Mff,' the guard replies, and then offers you a paper bag. 'Toffee?'",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            meet_guard: [
+                {
+                    dialogue: "The guard frowns at you.",
+                },
+                {
+                    choices: [
+                        {
+                            text: ["'Get out of my way", ".'",],
+                            label: "meet_guard_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Greet him",
+                            label: "meet_guard_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            fight_guard: [
+                {
+                    dialogue: "fight_guard",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> meet_guard
