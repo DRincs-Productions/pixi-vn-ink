@@ -1016,3 +1016,48 @@ test('Advanced: Loops in a weave', async () => {
 `);
     expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-diverting-to-options
+ */
+test('Advanced: diverting to options', async () => {
+    let expected: PixiVNJson = {
+        labels: {}
+    }
+    let res = convertInkText(`
+-> fight_guard
+=== fight_guard ===
+- (opts)
+*	[Pull a face]
+	You pull a face, and the soldier comes at you! -> shove
+
+*	(shove) [Shove the guard aside] You shove the guard to one side, but he comes back swinging.
+
+*	{shove} [Grapple and fight] -> fight_the_guard
+
+- 	-> opts
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-gathers-directly-after-an-option
+ */
+test('Advanced: Gathers directly after an option', async () => {
+    let expected: PixiVNJson = {
+        labels: {}
+    }
+    let res = convertInkText(`
+-> fight_guard
+=== fight_guard ===
+*	"Are you quite well, Monsieur?"[] I asked.
+	- - (quitewell) "Quite well," he replied.
+*	"How did you do at the crossword, Monsieur?"[] I asked.
+	-> quitewell
+*	I said nothing[] and neither did my Master.
+-	We fell into companionable silence once more.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
