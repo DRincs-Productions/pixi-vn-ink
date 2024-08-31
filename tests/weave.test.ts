@@ -984,3 +984,35 @@ You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
 `);
     expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-loops-in-a-weave
+ */
+test('Advanced: Loops in a weave', async () => {
+    let expected: PixiVNJson = {
+        labels: {}
+    }
+    let res = convertInkText(`
+-> fight_guard
+=== fight_guard ===
+- (opts)
+	*	'Can I get a uniform from somewhere?'[] you ask the cheerful guard.
+		'Sure. In the locker.' He grins. 'Don't think it'll fit you, though.'
+	*	'Tell me about the security system.'
+		'It's ancient,' the guard assures you. 'Old as coal.'
+	*	'Are there dogs?'
+		'Hundreds,' the guard answers, with a toothy grin. 'Hungry devils, too.'
+	// We require the player to ask at least one question
+	*	{loop} [Enough talking]
+		-> done
+- (loop)
+	// loop a few times before the guard gets bored
+	{ -> opts | -> opts | }
+	He scratches his head.
+	'Well, can't stand around talking all day,' he declares.
+- (done)
+	You thank the guard, and move away.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
