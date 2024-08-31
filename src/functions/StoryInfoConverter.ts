@@ -47,6 +47,9 @@ export function addLabels(
             let labels: PixiVNJsonLabel = []
             let subLabels: PixiVNJsonLabels = {}
             let labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key
+            if (key.includes("g-")) {
+                labelName = dadLabelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + key
+            }
             parseLabel(value, labelName, shareData, labels, addSwitchElemenStep, addSwitchElemenStep, (storyItem, dadLabelKey, shareData) => {
                 addLabels(storyItem, subLabels, dadLabelKey, shareData)
             }, addChoiseIntoList)

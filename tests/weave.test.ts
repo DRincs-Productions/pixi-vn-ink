@@ -490,7 +490,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_c-0_|_g-0",
+						label: "start_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -502,7 +502,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_c-0_|_g-0",
+						label: "start_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -514,13 +514,13 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_c-0_|_g-0",
+						label: "start_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
 				},
 			],
-			"start_|_c-0_|_g-0_|_c-3": [
+			"start_|_g-0_|_c-3": [
 				{
 					dialogue: "\"Mon ami, I am deadly serious.\"",
 				},
@@ -532,7 +532,7 @@ test('Gather points can be nested too', async () => {
 					glueEnabled: undefined,
 				},
 			],
-			"start_|_c-0_|_g-0_|_c-4": [
+			"start_|_g-0_|_c-4": [
 				{
 					dialogue: "\"If only...\"",
 				},
@@ -544,7 +544,7 @@ test('Gather points can be nested too', async () => {
 					glueEnabled: undefined,
 				},
 			],
-			"start_|_c-0_|_g-0": [
+			"start_|_g-0": [
 				{
 					dialogue: "\"You must be joking!\"",
 				},
@@ -552,15 +552,17 @@ test('Gather points can be nested too', async () => {
 					choices: [
 						{
 							text: "\"Mon ami, I am deadly serious.\"",
-							label: "start_|_c-0_|_g-0_|_c-3",
-							props: {},
+							label: "start_|_g-0_|_c-3",
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: "\"If only...\"",
-							label: "start_|_c-0_|_g-0_|_c-4",
-							props: {},
+							label: "start_|_g-0_|_c-4",
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
@@ -579,21 +581,24 @@ test('Gather points can be nested too', async () => {
 						{
 							text: "\"Detective-Inspector Japp!\"",
 							label: "start_|_c-0_|_c-0",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: "\"Captain Hastings!\"",
 							label: "start_|_c-0_|_c-1",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: "\"Myself!\"",
 							label: "start_|_c-0_|_c-2",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
@@ -636,14 +641,16 @@ test('Gather points can be nested too', async () => {
 						{
 							text: "\"Quite sure.\"",
 							label: "start_|_c-1_|_c-0",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: "\"It is perfectly obvious.\"",
 							label: "start_|_c-1_|_c-1",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
@@ -667,14 +674,16 @@ test('Gather points can be nested too', async () => {
 						{
 							text: "\"Murder!\"",
 							label: "start_|_c-0",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
 						{
 							text: "\"Suicide!\"",
 							label: "start_|_c-1",
-							props: {},
+							props: {
+							},
 							type: "call",
 							oneTime: true,
 						},
