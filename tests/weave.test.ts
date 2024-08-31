@@ -130,7 +130,154 @@ test('Gathers', async () => {
  */
 test('Options and gathers form chains of content', async () => {
 	let expected: PixiVNJson = {
-		labels: {}
+		labels: {
+			"start_|_c-0": [
+				{
+					dialogue: "I checked the jewels",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " were still in my pocket, and the feel of them brought a spring to my step. ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-0",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-1": [
+				{
+					dialogue: "I did not pause for breath",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: " but kept on running. ",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-0",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-2": [
+				{
+					dialogue: "I cheered with joy. ",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-0",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_g-0_|_c-3": [
+				{
+					dialogue: "I reached the road and looked about",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ". And would you believe it?",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_g-0_|_c-4": [
+				{
+					dialogue: "I should interrupt to say Mackie is normally very reliable",
+					glueEnabled: true,
+					goNextStep: true,
+				},
+				{
+					dialogue: ". He's never once let me down. Or rather, never once, previously to that night.",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_g-0": [
+				{
+					dialogue: "The road could not be much further! Mackie would have the engine running, and then I'd be safe.",
+				},
+				{
+					choices: [
+						{
+							text: "I reached the road and looked about",
+							label: "start_|_g-0_|_c-3",
+							props: {
+							},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "I should interrupt to say Mackie is normally very reliable",
+							label: "start_|_g-0_|_c-4",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_g-1": [
+				{
+					dialogue: "The road was empty. Mackie was nowhere to be seen.",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			start: [
+				{
+					dialogue: "I ran through the forest, the dogs snapping at my heels.",
+				},
+				{
+					choices: [
+						{
+							text: "I checked the jewels",
+							label: "start_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "I did not pause for breath",
+							label: "start_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "I cheered with joy. ",
+							label: "start_|_c-2",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+		}
 	}
 	let res = convertInkText(`
 -> start

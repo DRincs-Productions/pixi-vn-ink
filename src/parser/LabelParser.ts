@@ -119,9 +119,11 @@ export function parseLabel<T>(
                 addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }
-            else if ("*" in rootItem && typeof rootItem["*"] === "string" && rootItem["*"].includes("c")) {
-                choiseList.push(rootItem)
-                isNewLine = false
+            else if ("*" in rootItem && typeof rootItem["*"] === "string") {
+                if (rootItem["*"].includes("c")) {
+                    choiseList.push(rootItem)
+                    isNewLine = false
+                }
             }
             // if is choise info
             else if ("s" in rootItem && rootItem["s"] instanceof Array) {
