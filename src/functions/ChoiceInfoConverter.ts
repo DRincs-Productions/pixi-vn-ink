@@ -88,11 +88,13 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
         }
         else if (rootItem && typeof rootItem === "object") {
             // if is a choice
-            if ("*" in rootItem && typeof rootItem["*"] && typeof rootItem["*"] === "string" && rootItem["*"].includes("c")) {
-                let l = "c" + rootItem["*"].split("c")[1]
-                label = l
-                if (rootItem.flg & 0x10) {
-                    onetime = true
+            if ("*" in rootItem && typeof rootItem["*"] && typeof rootItem["*"] === "string") {
+                if (rootItem["*"].includes("c")) {
+                    let l = "c" + rootItem["*"].split("c")[1]
+                    label = l
+                    if (rootItem.flg & 0x10) {
+                        onetime = true
+                    }
                 }
             }
             // if is choise info
