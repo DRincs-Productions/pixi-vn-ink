@@ -862,7 +862,222 @@ test('Advanced: What gathers do', async () => {
  */
 test('Example: a conversation with nested nodes', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "start_|_c-0_|_c-0_|_c-0": [
+                {
+                    dialogue: "'But surely that is foolishness!'",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-0_|_c-0_|_c-1": [
+                {
+                    dialogue: "'A most serious matter then!'",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-2": [
+                {
+                    dialogue: "'But can we win?'",
+                },
+                {
+                    dialogue: "'That is what we will endeavour to find out,' he answered.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-3": [
+                {
+                    dialogue: "'A modest wager, I trust?'",
+                },
+                {
+                    dialogue: "'Twenty thousand pounds,' he replied, quite flatly.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-4": [
+                {
+                    dialogue: "I asked nothing further of him then",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ", and after a final, polite cough, he offered nothing more to me. ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: "After that, ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-0_|_c-0": [
+                {
+                    dialogue: "'A wager!'",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I returned.",
+                },
+                {
+                    dialogue: "He nodded.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "'But surely that is foolishness!'",
+                            label: "start_|_c-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'A most serious matter then!'",
+                            label: "start_|_c-0_|_c-0_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_c-0_|_c-1": [
+                {
+                    dialogue: "'Ah",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ",' I replied, uncertain what I thought.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-0": [
+                {
+                    dialogue: "... and I could contain myself no longer.",
+                },
+                {
+                    dialogue: "'What is the purpose of our journey, Monsieur?'",
+                },
+                {
+                    dialogue: "'A wager,' he replied.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "'A wager!'",
+                            label: "start_|_c-0_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: ["'Ah", ".'",],
+                            label: "start_|_c-0_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_c-1": [
+                {
+                    dialogue: "... but I said nothing",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " and ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue: "we passed the day in silence.",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+            start: [
+                {
+                    dialogue: "I looked at Monsieur Fogg",
+                },
+                {
+                    choices: [
+                        {
+                            text: "... and I could contain myself no longer.",
+                            label: "start_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "... but I said nothing",
+                            label: "start_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> start
@@ -917,6 +1132,9 @@ The guard frowns at you.
 	-> fight_guard 			// this route diverts out of the weave
 
 -	'Mff,' the guard replies, and then offers you a paper bag. 'Toffee?'
+-> DONE
+=== fight_guard ===
+fight_guard
 -> DONE
 `);
     expect(res).toEqual(expected);
