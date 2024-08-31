@@ -713,3 +713,146 @@ test('Gather points can be nested too', async () => {
 `);
 	expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-what-gathers-do
+ */
+test('Advanced: What gathers do', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+			"start_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
+				{
+					dialogue: "\"...Tell us a tale Captain!\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-0_|_c-0_|_c-0_|_c-0": [
+				{
+					dialogue: "\"... and they said to their Captain...\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"...Tell us a tale Captain!\"",
+							label: "start_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_c-0_|_c-0_|_c-0": [
+				{
+					dialogue: "\"...and the crew were restless...\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"... and they said to their Captain...\"",
+							label: "start_|_c-0_|_c-0_|_c-0_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_c-0_|_c-0": [
+				{
+					dialogue: "\"It was a dark and stormy night...\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"...and the crew were restless...\"",
+							label: "start_|_c-0_|_c-0_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_c-0": [
+				{
+					dialogue: "\"Very well, you sea-dogs. Here's a tale...\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"It was a dark and stormy night...\"",
+							label: "start_|_c-0_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_c-1": [
+				{
+					dialogue: "\"No, it's past your bed-time.\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_g-1": [
+				{
+					dialogue: "To a man, the crew began to yawn.",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			start: [
+				{
+					dialogue: "\"Tell us a tale, Captain!\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"Very well, you sea-dogs. Here's a tale...\"",
+							label: "start_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "\"No, it's past your bed-time.\"",
+							label: "start_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+		}
+	}
+	let res = convertInkText(`
+-> start
+=== start ==
+-	"Tell us a tale, Captain!"
+	*	"Very well, you sea-dogs. Here's a tale..."
+		* * 	"It was a dark and stormy night..."
+				* * * 	"...and the crew were restless..."
+						* * * *  "... and they said to their Captain..."
+								* * * * *		"...Tell us a tale Captain!"
+	*	"No, it's past your bed-time."
+-	To a man, the crew began to yawn.
+-> DONE
+`);
+	expect(res).toEqual(expected);
+});
