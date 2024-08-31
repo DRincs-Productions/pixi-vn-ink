@@ -962,3 +962,25 @@ test('Scope2', async () => {
 `);
     expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-all-options-can-be-labelled
+ */
+test('Advanced: all options can be labelled', async () => {
+    let expected: PixiVNJson = {
+        labels: {}
+    }
+    let res = convertInkText(`
+-> fight_guard
+=== fight_guard ===
+...
+= throw_something
+*	(rock) [Throw rock at guard] -> throw
+* 	(sand) [Throw sand at guard] -> throw
+
+= throw
+You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
