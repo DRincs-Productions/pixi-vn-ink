@@ -477,3 +477,230 @@ test('Options can be nested', async () => {
 `);
 	expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#gather-points-can-be-nested-too
+ */
+test('Gather points can be nested too', async () => {
+	let expected: PixiVNJson = {
+		labels: {
+			"start_|_c-0_|_c-0": [
+				{
+					dialogue: "\"Detective-Inspector Japp!\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_c-0_|_g-0",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-0_|_c-1": [
+				{
+					dialogue: "\"Captain Hastings!\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_c-0_|_g-0",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-0_|_c-2": [
+				{
+					dialogue: "\"Myself!\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_c-0_|_g-0",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-0_|_g-0_|_c-3": [
+				{
+					dialogue: "\"Mon ami, I am deadly serious.\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-0_|_g-0_|_c-4": [
+				{
+					dialogue: "\"If only...\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-0_|_g-0": [
+				{
+					dialogue: "\"You must be joking!\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"Mon ami, I am deadly serious.\"",
+							label: "start_|_c-0_|_g-0_|_c-3",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "\"If only...\"",
+							label: "start_|_c-0_|_g-0_|_c-4",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_c-0": [
+				{
+					dialogue: "\"Murder!\"",
+				},
+				{
+					dialogue: "\"And who did it?\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"Detective-Inspector Japp!\"",
+							label: "start_|_c-0_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "\"Captain Hastings!\"",
+							label: "start_|_c-0_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "\"Myself!\"",
+							label: "start_|_c-0_|_c-2",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_c-1_|_c-0": [
+				{
+					dialogue: "\"Quite sure.\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-1_|_c-1": [
+				{
+					dialogue: "\"It is perfectly obvious.\"",
+				},
+				{
+					labelToOpen: {
+						label: "start_|_g-1",
+						type: "call",
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-1": [
+				{
+					dialogue: "\"Suicide!\"",
+				},
+				{
+					dialogue: "\"Really, Poirot? Are you quite sure?\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"Quite sure.\"",
+							label: "start_|_c-1_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "\"It is perfectly obvious.\"",
+							label: "start_|_c-1_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			"start_|_g-1": [
+				{
+					dialogue: "Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.",
+				},
+				{
+					end: "label_end",
+				},
+			],
+			start: [
+				{
+					dialogue: "\"Well, Poirot? Murder or suicide?\"",
+				},
+				{
+					choices: [
+						{
+							text: "\"Murder!\"",
+							label: "start_|_c-0",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+						{
+							text: "\"Suicide!\"",
+							label: "start_|_c-1",
+							props: {},
+							type: "call",
+							oneTime: true,
+						},
+					],
+				},
+			],
+		}
+	}
+	let res = convertInkText(`
+-> start
+=== start ==
+- 	"Well, Poirot? Murder or suicide?"
+		*	"Murder!"
+		 	"And who did it?"
+			* * 	"Detective-Inspector Japp!"
+			* * 	"Captain Hastings!"
+			* * 	"Myself!"
+			- - 	"You must be joking!"
+			* * 	"Mon ami, I am deadly serious."
+			* *		"If only..."
+		* 	"Suicide!"
+			"Really, Poirot? Are you quite sure?"
+			* * 	"Quite sure."
+			* *		"It is perfectly obvious."
+		-	Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.
+-> DONE
+`);
+	expect(res).toEqual(expected);
+});
