@@ -1,6 +1,14 @@
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant"
 
 export function getLabelByStandardDivert(divertName: string, labelKey: string): string {
+    // start.0.g-1
+    if (
+        !(new RegExp(/^\.\^.*$/)).test(divertName)
+        && divertName.includes("g-")
+    ) {
+        return labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + "g-" + divertName.split("g-")[1]
+    }
+
     while ((new RegExp(/^\.\^.*$/)).test(divertName)) {
         divertName = divertName.substring(2)
     }
