@@ -921,3 +921,44 @@ The guard frowns at you.
 `);
     expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#scope
+ */
+test('Scope', async () => {
+    let expected: PixiVNJson = {
+        labels: {}
+    }
+    let res = convertInkText(`
+-> knot
+=== knot ===
+= stitch_one
+	- (gatherpoint) Some content.
+= stitch_two
+	*	{stitch_one.gatherpoint} Option
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#scope
+ */
+test('Scope2', async () => {
+    let expected: PixiVNJson = {
+        labels: {}
+    }
+    let res = convertInkText(`
+-> knot_one
+=== knot_one ===
+-	(gather_one)
+	* {knot_two.stitch_two.gather_two} Option
+
+=== knot_two ===
+= stitch_two
+	- (gather_two)
+		*	{knot_one.gather_one} Option
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
