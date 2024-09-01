@@ -21,5 +21,5 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         let endOfLabel = divertName.substring(1)
         return labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
     }
-    return divertName || labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0]
+    return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR) || labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0].replace(".", CHOISE_LABEL_KEY_SEPARATOR)
 }

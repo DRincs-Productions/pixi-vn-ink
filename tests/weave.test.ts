@@ -964,9 +964,9 @@ test('Example: a conversation with nested nodes', async () => {
                             text: "'But can we win?'",
                             label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2",
                             props: {},
-                        type: "call",
+                            type: "call",
                             oneTime: true,
-                    },
+                        },
                         {
                             text: "'A modest wager, I trust?'",
                             label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3",
@@ -1383,9 +1383,21 @@ fight_guard
 test('Scope', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "knot_|_stitch_one": [
+            "knot_|_stitch_one_|_gatherpoint": [
                 {
                     dialogue: "Some content.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            "knot_|_stitch_one": [
+                {
+                    labelToOpen: {
+                        label: "knot_|_stitch_one_|_gatherpoint",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
             "knot_|_stitch_two_|_c-0": [
@@ -1444,6 +1456,7 @@ test('Scope', async () => {
 === knot ===
 = stitch_one
 	- (gatherpoint) Some content.
+	-> DONE
 = stitch_two
 	*	{stitch_one.gatherpoint} Option
 -> DONE
