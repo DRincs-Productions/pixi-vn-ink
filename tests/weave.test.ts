@@ -307,7 +307,7 @@ I ran through the forest, the dogs snapping at my heels.
 test('Options can be nested', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "start_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0": [
                 {
                     dialogue: "\"Detective-Inspector Japp!\"",
                 },
@@ -319,7 +319,7 @@ test('Options can be nested', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0_|_c-1": [
+            "start_|_g-0_|_c-0_|_c-1": [
                 {
                     dialogue: "\"Captain Hastings!\"",
                 },
@@ -331,7 +331,7 @@ test('Options can be nested', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0_|_c-2": [
+            "start_|_g-0_|_c-0_|_c-2": [
                 {
                     dialogue: "\"Myself!\"",
                 },
@@ -343,7 +343,7 @@ test('Options can be nested', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0": [
+            "start_|_g-0_|_c-0": [
                 {
                     dialogue: "\"Murder!\"",
                 },
@@ -354,21 +354,21 @@ test('Options can be nested', async () => {
                     choices: [
                         {
                             text: "\"Detective-Inspector Japp!\"",
-                            label: "start_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"Captain Hastings!\"",
-                            label: "start_|_c-0_|_c-1",
+                            label: "start_|_g-0_|_c-0_|_c-1",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"Myself!\"",
-                            label: "start_|_c-0_|_c-2",
+                            label: "start_|_g-0_|_c-0_|_c-2",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -376,7 +376,7 @@ test('Options can be nested', async () => {
                     ],
                 },
             ],
-            "start_|_c-1_|_c-0": [
+            "start_|_g-0_|_c-1_|_c-0": [
                 {
                     dialogue: "\"Quite sure.\"",
                 },
@@ -388,7 +388,7 @@ test('Options can be nested', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-1_|_c-1": [
+            "start_|_g-0_|_c-1_|_c-1": [
                 {
                     dialogue: "\"It is perfectly obvious.\"",
                 },
@@ -400,7 +400,7 @@ test('Options can be nested', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-1": [
+            "start_|_g-0_|_c-1": [
                 {
                     dialogue: "\"Suicide!\"",
                 },
@@ -411,14 +411,37 @@ test('Options can be nested', async () => {
                     choices: [
                         {
                             text: "\"Quite sure.\"",
-                            label: "start_|_c-1_|_c-0",
+                            label: "start_|_g-0_|_c-1_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"It is perfectly obvious.\"",
-                            label: "start_|_c-1_|_c-1",
+                            label: "start_|_g-0_|_c-1_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: "\"Well, Poirot? Murder or suicide?\"",
+                },
+                {
+                    choices: [
+                        {
+                            text: "\"Murder!\"",
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "\"Suicide!\"",
+                            label: "start_|_g-0_|_c-1",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -436,25 +459,11 @@ test('Options can be nested', async () => {
             ],
             start: [
                 {
-                    dialogue: "\"Well, Poirot? Murder or suicide?\"",
-                },
-                {
-                    choices: [
-                        {
-                            text: "\"Murder!\"",
-                            label: "start_|_c-0",
-                            props: {},
-                            type: "call",
-                            oneTime: true,
-                        },
-                        {
-                            text: "\"Suicide!\"",
-                            label: "start_|_c-1",
-                            props: {},
-                            type: "call",
-                            oneTime: true,
-                        },
-                    ],
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
         }
@@ -484,7 +493,7 @@ test('Options can be nested', async () => {
 test('Gather points can be nested too', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "start_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0": [
                 {
                     dialogue: "\"Detective-Inspector Japp!\"",
                 },
@@ -496,7 +505,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0_|_c-1": [
+            "start_|_g-0_|_c-0_|_c-1": [
                 {
                     dialogue: "\"Captain Hastings!\"",
                 },
@@ -508,7 +517,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0_|_c-2": [
+            "start_|_g-0_|_c-0_|_c-2": [
                 {
                     dialogue: "\"Myself!\"",
                 },
@@ -520,7 +529,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0_|_c-3": [
+            "start_|_g-0_|_c-0_|_g-0_|_c-3": [
                 {
                     dialogue: "\"Mon ami, I am deadly serious.\"",
                 },
@@ -532,7 +541,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0_|_c-4": [
+            "start_|_g-0_|_c-0_|_g-0_|_c-4": [
                 {
                     dialogue: "\"If only...\"",
                 },
@@ -544,7 +553,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0": [
+            "start_|_g-0_|_c-0_|_g-0": [
                 {
                     dialogue: "\"You must be joking!\"",
                 },
@@ -552,24 +561,22 @@ test('Gather points can be nested too', async () => {
                     choices: [
                         {
                             text: "\"Mon ami, I am deadly serious.\"",
-                            label: "start_|_g-0_|_c-3",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-0_|_g-0_|_c-3",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"If only...\"",
-                            label: "start_|_g-0_|_c-4",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-0_|_g-0_|_c-4",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
                     ],
                 },
             ],
-            "start_|_c-0": [
+            "start_|_g-0_|_c-0": [
                 {
                     dialogue: "\"Murder!\"",
                 },
@@ -580,32 +587,29 @@ test('Gather points can be nested too', async () => {
                     choices: [
                         {
                             text: "\"Detective-Inspector Japp!\"",
-                            label: "start_|_c-0_|_c-0",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-0_|_c-0",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"Captain Hastings!\"",
-                            label: "start_|_c-0_|_c-1",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-0_|_c-1",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"Myself!\"",
-                            label: "start_|_c-0_|_c-2",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-0_|_c-2",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
                     ],
                 },
             ],
-            "start_|_c-1_|_c-0": [
+            "start_|_g-0_|_c-1_|_c-0": [
                 {
                     dialogue: "\"Quite sure.\"",
                 },
@@ -617,7 +621,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-1_|_c-1": [
+            "start_|_g-0_|_c-1_|_c-1": [
                 {
                     dialogue: "\"It is perfectly obvious.\"",
                 },
@@ -629,7 +633,7 @@ test('Gather points can be nested too', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-1": [
+            "start_|_g-0_|_c-1": [
                 {
                     dialogue: "\"Suicide!\"",
                 },
@@ -640,17 +644,38 @@ test('Gather points can be nested too', async () => {
                     choices: [
                         {
                             text: "\"Quite sure.\"",
-                            label: "start_|_c-1_|_c-0",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-1_|_c-0",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "\"It is perfectly obvious.\"",
-                            label: "start_|_c-1_|_c-1",
-                            props: {
-                            },
+                            label: "start_|_g-0_|_c-1_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: "\"Well, Poirot? Murder or suicide?\"",
+                },
+                {
+                    choices: [
+                        {
+                            text: "\"Murder!\"",
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "\"Suicide!\"",
+                            label: "start_|_g-0_|_c-1",
+                            props: {},
                             type: "call",
                             oneTime: true,
                         },
@@ -667,27 +692,11 @@ test('Gather points can be nested too', async () => {
             ],
             start: [
                 {
-                    dialogue: "\"Well, Poirot? Murder or suicide?\"",
-                },
-                {
-                    choices: [
-                        {
-                            text: "\"Murder!\"",
-                            label: "start_|_c-0",
-                            props: {
-                            },
-                            type: "call",
-                            oneTime: true,
-                        },
-                        {
-                            text: "\"Suicide!\"",
-                            label: "start_|_c-1",
-                            props: {
-                            },
-                            type: "call",
-                            oneTime: true,
-                        },
-                    ],
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
         }
@@ -720,7 +729,7 @@ test('Gather points can be nested too', async () => {
 test('Advanced: What gathers do', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "start_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
                 {
                     dialogue: "\"...Tell us a tale Captain!\"",
                 },
@@ -732,7 +741,7 @@ test('Advanced: What gathers do', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0_|_c-0_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0": [
                 {
                     dialogue: "\"... and they said to their Captain...\"",
                 },
@@ -740,7 +749,7 @@ test('Advanced: What gathers do', async () => {
                     choices: [
                         {
                             text: "\"...Tell us a tale Captain!\"",
-                            label: "start_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -748,7 +757,7 @@ test('Advanced: What gathers do', async () => {
                     ],
                 },
             ],
-            "start_|_c-0_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0_|_c-0": [
                 {
                     dialogue: "\"...and the crew were restless...\"",
                 },
@@ -756,7 +765,7 @@ test('Advanced: What gathers do', async () => {
                     choices: [
                         {
                             text: "\"... and they said to their Captain...\"",
-                            label: "start_|_c-0_|_c-0_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -764,7 +773,7 @@ test('Advanced: What gathers do', async () => {
                     ],
                 },
             ],
-            "start_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0": [
                 {
                     dialogue: "\"It was a dark and stormy night...\"",
                 },
@@ -772,7 +781,7 @@ test('Advanced: What gathers do', async () => {
                     choices: [
                         {
                             text: "\"...and the crew were restless...\"",
-                            label: "start_|_c-0_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -780,7 +789,7 @@ test('Advanced: What gathers do', async () => {
                     ],
                 },
             ],
-            "start_|_c-0": [
+            "start_|_g-0_|_c-0": [
                 {
                     dialogue: "\"Very well, you sea-dogs. Here's a tale...\"",
                 },
@@ -788,7 +797,7 @@ test('Advanced: What gathers do', async () => {
                     choices: [
                         {
                             text: "\"It was a dark and stormy night...\"",
-                            label: "start_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -796,7 +805,7 @@ test('Advanced: What gathers do', async () => {
                     ],
                 },
             ],
-            "start_|_c-1": [
+            "start_|_g-0_|_c-1": [
                 {
                     dialogue: "\"No, it's past your bed-time.\"",
                 },
@@ -806,6 +815,29 @@ test('Advanced: What gathers do', async () => {
                         type: "call",
                     },
                     glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: "\"Tell us a tale, Captain!\"",
+                },
+                {
+                    choices: [
+                        {
+                            text: "\"Very well, you sea-dogs. Here's a tale...\"",
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "\"No, it's past your bed-time.\"",
+                            label: "start_|_g-0_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
                 },
             ],
             "start_|_g-1": [
@@ -818,25 +850,11 @@ test('Advanced: What gathers do', async () => {
             ],
             start: [
                 {
-                    dialogue: "\"Tell us a tale, Captain!\"",
-                },
-                {
-                    choices: [
-                        {
-                            text: "\"Very well, you sea-dogs. Here's a tale...\"",
-                            label: "start_|_c-0",
-                            props: {},
-                            type: "call",
-                            oneTime: true,
-                        },
-                        {
-                            text: "\"No, it's past your bed-time.\"",
-                            label: "start_|_c-1",
-                            props: {},
-                            type: "call",
-                            oneTime: true,
-                        },
-                    ],
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
         }
@@ -863,7 +881,7 @@ test('Advanced: What gathers do', async () => {
 test('Example: a conversation with nested nodes', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "start_|_c-0_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0_|_c-0": [
                 {
                     dialogue: "'But surely that is foolishness!'",
                 },
@@ -875,7 +893,7 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0_|_c-0_|_c-1": [
+            "start_|_g-0_|_c-0_|_c-0_|_c-1": [
                 {
                     dialogue: "'A most serious matter then!'",
                 },
@@ -887,7 +905,7 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0_|_c-2": [
+            "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2": [
                 {
                     dialogue: "'But can we win?'",
                 },
@@ -902,7 +920,7 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0_|_c-3": [
+            "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3": [
                 {
                     dialogue: "'A modest wager, I trust?'",
                 },
@@ -917,7 +935,7 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0_|_c-4": [
+            "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-4": [
                 {
                     dialogue: "I asked nothing further of him then",
                     glueEnabled: true,
@@ -936,21 +954,37 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-0": [
+            "start_|_g-0_|_c-0_|_c-0_|_g-0": [
                 {
-                    dialogue: "After that, ",
-                    glueEnabled: true,
-                    goNextStep: true,
+                    dialogue: "He nodded again.",
                 },
                 {
-                    labelToOpen: {
-                        label: "start_|_g-1",
+                    choices: [
+                        {
+                            text: "'But can we win?'",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2",
+                            props: {},
                         type: "call",
+                            oneTime: true,
                     },
-                    glueEnabled: undefined,
+                        {
+                            text: "'A modest wager, I trust?'",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: ["I asked nothing further of him then", ".",],
+                            label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-4",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
                 },
             ],
-            "start_|_c-0_|_c-0": [
+            "start_|_g-0_|_c-0_|_c-0": [
                 {
                     dialogue: "'A wager!'",
                     glueEnabled: true,
@@ -966,14 +1000,14 @@ test('Example: a conversation with nested nodes', async () => {
                     choices: [
                         {
                             text: "'But surely that is foolishness!'",
-                            label: "start_|_c-0_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "'A most serious matter then!'",
-                            label: "start_|_c-0_|_c-0_|_c-1",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-1",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -981,7 +1015,7 @@ test('Example: a conversation with nested nodes', async () => {
                     ],
                 },
             ],
-            "start_|_c-0_|_c-1": [
+            "start_|_g-0_|_c-0_|_c-1": [
                 {
                     dialogue: "'Ah",
                     glueEnabled: true,
@@ -998,7 +1032,21 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_c-0": [
+            "start_|_g-0_|_c-0_|_g-0": [
+                {
+                    dialogue: "After that, ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0": [
                 {
                     dialogue: "... and I could contain myself no longer.",
                 },
@@ -1012,14 +1060,14 @@ test('Example: a conversation with nested nodes', async () => {
                     choices: [
                         {
                             text: "'A wager!'",
-                            label: "start_|_c-0_|_c-0",
+                            label: "start_|_g-0_|_c-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: ["'Ah", ".'",],
-                            label: "start_|_c-0_|_c-1",
+                            label: "start_|_g-0_|_c-0_|_c-1",
                             props: {},
                             type: "call",
                             oneTime: true,
@@ -1027,7 +1075,7 @@ test('Example: a conversation with nested nodes', async () => {
                     ],
                 },
             ],
-            "start_|_c-1": [
+            "start_|_g-0_|_c-1": [
                 {
                     dialogue: "... but I said nothing",
                     glueEnabled: true,
@@ -1046,15 +1094,7 @@ test('Example: a conversation with nested nodes', async () => {
                     glueEnabled: undefined,
                 },
             ],
-            "start_|_g-1": [
-                {
-                    dialogue: "we passed the day in silence.",
-                },
-                {
-                    end: "game_end",
-                },
-            ],
-            start: [
+            "start_|_g-0": [
                 {
                     dialogue: "I looked at Monsieur Fogg",
                 },
@@ -1062,19 +1102,45 @@ test('Example: a conversation with nested nodes', async () => {
                     choices: [
                         {
                             text: "... and I could contain myself no longer.",
-                            label: "start_|_c-0",
+                            label: "start_|_g-0_|_c-0",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                         {
                             text: "... but I said nothing",
-                            label: "start_|_c-1",
+                            label: "start_|_g-0_|_c-1",
                             props: {},
                             type: "call",
                             oneTime: true,
                         },
                     ],
+                },
+            ],
+            "start_|_g-1_|_g-2": [
+                {
+                    end: "game_end",
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue: "we passed the day in silence.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1_|_",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            start: [
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
         }
