@@ -23,21 +23,29 @@ export function parserConditionalStatements<T>(
     let conditions: PixiVNJsonConditions[] = []
     data.forEach((item) => {
         if (typeof item === "object" && "CNT?" in item) {
-            if (
-                !(new RegExp(/^\.\^.*$/)).test(item["CNT?"])
-                // knot.stitch_one.0.gatherpoint
-                && (new RegExp(/.*\.[0-9]\..*/)).test(item["CNT?"])
-            ) {
+            if ((new RegExp(/.*\.[0-9]\..*/)).test(item["CNT?"])) {
                 let items = item["CNT?"].split(".")
                 // remove the last element
-                items.pop()
+                let end = items.pop()
                 let stringNumber = items.pop()
-                if (stringNumber === undefined) {
+                if (stringNumber === undefined || end === undefined) {
                     console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
                     return
                 }
                 let number = parseInt(stringNumber)
-                let label = items.join(CHOISE_LABEL_KEY_SEPARATOR)
+                let label = items.join(".")
+                if (label.includes("^.")) {
+                    let labelArray = label.split(".")
+                    let end2 = labelArray[labelArray.length - 1].replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+                    labelArray.pop()
+                    label = labelArray.join(".") + "." + end2
+                    if (end.includes("c-")) {
+                        label = label + CHOISE_LABEL_KEY_SEPARATOR + end
+                    }
+                }
+                else {
+                    label = label.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+                }
                 conditions.push({
                     type: "compare",
                     leftValue: {
@@ -45,7 +53,7 @@ export function parserConditionalStatements<T>(
                         storageType: "label",
                         storageOperationType: "get",
                         valueType: "biggeststep",
-                        label: label,
+                        label: getLabelByStandardDivert(label, labelKey),
                     },
                     operator: ">=",
                     rightValue: {
