@@ -1338,7 +1338,10 @@ test('Scope', async () => {
                             condition: {
                                 type: "compare",
                                 leftValue: {
-                                    type: "labelcondition",
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    valueType: "biggeststep",
                                     label: "knot_|_stitch_one",
                                 },
                                 operator: ">=",
