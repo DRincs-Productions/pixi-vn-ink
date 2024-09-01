@@ -1769,7 +1769,7 @@ test('Advanced: Loops in a weave', async () => {
             fight_guard: [
                 {
                     labelToOpen: {
-                        label: "fight_guard_|_fight_guard",
+                        label: "fight_guard_|_opts",
                         type: "call",
                     },
                     glueEnabled: undefined,
