@@ -1904,7 +1904,126 @@ test('Advanced: Loops in a weave', async () => {
  */
 test('Advanced: diverting to options', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "fight_guard_|_opts_|_c-0": [
+                {
+                    dialogue: "You pull a face, and the soldier comes at you! ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_c-1",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-1": [
+                {
+                    dialogue: " You shove the guard to one side, but he comes back swinging.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-2": [
+                {
+                    dialogue: " ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_the_guard",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts": [
+                {
+                    choices: [
+                        {
+                            text: "Pull a face",
+                            label: "fight_guard_|_opts_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Shove the guard aside",
+                            label: "fight_guard_|_opts_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "fight_guard_|_c-1",
+                            },
+                            then: {
+                                text: "Grapple and fight",
+                                label: "fight_guard_|_opts_|_c-2",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            "fight_guard_|_g-0": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_opts",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            fight_guard: [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_opts",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            fight_the_guard: [
+                {
+                    dialogue: "fight_the_guard",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> fight_guard
@@ -1918,6 +2037,10 @@ test('Advanced: diverting to options', async () => {
 *	{shove} [Grapple and fight] -> fight_the_guard
 
 - 	-> opts
+-> DONE
+
+== fight_the_guard
+fight_the_guard
 -> DONE
 `);
     expect(res).toEqual(expected);

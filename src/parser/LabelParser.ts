@@ -166,7 +166,7 @@ export function parseLabel<T>(
         ) {
             // remove first step
             itemList.shift();
-            (secondItem as any).glueEnabled = undefined
+            delete (secondItem as any).glueEnabled
             itemList[0] = secondItem
         }
     }
