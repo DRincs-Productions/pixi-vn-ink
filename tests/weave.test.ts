@@ -1316,7 +1316,59 @@ fight_guard
  */
 test('Scope', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "knot_|_stitch_one": [
+                {
+                    dialogue: "Some content.",
+                },
+            ],
+            "knot_|_stitch_two_|_c-0": [
+                {
+                    dialogue: "Option",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            "knot_|_stitch_two": [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                leftValue: {
+                                    type: "labelcondition",
+                                    label: "knot_|_stitch_one",
+                                },
+                                operator: ">=",
+                                rightValue: {
+                                    type: "value",
+                                    value: 0,
+                                },
+                            },
+                            then: {
+                                text: "Option",
+                                label: "knot_|_stitch_two_|_c-0",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            knot: [
+                {
+                    labelToOpen: {
+                        label: "knot_|_stitch_one",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> knot
