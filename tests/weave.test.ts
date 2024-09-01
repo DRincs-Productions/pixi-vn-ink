@@ -1604,7 +1604,178 @@ You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
  */
 test('Advanced: Loops in a weave', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "fight_guard_|_opts_|_c-0": [
+                {
+                    dialogue: "'Can I get a uniform from somewhere?'",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " you ask the cheerful guard.",
+                },
+                {
+                    dialogue: "'Sure. In the locker.' He grins. 'Don't think it'll fit you, though.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-1": [
+                {
+                    dialogue: "'Tell me about the security system.'",
+                },
+                {
+                    dialogue: "'It's ancient,' the guard assures you. 'Old as coal.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-2": [
+                {
+                    dialogue: "'Are there dogs?'",
+                },
+                {
+                    dialogue: "'Hundreds,' the guard answers, with a toothy grin. 'Hungry devils, too.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-3": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop_|_done",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "fight_guard_|_opts": [
+                {
+                    choices: [
+                        {
+                            text: "'Can I get a uniform from somewhere?'",
+                            label: "fight_guard_|_opts_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'Tell me about the security system.'",
+                            label: "fight_guard_|_opts_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'Are there dogs?'",
+                            label: "fight_guard_|_opts_|_c-2",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "fight_guard_|_loop",
+                            },
+                            then: {
+                                text: "Enough talking",
+                                label: "fight_guard_|_opts_|_c-3",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            "fight_guard_|_loop_|_done": [
+                {
+                    dialogue: "You thank the guard, and move away.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            "fight_guard_|_loop": [
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                labelToOpen: {
+                                    label: "fight_guard_|_opts",
+                                    type: "call",
+                                },
+                                glueEnabled: undefined,
+                            },
+                            {
+                                labelToOpen: {
+                                    label: "fight_guard_|_opts",
+                                    type: "call",
+                                },
+                                glueEnabled: undefined,
+                            },
+                            {
+                                dialogue: " ",
+                            },
+                        ],
+                        choiceType: "sequential",
+                        end: undefined,
+                        nestedId: undefined,
+                    },
+                },
+                {
+                    dialogue: "He scratches his head.",
+                },
+                {
+                    dialogue: "'Well, can't stand around talking all day,' he declares.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop_|_done",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            fight_guard: [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_fight_guard",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> fight_guard
