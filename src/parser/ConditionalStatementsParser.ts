@@ -1,4 +1,5 @@
 import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
 import InkRootType from "../types/InkRootType";
 import Cond from "../types/parserItems/Cond";
@@ -22,12 +23,45 @@ export function parserConditionalStatements<T>(
     let conditions: PixiVNJsonConditions[] = []
     data.forEach((item) => {
         if (typeof item === "object" && "CNT?" in item) {
-            conditions.push({
-                type: "value",
-                storageType: "label",
-                storageOperationType: "get",
-                label: getLabelByStandardDivert(item["CNT?"], labelKey),
-            })
+            if (
+                !(new RegExp(/^\.\^.*$/)).test(item["CNT?"])
+                // knot.stitch_one.0.gatherpoint
+                && (new RegExp(/.*\.[0-9]\..*/)).test(item["CNT?"])
+            ) {
+                let items = item["CNT?"].split(".")
+                // remove the last element
+                items.pop()
+                let stringNumber = items.pop()
+                if (stringNumber === undefined) {
+                    console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
+                    return
+                }
+                let number = parseInt(stringNumber)
+                let label = items.join(CHOISE_LABEL_KEY_SEPARATOR)
+                conditions.push({
+                    type: "compare",
+                    leftValue: {
+                        type: "value",
+                        storageType: "label",
+                        storageOperationType: "get",
+                        valueType: "biggeststep",
+                        label: label,
+                    },
+                    operator: ">=",
+                    rightValue: {
+                        type: "value",
+                        value: number,
+                    },
+                })
+            }
+            else {
+                conditions.push({
+                    type: "value",
+                    storageType: "label",
+                    storageOperationType: "get",
+                    label: getLabelByStandardDivert(item["CNT?"], labelKey),
+                })
+            }
         }
         else if (item === "&&" || item === "||") {
             if (conditions.length < 2) {
