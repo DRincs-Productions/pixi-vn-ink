@@ -1390,7 +1390,94 @@ test('Scope', async () => {
  */
 test('Scope2', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "knot_one_|_c-0": [
+                {
+                    dialogue: "Option",
+                },
+            ],
+            knot_one: [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    valueType: "biggeststep",
+                                    label: "knot_two_|_stitch_two",
+                                },
+                                operator: ">=",
+                                rightValue: {
+                                    type: "value",
+                                    value: 0,
+                                },
+                            },
+                            then: {
+                                text: "Option",
+                                label: "knot_one_|_c-0",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            "knot_two_|_stitch_two_|_c-0": [
+                {
+                    dialogue: "Option",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            "knot_two_|_stitch_two": [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    valueType: "biggeststep",
+                                    label: "knot_one",
+                                },
+                                operator: ">=",
+                                rightValue: {
+                                    type: "value",
+                                    value: 0,
+                                },
+                            },
+                            then: {
+                                text: "Option",
+                                label: "knot_two_|_stitch_two_|_c-0",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            knot_two: [
+                {
+                    labelToOpen: {
+                        label: "knot_two_|_stitch_two",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> knot_one
