@@ -1499,7 +1499,90 @@ test('Scope2', async () => {
  */
 test('Advanced: all options can be labelled', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "fight_guard_|_throw_something_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_throw",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_throw_something_|_c-1": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_throw",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_throw_something": [
+                {
+                    choices: [
+                        {
+                            text: "Throw rock at guard",
+                            label: "fight_guard_|_throw_something_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Throw sand at guard",
+                            label: "fight_guard_|_throw_something_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "fight_guard_|_throw": [
+                {
+                    dialogue: "You hurl ",
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            leftValue: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                valueType: "biggeststep",
+                                label: "fight_guard_|_throw_something_|_c-0",
+                            },
+                            operator: ">=",
+                            rightValue: {
+                                type: "value",
+                                value: 0,
+                            },
+                        },
+                        then: {
+                            dialogue: "a rock",
+                        },
+                        else: {
+                            dialogue: "a handful of sand",
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " at the guard.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            fight_guard: [
+                {
+                    dialogue: "...",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> fight_guard
