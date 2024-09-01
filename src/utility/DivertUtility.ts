@@ -19,12 +19,7 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         && labelKey
     ) {
         let endOfLabel = divertName.substring(1)
-        let labelKeyArray = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)
-        if (labelKey.includes("c-") || labelKey.includes("g-")) {
-            labelKeyArray.pop()
-        }
-        labelKey = labelKeyArray.join(CHOISE_LABEL_KEY_SEPARATOR)
-        return labelKey + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+        return labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
     }
     return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR) || labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0].replace(".", CHOISE_LABEL_KEY_SEPARATOR)
 }
