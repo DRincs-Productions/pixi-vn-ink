@@ -1470,12 +1470,12 @@ test('Scope', async () => {
 test('Scope2', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "knot_one_|_c-0": [
+            "knot_one_|_gather_one_|_c-0": [
                 {
                     dialogue: "Option",
                 },
             ],
-            knot_one: [
+            "knot_one_|_gather_one": [
                 {
                     choices: [
                         {
@@ -1497,7 +1497,7 @@ test('Scope2', async () => {
                             },
                             then: {
                                 text: "Option",
-                                label: "knot_one_|_c-0",
+                                label: "knot_one_|_gather_one_|_c-0",
                                 props: {},
                                 type: "call",
                                 oneTime: true,
@@ -1507,7 +1507,16 @@ test('Scope2', async () => {
                     ],
                 },
             ],
-            "knot_two_|_stitch_two_|_c-0": [
+            knot_one: [
+                {
+                    labelToOpen: {
+                        label: "knot_one_|_gather_one",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "knot_two_|_stitch_two_|_gather_two_|_c-0": [
                 {
                     dialogue: "Option",
                 },
@@ -1515,7 +1524,7 @@ test('Scope2', async () => {
                     end: "label_end",
                 },
             ],
-            "knot_two_|_stitch_two": [
+            "knot_two_|_stitch_two_|_gather_two": [
                 {
                     choices: [
                         {
@@ -1537,7 +1546,7 @@ test('Scope2', async () => {
                             },
                             then: {
                                 text: "Option",
-                                label: "knot_two_|_stitch_two_|_c-0",
+                                label: "knot_two_|_stitch_two_|_gather_two_|_c-0",
                                 props: {},
                                 type: "call",
                                 oneTime: true,
@@ -1545,6 +1554,15 @@ test('Scope2', async () => {
                             else: undefined,
                         },
                     ],
+                },
+            ],
+            "knot_two_|_stitch_two": [
+                {
+                    labelToOpen: {
+                        label: "knot_two_|_stitch_two_|_gather_two",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
             knot_two: [
