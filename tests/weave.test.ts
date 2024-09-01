@@ -1912,7 +1912,7 @@ test('Advanced: diverting to options', async () => {
                 },
                 {
                     labelToOpen: {
-                        label: "fight_guard_|_c-1",
+                        label: "fight_guard_|_opts_|_c-1",
                         type: "call",
                     },
                     glueEnabled: true,
@@ -1980,7 +1980,7 @@ test('Advanced: diverting to options', async () => {
                                 type: "value",
                                 storageType: "label",
                                 storageOperationType: "get",
-                                label: "fight_guard_|_c-1",
+                                label: "fight_guard_|_opts_|_c-1",
                             },
                             then: {
                                 text: "Grapple and fight",
@@ -2051,7 +2051,114 @@ fight_the_guard
  */
 test('Advanced: Gathers directly after an option', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "fight_guard_|_c-0_|_quitewell": [
+                {
+                    dialogue: "\"Quite well,\" he replied.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_c-0": [
+                {
+                    dialogue: "\"Are you quite well, Monsieur?\"",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I asked.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_c-0_|_quitewell",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_c-1": [
+                {
+                    dialogue: "\"How did you do at the crossword, Monsieur?\"",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I asked.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_c-0_|_quitewell",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "fight_guard_|_c-2": [
+                {
+                    dialogue: "I said nothing",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " and neither did my Master.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_g-0": [
+                {
+                    dialogue: "We fell into companionable silence once more.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            fight_guard: [
+                {
+                    choices: [
+                        {
+                            text: "\"Are you quite well, Monsieur?\"",
+                            label: "fight_guard_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "\"How did you do at the crossword, Monsieur?\"",
+                            label: "fight_guard_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "I said nothing",
+                            label: "fight_guard_|_c-2",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> fight_guard
