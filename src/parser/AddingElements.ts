@@ -80,7 +80,7 @@ function addConditionalElementStep(
         }
         list.push({
             labelToOpen: {
-                label: getLabelByStandardDivert(labelIdToOpen, labelKey),
+                label: labelIdToOpen,
                 type: "call",
             },
             glueEnabled: glueEnabled,
