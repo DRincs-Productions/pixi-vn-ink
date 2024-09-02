@@ -11,32 +11,6 @@ import { convertInkText } from '../src/functions';
  */
 test('Defining Global Variables', async () => {
     let expected: PixiVNJson = {
-        // [
-        //     "ev",
-        //     false,
-        //     {
-        //       "VAR=": "knowledge_of_the_cure",
-        //     },
-        //     "str",
-        //     "^Emilia",
-        //     "/str",
-        //     {
-        //       "VAR=": "players_name",
-        //     },
-        //     521,
-        //     {
-        //       "VAR=": "number_of_infected_people",
-        //     },
-        //     {
-        //       "^->": "they_all_die_of_the_plague",
-        //     },
-        //     {
-        //       "VAR=": "current_epilogue",
-        //     },
-        //     "/ev",
-        //     "end",
-        //     null,
-        //   ]
         labels: {}
     }
     let res = convertInkText(`
