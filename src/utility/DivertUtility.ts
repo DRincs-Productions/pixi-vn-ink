@@ -10,6 +10,15 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
     }
 
     let counter = 0
+
+    if ((new RegExp(/.*\.[0-9]\..*/)).test(divertName)) {
+        // remove .number. with regex
+        let items = divertName.split(".").filter((item) => {
+            return !item.match(/^[0-9]+$/)
+        })
+        divertName = items.join(".")
+    }
+
     while ((new RegExp(/^\.\^.*$/)).test(divertName)) {
         counter++
         divertName = divertName.substring(2)
@@ -22,7 +31,7 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         && labelKey
     ) {
         let endOfLabel = divertName.substring(1)
-        return getLabelByStandardDivertInternal(labelKey, counter) + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel
+        return getLabelByStandardDivertInternal(labelKey, counter) + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
     }
     return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR) || getLabelByStandardDivertInternal(labelKey, counter).replace(".", CHOISE_LABEL_KEY_SEPARATOR)
 }
