@@ -1,6 +1,7 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import InkRootType from '../types/InkRootType';
+import { ContainerTypeN } from '../types/parserItems/ContainerType';
 import { StandardDivert } from '../types/parserItems/Divert';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { getConditionalValue } from './ConditionalStatementsParser';
@@ -107,6 +108,20 @@ export function parseLabel<T>(
             if (isConditionalText) {
                 conditionalList.push(rootItem)
             }
+            else if (rootItem.length > 1 && typeof rootItem[rootItem.length - 1] === "object" && rootItem[rootItem.length - 1] && "#n" in (rootItem as any[])[rootItem.length - 1]) {
+                let el = rootItem.pop() as ContainerTypeN | undefined
+                if (!el) {
+                    console.error("[Pixi’VN Ink] Error parsing ink file: el is undefined")
+                    return
+                }
+                let newLabelKey = el["#n"]
+                delete (el as any)["#n"]
+                rootItem.push(el)
+                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, isNewLine);
+                addLabels({
+                    [newLabelKey]: rootItem
+                }, labelKey, shareData)
+            }
             else {
                 parseLabel(rootItem, labelKey, shareData, itemList, addElement, addSwitchElemen, addLabels, addChoiseList, nestedId, isNewLine)
             }
@@ -119,9 +134,11 @@ export function parseLabel<T>(
                 addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }
-            else if ("*" in rootItem && typeof rootItem["*"] === "string" && rootItem["*"].includes("c")) {
-                choiseList.push(rootItem)
-                isNewLine = false
+            else if ("*" in rootItem && typeof rootItem["*"] === "string") {
+                if (rootItem["*"].includes("c")) {
+                    choiseList.push(rootItem)
+                    isNewLine = false
+                }
             }
             // if is choise info
             else if ("s" in rootItem && rootItem["s"] instanceof Array) {
@@ -149,7 +166,7 @@ export function parseLabel<T>(
         ) {
             // remove first step
             itemList.shift();
-            (secondItem as any).glueEnabled = undefined
+            delete (secondItem as any).glueEnabled
             itemList[0] = secondItem
         }
     }

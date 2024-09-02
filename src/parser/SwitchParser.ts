@@ -1,6 +1,7 @@
 import { PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter"
 import InkRootType from "../types/InkRootType"
+import { ContainerTypeF } from "../types/parserItems/ContainerType"
 import ControlCommands from "../types/parserItems/ControlCommands"
 import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
@@ -8,13 +9,7 @@ import RootParserItemType from "../types/parserItems/RootParserItemType"
 import TextType from "../types/parserItems/TextType"
 import { parseLabel, ShareDataParserLabel } from "./LabelParser"
 
-type ListItem = StandardDivert | "pop" | TextType | null
-type Item = {
-    "#f": number,
-    [key: string]: ListItem[] | number,
-}
-
-export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | Item)[]
+export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | ContainerTypeF)[]
 
 export function parserSwitch<T>(
     items: ConditionalList,
@@ -45,7 +40,7 @@ export function parserSwitch<T>(
         }
     })
 
-    let lastItem: Item = items[items.length - 1] as Item
+    let lastItem: ContainerTypeF = items[items.length - 1] as ContainerTypeF
     Object.keys(lastItem).forEach((key) => {
         let value = lastItem[key]
         if (Array.isArray(value) && value.length > 3) {
