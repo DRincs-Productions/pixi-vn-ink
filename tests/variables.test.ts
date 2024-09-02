@@ -11,6 +11,32 @@ import { convertInkText } from '../src/functions';
  */
 test('Defining Global Variables', async () => {
     let expected: PixiVNJson = {
+        // [
+        //     "ev",
+        //     false,
+        //     {
+        //       "VAR=": "knowledge_of_the_cure",
+        //     },
+        //     "str",
+        //     "^Emilia",
+        //     "/str",
+        //     {
+        //       "VAR=": "players_name",
+        //     },
+        //     521,
+        //     {
+        //       "VAR=": "number_of_infected_people",
+        //     },
+        //     {
+        //       "^->": "they_all_die_of_the_plague",
+        //     },
+        //     {
+        //       "VAR=": "current_epilogue",
+        //     },
+        //     "/ev",
+        //     "end",
+        //     null,
+        //   ]
         labels: {}
     }
     let res = convertInkText(`
@@ -33,12 +59,17 @@ test('Advanced: storing diverts as variables', async () => {
         labels: {}
     }
     let res = convertInkText(`
-VAR 	current_epilogue = -> everybody_dies
+VAR current_epilogue = -> everybody_dies
 
 === continue_or_quit ===
 Give up now, or keep trying to save your Kingdom?
 *  [Keep trying!] 	-> more_hopeless_introspection
 *  [Give up] 		-> current_epilogue
+
+=== everybody_dies ===
+-> DONE
+=== more_hopeless_introspection ===
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
