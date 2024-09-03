@@ -1,7 +1,8 @@
-import { PixiVNJsonLabel, PixiVNJsonLabels } from '@drincs/pixi-vn';
-import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
-import { addSwitchElemenStep } from '../parser/AddingElements';
+import { PixiVNJsonLabel, PixiVNJsonLabels, PixiVNJsonStepSwitch } from '@drincs/pixi-vn';
+import { CHOISE_LABEL_KEY_SEPARATOR, MY_LABEL_KER_EXTERNAL_VALUE } from '../constant';
+import { addSwitchElemenStep, addSwitchElemenText } from '../parser/AddingElements';
 import { parseLabel, ShareDataParserLabel } from '../parser/LabelParser';
+import { ConditionalList, parserSwitch } from '../parser/SwitchParser';
 import InkRootType from '../types/InkRootType';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { addChoiseIntoList } from './ChoiceInfoConverter';
@@ -18,13 +19,36 @@ export function getInkLabel(story: (InkRootType | RootParserItemType | RootParse
     }
 }
 
-function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[], labels: PixiVNJsonLabels) {
+function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[], labels: PixiVNJsonLabels, sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = { externalSwitch: undefined }) {
     for (const storyItem of story) {
         if (storyItem) {
             if (storyItem instanceof Array) {
-                findLabel(storyItem, labels)
+                if (storyItem.includes("visit")) {
+                    let item = parserSwitch<string>(storyItem as ConditionalList, addSwitchElemenText, (_storyItem, _dadLabelKey, _shareData) => { }, "", { preDialog: {} })
+                    if (item) {
+                        sharedVariables.externalSwitch = item
+                    }
+                    return
+                }
+                else {
+                    findLabel(storyItem, labels, sharedVariables)
+                }
             }
             else if (typeof storyItem === "object") {
+                if (storyItem && "VAR=" in storyItem && sharedVariables.externalSwitch) {
+                    if (!labels[MY_LABEL_KER_EXTERNAL_VALUE]) {
+                        labels[MY_LABEL_KER_EXTERNAL_VALUE] = []
+                    }
+                    labels[MY_LABEL_KER_EXTERNAL_VALUE].push({
+                        operation: [{
+                            type: "value",
+                            value: sharedVariables.externalSwitch as any,
+                            key: storyItem["VAR="],
+                            storageType: "storage",
+                            storageOperationType: "set"
+                        }]
+                    })
+                }
                 addLabels(storyItem, labels)
             }
         }
