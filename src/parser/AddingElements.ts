@@ -74,7 +74,6 @@ function addConditionalElementStep(
         }
         else if ("->" in item) {
             let glueEnabled = isNewLine ? undefined : true
-            let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1]
                 prevItem.goNextStep = true
@@ -83,13 +82,19 @@ function addConditionalElementStep(
             if (item.var) {
                 list.push({
                     labelToOpen: {
-                        label: labelIdToOpen,
+                        label: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: item["->"],
+                        },
                         type: "call",
                     },
                     glueEnabled: glueEnabled,
                 })
             }
             else {
+                let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
                 list.push({
                     labelToOpen: {
                         label: labelIdToOpen,

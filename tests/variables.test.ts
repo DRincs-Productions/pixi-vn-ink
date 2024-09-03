@@ -66,7 +66,81 @@ VAR current_epilogue = -> they_all_die_of_the_plague
  */
 test('Advanced: storing diverts as variables', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "current_epilogue",
+                value: "everybody_dies",
+            },
+        ],
+        labels: {
+            "continue_or_quit_|_c-0": [
+                {
+                    dialogue: " \t",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "more_hopeless_introspection",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "continue_or_quit_|_c-1": [
+                {
+                    dialogue: " \t\t",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "current_epilogue",
+                        },
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            continue_or_quit: [
+                {
+                    dialogue: "Give up now, or keep trying to save your Kingdom?",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Keep trying!",
+                            label: "continue_or_quit_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Give up",
+                            label: "continue_or_quit_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            everybody_dies: [
+                {
+                    end: "label_end",
+                },
+            ],
+            more_hopeless_introspection: [
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR current_epilogue = -> everybody_dies
