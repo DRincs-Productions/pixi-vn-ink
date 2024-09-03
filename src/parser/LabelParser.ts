@@ -72,7 +72,11 @@ export function parseLabel<T>(
                     if (value && typeof value === "object" && "^->" in value) {
                         value = (value as any)["^->"]
                     }
-                    addElement(itemList, { typeVar: "var", value: value as any, name: rootItem['VAR='] }, labelKey, isNewLine)
+                    addElement(itemList, { typeOperation: "set", typeVar: "var", value: value as any, name: rootItem['VAR='] }, labelKey, isNewLine)
+                }
+                else if ("VAR?" in rootItem) {
+                    addElement(itemList, { typeOperation: "get", typeVar: "var", name: rootItem['VAR?'] }, labelKey, isNewLine)
+                    isNewLine = false
                 }
             }
             else {

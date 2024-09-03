@@ -34,20 +34,34 @@ function addConditionalElementStep(
     if (!item) {
         return
     }
-    if (typeof item === "string") {
-        if (item.startsWith("^")) {
-            if (!isNewLine && list.length > 0) {
-                let prevItem = list[list.length - 1]
-                // in this case: <> text
-                if (!prevItem.glueEnabled) {
-                    prevItem.glueEnabled = true
-                    prevItem.goNextStep = true
-                }
-                list[list.length - 1] = prevItem
+    if (typeof item === "string" && item.startsWith("^") ||
+        (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
+    ) {
+        if (!isNewLine && list.length > 0) {
+            let prevItem = list[list.length - 1]
+            // in this case: <> text
+            if (!prevItem.glueEnabled) {
+                prevItem.glueEnabled = true
+                prevItem.goNextStep = true
             }
+            list[list.length - 1] = prevItem
+        }
+        if (typeof item === "string") {
             list.push({ dialogue: item.substring(1) })
         }
-        else if (item === "end") {
+        else {
+            list.push({
+                dialogue: {
+                    type: "value",
+                    storageType: "storage",
+                    storageOperationType: "get",
+                    key: item.name,
+                }
+            })
+        }
+    }
+    else if (typeof item === "string") {
+        if (item === "end") {
             list.push({ end: "game_end" })
         }
         else if (item === "done") {
@@ -104,7 +118,7 @@ function addConditionalElementStep(
                 })
             }
         }
-        if ("typeVar" in item) {
+        if ("typeVar" in item && item.typeOperation === "set") {
             let value = item.value
             if (typeof value === "string" && value.startsWith("^")) {
                 value = value.substring(1)

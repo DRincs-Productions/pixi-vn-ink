@@ -20,6 +20,11 @@ export default VariableAssignment
 
 export type MyVariableAssignment = {
     typeVar: "var",
+    typeOperation: "set",
     name: string,
     value: string | boolean | number | null
+} | {
+    typeVar: "var",
+    typeOperation: "get",
+    name: string,
 }

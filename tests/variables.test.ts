@@ -187,12 +187,35 @@ test('Printing variables', async () => {
                     goNextStep: true,
                 },
                 {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "friendly_name_of_player",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
                     dialogue: ". I'm ",
                     glueEnabled: true,
                     goNextStep: true,
                 },
                 {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "age",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
                     dialogue: " years old.",
+                },
+                {
+                    end: "label_end",
                 },
             ],
         }
@@ -203,6 +226,7 @@ VAR age = 23
 
 === start ===
 My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. I'm {age} years old.
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -212,14 +236,109 @@ My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. 
  */
 test('Evaluating strings', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "a_colour",
+                value: "",
+            },
+        ],
+        labels: {
+            s0: [
+                {
+                    dialogue: "red",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "s0",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            s1: [
+                {
+                    dialogue: "blue",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "s1",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            s2: [
+                {
+                    dialogue: "green",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "s2",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            s3: [
+                {
+                    dialogue: "yellow",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "s3",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "start",
+                        type: "call",
+                    },
+                },
+            ],
+            start: [
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "a_colour",
+                    },
+                },
+                {
+                    choices: [
+                        {
+                            text: "restart",
+                            label: "start_|_c-0",
+                            props: {
+                            },
+                            type: "call",
+                            oneTime: false,
+                        },
+                    ],
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR a_colour = ""
 
 ~ a_colour = "{~red|blue|green|yellow}"
 
+-> start
+=== start ===
 {a_colour}
++ [restart] -> start
 `);
     expect(res).toEqual(expected);
 });
