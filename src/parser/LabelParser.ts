@@ -4,6 +4,7 @@ import InkRootType from '../types/InkRootType';
 import { ContainerTypeN } from '../types/parserItems/ContainerType';
 import { StandardDivert } from '../types/parserItems/Divert';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
+import { MyVariableAssignment } from '../types/parserItems/VariableAssignment';
 import { getConditionalValue } from './ConditionalStatementsParser';
 import { parserSwitch } from './SwitchParser';
 
@@ -15,8 +16,8 @@ export function parseLabel<T>(
     labelKey: string,
     shareData: ShareDataParserLabel,
     itemList: T[] = [],
-    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string, isNewLine: boolean) => void,
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string, isNewLine?: boolean) => void,
+    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine: boolean) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine?: boolean) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     addChoiseList: (
         choiseList: RootParserItemType[],
@@ -49,18 +50,30 @@ export function parseLabel<T>(
     }
     rootList.forEach((rootItem, index) => {
         if (isInEnv) {
-            if (rootItem && typeof rootItem === "object" && "CNT?" in rootItem) {
-                if (index > 0 && rootList[index - 1] == "ev") {
-                    isConditionalText = true
-                    conditionalList.push(rootItem)
+            if (rootItem && typeof rootItem === "object") {
+                if ("CNT?" in rootItem) {
+                    if (index > 0 && rootList[index - 1] == "ev") {
+                        isConditionalText = true
+                        conditionalList.push(rootItem)
+                    }
+                    else if (isConditionalText) {
+                        conditionalList.push(rootItem)
+                    }
+                    else {
+                        choiseList.push(rootItem)
+                    }
+                    isNewLine = false
                 }
-                else if (isConditionalText) {
-                    conditionalList.push(rootItem)
+                else if ("VAR=" in rootItem) {
+                    let value = rootList[index - 1]
+                    if (value && typeof value === "string" && value == "/str") {
+                        value = rootList[index - 2]
+                    }
+                    if (value && typeof value === "object" && "^->" in value) {
+                        value = (value as any)["^->"]
+                    }
+                    addElement(itemList, { typeVar: "var", value: value as any, name: rootItem['VAR='] }, labelKey, isNewLine)
                 }
-                else {
-                    choiseList.push(rootItem)
-                }
-                isNewLine = false
             }
             else {
                 if (typeof rootItem === "string" && rootItem == "/ev") {

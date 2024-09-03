@@ -7,6 +7,7 @@ import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
+import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
 import { parseLabel, ShareDataParserLabel } from "./LabelParser";
 
@@ -151,7 +152,7 @@ export function parserConditionalStatements<T>(
 
 export function getConditionalValue<T>(
     preData: (ReadCount | (StandardDivert | Cond)[])[],
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,
@@ -185,7 +186,7 @@ export function getConditionalValue<T>(
 
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,

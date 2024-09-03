@@ -1,8 +1,9 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import { StandardDivert } from "../types/parserItems/Divert";
+import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
 
-export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string>) {
+export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment) {
     if (!item) {
         return
     }
@@ -18,7 +19,7 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
 
 export function addSwitchElemenStep(
     list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
-    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>,
+    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
     isNewLine: boolean = true
 ) {
@@ -26,7 +27,7 @@ export function addSwitchElemenStep(
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
-    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
+    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
     isNewLine: boolean
 ) {
@@ -67,23 +68,42 @@ function addConditionalElementStep(
             }
         }
     }
-    else if (typeof item === "object" && "type" in item) {
-        list.push({ conditionalStep: item })
-    }
-    else if (typeof item === "object" && "->" in item) {
-        let glueEnabled = isNewLine ? undefined : true
-        let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
-        if (!isNewLine && list.length > 0) {
-            let prevItem = list[list.length - 1]
-            prevItem.goNextStep = true
-            list[list.length - 1] = prevItem
+    else if (typeof item === "object") {
+        if ("type" in item) {
+            list.push({ conditionalStep: item })
         }
-        list.push({
-            labelToOpen: {
-                label: labelIdToOpen,
-                type: "call",
-            },
-            glueEnabled: glueEnabled,
-        })
+        else if ("->" in item) {
+            let glueEnabled = isNewLine ? undefined : true
+            let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
+            if (!isNewLine && list.length > 0) {
+                let prevItem = list[list.length - 1]
+                prevItem.goNextStep = true
+                list[list.length - 1] = prevItem
+            }
+            list.push({
+                labelToOpen: {
+                    label: labelIdToOpen,
+                    type: "call",
+                },
+                glueEnabled: glueEnabled,
+            })
+        }
+        if ("typeVar" in item) {
+            let value = item.value
+            if (typeof value === "string" && value.startsWith("^")) {
+                value = value.substring(1)
+            }
+            list.push({
+                operation: [
+                    {
+                        type: "value",
+                        storageOperationType: "set",
+                        storageType: "storage",
+                        key: item.name,
+                        value: value,
+                    }
+                ]
+            })
+        }
     }
 }

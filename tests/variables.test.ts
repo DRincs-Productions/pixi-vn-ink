@@ -11,7 +11,43 @@ import { convertInkText } from '../src/functions';
  */
 test('Defining Global Variables', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "knowledge_of_the_cure",
+                value: false,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "players_name",
+                value: "Emilia",
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "number_of_infected_people",
+                value: 521,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "current_epilogue",
+                value: "they_all_die_of_the_plague",
+            },
+        ],
+        labels: {
+            they_all_die_of_the_plague: [
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR knowledge_of_the_cure = false

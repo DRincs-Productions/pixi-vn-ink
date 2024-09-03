@@ -7,13 +7,14 @@ import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
 import RootParserItemType from "../types/parserItems/RootParserItemType"
 import TextType from "../types/parserItems/TextType"
+import { MyVariableAssignment } from "../types/parserItems/VariableAssignment"
 import { parseLabel, ShareDataParserLabel } from "./LabelParser"
 
 export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | ContainerTypeF)[]
 
 export function parserSwitch<T>(
     items: ConditionalList,
-    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string = "",
     shareData: ShareDataParserLabel,

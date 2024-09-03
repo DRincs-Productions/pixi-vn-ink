@@ -20,6 +20,15 @@ export function convertInkText(text: string): PixiVNJson | undefined {
     }
 
     result.labels = getInkLabel(obj.root)
+    if (result.labels && "global decl" in result.labels) {
+        let global = result.labels["global decl"]
+        delete result.labels["global decl"]
+        global.forEach((item) => {
+            if (item.operation) {
+                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operation] : [...item.operation]
+            }
+        })
+    }
 
     return result
 }

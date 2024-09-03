@@ -17,3 +17,9 @@ type VariableAssignmentTem = {
  */
 type VariableAssignment = VariableAssignmentVar | VariableAssignmentTem
 export default VariableAssignment
+
+export type MyVariableAssignment = {
+    typeVar: "var",
+    name: string,
+    value: string | boolean | number | null
+}
