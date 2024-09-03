@@ -244,60 +244,24 @@ test('Evaluating strings', async () => {
                 key: "a_colour",
                 value: "",
             },
+            {
+                type: "value",
+                value: {
+                    type: "stepswitch",
+                    elements: [
+                        "red",
+                        "blue",
+                        "green",
+                        "yellow",
+                    ],
+                    choiceType: "random",
+                },
+                key: "a_colour",
+                storageType: "storage",
+                storageOperationType: "set",
+            },
         ],
         labels: {
-            s0: [
-                {
-                    dialogue: "red",
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "s0",
-                        type: "call",
-                    },
-                    glueEnabled: true,
-                },
-            ],
-            s1: [
-                {
-                    dialogue: "blue",
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "s1",
-                        type: "call",
-                    },
-                    glueEnabled: true,
-                },
-            ],
-            s2: [
-                {
-                    dialogue: "green",
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "s2",
-                        type: "call",
-                    },
-                    glueEnabled: true,
-                },
-            ],
-            s3: [
-                {
-                    dialogue: "yellow",
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "s3",
-                        type: "call",
-                    },
-                    glueEnabled: true,
-                },
-            ],
             "start_|_c-0": [
                 {
                     labelToOpen: {
@@ -320,8 +284,7 @@ test('Evaluating strings', async () => {
                         {
                             text: "restart",
                             label: "start_|_c-0",
-                            props: {
-                            },
+                            props: {},
                             type: "call",
                             oneTime: false,
                         },

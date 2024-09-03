@@ -28,7 +28,6 @@ function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType
                     if (item) {
                         sharedVariables.externalSwitch = item
                     }
-                    return
                 }
                 else {
                     findLabel(storyItem, labels, sharedVariables)
