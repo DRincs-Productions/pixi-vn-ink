@@ -80,13 +80,24 @@ function addConditionalElementStep(
                 prevItem.goNextStep = true
                 list[list.length - 1] = prevItem
             }
-            list.push({
-                labelToOpen: {
-                    label: labelIdToOpen,
-                    type: "call",
-                },
-                glueEnabled: glueEnabled,
-            })
+            if (item.var) {
+                list.push({
+                    labelToOpen: {
+                        label: labelIdToOpen,
+                        type: "call",
+                    },
+                    glueEnabled: glueEnabled,
+                })
+            }
+            else {
+                list.push({
+                    labelToOpen: {
+                        label: labelIdToOpen,
+                        type: "call",
+                    },
+                    glueEnabled: glueEnabled,
+                })
+            }
         }
         if ("typeVar" in item) {
             let value = item.value
@@ -94,6 +105,7 @@ function addConditionalElementStep(
                 value = value.substring(1)
             }
             list.push({
+                goNextStep: true,
                 operation: [
                     {
                         type: "value",
