@@ -163,12 +163,45 @@ Give up now, or keep trying to save your Kingdom?
  */
 test('Printing variables', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "friendly_name_of_player",
+                value: "Jackie",
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "age",
+                value: 23,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    dialogue: "My name is Jean Passepartout, but my friends call me ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ". I'm ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " years old.",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR friendly_name_of_player = "Jackie"
 VAR age = 23
 
+=== start ===
 My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. I'm {age} years old.
 `);
     expect(res).toEqual(expected);
