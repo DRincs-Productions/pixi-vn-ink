@@ -318,10 +318,16 @@ test('Logic', async () => {
         labels: {}
     }
     let res = convertInkText(`
+VAR y = 2
+VAR x = 3
+VAR c = 1
+VAR knows_about_wager = false
+-> set_some_variables
 === set_some_variables ===
 	~ knows_about_wager = true
 	~ x = (x * x) - (y * y) + c
 	~ y = 2 * x * y
+	-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -334,8 +340,10 @@ test('Mathematics', async () => {
         labels: {}
     }
     let res = convertInkText(`
+=== start
 {POW(3, 2)} is 9.
 {POW(16, 0.5)} is 4.
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -400,7 +408,7 @@ test('String queries', async () => {
     let res = convertInkText(`
 { "Yes, please." == "Yes, please." }
 { "No, thank you." != "Yes, please." }
-{ "Yes, please" ? "ease" }
+{ "Yes, please" ? "ease" : "else" }
 `);
     expect(res).toEqual(expected);
 });
