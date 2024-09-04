@@ -75,8 +75,7 @@ export function parseLabel<T>(
                     addElement(itemList, { typeOperation: "set", typeVar: "var", value: value as any, name: rootItem['VAR='] }, labelKey, isNewLine)
                 }
                 else if ("VAR?" in rootItem) {
-                    addElement(itemList, { typeOperation: "get", typeVar: "var", name: rootItem['VAR?'] }, labelKey, isNewLine)
-                    isNewLine = false
+                    choiseList.push(rootItem)
                 }
             }
             else {
@@ -86,6 +85,15 @@ export function parseLabel<T>(
                     }
                     isInEnv = false
                     choiseList.push(rootItem)
+                }
+                if (typeof rootItem === "string" && rootItem == "out") {
+                    if (choiseList.length > 0) {
+                        let val = choiseList.pop()
+                        if (val && typeof val === "object" && "VAR?" in val) {
+                            addElement(itemList, { typeOperation: "get", typeVar: "var", name: val['VAR?'] }, labelKey, isNewLine)
+                            isNewLine = false
+                        }
+                    }
                 }
                 else {
                     choiseList.push(rootItem)
@@ -164,6 +172,15 @@ export function parseLabel<T>(
             }
             else if ("CNT?" in rootItem) {
                 choiseList.push(rootItem)
+                isNewLine = false
+            }
+            else if ("VAR=" in rootItem) {
+                let varList = []
+                choiseList.pop()
+                while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
+                    varList.push(choiseList.pop())
+                }
+                // TODO check into choiseList
                 isNewLine = false
             }
             else {
