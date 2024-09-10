@@ -177,6 +177,9 @@ export function parseLabel<T>(
             else if ("VAR=" in rootItem) {
                 let varList = []
                 choiseList.pop()
+                if (choiseList[choiseList.length - 1] == "/ev") {
+                    choiseList.pop()
+                }
                 while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
                     varList.push(choiseList.pop())
                 }
