@@ -49,13 +49,23 @@ function addConditionalElementStep(
         if (typeof item === "string") {
             list.push({ dialogue: item.substring(1) })
         }
-        else {
+        else if (item.typeVar === "var") {
             list.push({
                 dialogue: {
                     type: "value",
                     storageType: "storage",
                     storageOperationType: "get",
                     key: item.name,
+                }
+            })
+        }
+        else if (item.typeVar === "art") {
+            list.push({
+                dialogue: {
+                    type: "value",
+                    storageType: "arithmetic",
+                    storageOperationType: "get",
+                    operation: item.value,
                 }
             })
         }

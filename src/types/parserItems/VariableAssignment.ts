@@ -1,4 +1,4 @@
-import { PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn"
+import { PixiVNJsonArithmeticOperations, PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn"
 
 type VariableAssignmentVar = {
     "VAR=": any
@@ -29,4 +29,8 @@ export type MyVariableAssignment = {
     typeVar: "var",
     typeOperation: "get",
     name: string,
+} | {
+    typeVar: "art",
+    typeOperation: "get",
+    value: PixiVNJsonArithmeticOperations
 }

@@ -484,7 +484,49 @@ VAR knows_about_wager = false
  */
 test('Mathematics', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            start: [
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmetic",
+                            operator: "POW",
+                            rightValue: 2,
+                            leftValue: 3,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is 9.",
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmetic",
+                            operator: "POW",
+                            rightValue: 0.5,
+                            leftValue: 16,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is 4.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 === start
@@ -500,6 +542,7 @@ test('Mathematics', async () => {
  */
 test('RANDOM(min, max)', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -517,6 +560,7 @@ test('RANDOM(min, max)', async () => {
  */
 test('Advanced: numerical types are implicit', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -532,6 +576,7 @@ test('Advanced: numerical types are implicit', async () => {
  */
 test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -550,6 +595,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
  */
 test('String queries', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -569,6 +615,7 @@ test('String queries', async () => {
  */
 test('A simple if', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -584,6 +631,7 @@ test('A simple if', async () => {
  */
 test('A simple else', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -601,6 +649,7 @@ test('A simple else', async () => {
  */
 test('Extended if/else if/else blocks', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -621,6 +670,7 @@ test('Extended if/else if/else blocks', async () => {
  */
 test('Switch blocks', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -639,6 +689,7 @@ test('Switch blocks', async () => {
  */
 test('Example: context-relevant content', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -665,6 +716,7 @@ test('Example: context-relevant content', async () => {
  */
 test('Conditional blocks are not limited to logic', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -684,6 +736,7 @@ He said nothing in reply, merely considering his newspaper with as much thorough
  */
 test('Conditional blocks are not limited to logic 2', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -702,6 +755,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
  */
 test('Multiline blocks', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -742,6 +796,7 @@ At the table, I drew a card. <>
  */
 test('Advanced: modified shuffles', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -758,6 +813,7 @@ test('Advanced: modified shuffles', async () => {
  */
 test('Advanced: modified shuffles 2', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -779,6 +835,7 @@ test('Advanced: modified shuffles 2', async () => {
  */
 test('Temporary variables are for scratch calculations', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -807,6 +864,7 @@ test('Temporary variables are for scratch calculations', async () => {
  */
 test('Knots and stitches can take parameters', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -830,6 +888,7 @@ test('Knots and stitches can take parameters', async () => {
  */
 test('Example: a recursive knot definition', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -856,6 +915,7 @@ test('Example: a recursive knot definition', async () => {
  */
 test('Advanced: sending divert targets as parameters', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -882,6 +942,7 @@ test('Advanced: sending divert targets as parameters', async () => {
  */
 test('Global Constants', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
@@ -905,6 +966,7 @@ VAR current_chief_suspect = HASTINGS
  */
 test('Global Constants 2', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`

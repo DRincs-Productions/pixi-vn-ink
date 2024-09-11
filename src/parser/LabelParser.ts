@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
+import { PixiVNJsonArithmeticOperations, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import { arithmeticParser } from '../functions/ArithmeticUtility';
 import InkRootType from '../types/InkRootType';
@@ -89,11 +89,27 @@ export function parseLabel<T>(
                 }
                 if (typeof rootItem === "string" && rootItem == "out") {
                     if (choiseList.length > 0) {
-                        let val = choiseList.pop()
-                        if (val && typeof val === "object" && "VAR?" in val) {
-                            addElement(itemList, { typeOperation: "get", typeVar: "var", name: val['VAR?'] }, labelKey, isNewLine)
-                            isNewLine = false
+                        let lastValue = choiseList[choiseList.length - 1]
+                        if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
+                            choiseList.pop()
+                            addElement(itemList, { typeOperation: "get", typeVar: "var", name: lastValue['VAR?'] }, labelKey, isNewLine)
                         }
+                        else {
+                            let varList = []
+                            while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
+                                varList.push(choiseList.pop())
+                            }
+                            let value = arithmeticParser(varList as any)
+                            if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "arithmetic") {
+                                addElement(itemList, { typeOperation: "get", typeVar: "art", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine)
+                            }
+                            else {
+                                addElement(itemList, "<>", labelKey, isNewLine)
+                                value = `^${value}`
+                                addElement(itemList, value, labelKey, isNewLine)
+                            }
+                        }
+                        isNewLine = false
                     }
                 }
                 else {

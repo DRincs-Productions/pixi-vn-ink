@@ -1,8 +1,8 @@
 import { PixiVNJsonArithmeticOperations, PixiVNJsonValueGet, StorageElementType } from '@drincs/pixi-vn';
-import NativeFunctions from '../types/parserItems/NativeFunctions';
+import { ArithmeticFunctions, arithmeticFunctions } from '../types/parserItems/NativeFunctions';
 import VariableReference from '../types/parserItems/VariableReference';
 
-export function arithmeticParser(data: (NativeFunctions | VariableReference)[]): PixiVNJsonValueGet | StorageElementType | undefined {
+export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)[]): PixiVNJsonValueGet | StorageElementType | undefined {
     if (data.length === 0) {
         console.error("[Pixi’VN Ink] Error parsing ink file: Arithmetic statement is not valid", data)
         return undefined
@@ -17,7 +17,7 @@ export function arithmeticParser(data: (NativeFunctions | VariableReference)[]):
                 key: item["VAR?"],
             })
         }
-        else if (item && typeof item === "string" && item === "+" || item === "-" || item === "/" || item === "*" || item === "%" || item === "==" || item === ">" || item === "<" || item === ">=" || item === "<=" || item === "!=" || item === "&&" || item === "||" || item === "MIN" || item === "MAX") {
+        else if (item && typeof item === "string" && arithmeticFunctions.includes(item)) {
             if (conditions.length < 2) {
                 console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
             }
