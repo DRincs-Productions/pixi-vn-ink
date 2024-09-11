@@ -221,7 +221,7 @@ export function parseLabel<T>(
                 }
                 varList = varList.reverse()
                 let value = arithmeticParser(varList as any, labelKey)
-                if (value) {
+                if (value !== undefined || value !== null) {
                     addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
                 }
                 isNewLine = false
