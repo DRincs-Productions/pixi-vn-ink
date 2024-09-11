@@ -369,7 +369,7 @@ test('Logic', async () => {
                             key: "x",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -431,7 +431,7 @@ test('Logic', async () => {
                             key: "y",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -489,7 +489,7 @@ test('Mathematics', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmetic",
@@ -507,7 +507,7 @@ test('Mathematics', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmetic",
@@ -554,7 +554,7 @@ test('RANDOM(min, max)', async () => {
                             key: "dice_roll",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -576,7 +576,7 @@ test('RANDOM(min, max)', async () => {
                             key: "lazy_grading_for_test_paper",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -598,7 +598,7 @@ test('RANDOM(min, max)', async () => {
                             key: "number_of_heads_the_serpent_has",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -665,7 +665,7 @@ test('Advanced: numerical types are implicit', async () => {
                             key: "x",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -687,7 +687,7 @@ test('Advanced: numerical types are implicit', async () => {
                             key: "y",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -709,7 +709,7 @@ test('Advanced: numerical types are implicit', async () => {
                             key: "z",
                             value: {
                                 type: "value",
-                                storageType: "arithmetic",
+                                storageType: "logic",
                                 storageOperationType: "get",
                                 operation: {
                                     type: "arithmetic",
@@ -747,7 +747,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmeticsingle",
@@ -764,7 +764,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmeticsingle",
@@ -781,7 +781,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmeticsingle",
@@ -798,7 +798,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmeticsingle",
@@ -815,7 +815,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "arithmeticsingle",
@@ -855,7 +855,7 @@ test('String queries', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "compare",
@@ -868,7 +868,7 @@ test('String queries', async () => {
                 {
                     dialogue: {
                         type: "value",
-                        storageType: "arithmetic",
+                        storageType: "logic",
                         storageOperationType: "get",
                         operation: {
                             type: "compare",

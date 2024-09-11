@@ -63,7 +63,7 @@ function addConditionalElementStep(
             list.push({
                 dialogue: {
                     type: "value",
-                    storageType: "arithmetic",
+                    storageType: "logic",
                     storageOperationType: "get",
                     operation: item.value,
                 }

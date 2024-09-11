@@ -1,9 +1,9 @@
-import { PixiVNJsonArithmeticOperations, PixiVNJsonConditions, PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn";
+import { PixiVNJsonArithmeticOperations, PixiVNJsonComparation, PixiVNJsonConditions, PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { ArithmeticFunctions } from "../types/parserItems/NativeFunctions";
+import { arithmeticFunctions, ArithmeticFunctions, arithmeticFunctionsSingle, ArithmeticFunctionsSingle, conditionFunctions, ConditionFunctions } from "../types/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
 
-export function conditionaAritmeticParser<T>(
+export function conditionaAritmeticParser(
     list: any[],
     labelKey: string
 ) {
@@ -109,16 +109,16 @@ export function conditionaAritmeticParser<T>(
                 conditions[conditions.length - 1] = i
             }
         }
-        else if (item && typeof item === "string" && ["==", "!=", "<", "<=", ">", ">=", "CONTAINS"].includes(item)) {
+        else if (item && typeof item === "string" && conditionFunctions.includes(item as ConditionFunctions)) {
             if (conditions.length < 2) {
                 console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", list)
             }
             else {
-                let i: PixiVNJsonConditions = {
+                let i: PixiVNJsonComparation = {
                     type: "compare",
-                    operator: item,
-                    leftValue: conditions[conditions.length - 1],
-                    rightValue: conditions[conditions.length - 2]
+                    operator: item as ConditionFunctions,
+                    leftValue: conditions[conditions.length - 1] as any,
+                    rightValue: conditions[conditions.length - 2] as any
                 }
                 // remove last two elements
                 conditions.pop()
@@ -126,16 +126,16 @@ export function conditionaAritmeticParser<T>(
                 conditions.push(i)
             }
         }
-        else if (item && typeof item === "string" && ["+", "-", "/", "*", "%", "POW", "RANDOM", "MIN", "MAX"].includes(item as ArithmeticFunctions)) {
+        else if (item && typeof item === "string" && arithmeticFunctions.includes(item as ArithmeticFunctions)) {
             if (conditions.length < 2) {
                 console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", list)
             }
             else {
                 let i: PixiVNJsonArithmeticOperations = {
                     type: "arithmetic",
-                    operator: item,
-                    rightValue: conditions[conditions.length - 1],
-                    leftValue: conditions[conditions.length - 2]
+                    operator: item as ArithmeticFunctions,
+                    rightValue: conditions[conditions.length - 1] as PixiVNJsonValueGet | StorageElementType | PixiVNJsonArithmeticOperations,
+                    leftValue: conditions[conditions.length - 2] as PixiVNJsonValueGet | StorageElementType | PixiVNJsonArithmeticOperations
                 }
                 // remove last two elements
                 conditions.pop()
@@ -143,11 +143,11 @@ export function conditionaAritmeticParser<T>(
                 conditions.push(i)
             }
         }
-        else if (item && typeof item === "string" && ["INT", "FLOOR", "FLOAT"].includes(item)) {
+        else if (item && typeof item === "string" && arithmeticFunctionsSingle.includes(item as ArithmeticFunctionsSingle)) {
             let i: PixiVNJsonArithmeticOperations = {
                 type: "arithmeticsingle",
-                operator: item,
-                leftValue: conditions[conditions.length - 1]
+                operator: item as ArithmeticFunctionsSingle,
+                leftValue: conditions[conditions.length - 1] as PixiVNJsonValueGet | StorageElementType | PixiVNJsonArithmeticOperations
             }
             // remove last two elements
             conditions.pop()

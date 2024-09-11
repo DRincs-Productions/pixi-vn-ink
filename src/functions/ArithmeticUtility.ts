@@ -15,7 +15,7 @@ export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)
         ) {
             let i: PixiVNJsonValueGet = {
                 type: "value",
-                storageType: "arithmetic",
+                storageType: "logic",
                 storageOperationType: "get",
                 operation: first
             }
