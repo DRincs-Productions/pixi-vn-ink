@@ -25,15 +25,19 @@ export function parserConditionalStatements<T>(
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
     }
     else if (conditions.length === 1) {
-        return {
+        let res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: conditions[0],
             then: then,
             else: elseThen
         }
+        if (!res.else) {
+            delete res.else
+        }
+        return res
     }
     else {
-        return {
+        let res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: {
                 type: "union",
@@ -43,6 +47,10 @@ export function parserConditionalStatements<T>(
             then: then,
             else: elseThen
         }
+        if (!res.else) {
+            delete res.else
+        }
+        return res
     }
 }
 
