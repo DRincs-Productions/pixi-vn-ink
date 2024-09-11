@@ -22,6 +22,9 @@ export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)
                 console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
             }
             else {
+                if (item === "rnd") {
+                    item = "RANDOM" as any
+                }
                 let i: PixiVNJsonArithmeticOperations = {
                     type: "arithmetic",
                     operator: item,

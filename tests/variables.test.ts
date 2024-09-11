@@ -542,10 +542,80 @@ test('Mathematics', async () => {
  */
 test('RANDOM(min, max)', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "dice_roll",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "RANDOM",
+                                    rightValue: 6,
+                                    leftValue: 1,
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "lazy_grading_for_test_paper",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "RANDOM",
+                                    rightValue: 75,
+                                    leftValue: 30,
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "number_of_heads_the_serpent_has",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "RANDOM",
+                                    rightValue: 8,
+                                    leftValue: 3,
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+        }
     }
     let res = convertInkText(`
+-> start
+=== start ===
 ~ temp dice_roll = RANDOM(1, 6)
 
 ~ temp lazy_grading_for_test_paper = RANDOM(30, 75)
@@ -560,10 +630,106 @@ test('RANDOM(min, max)', async () => {
  */
 test('Advanced: numerical types are implicit', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "x",
+                value: 0,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "y",
+                value: 0,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "z",
+                value: 0,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "x",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "/",
+                                    rightValue: 3,
+                                    leftValue: 2,
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "y",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "/",
+                                    rightValue: 3,
+                                    leftValue: 7,
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "z",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "/",
+                                    rightValue: 0.5,
+                                    leftValue: 1.2,
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+        }
     }
     let res = convertInkText(`
+VAR x = 0
+VAR y = 0
+VAR z = 0
+-> start
+=== start ===
 ~ x = 2 / 3
 ~ y = 7 / 3
 ~ z = 1.2 / 0.5
@@ -580,6 +746,8 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+=== start ===
 {INT(3.2)} is 3.
 {FLOOR(4.8)} is 4.
 {INT(-4.8)} is -4.

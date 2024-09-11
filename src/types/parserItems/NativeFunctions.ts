@@ -12,5 +12,5 @@ export default NativeFunctions
 
 export const nativeFunctions: NativeFunctions[] = ["+", "-", "/", "*", "%", "_", "==", ">", "<", ">=", "<=", "!=", "!", "&&", "||", "MIN", "MAX"]
 
-export type ArithmeticFunctions = NativeFunctions | "POW"
-export const arithmeticFunctions: ArithmeticFunctions[] = [...nativeFunctions, "POW"]
+export type ArithmeticFunctions = NativeFunctions | "POW" | "rnd"
+export const arithmeticFunctions: ArithmeticFunctions[] = [...nativeFunctions, "POW", "rnd"]

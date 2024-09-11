@@ -21,12 +21,12 @@ type VariableAssignment = VariableAssignmentVar | VariableAssignmentTem
 export default VariableAssignment
 
 export type MyVariableAssignment = {
-    typeVar: "var",
+    typeVar: "var" | "tempstorage",
     typeOperation: "set",
     name: string,
     value: StorageElementType | PixiVNJsonValueGet
 } | {
-    typeVar: "var",
+    typeVar: "var" | "tempstorage",
     typeOperation: "get",
     name: string,
 } | {

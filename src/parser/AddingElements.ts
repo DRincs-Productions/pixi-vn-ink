@@ -53,7 +53,7 @@ function addConditionalElementStep(
             list.push({
                 dialogue: {
                     type: "value",
-                    storageType: "storage",
+                    storageType: item.typeVar === "var" ? "storage" : "tempstorage",
                     storageOperationType: "get",
                     key: item.name,
                 }
@@ -139,7 +139,7 @@ function addConditionalElementStep(
                     {
                         type: "value",
                         storageOperationType: "set",
-                        storageType: "storage",
+                        storageType: item.typeVar === "var" ? "storage" : "tempstorage",
                         key: item.name,
                         value: value,
                     }

@@ -191,8 +191,10 @@ export function parseLabel<T>(
                 choiseList.push(rootItem)
                 isNewLine = false
             }
-            else if ("VAR=" in rootItem) {
+            else if ("VAR=" in rootItem || "temp=" in rootItem) {
                 let varList = []
+                let type: "var" | "tempstorage" = "VAR=" in rootItem ? "var" : "tempstorage"
+                let name = "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp=']
                 choiseList.pop()
                 if (choiseList[choiseList.length - 1] == "/ev") {
                     choiseList.pop()
@@ -202,7 +204,7 @@ export function parseLabel<T>(
                 }
                 let value = arithmeticParser(varList as any)
                 if (value) {
-                    addElement(itemList, { typeOperation: "set", typeVar: "var", value: value, name: rootItem['VAR='] }, labelKey, isNewLine)
+                    addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
                 }
                 isNewLine = false
             }
