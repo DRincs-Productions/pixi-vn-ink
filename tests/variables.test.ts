@@ -1138,6 +1138,10 @@ test('Extended if/else if/else blocks', async () => {
         labels: {}
     }
     let res = convertInkText(`
+VAR x = 0
+VAR y = 0
+-> start
+=== start
 {
 	- x == 0:
 		~ y = 0
@@ -1159,6 +1163,9 @@ test('Switch blocks', async () => {
         labels: {}
     }
     let res = convertInkText(`
+VAR x = 0
+-> start
+=== start
 { x:
 - 0: 	zero
 - 1: 	one
