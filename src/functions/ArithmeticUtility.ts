@@ -52,6 +52,11 @@ export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)
             conditions.pop()
             conditions.push(i)
         }
+        else if (item && typeof item === "string") {
+            if (item.startsWith("^")) {
+                conditions.push(item.substring(1))
+            }
+        }
         else {
             conditions.push(item)
         }

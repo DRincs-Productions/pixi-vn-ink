@@ -850,13 +850,77 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
  */
 test('String queries', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            "start_|_b": [
+                {
+                    dialogue: " \"else\" ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start",
+                        type: "call",
+                        step: 32,
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            start: [
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmetic",
+                            operator: "==",
+                            rightValue: "Yes, please.",
+                            leftValue: "Yes, please.",
+                        },
+                    },
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmetic",
+                            operator: "!=",
+                            rightValue: "Yes, please.",
+                            leftValue: "No, thank you.",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: "Yes, please",
+                        then: {
+                            dialogue: "ease",
+                        },
+                        else: {
+                            labelToOpen: {
+                                label: "start_|_b",
+                                type: "call",
+                            },
+                            glueEnabled: undefined,
+                        }
+                    }
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
+-> start
+=== start ===
 { "Yes, please." == "Yes, please." }
 { "No, thank you." != "Yes, please." }
 { "Yes, please" ? "ease" : "else" }
+->DONE
 `);
     expect(res).toEqual(expected);
 });
