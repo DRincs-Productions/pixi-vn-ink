@@ -1,5 +1,5 @@
 import { PixiVNJsonArithmeticOperations, PixiVNJsonValueGet, StorageElementType } from '@drincs/pixi-vn';
-import { ArithmeticFunctions, arithmeticFunctions } from '../types/parserItems/NativeFunctions';
+import { ArithmeticFunctions, arithmeticFunctions, arithmeticFunctionsSingle } from '../types/parserItems/NativeFunctions';
 import VariableReference from '../types/parserItems/VariableReference';
 
 export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)[]): PixiVNJsonValueGet | StorageElementType | undefined {
@@ -7,6 +7,14 @@ export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)
         console.error("[Pixi’VN Ink] Error parsing ink file: Arithmetic statement is not valid", data)
         return undefined
     }
+    data = data.map((item) => {
+        if (typeof item === "string") {
+            if (item as any === "rnd") {
+                return "RANDOM"
+            }
+        }
+        return item
+    })
     let conditions: (PixiVNJsonArithmeticOperations | PixiVNJsonValueGet | StorageElementType)[] = []
     data.reverse().forEach((item) => {
         if (typeof item === "object" && "VAR?" in item) {
@@ -22,9 +30,6 @@ export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)
                 console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
             }
             else {
-                if (item === "rnd") {
-                    item = "RANDOM" as any
-                }
                 let i: PixiVNJsonArithmeticOperations = {
                     type: "arithmetic",
                     operator: item,
@@ -37,19 +42,16 @@ export function arithmeticParser(data: (ArithmeticFunctions | VariableReference)
                 conditions.push(i)
             }
         }
-        // else if (item === "!") {
-        //     if (conditions.length === 0) {
-        //         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-        //     }
-        //     else {
-        //         let i: PixiVNJsonArithmeticOperations = {
-        //             type: "union",
-        //             unionType: "not",
-        //             condition: conditions[conditions.length - 1]
-        //         }
-        //         conditions[conditions.length - 1] = i
-        //     }
-        // }
+        else if (item && typeof item === "string" && arithmeticFunctionsSingle.includes(item)) {
+            let i: PixiVNJsonArithmeticOperations = {
+                type: "arithmeticsingle",
+                operator: item,
+                leftValue: conditions[conditions.length - 1]
+            }
+            // remove last two elements
+            conditions.pop()
+            conditions.push(i)
+        }
         else {
             conditions.push(item)
         }

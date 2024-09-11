@@ -742,8 +742,95 @@ VAR z = 0
  */
 test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            start: [
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmeticsingle",
+                            operator: "INT",
+                            leftValue: 3.2,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is 3.",
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmeticsingle",
+                            operator: "FLOOR",
+                            leftValue: 4.8,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is 4.",
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmeticsingle",
+                            operator: "INT",
+                            leftValue: -4.8,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is -4.",
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmeticsingle",
+                            operator: "FLOOR",
+                            leftValue: -4.8,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is -5.",
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "arithmetic",
+                        storageOperationType: "get",
+                        operation: {
+                            type: "arithmeticsingle",
+                            operator: "FLOAT",
+                            leftValue: 4,
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " is, um, still 4.",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> start
