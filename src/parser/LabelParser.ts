@@ -151,17 +151,21 @@ export function parseLabel<T>(
             if (isConditionalText) {
                 conditionalList.push(rootItem)
             }
-            else if (rootItem.length == 2 && typeof rootItem[0] === "object" && rootItem[0] && "c" in rootItem[0]
-                && typeof rootItem[1] === "object" && rootItem[1] && "b" in rootItem[1]
+            else if (rootItem.length > 2 && typeof rootItem[rootItem.length - 2] === "object" && rootItem[rootItem.length - 2] && "c" in (rootItem as any)[rootItem.length - 2]
+                && typeof rootItem[rootItem.length - 1] === "object" && rootItem[rootItem.length - 1] && "b" in (rootItem as any)[rootItem.length - 1]
             ) {
                 choiseList.pop()
                 let list = []
+                let item = []
                 while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
                     list.push(choiseList.pop() as any)
                 }
                 conditionalList = [...conditionalList, ...list.reverse()]
                 isConditionalText = true
-                conditionalList.push(rootItem)
+                item.push(rootItem.pop())
+                item.push(rootItem.pop())
+                conditionalList = [...conditionalList, ...rootItem]
+                conditionalList.push(item as any)
             }
             else if (rootItem.length > 1 && typeof rootItem[rootItem.length - 1] === "object" && rootItem[rootItem.length - 1] && "#n" in (rootItem as any[])[rootItem.length - 1]) {
                 let el = rootItem.pop() as ContainerTypeN | undefined
