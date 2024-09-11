@@ -215,6 +215,7 @@ export function parseLabel<T>(
                 while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
                     varList.push(choiseList.pop())
                 }
+                varList = varList.reverse()
                 let value = arithmeticParser(varList as any, labelKey)
                 if (value) {
                     addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)

@@ -117,8 +117,8 @@ export function conditionaAritmeticParser(
                 let i: PixiVNJsonComparation = {
                     type: "compare",
                     operator: item as ConditionFunctions,
-                    leftValue: conditions[conditions.length - 1] as any,
-                    rightValue: conditions[conditions.length - 2] as any
+                    rightValue: conditions[conditions.length - 1] as any,
+                    leftValue: conditions[conditions.length - 2] as any
                 }
                 // remove last two elements
                 conditions.pop()
