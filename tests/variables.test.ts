@@ -315,7 +315,154 @@ VAR a_colour = ""
  */
 test('Logic', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "y",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "x",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "c",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "knows_about_wager",
+                value: false,
+            },
+        ],
+        labels: {
+            set_some_variables: [
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "knows_about_wager",
+                            value: true,
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "x",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "+",
+                                    rightValue: {
+                                        type: "value",
+                                        storageType: "storage",
+                                        storageOperationType: "get",
+                                        key: "c",
+                                    },
+                                    leftValue: {
+                                        type: "arithmetic",
+                                        operator: "-",
+                                        rightValue: {
+                                            type: "arithmetic",
+                                            operator: "*",
+                                            rightValue: {
+                                                type: "value",
+                                                storageType: "storage",
+                                                storageOperationType: "get",
+                                                key: "y",
+                                            },
+                                            leftValue: {
+                                                type: "value",
+                                                storageType: "storage",
+                                                storageOperationType: "get",
+                                                key: "y",
+                                            },
+                                        },
+                                        leftValue: {
+                                            type: "arithmetic",
+                                            operator: "*",
+                                            rightValue: {
+                                                type: "value",
+                                                storageType: "storage",
+                                                storageOperationType: "get",
+                                                key: "x",
+                                            },
+                                            leftValue: {
+                                                type: "value",
+                                                storageType: "storage",
+                                                storageOperationType: "get",
+                                                key: "x",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "y",
+                            value: {
+                                type: "value",
+                                storageType: "arithmetic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "*",
+                                    rightValue: {
+                                        type: "value",
+                                        storageType: "storage",
+                                        storageOperationType: "get",
+                                        key: "y",
+                                    },
+                                    leftValue: {
+                                        type: "arithmetic",
+                                        operator: "*",
+                                        rightValue: {
+                                            type: "value",
+                                            storageType: "storage",
+                                            storageOperationType: "get",
+                                            key: "x",
+                                        },
+                                        leftValue: 2,
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR y = 2

@@ -1,5 +1,6 @@
 import { PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
+import { arithmeticParser } from '../functions/ArithmeticUtility';
 import InkRootType from '../types/InkRootType';
 import { ContainerTypeN } from '../types/parserItems/ContainerType';
 import { StandardDivert } from '../types/parserItems/Divert';
@@ -183,7 +184,10 @@ export function parseLabel<T>(
                 while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
                     varList.push(choiseList.pop())
                 }
-                // TODO check into choiseList
+                let value = arithmeticParser(varList as any)
+                if (value) {
+                    addElement(itemList, { typeOperation: "set", typeVar: "var", value: value, name: rootItem['VAR='] }, labelKey, isNewLine)
+                }
                 isNewLine = false
             }
             else {
