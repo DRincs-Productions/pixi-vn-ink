@@ -87,7 +87,7 @@ export function parseLabel<T>(
                     isInEnv = false
                     choiseList.push(rootItem)
                 }
-                if (typeof rootItem === "string" && rootItem == "out") {
+                else if (typeof rootItem === "string" && rootItem == "out") {
                     if (choiseList.length > 0) {
                         let lastValue = choiseList[choiseList.length - 1]
                         if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
@@ -99,7 +99,8 @@ export function parseLabel<T>(
                             while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
                                 varList.push(choiseList.pop())
                             }
-                            let value = arithmeticParser(varList as any)
+                            varList = varList.reverse()
+                            let value = arithmeticParser(varList as any, labelKey)
                             if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "arithmetic") {
                                 addElement(itemList, { typeOperation: "get", typeVar: "art", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine)
                             }
@@ -148,6 +149,18 @@ export function parseLabel<T>(
         }
         else if (rootItem instanceof Array) {
             if (isConditionalText) {
+                conditionalList.push(rootItem)
+            }
+            else if (rootItem.length == 2 && typeof rootItem[0] === "object" && rootItem[0] && "c" in rootItem[0]
+                && typeof rootItem[1] === "object" && rootItem[1] && "b" in rootItem[1]
+            ) {
+                choiseList.pop()
+                let list = []
+                while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
+                    list.push(choiseList.pop() as any)
+                }
+                conditionalList = [...conditionalList, ...list.reverse()]
+                isConditionalText = true
                 conditionalList.push(rootItem)
             }
             else if (rootItem.length > 1 && typeof rootItem[rootItem.length - 1] === "object" && rootItem[rootItem.length - 1] && "#n" in (rootItem as any[])[rootItem.length - 1]) {
@@ -202,7 +215,7 @@ export function parseLabel<T>(
                 while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
                     varList.push(choiseList.pop())
                 }
-                let value = arithmeticParser(varList as any)
+                let value = arithmeticParser(varList as any, labelKey)
                 if (value) {
                     addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
                 }

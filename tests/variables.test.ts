@@ -851,20 +851,6 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
 test('String queries', async () => {
     let expected: PixiVNJson = {
         labels: {
-            "start_|_b": [
-                {
-                    dialogue: " \"else\" ",
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "start",
-                        type: "call",
-                        step: 32,
-                    },
-                    glueEnabled: true,
-                },
-            ],
             start: [
                 {
                     dialogue: {
@@ -872,10 +858,10 @@ test('String queries', async () => {
                         storageType: "arithmetic",
                         storageOperationType: "get",
                         operation: {
-                            type: "arithmetic",
+                            type: "compare",
                             operator: "==",
-                            rightValue: "Yes, please.",
                             leftValue: "Yes, please.",
+                            rightValue: "Yes, please.",
                         },
                     },
                 },
@@ -885,28 +871,49 @@ test('String queries', async () => {
                         storageType: "arithmetic",
                         storageOperationType: "get",
                         operation: {
-                            type: "arithmetic",
+                            type: "compare",
                             operator: "!=",
-                            rightValue: "Yes, please.",
-                            leftValue: "No, thank you.",
+                            leftValue: "Yes, please.",
+                            rightValue: "No, thank you.",
                         },
                     },
                 },
                 {
                     conditionalStep: {
                         type: "ifelse",
-                        condition: "Yes, please",
-                        then: {
-                            dialogue: "ease",
+                        condition: {
+                            type: "union",
+                            unionType: "or",
+                            conditions: [
+                                {
+                                    type: "compare",
+                                    operator: "!=",
+                                    leftValue: "Yes, please.",
+                                    rightValue: "No, thank you.",
+                                },
+                                true,
+                            ],
                         },
-                        else: {
-                            labelToOpen: {
-                                label: "start_|_b",
-                                type: "call",
-                            },
-                            glueEnabled: undefined,
-                        }
-                    }
+                        then: {
+                            dialogue: " a b ",
+                        },
+                        else: undefined,
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            leftValue: "ease",
+                            rightValue: "Yes, please",
+                        },
+                        then: {
+                            dialogue: " \"then\" ",
+                        },
+                        else: undefined,
+                    },
                 },
                 {
                     end: "label_end",
@@ -919,6 +926,7 @@ test('String queries', async () => {
 === start ===
 { "Yes, please." == "Yes, please." }
 { "No, thank you." != "Yes, please." }
+{ "No, thank you." != "Yes, please." || true : a b }
 { "Yes, please" ? "ease" : "then" }
 ->DONE
 `);

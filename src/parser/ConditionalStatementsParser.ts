@@ -1,5 +1,4 @@
-import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
 import InkRootType from "../types/InkRootType";
 import Cond from "../types/parserItems/Cond";
@@ -8,7 +7,7 @@ import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
-import { getLabelByStandardDivert } from "../utility/DivertUtility";
+import { conditionaAritmeticParser } from "./ConditionaAritmeticParser";
 import { parseLabel, ShareDataParserLabel } from "./LabelParser";
 
 export function parserConditionalStatements<T>(
@@ -21,110 +20,7 @@ export function parserConditionalStatements<T>(
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
         return undefined
     }
-    let conditions: PixiVNJsonConditions[] = []
-    data.forEach((item) => {
-        if (typeof item === "object" && "CNT?" in item) {
-            if ((new RegExp(/.*\.[0-9]\..*/)).test(item["CNT?"])) {
-                let items = item["CNT?"].split(".")
-                // remove the last element
-                let end = items.pop()
-                let stringNumber = items.pop()
-                if (stringNumber === undefined || end === undefined) {
-                    console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-                    return
-                }
-                let number = parseInt(stringNumber)
-                let label = items.join(".")
-                if (label.includes("^.")) {
-                    let labelArray = label.split(".")
-                    let end2 = labelArray[labelArray.length - 1].replace(".", CHOISE_LABEL_KEY_SEPARATOR)
-                    labelArray.pop()
-                    label = labelArray.join(".") + "." + end2
-                    if (end.includes("c-")) {
-                        label = label + CHOISE_LABEL_KEY_SEPARATOR + end
-                    }
-                }
-                else {
-                    label = label.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
-                }
-                conditions.push({
-                    type: "compare",
-                    leftValue: {
-                        type: "value",
-                        storageType: "label",
-                        storageOperationType: "get",
-                        valueType: "biggeststep",
-                        label: getLabelByStandardDivert(label, labelKey),
-                    },
-                    operator: ">=",
-                    rightValue: {
-                        type: "value",
-                        value: number,
-                    },
-                })
-            }
-            else {
-                conditions.push({
-                    type: "value",
-                    storageType: "label",
-                    storageOperationType: "get",
-                    label: getLabelByStandardDivert(item["CNT?"], labelKey),
-                })
-            }
-        }
-        else if (item === "&&" || item === "||") {
-            if (conditions.length < 2) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-            }
-            else {
-                let i: PixiVNJsonConditions = {
-                    type: "union",
-                    unionType: item === "&&" ? "and" : "or",
-                    conditions: [
-                        conditions[conditions.length - 2],
-                        conditions[conditions.length - 1]
-                    ]
-                }
-                // remove last two elements
-                conditions.pop()
-                conditions.pop()
-                conditions.push(i)
-            }
-        }
-        else if (item === "!") {
-            if (conditions.length === 0) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-            }
-            else {
-                let i: PixiVNJsonConditions = {
-                    type: "union",
-                    unionType: "not",
-                    condition: conditions[conditions.length - 1]
-                }
-                conditions[conditions.length - 1] = i
-            }
-        }
-        else if (item === "==" || item === "!=" || item === "<" || item === "<=" || item === ">" || item === ">=") {
-            if (conditions.length < 2) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-            }
-            else {
-                let i: PixiVNJsonConditions = {
-                    type: "compare",
-                    operator: item,
-                    leftValue: conditions[conditions.length - 1],
-                    rightValue: conditions[conditions.length - 2]
-                }
-                // remove last two elements
-                conditions.pop()
-                conditions.pop()
-                conditions.push(i)
-            }
-        }
-        else {
-            conditions.push(item)
-        }
-    })
+    let conditions = conditionaAritmeticParser(data, labelKey)
     if (conditions.length === 0) {
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
     }
