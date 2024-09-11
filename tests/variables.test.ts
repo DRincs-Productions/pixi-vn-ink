@@ -919,7 +919,7 @@ test('String queries', async () => {
 === start ===
 { "Yes, please." == "Yes, please." }
 { "No, thank you." != "Yes, please." }
-{ "Yes, please" ? "ease" : "else" }
+{ "Yes, please" ? "ease" : "then" }
 ->DONE
 `);
     expect(res).toEqual(expected);
