@@ -1671,7 +1671,131 @@ know_about_wager
  */
 test('Conditional blocks are not limited to logic 2', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "start_|_then_|_c-0": [
+                {
+                    dialogue: "I strode out of the compartment",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " and I fancied I heard my master quietly tutting to himself. \t\t\t",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "go_outside",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "start_|_else_|_c-0": [
+                {
+                    dialogue: "I asked permission to leave",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " and Monsieur Fogg looked surprised. \t",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "open_door",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "start_|_else_|_c-1": [
+                {
+                    dialogue: "I stood and went to open the door",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ". Monsieur Fogg seemed untroubled by this small rebellion. ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "open_door",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageType: "label",
+                            storageOperationType: "get",
+                            label: "door_open",
+                        },
+                        then: {
+                            choices: [
+                                {
+                                    text: "I strode out of the compartment",
+                                    label: "start_|_then_|_c-0",
+                                    props: {},
+                                    type: "call",
+                                    oneTime: true,
+                                },
+                            ],
+                        },
+                        else: {
+                            choices: [
+                                {
+                                    text: "I asked permission to leave",
+                                    label: "start_|_else_|_c-0",
+                                    props: {},
+                                    type: "call",
+                                    oneTime: true,
+                                },
+                                {
+                                    text: "I stood and went to open the door",
+                                    label: "start_|_else_|_c-1",
+                                    props: {},
+                                    type: "call",
+                                    oneTime: true,
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            door_open: [
+                {
+                    dialogue: "door_open",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            go_outside: [
+                {
+                    dialogue: "go_outside",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            open_door: [
+                {
+                    dialogue: "open_door",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> start

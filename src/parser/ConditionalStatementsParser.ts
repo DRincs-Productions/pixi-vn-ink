@@ -1,4 +1,5 @@
 import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
 import InkRootType from "../types/InkRootType";
 import Cond from "../types/parserItems/Cond";
@@ -91,10 +92,10 @@ export function getConditionalValue<T>(
         return undefined
     }
 
-    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
+    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then", shareData, nestedId)
     let elseThen = undefined
     if (data.length === 2) {
-        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
+        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, nestedId)
     }
     else if (data.length > 2) {
         data.shift()
@@ -102,7 +103,7 @@ export function getConditionalValue<T>(
         data = [
             { "b": data } as any
         ]
-        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
+        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, nestedId)
     }
     shareData.du = undefined
     return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
@@ -120,11 +121,9 @@ function getThen<T>(
 
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
-            if (item.b.length > 2 && item.b[item.b.length - 1] !== "nop") {
-                // remove the last 2 items
-                item.b.pop()
-                item.b.pop()
-            }
+            item.b = item.b.filter((item) => item !== null && !(
+                typeof item === "object" && "->" in item && (new RegExp(/.*\.[0-9]/)).test(item["->"])
+            ))
             parseLabel<T>(item.b, labelKey, shareData, res, addSwitchElemen, addSwitchElemen, addLabels, addChoiseIntoList, nestedId)
         }
     }
