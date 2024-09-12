@@ -1372,6 +1372,11 @@ test('Example: context-relevant content', async () => {
         labels: {}
     }
     let res = convertInkText(`
+VAR fear = 0
+VAR visited_poland = true
+VAR visited_snakes = true
+
+-> dream
 === dream ===
 	{
 		- visited_snakes && not dream_about_snakes:
