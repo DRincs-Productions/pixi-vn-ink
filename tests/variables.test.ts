@@ -1386,6 +1386,15 @@ test('Example: context-relevant content', async () => {
 			// breakfast-based dreams have no effect
 			-> dream_about_marmalade
 	}
+=== dream_about_snakes ===
+dream_about_snakes
+-> DONE
+=== dream_about_polish_beer ===
+dream_about_polish_beer
+-> DONE
+=== dream_about_marmalade ===
+dream_about_marmalade
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
