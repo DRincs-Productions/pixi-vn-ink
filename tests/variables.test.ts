@@ -1589,8 +1589,64 @@ dream_about_marmalade
  */
 test('Conditional blocks are not limited to logic', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            start: [
+                {
+                    dialogue: "I stared at Monsieur Fogg.",
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageType: "label",
+                            storageOperationType: "get",
+                            label: "know_about_wager",
+                        },
+                        then: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: " \"But surely you are not serious?\" I demanded.",
+                                },
+                            ],
+                        },
+                        else: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: " \"But there must be a reason for this trip,\" I observed.",
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    dialogue: "He said nothing in reply, merely considering his newspaper with as much thoroughness as entomologist considering his latest pinned addition.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            know_about_wager: [
+                {
+                    dialogue: "know_about_wager",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> start
@@ -1615,7 +1671,6 @@ know_about_wager
  */
 test('Conditional blocks are not limited to logic 2', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
