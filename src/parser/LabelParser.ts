@@ -74,6 +74,12 @@ export function parseLabel<T>(
                     if (value && typeof value === "object" && "^->" in value) {
                         value = (value as any)["^->"]
                     }
+                    if (choiseList.length > 1) {
+                        let arm = arithmeticParser(choiseList as any, labelKey)
+                        if (arm && typeof arm === "object" && "type" in arm && arm.type == "value" && "storageType" in arm && arm.storageType == "logic") {
+                            value = arm.operation as any
+                        }
+                    }
                     addElement(itemList, { typeOperation: "set", typeVar: "var", value: value as any, name: rootItem['VAR='] }, labelKey, isNewLine)
                 }
                 else if ("VAR?" in rootItem) {
@@ -102,7 +108,7 @@ export function parseLabel<T>(
                             }
                             varList = varList.reverse()
                             let value = arithmeticParser(varList as any, labelKey)
-                            if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "arithmetic") {
+                            if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "logic") {
                                 addElement(itemList, { typeOperation: "get", typeVar: "art", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine)
                             }
                             else {

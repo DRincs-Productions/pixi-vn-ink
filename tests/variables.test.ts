@@ -1368,8 +1368,188 @@ VAR x = 0
  */
 test('Example: context-relevant content', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "fear",
+                value: 0,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "visited_poland",
+                value: true,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "visited_snakes",
+                value: true,
+            },
+        ],
+        labels: {
+            dream: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "union",
+                            unionType: "and",
+                            conditions: [
+                                {
+                                    type: "value",
+                                    storageType: "storage",
+                                    storageOperationType: "get",
+                                    key: "visited_snakes",
+                                },
+                                {
+                                    type: "union",
+                                    unionType: "not",
+                                    condition: {
+                                        type: "value",
+                                        storageType: "label",
+                                        storageOperationType: "get",
+                                        label: "dream_about_snakes",
+                                    },
+                                },
+                            ],
+                        },
+                        then: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    goNextStep: true,
+                                    operation: [
+                                        {
+                                            type: "value",
+                                            storageOperationType: "set",
+                                            storageType: "storage",
+                                            key: "fear",
+                                            value: {
+                                                type: "arithmetic",
+                                                operator: "+",
+                                                rightValue: 1,
+                                                leftValue: {
+                                                    type: "value",
+                                                    storageType: "storage",
+                                                    storageOperationType: "get",
+                                                    key: "fear",
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                                {
+                                    labelToOpen: {
+                                        label: "dream_about_snakes",
+                                        type: "call",
+                                    },
+                                    glueEnabled: undefined,
+                                },
+                            ],
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "union",
+                                    unionType: "and",
+                                    conditions: [
+                                        {
+                                            type: "value",
+                                            storageType: "storage",
+                                            storageOperationType: "get",
+                                            key: "visited_poland",
+                                        },
+                                        {
+                                            type: "union",
+                                            unionType: "not",
+                                            condition: {
+                                                type: "value",
+                                                storageType: "label",
+                                                storageOperationType: "get",
+                                                label: "dream_about_polish_beer",
+                                            },
+                                        },
+                                    ],
+                                },
+                                then: {
+                                    type: "resulttocombine",
+                                    combine: "cross",
+                                    secondConditionalItem: [
+                                        {
+                                            goNextStep: true,
+                                            operation: [
+                                                {
+                                                    type: "value",
+                                                    storageOperationType: "set",
+                                                    storageType: "storage",
+                                                    key: "fear",
+                                                    value: {
+                                                        type: "arithmetic",
+                                                        operator: "-",
+                                                        rightValue: 1,
+                                                        leftValue: {
+                                                            type: "value",
+                                                            storageType: "storage",
+                                                            storageOperationType: "get",
+                                                            key: "fear",
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            labelToOpen: {
+                                                label: "dream_about_polish_beer",
+                                                type: "call",
+                                            },
+                                            glueEnabled: undefined,
+                                        },
+                                    ],
+                                },
+                                else: {
+                                    labelToOpen: {
+                                        label: "dream_about_marmalade",
+                                        type: "call",
+                                    },
+                                    glueEnabled: undefined,
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+            dream_about_snakes: [
+                {
+                    dialogue: "dream_about_snakes",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            dream_about_polish_beer: [
+                {
+                    dialogue: "dream_about_polish_beer",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            dream_about_marmalade: [
+                {
+                    dialogue: "dream_about_marmalade",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR fear = 0
