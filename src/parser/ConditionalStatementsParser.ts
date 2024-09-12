@@ -73,6 +73,14 @@ export function getConditionalValue<T>(
         if (Array.isArray(item)) {
             data.push(item)
         }
+        else if (typeof item === "string" && item === "du") {
+            if (shareData.du) {
+                condition.push(shareData.du)
+            }
+            else {
+                shareData.du = condition[condition.length - 1]
+            }
+        }
         else if (typeof item !== "string" || item !== "/ev") {
             condition.push(item)
         }
@@ -96,6 +104,7 @@ export function getConditionalValue<T>(
         ]
         elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
     }
+    shareData.du = undefined
     return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
 }
 

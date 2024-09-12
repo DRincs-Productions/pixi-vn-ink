@@ -1275,8 +1275,79 @@ VAR y = 0
  */
 test('Switch blocks', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "x",
+                value: 0,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: 0,
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "x",
+                            },
+                        },
+                        then: {
+                            dialogue: "zero",
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "compare",
+                                    operator: "==",
+                                    rightValue: 1,
+                                    leftValue: {
+                                        type: "value",
+                                        storageType: "storage",
+                                        storageOperationType: "get",
+                                        key: "x",
+                                    },
+                                },
+                                then: {
+                                    dialogue: "one",
+                                },
+                                else: {
+                                    conditionalStep: {
+                                        type: "ifelse",
+                                        condition: {
+                                            type: "compare",
+                                            operator: "==",
+                                            rightValue: 2,
+                                            leftValue: {
+                                                type: "value",
+                                                storageType: "storage",
+                                                storageOperationType: "get",
+                                                key: "x",
+                                            },
+                                        },
+                                        then: {
+                                            dialogue: "two",
+                                        },
+                                        else: {
+                                            dialogue: "lots",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR x = 0

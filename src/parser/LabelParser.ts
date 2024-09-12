@@ -10,7 +10,8 @@ import { getConditionalValue } from './ConditionalStatementsParser';
 import { parserSwitch } from './SwitchParser';
 
 export type ShareDataParserLabel = {
-    preDialog: { [label: string]: { text: string } }
+    preDialog: { [label: string]: { text: string } },
+    du?: any
 }
 export function parseLabel<T>(
     rootList: RootParserItemType[],
