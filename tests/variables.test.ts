@@ -1134,8 +1134,124 @@ VAR y = 0
  */
 test('Extended if/else if/else blocks', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "x",
+                value: 0,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "y",
+                value: 0,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: 0,
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "x",
+                            },
+                        },
+                        then: {
+                            goNextStep: true,
+                            operation: [
+                                {
+                                    type: "value",
+                                    storageOperationType: "set",
+                                    storageType: "storage",
+                                    key: "y",
+                                    value: 0,
+                                },
+                            ],
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "compare",
+                                    operator: ">",
+                                    rightValue: 0,
+                                    leftValue: {
+                                        type: "value",
+                                        storageType: "storage",
+                                        storageOperationType: "get",
+                                        key: "x",
+                                    },
+                                },
+                                then: {
+                                    goNextStep: true,
+                                    operation: [
+                                        {
+                                            type: "value",
+                                            storageOperationType: "set",
+                                            storageType: "storage",
+                                            key: "y",
+                                            value: {
+                                                type: "value",
+                                                storageType: "logic",
+                                                storageOperationType: "get",
+                                                operation: {
+                                                    type: "arithmetic",
+                                                    operator: "-",
+                                                    rightValue: 1,
+                                                    leftValue: {
+                                                        type: "value",
+                                                        storageType: "storage",
+                                                        storageOperationType: "get",
+                                                        key: "x",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                                else: {
+                                    goNextStep: true,
+                                    operation: [
+                                        {
+                                            type: "value",
+                                            storageOperationType: "set",
+                                            storageType: "storage",
+                                            key: "y",
+                                            value: {
+                                                type: "value",
+                                                storageType: "logic",
+                                                storageOperationType: "get",
+                                                operation: {
+                                                    type: "arithmetic",
+                                                    operator: "+",
+                                                    rightValue: 1,
+                                                    leftValue: {
+                                                        type: "value",
+                                                        storageType: "storage",
+                                                        storageOperationType: "get",
+                                                        key: "x",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 VAR x = 0

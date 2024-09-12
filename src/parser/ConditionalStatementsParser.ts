@@ -84,7 +84,18 @@ export function getConditionalValue<T>(
     }
 
     let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
-    let elseThen = data.length > 1 ? getThen(data[1] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId) : undefined
+    let elseThen = undefined
+    if (data.length === 2) {
+        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
+    }
+    else if (data.length > 2) {
+        data.shift()
+        data.push("nop" as any)
+        data = [
+            { "b": data } as any
+        ]
+        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
+    }
     return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
 }
 
@@ -100,7 +111,7 @@ function getThen<T>(
 
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
-            if (item.b.length > 2) {
+            if (item.b.length > 2 && item.b[item.b.length - 1] !== "nop") {
                 // remove the last 2 items
                 item.b.pop()
                 item.b.pop()
