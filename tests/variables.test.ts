@@ -1593,6 +1593,8 @@ test('Conditional blocks are not limited to logic', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+== start ==
 I stared at Monsieur Fogg.
 { know_about_wager:
 	<> "But surely you are not serious?" I demanded.
@@ -1600,6 +1602,10 @@ I stared at Monsieur Fogg.
 	<> "But there must be a reason for this trip," I observed.
 }
 He said nothing in reply, merely considering his newspaper with as much thoroughness as entomologist considering his latest pinned addition.
+-> DONE
+== know_about_wager
+know_about_wager
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1613,12 +1619,24 @@ test('Conditional blocks are not limited to logic 2', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+== start ==
 { door_open:
 	* 	I strode out of the compartment[] and I fancied I heard my master quietly tutting to himself. 			-> go_outside
 - else:
 	*	I asked permission to leave[] and Monsieur Fogg looked surprised. 	-> open_door
 	* 	I stood and went to open the door[]. Monsieur Fogg seemed untroubled by this small rebellion. -> open_door
 }
+-> DONE
+== door_open
+door_open
+-> DONE
+== go_outside
+go_outside
+-> DONE
+== open_door
+open_door
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1632,6 +1650,8 @@ test('Multiline blocks', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+== start ==
 // Sequence: go through the alternatives, and stick on last
 { stopping:
 	-	I entered the casino.
@@ -1660,6 +1680,7 @@ At the table, I drew a card. <>
 	- Would my luck hold?
 	- Could I win the hand?
 }
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1673,10 +1694,13 @@ test('Advanced: modified shuffles', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+== start ==
 { shuffle once:
 -	The sun was hot.
 - 	It was a hot day.
 }
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1690,11 +1714,14 @@ test('Advanced: modified shuffles 2', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+== start ==
 { shuffle stopping:
 - 	A silver BMW roars past.
 -	A bright yellow Mustang takes the turn.
 - 	There are like, cars, here.
 }
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1712,6 +1739,7 @@ test('Temporary variables are for scratch calculations', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> near_north_pole
 === near_north_pole ===
 	~ temp number_of_warm_things = 0
 	{ blanket:
@@ -1728,6 +1756,10 @@ test('Temporary variables are for scratch calculations', async () => {
 	- else:
 		That night I was colder than I have ever been.
 	}
+-> DONE
+VAR blanket = 0
+VAR ear_muffs = 0
+VAR gloves = 0
 `);
     expect(res).toEqual(expected);
 });
@@ -1741,6 +1773,8 @@ test('Knots and stitches can take parameters', async () => {
         labels: {}
     }
     let res = convertInkText(`
+-> start
+== start ==
 *	[Accuse Hasting]
 		-> accuse("Hastings")
 *	[Accuse Mrs Black]
@@ -1752,6 +1786,7 @@ test('Knots and stitches can take parameters', async () => {
 	"I accuse {who}!" Poirot declared.
 	"Really?" Japp replied. "{who == "myself":You did it?|{who}?}"
 	"And why not?" Poirot shot back.
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1830,6 +1865,11 @@ VAR current_chief_suspect = HASTINGS
 		~ current_chief_suspect = POIROT
 	}
 	Current Suspect: {current_chief_suspect}
+->DONE
+
+=== found_japps_bloodied_glove
+found_japps_bloodied_glove
+->DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1862,6 +1902,7 @@ VAR suitcase_location = HALLWAY
 	The secret agent moves forward.
 	~ secret_agent_location++
 }
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
