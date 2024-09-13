@@ -219,19 +219,21 @@ export function parseLabel<T>(
                 let varList = []
                 let type: "var" | "tempstorage" = "VAR=" in rootItem ? "var" : "tempstorage"
                 let name = "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp=']
-                choiseList.pop()
-                if (choiseList[choiseList.length - 1] == "/ev") {
+                if (name !== "$r") {
                     choiseList.pop()
+                    if (choiseList[choiseList.length - 1] == "/ev") {
+                        choiseList.pop()
+                    }
+                    while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
+                        varList.push(choiseList.pop())
+                    }
+                    varList = varList.reverse()
+                    let value = arithmeticParser(varList as any, labelKey)
+                    if (value !== undefined || value !== null) {
+                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
+                    }
+                    isNewLine = false
                 }
-                while (choiseList.length > 0 && choiseList[choiseList.length - 1] != "/ev") {
-                    varList.push(choiseList.pop())
-                }
-                varList = varList.reverse()
-                let value = arithmeticParser(varList as any, labelKey)
-                if (value !== undefined || value !== null) {
-                    addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
-                }
-                isNewLine = false
             }
             else {
                 addLabels(rootItem, labelKey, shareData)

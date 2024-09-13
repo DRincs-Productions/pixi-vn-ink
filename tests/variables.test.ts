@@ -1825,8 +1825,96 @@ open_door
  */
 test('Multiline blocks', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                dialogue: "I entered the casino.",
+                            },
+                            {
+                                dialogue: "I entered the casino again.",
+                            },
+                            {
+                                dialogue: "Once more, I went inside.",
+                            },
+                        ],
+                        choiceType: "sequential",
+                        end: undefined,
+                        nestedId: undefined,
+                    },
+                },
+                {
+                    dialogue: "At the table, I drew a card. ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                dialogue: "Ace of Hearts.",
+                            },
+                            {
+                                dialogue: "King of Spades.",
+                            },
+                            {
+                                type: "resulttocombine",
+                                combine: "cross",
+                                secondConditionalItem: [
+                                    {
+                                        dialogue: "2 of Diamonds.",
+                                    },
+                                    {
+                                        dialogue: "'You lose this time!' crowed the croupier.",
+                                    },
+                                ],
+                            },
+                        ],
+                        choiceType: "random",
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                dialogue: "I held my breath.",
+                            },
+                            {
+                                dialogue: "I waited impatiently.",
+                            },
+                            {
+                                dialogue: "I paused.",
+                            },
+                        ],
+                        choiceType: "loop",
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                dialogue: "Would my luck hold?",
+                            },
+                            {
+                                dialogue: "Could I win the hand?",
+                            },
+                        ],
+                        choiceType: "sequential",
+                        end: undefined,
+                        nestedId: undefined,
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> start
