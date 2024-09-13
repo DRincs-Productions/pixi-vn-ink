@@ -404,7 +404,6 @@ test('Examples', async () => {
 						label: "whack_a_mole",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"whack_a_mole_|_c-2": [
@@ -413,7 +412,6 @@ test('Examples', async () => {
 						label: "whack_a_mole",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"whack_a_mole_|_c-3": [
@@ -852,7 +850,6 @@ test('Conditional Text', async () => {
 						label: "met_blofeld",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"met_blofeld_|_c-1": [
@@ -861,7 +858,6 @@ test('Conditional Text', async () => {
 						label: "met_blofeld_|_learned_his_name",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"met_blofeld_|_c-2": [
@@ -909,7 +905,6 @@ test('Conditional Text', async () => {
 						then: {
 							dialogue: " \"I saw him. Only for a moment.\" ",
 						},
-						else: undefined,
 					},
 				},
 				{
@@ -1060,7 +1055,6 @@ test('Conditional Text', async () => {
 															},
 														],
 													},
-													else: undefined,
 												},
 											},
 										],
@@ -1076,7 +1070,6 @@ test('Conditional Text', async () => {
 								},
 							],
 						},
-						else: undefined,
 					},
 				},
 				{
