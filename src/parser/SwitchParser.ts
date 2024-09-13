@@ -28,14 +28,8 @@ export function parserSwitch<T>(
         if (item === "%") {
             type = "loop"
         }
-        if (item === "du") {
-            haveFixedEnd = false
-        }
         if (item === "seq") {
             type = "random"
-        }
-        if (item === "env") {
-            haveFixedEnd = true
         }
         if (typeof item === "number") {
         }
@@ -61,8 +55,8 @@ export function parserSwitch<T>(
                 })
             }
         }
-        else {
-            console.error("[Pixi’VN Ink] Unhandled case: value is not an array", value)
+        else if (Array.isArray(value) && value.length === 3) {
+            haveFixedEnd = false
         }
     })
 
