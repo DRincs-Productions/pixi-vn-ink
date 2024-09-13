@@ -1917,8 +1917,10 @@ test('Multiline blocks', async () => {
         }
     }
     let res = convertInkText(`
+VAR count = 0
 -> start
 == start ==
+res: 
 // Sequence: go through the alternatives, and stick on last
 { stopping:
 	-	I entered the casino.
@@ -1947,7 +1949,12 @@ At the table, I drew a card. <>
 	- Would my luck hold?
 	- Could I win the hand?
 }
--> DONE
+~ count++
+{ count > 5:
+-> END 
+- else: 
+-> start
+}
 `);
     expect(res).toEqual(expected);
 });
@@ -1957,17 +1964,43 @@ At the table, I drew a card. <>
  */
 test('Advanced: modified shuffles', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                dialogue: "The sun was hot.",
+                            },
+                            {
+                                dialogue: "It was a hot day.",
+                            },
+                        ],
+                        choiceType: "random",
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
+VAR count = 0
 -> start
 == start ==
+res: 
 { shuffle once:
 -	The sun was hot.
 - 	It was a hot day.
 }
--> DONE
+~ count++
+{ count > 5:
+-> END 
+- else: 
+-> start
+}
 `);
     expect(res).toEqual(expected);
 });
@@ -1977,18 +2010,47 @@ test('Advanced: modified shuffles', async () => {
  */
 test('Advanced: modified shuffles 2', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                dialogue: "A silver BMW roars past.",
+                            },
+                            {
+                                dialogue: "A bright yellow Mustang takes the turn.",
+                            },
+                            {
+                                dialogue: "There are like, cars, here.",
+                            },
+                        ],
+                        choiceType: "random",
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
+VAR count = 0
 -> start
 == start ==
+res: 
 { shuffle stopping:
 - 	A silver BMW roars past.
 -	A bright yellow Mustang takes the turn.
 - 	There are like, cars, here.
 }
--> DONE
+~ count++
+{ count > 5:
+-> END 
+- else: 
+-> start
+}
 `);
     expect(res).toEqual(expected);
 });
