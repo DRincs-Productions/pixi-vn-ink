@@ -1825,8 +1825,37 @@ open_door
  */
 test('Multiline blocks', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "count",
+                value: 0,
+            },
+        ],
         labels: {
+            "start_|_b": [
+                {
+                    labelToOpen: {
+                        label: "start",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_26",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
             start: [
+                {
+                    dialogue: "res:",
+                },
                 {
                     conditionalStep: {
                         type: "stepswitch",
@@ -1842,7 +1871,7 @@ test('Multiline blocks', async () => {
                             },
                         ],
                         choiceType: "sequential",
-                        end: undefined,
+                        end: "lastItem",
                         nestedId: undefined,
                     },
                 },
@@ -1911,7 +1940,40 @@ test('Multiline blocks', async () => {
                     },
                 },
                 {
-                    end: "label_end",
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "count",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "storage",
+                                    storageOperationType: "get",
+                                    key: "count",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_b",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_b",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
         }
@@ -1964,8 +2026,37 @@ At the table, I drew a card. <>
  */
 test('Advanced: modified shuffles', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "count",
+                value: 0,
+            },
+        ],
         labels: {
+            "start_|_b": [
+                {
+                    labelToOpen: {
+                        label: "start",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_17",
+                        type: "call",
+                    },
+                    glueEnabled: true,
+                },
+            ],
             start: [
+                {
+                    dialogue: "res:",
+                },
                 {
                     conditionalStep: {
                         type: "stepswitch",
@@ -1981,7 +2072,40 @@ test('Advanced: modified shuffles', async () => {
                     },
                 },
                 {
-                    end: "label_end",
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "count",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "storage",
+                                    storageOperationType: "get",
+                                    key: "count",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_b",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_b",
+                        type: "call",
+                    },
+                    glueEnabled: undefined,
                 },
             ],
         }
