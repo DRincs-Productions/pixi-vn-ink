@@ -158,7 +158,7 @@ export function parseLabel<T>(
             if (isConditionalText) {
                 conditionalList.push(rootItem)
             }
-            else if (rootItem.length > 2 && typeof rootItem[rootItem.length - 2] === "object" && rootItem[rootItem.length - 2] && "c" in (rootItem as any)[rootItem.length - 2]
+            else if (rootItem.length > 1 && typeof rootItem[rootItem.length - 2] === "object" && rootItem[rootItem.length - 2] && "c" in (rootItem as any)[rootItem.length - 2]
                 && typeof rootItem[rootItem.length - 1] === "object" && rootItem[rootItem.length - 1] && "b" in (rootItem as any)[rootItem.length - 1]
             ) {
                 choiseList.pop()

@@ -1835,23 +1835,6 @@ test('Multiline blocks', async () => {
             },
         ],
         labels: {
-            "start_|_b": [
-                {
-                    labelToOpen: {
-                        label: "start",
-                        type: "call",
-                    },
-                    glueEnabled: undefined,
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "start_|_26",
-                        type: "call",
-                    },
-                    glueEnabled: true,
-                },
-            ],
             start: [
                 {
                     dialogue: "res:",
@@ -1962,18 +1945,30 @@ test('Multiline blocks', async () => {
                     ],
                 },
                 {
-                    labelToOpen: {
-                        label: "start_|_b",
-                        type: "call",
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: 5,
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "count",
+                            },
+                        },
+                        then: {
+                            end: "game_end",
+                        },
+                        else: {
+                            labelToOpen: {
+                                label: "start",
+                                type: "call",
+                            },
+                            glueEnabled: undefined,
+                        },
                     },
-                    glueEnabled: undefined,
-                },
-                {
-                    labelToOpen: {
-                        label: "start_|_b",
-                        type: "call",
-                    },
-                    glueEnabled: undefined,
                 },
             ],
         }
@@ -2036,23 +2031,6 @@ test('Advanced: modified shuffles', async () => {
             },
         ],
         labels: {
-            "start_|_b": [
-                {
-                    labelToOpen: {
-                        label: "start",
-                        type: "call",
-                    },
-                    glueEnabled: undefined,
-                    goNextStep: true,
-                },
-                {
-                    labelToOpen: {
-                        label: "start_|_17",
-                        type: "call",
-                    },
-                    glueEnabled: true,
-                },
-            ],
             start: [
                 {
                     dialogue: "res:",
@@ -2068,7 +2046,9 @@ test('Advanced: modified shuffles', async () => {
                                 dialogue: "It was a hot day.",
                             },
                         ],
-                        choiceType: "random",
+                        choiceType: "sequentialrandom",
+                        end: undefined,
+                        nestedId: undefined,
                     },
                 },
                 {
@@ -2094,18 +2074,30 @@ test('Advanced: modified shuffles', async () => {
                     ],
                 },
                 {
-                    labelToOpen: {
-                        label: "start_|_b",
-                        type: "call",
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: 5,
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "count",
+                            },
+                        },
+                        then: {
+                            end: "game_end",
+                        },
+                        else: {
+                            labelToOpen: {
+                                label: "start",
+                                type: "call",
+                            },
+                            glueEnabled: undefined,
+                        },
                     },
-                    glueEnabled: undefined,
-                },
-                {
-                    labelToOpen: {
-                        label: "start_|_b",
-                        type: "call",
-                    },
-                    glueEnabled: undefined,
                 },
             ],
         }
@@ -2134,8 +2126,20 @@ res:
  */
 test('Advanced: modified shuffles 2', async () => {
     let expected: PixiVNJson = {
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "count",
+                value: 0,
+            },
+        ],
         labels: {
             start: [
+                {
+                    dialogue: "res:",
+                },
                 {
                     conditionalStep: {
                         type: "stepswitch",
@@ -2150,11 +2154,58 @@ test('Advanced: modified shuffles 2', async () => {
                                 dialogue: "There are like, cars, here.",
                             },
                         ],
-                        choiceType: "random",
+                        choiceType: "sequentialrandom",
+                        end: "lastItem",
+                        nestedId: undefined,
                     },
                 },
                 {
-                    end: "label_end",
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "count",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "storage",
+                                    storageOperationType: "get",
+                                    key: "count",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: 5,
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "count",
+                            },
+                        },
+                        then: {
+                            end: "game_end",
+                        },
+                        else: {
+                            labelToOpen: {
+                                label: "start",
+                                type: "call",
+                            },
+                            glueEnabled: undefined,
+                        },
+                    },
                 },
             ],
         }

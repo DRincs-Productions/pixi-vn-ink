@@ -21,7 +21,8 @@ export function parserSwitch<T>(
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
     let elements: PixiVNJsonStepSwitchElementsType<T> = []
-    let type: "random" | "sequential" | "loop" = "sequential"
+    let type: "random" | "sequential" | "loop" | "sequentialrandom" = "sequential"
+    let min: boolean = false
     let haveFixedEnd: boolean = true
 
     items.forEach((item) => {
@@ -30,6 +31,9 @@ export function parserSwitch<T>(
         }
         if (item === "seq") {
             type = "random"
+        }
+        if (item === "MIN") {
+            min = true
         }
         if (typeof item === "number") {
         }
@@ -65,6 +69,16 @@ export function parserSwitch<T>(
             type: "stepswitch",
             elements: elements,
             choiceType: type,
+            end: haveFixedEnd ? "lastItem" : undefined,
+            nestedId: nestedId,
+        }
+        return res
+    }
+    if (min && type === "random") {
+        let res: PixiVNJsonStepSwitch<T> = {
+            type: "stepswitch",
+            elements: elements,
+            choiceType: "sequentialrandom",
             end: haveFixedEnd ? "lastItem" : undefined,
             nestedId: nestedId,
         }
