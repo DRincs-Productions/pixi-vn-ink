@@ -2239,8 +2239,169 @@ res:
  */
 test('Temporary variables are for scratch calculations', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "blanket",
+                value: 0,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "ear_muffs",
+                value: 0,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "gloves",
+                value: 0,
+            },
+        ],
+        labels: {
+            near_north_pole: [
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "number_of_warm_things",
+                            value: 0,
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageType: "storage",
+                            storageOperationType: "get",
+                            key: "blanket",
+                        },
+                        then: {
+                            goNextStep: true,
+                            operation: [
+                                {
+                                    type: "value",
+                                    storageOperationType: "set",
+                                    storageType: "tempstorage",
+                                    key: "number_of_warm_things",
+                                    value: {
+                                        type: "arithmetic",
+                                        operator: "+",
+                                        rightValue: 1,
+                                        leftValue: {
+                                            type: "value",
+                                            storageType: "storage",
+                                            storageOperationType: "get",
+                                            key: "number_of_warm_things",
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageType: "storage",
+                            storageOperationType: "get",
+                            key: "ear_muffs",
+                        },
+                        then: {
+                            goNextStep: true,
+                            operation: [
+                                {
+                                    type: "value",
+                                    storageOperationType: "set",
+                                    storageType: "tempstorage",
+                                    key: "number_of_warm_things",
+                                    value: {
+                                        type: "arithmetic",
+                                        operator: "+",
+                                        rightValue: 1,
+                                        leftValue: {
+                                            type: "value",
+                                            storageType: "storage",
+                                            storageOperationType: "get",
+                                            key: "number_of_warm_things",
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageType: "storage",
+                            storageOperationType: "get",
+                            key: "gloves",
+                        },
+                        then: {
+                            goNextStep: true,
+                            operation: [
+                                {
+                                    type: "value",
+                                    storageOperationType: "set",
+                                    storageType: "tempstorage",
+                                    key: "number_of_warm_things",
+                                    value: {
+                                        type: "arithmetic",
+                                        operator: "+",
+                                        rightValue: 1,
+                                        leftValue: {
+                                            type: "value",
+                                            storageType: "storage",
+                                            storageOperationType: "get",
+                                            key: "number_of_warm_things",
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: 2,
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "number_of_warm_things",
+                            },
+                        },
+                        then: {
+                            dialogue: "Despite the snow, I felt incorrigibly snug.",
+                        },
+                        else: {
+                            dialogue: "That night I was colder than I have ever been.",
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> near_north_pole

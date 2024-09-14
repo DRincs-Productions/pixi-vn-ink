@@ -66,7 +66,9 @@ export function parseLabel<T>(
                     }
                     isNewLine = false
                 }
-                else if ("VAR=" in rootItem) {
+                else if ("VAR=" in rootItem || "temp=" in rootItem) {
+                    let type: "var" | "tempstorage" = "VAR=" in rootItem ? "var" : "tempstorage"
+                    let name = "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp=']
                     let value = rootList[index - 1]
                     if (value && typeof value === "string" && value == "/str") {
                         value = rootList[index - 2]
@@ -80,7 +82,7 @@ export function parseLabel<T>(
                             value = arm.operation as any
                         }
                     }
-                    addElement(itemList, { typeOperation: "set", typeVar: "var", value: value as any, name: rootItem['VAR='] }, labelKey, isNewLine)
+                    addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine)
                 }
                 else if ("VAR?" in rootItem) {
                     choiseList.push(rootItem)
