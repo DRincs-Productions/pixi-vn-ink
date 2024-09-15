@@ -2440,7 +2440,7 @@ test('Knots and stitches can take parameters', async () => {
                     labelToOpen: {
                         label: "accuse",
                         type: "call",
-                        param: ["Hastings"],
+                        params: ["Hastings"],
                     },
                     glueEnabled: undefined,
                 },
@@ -2450,7 +2450,7 @@ test('Knots and stitches can take parameters', async () => {
                     labelToOpen: {
                         label: "accuse",
                         type: "call",
-                        param: ["Claudia"],
+                        params: ["Claudia"],
                     },
                     glueEnabled: undefined,
                 },
@@ -2460,7 +2460,7 @@ test('Knots and stitches can take parameters', async () => {
                     labelToOpen: {
                         label: "accuse",
                         type: "call",
-                        param: ["myself"],
+                        params: ["myself"],
                     },
                     glueEnabled: undefined,
                 },

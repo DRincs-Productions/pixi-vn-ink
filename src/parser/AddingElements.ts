@@ -113,7 +113,7 @@ function addConditionalElementStep(
                             key: item["->"],
                         },
                         type: "call",
-                        param: item.params,
+                        params: item.params,
                     },
                     glueEnabled: glueEnabled,
                 })
@@ -124,7 +124,7 @@ function addConditionalElementStep(
                     labelToOpen: {
                         label: labelIdToOpen,
                         type: "call",
-                        param: item.params,
+                        params: item.params,
                     },
                     glueEnabled: glueEnabled,
                 })

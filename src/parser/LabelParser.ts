@@ -223,8 +223,8 @@ export function parseLabel<T>(
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(rootItem["->"])
             ) {
-                let param = getParam(envList)
-                rootItem["params"] = param
+                let params = getParam(envList)
+                rootItem["params"] = params
                 addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false
             }

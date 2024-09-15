@@ -5,7 +5,7 @@ export type StandardDivert = {
     /**
      * my property to store the parameters
      */
-    param?: any[]
+    params?: any[]
 }
 type DivertFunction = {
     "f()": string
