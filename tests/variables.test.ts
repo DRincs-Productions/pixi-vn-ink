@@ -2431,11 +2431,153 @@ VAR gloves = 0
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#knots-and-stitches-can-take-parameters
- * TODO: Implement
  */
 test('Knots and stitches can take parameters', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "accuse",
+                        type: "call",
+                        param: ["Hastings"],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-1": [
+                {
+                    labelToOpen: {
+                        label: "accuse",
+                        type: "call",
+                        param: ["Claudia"],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-2": [
+                {
+                    labelToOpen: {
+                        label: "accuse",
+                        type: "call",
+                        param: ["myself"],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            text: "Accuse Hasting",
+                            label: "start_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Accuse Mrs Black",
+                            label: "start_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Accuse myself",
+                            label: "start_|_c-2",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            accuse: [
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "params",
+                            key: 0,
+                            value: undefined,
+                        },
+                    ],
+                    glueEnabled: true,
+                },
+                {
+                    dialogue: "\"I accuse ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "params",
+                        storageOperationType: "get",
+                        key: 0,
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "!\" Poirot declared.",
+                },
+                {
+                    dialogue: "\"Really?\" Japp replied. \"",
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: "myself",
+                            leftValue: {
+                                type: "value",
+                                storageType: "params",
+                                storageOperationType: "get",
+                                key: 0,
+                            },
+                        },
+                        then: {
+                            dialogue: "You did it?",
+                        },
+                        else: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    dialogue: {
+                                        type: "value",
+                                        storageType: "params",
+                                        storageOperationType: "get",
+                                        key: 0,
+                                    },
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: "?",
+                                },
+                            ],
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "\"",
+                },
+                {
+                    dialogue: "\"And why not?\" Poirot shot back.",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> start
@@ -2453,7 +2595,7 @@ test('Knots and stitches can take parameters', async () => {
 	"And why not?" Poirot shot back.
 -> DONE
 `);
-    // TODO: expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**

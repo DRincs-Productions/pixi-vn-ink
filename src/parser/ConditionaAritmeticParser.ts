@@ -5,7 +5,8 @@ import { getLabelByStandardDivert } from "../utility/DivertUtility";
 
 export function conditionaAritmeticParser(
     list: any[],
-    labelKey: string
+    labelKey: string,
+    paramNames: string[]
 ) {
     list = list.map((item) => {
         if (typeof item === "string") {
@@ -70,12 +71,23 @@ export function conditionaAritmeticParser(
             }
         }
         else if (typeof item === "object" && "VAR?" in item) {
-            conditions.push({
-                type: "value",
-                storageType: "storage",
-                storageOperationType: "get",
-                key: item["VAR?"],
-            })
+            let paramIndex = paramNames.indexOf(item["VAR?"])
+            if (paramIndex >= 0) {
+                conditions.push({
+                    type: "value",
+                    storageType: "params",
+                    storageOperationType: "get",
+                    key: paramIndex,
+                })
+            }
+            else {
+                conditions.push({
+                    type: "value",
+                    storageType: "storage",
+                    storageOperationType: "get",
+                    key: item["VAR?"],
+                })
+            }
         }
         else if (item === "&&" || item === "||") {
             if (conditions.length < 2) {

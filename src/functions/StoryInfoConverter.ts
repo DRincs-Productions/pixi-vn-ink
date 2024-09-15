@@ -19,12 +19,16 @@ export function getInkLabel(story: (InkRootType | RootParserItemType | RootParse
     }
 }
 
-function findLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[], labels: PixiVNJsonLabels, sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = { externalSwitch: undefined }) {
+function findLabel(
+    story: (InkRootType | RootParserItemType | RootParserItemType[])[],
+    labels: PixiVNJsonLabels,
+    sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = { externalSwitch: undefined },
+) {
     for (const storyItem of story) {
         if (storyItem) {
             if (storyItem instanceof Array) {
                 if (storyItem.includes("visit")) {
-                    let item = parserSwitch<string>(storyItem as ConditionalList, addSwitchElemenText, (_storyItem, _dadLabelKey, _shareData) => { }, "", { preDialog: {} })
+                    let item = parserSwitch<string>(storyItem as ConditionalList, addSwitchElemenText, (_storyItem, _dadLabelKey, _shareData) => { }, "", { preDialog: {} }, [])
                     if (item) {
                         sharedVariables.externalSwitch = item
                     }

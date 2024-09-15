@@ -18,6 +18,7 @@ export function parserSwitch<T>(
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string = "",
     shareData: ShareDataParserLabel,
+    paramNames: string[],
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
     let elements: PixiVNJsonStepSwitchElementsType<T> = []
@@ -47,7 +48,7 @@ export function parserSwitch<T>(
             value = value.slice(1, value.length - 2)
             let itemList: T[] = []
 
-            parseLabel<T>(value, labelKey, shareData, itemList, addElement, addElement, addLabels, addChoiseIntoList, nestedId)
+            parseLabel<T>(value, labelKey, shareData, itemList, addElement, addElement, addLabels, addChoiseIntoList, nestedId, true, paramNames)
             if (itemList.length === 1) {
                 elements.push(itemList[0])
             }

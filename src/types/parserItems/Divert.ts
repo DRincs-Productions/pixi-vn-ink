@@ -2,6 +2,10 @@ export type StandardDivert = {
     "->": string
     "var"?: true
     c?: boolean
+    /**
+     * my property to store the parameters
+     */
+    param?: any[]
 }
 type DivertFunction = {
     "f()": string

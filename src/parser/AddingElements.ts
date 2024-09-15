@@ -49,23 +49,23 @@ function addConditionalElementStep(
         if (typeof item === "string") {
             list.push({ dialogue: item.substring(1) })
         }
-        else if (item.typeVar === "var") {
+        else if (item.typeVar === "logic") {
             list.push({
                 dialogue: {
                     type: "value",
-                    storageType: item.typeVar === "var" ? "storage" : "tempstorage",
+                    storageType: item.typeVar,
                     storageOperationType: "get",
-                    key: item.name,
+                    operation: item.value,
                 }
             })
         }
-        else if (item.typeVar === "art") {
+        else if (item.typeVar) {
             list.push({
                 dialogue: {
                     type: "value",
-                    storageType: "logic",
+                    storageType: item.typeVar,
                     storageOperationType: "get",
-                    operation: item.value,
+                    key: item.name,
                 }
             })
         }
@@ -109,10 +109,11 @@ function addConditionalElementStep(
                         label: {
                             type: "value",
                             storageOperationType: "get",
-                            storageType: "storage",
+                            storageType: "storage", // TODO: check if it's correct
                             key: item["->"],
                         },
                         type: "call",
+                        param: item.params,
                     },
                     glueEnabled: glueEnabled,
                 })
@@ -123,6 +124,7 @@ function addConditionalElementStep(
                     labelToOpen: {
                         label: labelIdToOpen,
                         type: "call",
+                        param: item.params,
                     },
                     glueEnabled: glueEnabled,
                 })
@@ -139,7 +141,7 @@ function addConditionalElementStep(
                     {
                         type: "value",
                         storageOperationType: "set",
-                        storageType: item.typeVar === "var" ? "storage" : "tempstorage",
+                        storageType: item.typeVar,
                         key: item.name,
                         value: value,
                     }

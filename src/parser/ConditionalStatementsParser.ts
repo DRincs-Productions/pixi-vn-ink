@@ -14,6 +14,7 @@ import { parseLabel, ShareDataParserLabel } from "./LabelParser";
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
     data: (ReadCount | NativeFunctions)[],
+    paramNames: string[],
     labelKey: string,
     elseThen?: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>
 ): undefined | PixiVNJsonConditionalStatements<T> {
@@ -21,7 +22,7 @@ export function parserConditionalStatements<T>(
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
         return undefined
     }
-    let conditions = conditionaAritmeticParser(data, labelKey)
+    let conditions = conditionaAritmeticParser(data, labelKey, paramNames)
     if (conditions.length === 0) {
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
     }
@@ -61,6 +62,7 @@ export function getConditionalValue<T>(
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,
+    paramNames: string[],
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalStatements<T> | undefined {
     if (preData.length === 0) {
@@ -92,10 +94,10 @@ export function getConditionalValue<T>(
         return undefined
     }
 
-    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then", shareData, nestedId)
+    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then", shareData, paramNames, nestedId)
     let elseThen = undefined
     if (data.length === 2) {
-        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, nestedId)
+        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, nestedId)
     }
     else if (data.length > 2) {
         data.shift()
@@ -103,10 +105,10 @@ export function getConditionalValue<T>(
         data = [
             { "b": data } as any
         ]
-        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, nestedId)
+        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, nestedId)
     }
     shareData.du = undefined
-    return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
+    return parserConditionalStatements<T>(then, condition, paramNames, labelKey, elseThen)
 }
 
 function getThen<T>(
@@ -115,6 +117,7 @@ function getThen<T>(
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,
+    paramNames: string[],
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {
     let res: T[] = []
@@ -124,7 +127,7 @@ function getThen<T>(
             item.b = item.b.filter((item) => item !== null && !(
                 typeof item === "object" && "->" in item && (new RegExp(/.*\.[0-9]/)).test(item["->"])
             ))
-            parseLabel<T>(item.b, labelKey, shareData, res, addSwitchElemen, addSwitchElemen, addLabels, addChoiseIntoList, nestedId)
+            parseLabel<T>(item.b, labelKey, shareData, res, addSwitchElemen, addSwitchElemen, addLabels, addChoiseIntoList, nestedId, true, paramNames)
         }
     }
     if (res.length === 1) {
