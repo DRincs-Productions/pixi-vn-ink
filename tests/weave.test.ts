@@ -887,7 +887,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -899,7 +899,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -914,7 +914,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -929,7 +929,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -948,7 +948,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -1026,7 +1026,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -1128,7 +1128,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-1_|_",
+						label: "start_|_g-1_|_g-2",
 						type: "call",
 					},
 					glueEnabled: undefined,
