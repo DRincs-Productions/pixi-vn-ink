@@ -2761,7 +2761,6 @@ test('Advanced: sending divert targets as parameters', async () => {
                             key: "waking",
                         },
                         type: "call",
-                        params: [],
                     },
                     glueEnabled: undefined,
                 },
