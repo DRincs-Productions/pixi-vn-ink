@@ -2808,7 +2808,57 @@ test('Global Constants', async () => {
                 value: "Hastings",
             },
         ],
-        labels: {}
+        labels: {
+            review_evidence: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageType: "label",
+                            storageOperationType: "get",
+                            label: "found_japps_bloodied_glove",
+                        },
+                        then: {
+                            goNextStep: true,
+                            operation: [
+                                {
+                                    type: "value",
+                                    storageOperationType: "set",
+                                    storageType: "storage",
+                                    key: "current_chief_suspect",
+                                    value: "Poirot",
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    dialogue: "Current Suspect: ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "current_chief_suspect",
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+            found_japps_bloodied_glove: [
+                {
+                    dialogue: "found_japps_bloodied_glove",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 CONST HASTINGS = "Hastings"
@@ -2836,8 +2886,102 @@ found_japps_bloodied_glove
  */
 test('Global Constants 2', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "secret_agent_location",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "suitcase_location",
+                value: 3,
+            },
+        ],
+        labels: {
+            report_progress: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "suitcase_location",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageType: "storage",
+                                storageOperationType: "get",
+                                key: "secret_agent_location",
+                            },
+                        },
+                        then: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    dialogue: "The secret agent grabs the suitcase!",
+                                },
+                                {
+                                    goNextStep: true,
+                                    operation: [
+                                        {
+                                            type: "value",
+                                            storageOperationType: "set",
+                                            storageType: "storage",
+                                            key: "suitcase_location",
+                                            value: -1,
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        else: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    dialogue: "The secret agent moves forward.",
+                                },
+                                {
+                                    goNextStep: true,
+                                    operation: [
+                                        {
+                                            type: "value",
+                                            storageOperationType: "set",
+                                            storageType: "storage",
+                                            key: "secret_agent_location",
+                                            value: {
+                                                type: "arithmetic",
+                                                operator: "+",
+                                                rightValue: 1,
+                                                leftValue: {
+                                                    type: "value",
+                                                    storageType: "storage",
+                                                    storageOperationType: "get",
+                                                    key: "secret_agent_location",
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 CONST LOBBY = 1

@@ -30,7 +30,7 @@
     "vitest": "^2.0.5"
   },
   "dependencies": {
-    "inkjs": "2.2.5"
+    "inkjs": "2.3.0"
   },
   "peerDependencies": {
     "@drincs/pixi-vn": ">=0.7.1"
