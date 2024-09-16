@@ -860,8 +860,8 @@ test('String queries', async () => {
                         operation: {
                             type: "compare",
                             operator: "==",
-                            leftValue: "Yes, please.",
                             rightValue: "Yes, please.",
+                            leftValue: "Yes, please.",
                         },
                     },
                 },
@@ -873,8 +873,8 @@ test('String queries', async () => {
                         operation: {
                             type: "compare",
                             operator: "!=",
-                            leftValue: "Yes, please.",
-                            rightValue: "No, thank you.",
+                            rightValue: "Yes, please.",
+                            leftValue: "No, thank you.",
                         },
                     },
                 },
@@ -888,8 +888,8 @@ test('String queries', async () => {
                                 {
                                     type: "compare",
                                     operator: "!=",
-                                    leftValue: "Yes, please.",
-                                    rightValue: "No, thank you.",
+                                    rightValue: "Yes, please.",
+                                    leftValue: "No, thank you.",
                                 },
                                 true,
                             ],
@@ -897,7 +897,6 @@ test('String queries', async () => {
                         then: {
                             dialogue: " a b ",
                         },
-                        else: undefined,
                     },
                 },
                 {
@@ -906,13 +905,12 @@ test('String queries', async () => {
                         condition: {
                             type: "compare",
                             operator: "CONTAINS",
-                            leftValue: "ease",
-                            rightValue: "Yes, please",
+                            rightValue: "ease",
+                            leftValue: "Yes, please",
                         },
                         then: {
                             dialogue: " \"then\" ",
                         },
-                        else: undefined,
                     },
                 },
                 {
