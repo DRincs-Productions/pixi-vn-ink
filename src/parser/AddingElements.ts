@@ -103,6 +103,9 @@ function addConditionalElementStep(
                 prevItem.goNextStep = true
                 list[list.length - 1] = prevItem
             }
+            if (item.params && item.params.length === 0) {
+                item.params = undefined
+            }
             if (item.var) {
                 list.push({
                     labelToOpen: {
