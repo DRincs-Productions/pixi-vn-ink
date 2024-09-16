@@ -6,7 +6,7 @@ import { ContainerTypeN } from '../types/parserItems/ContainerType';
 import { StandardDivert } from '../types/parserItems/Divert';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { MyVariableAssignment } from '../types/parserItems/VariableAssignment';
-import { getParam } from '../utility/ParamUtility';
+import { getParam } from '../utility/ValueUtility';
 import { getConditionalValue } from './ConditionalStatementsParser';
 import { parserSwitch } from './SwitchParser';
 
@@ -222,7 +222,10 @@ export function parseLabel<T>(
                 // {->: '.^.^.2.s'}
                 && !(new RegExp(/^\.\^\.\^\.\d\.s$/)).test(rootItem["->"])
             ) {
-                let params = getParam(envList)
+                let params = []
+                if (envList.length > 0) {
+                    params = getParam(["ev", ...envList], labelKey, paramNames)
+                }
                 rootItem["params"] = params
                 addElement(itemList, rootItem, labelKey, isNewLine)
                 isNewLine = false

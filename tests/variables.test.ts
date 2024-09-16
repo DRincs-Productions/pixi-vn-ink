@@ -2587,12 +2587,128 @@ test('Knots and stitches can take parameters', async () => {
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-a-recursive-knot-definition
- * TODO: Implement
  */
 test('Example: a recursive knot definition', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
-        labels: {}
+        labels: {
+            add_one_to_one_hundred: [
+                {
+                    goNextStep: true,
+                    operation: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "params",
+                            key: 1,
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "+",
+                                    rightValue: {
+                                        type: "value",
+                                        storageType: "params",
+                                        storageOperationType: "get",
+                                        key: 0,
+                                    },
+                                    leftValue: {
+                                        type: "value",
+                                        storageType: "params",
+                                        storageOperationType: "get",
+                                        key: 1,
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: 100,
+                            leftValue: {
+                                type: "value",
+                                storageType: "params",
+                                storageOperationType: "get",
+                                key: 0,
+                            },
+                        },
+                        then: {
+                            labelToOpen: {
+                                label: "finished",
+                                type: "call",
+                                params: [
+                                    {
+                                        type: "value",
+                                        storageType: "params",
+                                        storageOperationType: "get",
+                                        key: 1,
+                                    },
+                                ],
+                            },
+                            glueEnabled: undefined,
+                        },
+                        else: {
+                            labelToOpen: {
+                                label: "add_one_to_one_hundred",
+                                type: "call",
+                                params: [
+                                    {
+                                        type: "value",
+                                        storageType: "params",
+                                        storageOperationType: "get",
+                                        key: 1,
+                                    },
+                                    {
+                                        type: "arithmetic",
+                                        operator: "+",
+                                        rightValue: 1,
+                                        leftValue: {
+                                            type: "value",
+                                            storageType: "params",
+                                            storageOperationType: "get",
+                                            key: 0,
+                                        },
+                                    },
+                                ],
+                            },
+                            glueEnabled: undefined,
+                        },
+                    },
+                },
+            ],
+            finished: [
+                {
+                    dialogue: "\"The result is ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "params",
+                        storageOperationType: "get",
+                        key: 0,
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "!\" you announce.",
+                },
+                {
+                    dialogue: "Gauss stares at you in horror.",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 -> add_one_to_one_hundred(0, 1)
@@ -2610,7 +2726,7 @@ test('Example: a recursive knot definition', async () => {
 	Gauss stares at you in horror.
 	-> END
 `);
-    // TODO: expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
@@ -2618,7 +2734,6 @@ test('Example: a recursive knot definition', async () => {
  */
 test('Advanced: sending divert targets as parameters', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
         labels: {}
     }
     let res = convertInkText(`
