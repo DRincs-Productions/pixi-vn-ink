@@ -171,7 +171,10 @@ export function conditionaAritmeticParser(
             }
         }
         else if (typeof item === "object" && "^->" in item) {
-            conditions.push(item["^->"])
+            let i: string = item["^->"]
+            if (!i.includes("$r")) {
+                conditions.push(item["^->"])
+            }
         }
         else {
             conditions.push(item)

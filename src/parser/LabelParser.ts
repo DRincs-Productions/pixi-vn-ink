@@ -98,13 +98,18 @@ export function parseLabel<T>(
                             value = arm.operation as any
                         }
                     }
-                    addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine)
+                    if (typeof name !== "string" || !name.includes("$r")) {
+                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine)
+                    }
                 }
                 else if ("VAR?" in rootItem) {
                     envList.push(rootItem)
                 }
                 else if ("^->" in rootItem) {
-                    envList.push(rootItem)
+                    let i: string = rootItem["^->"] as any
+                    if (!i.includes("$r")) {
+                        envList.push(rootItem)
+                    }
                 }
             }
             else {
