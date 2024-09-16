@@ -2494,19 +2494,6 @@ test('Knots and stitches can take parameters', async () => {
             ],
             accuse: [
                 {
-                    goNextStep: true,
-                    operation: [
-                        {
-                            type: "value",
-                            storageOperationType: "set",
-                            storageType: "params",
-                            key: 0,
-                            value: undefined,
-                        },
-                    ],
-                    glueEnabled: true,
-                },
-                {
                     dialogue: "\"I accuse ",
                     glueEnabled: true,
                     goNextStep: true,

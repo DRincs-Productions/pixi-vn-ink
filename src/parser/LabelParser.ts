@@ -56,10 +56,9 @@ export function parseLabel<T>(
     }
     let firstItem = rootList[0]
     if (firstItem && typeof firstItem === "object" && "temp=" in firstItem) {
-        let index = 0
-        while (rootList[index] && typeof rootList[index] === "object" && "temp=" in (rootList[index] as any)) {
-            paramNames.push((rootList[index] as any)["temp="])
-            index++
+        while (rootList[0] && typeof rootList[0] === "object" && "temp=" in (rootList[0] as any)) {
+            paramNames.push((rootList[0] as any)["temp="])
+            rootList.shift()
         }
     }
     rootList.forEach((rootItem, index) => {
