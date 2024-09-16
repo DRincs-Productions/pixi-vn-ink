@@ -2734,7 +2734,46 @@ test('Example: a recursive knot definition', async () => {
  */
 test('Advanced: sending divert targets as parameters', async () => {
     let expected: PixiVNJson = {
-        labels: {}
+        labels: {
+            sleeping_in_hut: [
+                {
+                    dialogue: "You lie down and close your eyes.",
+                },
+                {
+                    labelToOpen: {
+                        label: "generic_sleep",
+                        type: "call",
+                        params: [
+                            "waking_in_the_hut",
+                        ],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            generic_sleep: [
+                {
+                    dialogue: "You sleep perchance to dream etc. etc.",
+                },
+                {
+                    labelToOpen: {
+                        label: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "waking",
+                        },
+                        type: "call",
+                        params: [],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            waking_in_the_hut: [
+                {
+                    dialogue: "You get back to your feet, ready to continue your journey.",
+                },
+            ],
+        }
     }
     let res = convertInkText(`
 === sleeping_in_hut ===
@@ -2760,7 +2799,15 @@ test('Advanced: sending divert targets as parameters', async () => {
  */
 test('Global Constants', async () => {
     let expected: PixiVNJson = {
-        initialOperations: [],
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "current_chief_suspect",
+                value: "Hastings",
+            },
+        ],
         labels: {}
     }
     let res = convertInkText(`

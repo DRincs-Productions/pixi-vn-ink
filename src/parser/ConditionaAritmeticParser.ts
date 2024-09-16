@@ -170,6 +170,9 @@ export function conditionaAritmeticParser(
                 conditions.push(item.substring(1))
             }
         }
+        else if (typeof item === "object" && "^->" in item) {
+            conditions.push(item["^->"])
+        }
         else {
             conditions.push(item)
         }

@@ -103,6 +103,9 @@ export function parseLabel<T>(
                 else if ("VAR?" in rootItem) {
                     envList.push(rootItem)
                 }
+                else if ("^->" in rootItem) {
+                    envList.push(rootItem)
+                }
             }
             else {
                 if (typeof rootItem === "string" && rootItem == "/ev") {

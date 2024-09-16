@@ -65,7 +65,7 @@ function addConditionalElementStep(
                     type: "value",
                     storageType: item.typeVar,
                     storageOperationType: "get",
-                    key: item.name,
+                    key: item.name as any,
                 }
             })
         }
@@ -141,8 +141,8 @@ function addConditionalElementStep(
                     {
                         type: "value",
                         storageOperationType: "set",
-                        storageType: item.typeVar,
-                        key: item.name,
+                        storageType: item.typeVar as any,
+                        key: item.name as any,
                         value: value,
                     }
                 ]
