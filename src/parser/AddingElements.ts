@@ -115,7 +115,7 @@ function addConditionalElementStep(
                             storageType: "storage", // TODO: check if it's correct
                             key: item["->"],
                         },
-                        type: "call",
+                        type: "jump",
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,
@@ -126,7 +126,7 @@ function addConditionalElementStep(
                 list.push({
                     labelToOpen: {
                         label: labelIdToOpen,
-                        type: "call",
+                        type: "jump",
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,

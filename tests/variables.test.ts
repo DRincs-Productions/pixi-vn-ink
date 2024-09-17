@@ -84,7 +84,7 @@ test('Advanced: storing diverts as variables', async () => {
                 {
                     labelToOpen: {
                         label: "more_hopeless_introspection",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -102,7 +102,7 @@ test('Advanced: storing diverts as variables', async () => {
                             storageType: "storage",
                             key: "current_epilogue",
                         },
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -117,14 +117,14 @@ test('Advanced: storing diverts as variables', async () => {
                             text: "Keep trying!",
                             label: "continue_or_quit_|_c-0",
                             props: {},
-                            type: "call",
+                            type: "jump",
                             oneTime: true,
                         },
                         {
                             text: "Give up",
                             label: "continue_or_quit_|_c-1",
                             props: {},
-                            type: "call",
+                            type: "jump",
                             oneTime: true,
                         },
                     ],
@@ -266,7 +266,7 @@ test('Evaluating strings', async () => {
                 {
                     labelToOpen: {
                         label: "start",
-                        type: "call",
+                        type: "jump",
                     },
                 },
             ],
@@ -285,7 +285,7 @@ test('Evaluating strings', async () => {
                             text: "restart",
                             label: "start_|_c-0",
                             props: {},
-                            type: "call",
+                            type: "jump",
                             oneTime: false,
                         },
                     ],
@@ -1445,7 +1445,7 @@ test('Example: context-relevant content', async () => {
                                 {
                                     labelToOpen: {
                                         label: "dream_about_snakes",
-                                        type: "call",
+                                        type: "jump",
                                     },
                                     glueEnabled: undefined,
                                 },
@@ -1505,7 +1505,7 @@ test('Example: context-relevant content', async () => {
                                         {
                                             labelToOpen: {
                                                 label: "dream_about_polish_beer",
-                                                type: "call",
+                                                type: "jump",
                                             },
                                             glueEnabled: undefined,
                                         },
@@ -1514,7 +1514,7 @@ test('Example: context-relevant content', async () => {
                                 else: {
                                     labelToOpen: {
                                         label: "dream_about_marmalade",
-                                        type: "call",
+                                        type: "jump",
                                     },
                                     glueEnabled: undefined,
                                 },
@@ -1683,7 +1683,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 {
                     labelToOpen: {
                         label: "go_outside",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -1701,7 +1701,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 {
                     labelToOpen: {
                         label: "open_door",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -1719,7 +1719,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 {
                     labelToOpen: {
                         label: "open_door",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -1740,7 +1740,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                                     text: "I strode out of the compartment",
                                     label: "start_|_then_|_c-0",
                                     props: {},
-                                    type: "call",
+                                    type: "jump",
                                     oneTime: true,
                                 },
                             ],
@@ -1751,14 +1751,14 @@ test('Conditional blocks are not limited to logic 2', async () => {
                                     text: "I asked permission to leave",
                                     label: "start_|_else_|_c-0",
                                     props: {},
-                                    type: "call",
+                                    type: "jump",
                                     oneTime: true,
                                 },
                                 {
                                     text: "I stood and went to open the door",
                                     label: "start_|_else_|_c-1",
                                     props: {},
-                                    type: "call",
+                                    type: "jump",
                                     oneTime: true,
                                 },
                             ],
@@ -1962,7 +1962,7 @@ test('Multiline blocks', async () => {
                         else: {
                             labelToOpen: {
                                 label: "start",
-                                type: "call",
+                                type: "jump",
                             },
                             glueEnabled: undefined,
                         },
@@ -2091,7 +2091,7 @@ test('Advanced: modified shuffles', async () => {
                         else: {
                             labelToOpen: {
                                 label: "start",
-                                type: "call",
+                                type: "jump",
                             },
                             glueEnabled: undefined,
                         },
@@ -2199,7 +2199,7 @@ test('Advanced: modified shuffles 2', async () => {
                         else: {
                             labelToOpen: {
                                 label: "start",
-                                type: "call",
+                                type: "jump",
                             },
                             glueEnabled: undefined,
                         },
@@ -2437,7 +2437,7 @@ test('Knots and stitches can take parameters', async () => {
                 {
                     labelToOpen: {
                         label: "accuse",
-                        type: "call",
+                        type: "jump",
                         params: ["Hastings"],
                     },
                     glueEnabled: undefined,
@@ -2447,7 +2447,7 @@ test('Knots and stitches can take parameters', async () => {
                 {
                     labelToOpen: {
                         label: "accuse",
-                        type: "call",
+                        type: "jump",
                         params: ["Claudia"],
                     },
                     glueEnabled: undefined,
@@ -2457,7 +2457,7 @@ test('Knots and stitches can take parameters', async () => {
                 {
                     labelToOpen: {
                         label: "accuse",
-                        type: "call",
+                        type: "jump",
                         params: ["myself"],
                     },
                     glueEnabled: undefined,
@@ -2470,21 +2470,21 @@ test('Knots and stitches can take parameters', async () => {
                             text: "Accuse Hasting",
                             label: "start_|_c-0",
                             props: {},
-                            type: "call",
+                            type: "jump",
                             oneTime: true,
                         },
                         {
                             text: "Accuse Mrs Black",
                             label: "start_|_c-1",
                             props: {},
-                            type: "call",
+                            type: "jump",
                             oneTime: true,
                         },
                         {
                             text: "Accuse myself",
                             label: "start_|_c-2",
                             props: {},
-                            type: "call",
+                            type: "jump",
                             oneTime: true,
                         },
                     ],
@@ -2639,7 +2639,7 @@ test('Example: a recursive knot definition', async () => {
                         then: {
                             labelToOpen: {
                                 label: "finished",
-                                type: "call",
+                                type: "jump",
                                 params: [
                                     {
                                         type: "value",
@@ -2654,7 +2654,7 @@ test('Example: a recursive knot definition', async () => {
                         else: {
                             labelToOpen: {
                                 label: "add_one_to_one_hundred",
-                                type: "call",
+                                type: "jump",
                                 params: [
                                     {
                                         type: "value",
@@ -2740,7 +2740,7 @@ test('Advanced: sending divert targets as parameters', async () => {
                 {
                     labelToOpen: {
                         label: "generic_sleep",
-                        type: "call",
+                        type: "jump",
                         params: [
                             "waking_in_the_hut",
                         ],
@@ -2760,7 +2760,7 @@ test('Advanced: sending divert targets as parameters', async () => {
                             storageType: "storage",
                             key: "waking",
                         },
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
