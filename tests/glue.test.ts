@@ -16,7 +16,7 @@ test('Diverts are invisible', async () => {
                 {
                     labelToOpen: {
                         label: "as_fast_as_we_could",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -53,7 +53,7 @@ test('Glue', async () => {
                 {
                     labelToOpen: {
                         label: "to_savile_row",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -65,7 +65,7 @@ test('Glue', async () => {
                 {
                     labelToOpen: {
                         label: "as_fast_as_we_could",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -114,7 +114,7 @@ test('Branching and joining', async () => {
                 {
                     labelToOpen: {
                         label: "hurry_outside",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -134,7 +134,7 @@ test('Branching and joining', async () => {
                 {
                     labelToOpen: {
                         label: "dragged_outside",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -143,7 +143,7 @@ test('Branching and joining', async () => {
                 {
                     labelToOpen: {
                         label: "hurry_outside",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -159,21 +159,21 @@ test('Branching and joining', async () => {
                             label: "back_in_london_|_c-0",
                             oneTime: true,
                             props: {},
-                            type: "call",
+                            type: "jump",
                         },
                         {
                             text: "\"Monsieur, let us savour this moment!\"",
                             label: "back_in_london_|_c-1",
                             oneTime: true,
                             props: {},
-                            type: "call",
+                            type: "jump",
                         },
                         {
                             text: "We hurried home",
                             label: "back_in_london_|_c-2",
                             oneTime: true,
                             props: {},
-                            type: "call",
+                            type: "jump",
                         },
                     ],
                 },
@@ -186,7 +186,7 @@ test('Branching and joining', async () => {
                 {
                     labelToOpen: {
                         label: "as_fast_as_we_could",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: true,
                 },
@@ -198,7 +198,7 @@ test('Branching and joining', async () => {
                 {
                     labelToOpen: {
                         label: "as_fast_as_we_could",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },

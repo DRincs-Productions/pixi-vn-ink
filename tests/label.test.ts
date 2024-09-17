@@ -12,7 +12,7 @@ test('Label test 1', async () => {
 				{
 					labelToOpen: {
 						label: "hurry_home",
-						type: "call",
+						type: "jump",
 					},
 				},
 			],
@@ -83,7 +83,7 @@ test('The first stitch is the default', async () => {
 				{
 					labelToOpen: {
 						label: "the_orient_express_|_in_first_class",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 				},
@@ -92,7 +92,7 @@ test('The first stitch is the default', async () => {
 				{
 					labelToOpen: {
 						label: "the_orient_express_|_in_second_class",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 				},
@@ -118,14 +118,14 @@ test('The first stitch is the default', async () => {
 							label: "the_orient_express_|_c-0",
 							oneTime: true,
 							props: {},
-							type: "call",
+							type: "jump",
 						},
 						{
 							text: "Second class",
 							label: "the_orient_express_|_c-1",
 							oneTime: true,
 							props: {},
-							type: "call",
+							type: "jump",
 						},
 					],
 				},
@@ -157,7 +157,7 @@ test('Local diverts', async () => {
 				{
 					labelToOpen: {
 						label: "the_orient_express_|_in_third_class",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 					goNextStep: undefined,
@@ -174,7 +174,7 @@ test('Local diverts', async () => {
 							label: "the_orient_express_|_in_first_class_|_c-0",
 							oneTime: true,
 							props: {},
-							type: "call",
+							type: "jump",
 						},
 					],
 				},
@@ -191,7 +191,7 @@ test('Local diverts', async () => {
 				{
 					labelToOpen: {
 						label: "the_orient_express_|_in_first_class",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 					goNextStep: undefined,

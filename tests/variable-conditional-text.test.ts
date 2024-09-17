@@ -12,7 +12,7 @@ test('Sequences (the default)', async () => {
 				{
 					labelToOpen: {
 						label: "loop",
-						type: "call",
+						type: "jump",
 					},
 				},
 			],
@@ -80,14 +80,14 @@ test('Sequences (the default)', async () => {
 							text: " Loop ",
 							label: "loop_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: " Exit ",
 							label: "loop_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 					],
@@ -114,7 +114,7 @@ test('Cycles (marked with a &)', async () => {
 				{
 					labelToOpen: {
 						label: "loop",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 				},
@@ -173,14 +173,14 @@ test('Cycles (marked with a &)', async () => {
 							text: " Loop ",
 							label: "loop_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: " Exit ",
 							label: "loop_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 					],
@@ -205,7 +205,7 @@ test('Once-only (marked with a !)', async () => {
 				{
 					labelToOpen: {
 						label: "loop",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 				},
@@ -252,14 +252,14 @@ test('Once-only (marked with a !)', async () => {
 							text: " Loop ",
 							label: "loop_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: " Exit ",
 							label: "loop_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 					],
@@ -284,7 +284,7 @@ test('Shuffles (marked with a ~)', async () => {
 				{
 					labelToOpen: {
 						label: "loop",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 				},
@@ -328,14 +328,14 @@ test('Shuffles (marked with a ~)', async () => {
 							text: " Loop ",
 							label: "loop_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: " Exit ",
 							label: "loop_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 					],
@@ -392,7 +392,7 @@ test('Examples', async () => {
 				{
 					labelToOpen: {
 						label: "whack_a_mole",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: true,
 				},
@@ -401,7 +401,7 @@ test('Examples', async () => {
 				{
 					labelToOpen: {
 						label: "whack_a_mole",
-						type: "call",
+						type: "jump",
 					},
 				},
 			],
@@ -409,7 +409,7 @@ test('Examples', async () => {
 				{
 					labelToOpen: {
 						label: "whack_a_mole",
-						type: "call",
+						type: "jump",
 					},
 				},
 			],
@@ -421,7 +421,7 @@ test('Examples', async () => {
 				{
 					labelToOpen: {
 						label: "whack_a_mole",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: true,
 				},
@@ -434,7 +434,7 @@ test('Examples', async () => {
 				{
 					labelToOpen: {
 						label: "whack_a_mole",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: true,
 				},
@@ -619,7 +619,7 @@ test('Examples', async () => {
 							],
 							label: "whack_a_mole_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: true,
 						},
 						{
@@ -633,7 +633,7 @@ test('Examples', async () => {
 							],
 							label: "whack_a_mole_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: true,
 						},
 						{
@@ -647,7 +647,7 @@ test('Examples', async () => {
 							],
 							label: "whack_a_mole_|_c-2",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: true,
 						},
 						{
@@ -661,7 +661,7 @@ test('Examples', async () => {
 							],
 							label: "whack_a_mole_|_c-3",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: true,
 						},
 						{
@@ -675,7 +675,7 @@ test('Examples', async () => {
 							],
 							label: "whack_a_mole_|_c-4",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: true,
 						},
 					],
@@ -712,7 +712,7 @@ test('Examples 2', async () => {
 				{
 					labelToOpen: {
 						label: "turn_on_television",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: true,
 				},
@@ -725,7 +725,7 @@ test('Examples 2', async () => {
 				{
 					labelToOpen: {
 						label: "go_outside_instead",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: true,
 				},
@@ -804,14 +804,14 @@ test('Examples 2', async () => {
 							text: "Try it again",
 							label: "turn_on_television_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: "Go outside instead",
 							label: "turn_on_television_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: true,
 						},
 					],
@@ -847,7 +847,7 @@ test('Conditional Text', async () => {
 				{
 					labelToOpen: {
 						label: "met_blofeld",
-						type: "call",
+						type: "jump",
 					},
 				},
 			],
@@ -855,7 +855,7 @@ test('Conditional Text', async () => {
 				{
 					labelToOpen: {
 						label: "met_blofeld_|_learned_his_name",
-						type: "call",
+						type: "jump",
 					},
 				},
 			],
@@ -874,7 +874,7 @@ test('Conditional Text', async () => {
 				{
 					labelToOpen: {
 						label: "met_blofeld",
-						type: "call",
+						type: "jump",
 					},
 					glueEnabled: undefined,
 				},
@@ -982,7 +982,7 @@ test('Conditional Text', async () => {
 								{
 									labelToOpen: {
 										label: "met_blofeld",
-										type: "call",
+										type: "jump",
 									},
 									glueEnabled: true,
 								},
@@ -1086,7 +1086,7 @@ test('Conditional Text', async () => {
 						else: {
 							labelToOpen: {
 								label: "met_blofeld_|_learned_his_name",
-								type: "call",
+								type: "jump",
 							},
 						},
 					},
@@ -1123,21 +1123,21 @@ test('Conditional Text', async () => {
 							text: " Loop ",
 							label: "met_blofeld_|_c-0",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: " learned_his_name ",
 							label: "met_blofeld_|_c-1",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 						{
 							text: " Exit ",
 							label: "met_blofeld_|_c-2",
 							props: {},
-							type: "call",
+							type: "jump",
 							oneTime: false,
 						},
 					],

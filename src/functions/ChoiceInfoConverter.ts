@@ -30,7 +30,7 @@ export function addChoiseIntoList<T>(
                 text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
-                type: "call",
+                type: "jump",
                 oneTime: value.onetime,
             }
             let choice = parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c
