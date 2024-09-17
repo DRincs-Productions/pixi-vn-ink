@@ -97,6 +97,7 @@ export function parseLabel<T>(
                     }
                     if (envList.length > 1) {
                         let arm = arithmeticParser(envList as any, labelKey, paramNames)
+                        envList = []
                         if (arm && typeof arm === "object" && "type" in arm && arm.type == "value" && "storageType" in arm && arm.storageType == "logic") {
                             value = arm.operation as any
                         }
@@ -144,6 +145,7 @@ export function parseLabel<T>(
                             }
                             varList = varList.reverse()
                             let value = arithmeticParser(varList as any, labelKey, paramNames)
+                            envList = []
                             if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "logic") {
                                 addElement(itemList, { typeOperation: "get", typeVar: "logic", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine)
                             }
@@ -275,6 +277,7 @@ export function parseLabel<T>(
                     }
                     varList = varList.reverse()
                     let value = arithmeticParser(varList as any, labelKey, paramNames)
+                    envList = []
                     if (value !== undefined || value !== null) {
                         addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
                     }
