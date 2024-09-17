@@ -1279,7 +1279,6 @@ test('Gathers and options can be labelled', async () => {
 								type: "call",
 								oneTime: true,
 							},
-							else: undefined,
 						},
 						{
 							text: "'Hmm?'",
@@ -1303,7 +1302,6 @@ test('Gathers and options can be labelled', async () => {
 								type: "call",
 								oneTime: true,
 							},
-							else: undefined,
 						},
 					],
 				},
