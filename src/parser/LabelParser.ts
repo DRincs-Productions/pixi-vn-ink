@@ -63,7 +63,10 @@ export function parseLabel<T>(
     }
     rootList.forEach((rootItem, index) => {
         if (isInEnv) {
-            if (rootItem && typeof rootItem === "object") {
+            if (Array.isArray(rootItem)) {
+                envList.push(rootItem)
+            }
+            else if (rootItem && typeof rootItem === "object") {
                 if ("CNT?" in rootItem) {
                     if (index > 0 && rootList[index - 1] == "ev") {
                         isConditionalText = true
