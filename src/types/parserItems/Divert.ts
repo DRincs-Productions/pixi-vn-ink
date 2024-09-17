@@ -1,11 +1,11 @@
 export type StandardDivert = {
     "->": string
+    "var"?: true
     c?: boolean
-}
-type DivertTarget = {
-    "->": string
-    "var": true
-    c?: boolean
+    /**
+     * my property to store the parameters
+     */
+    params?: any[]
 }
 type DivertFunction = {
     "f()": string
@@ -33,5 +33,5 @@ type DivertExternalFunction = {
  * 
  * Additionally, a "c" property set to true indicates that the divert is conditional, and should therefore pop a value off the evaluation stack to determine whether the divert should actually happen.
  */
-type Divert = StandardDivert | DivertTarget | DivertFunction | DivertTunnel | DivertExternalFunction
+type Divert = StandardDivert | DivertFunction | DivertTunnel | DivertExternalFunction
 export default Divert

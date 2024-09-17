@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonConditions, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
 import InkRootType from "../types/InkRootType";
@@ -7,12 +7,14 @@ import { StandardDivert } from "../types/parserItems/Divert";
 import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
-import { getLabelByStandardDivert } from "../utility/DivertUtility";
+import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
+import { conditionaAritmeticParser } from "./ConditionaAritmeticParser";
 import { parseLabel, ShareDataParserLabel } from "./LabelParser";
 
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
     data: (ReadCount | NativeFunctions)[],
+    paramNames: string[],
     labelKey: string,
     elseThen?: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>
 ): undefined | PixiVNJsonConditionalStatements<T> {
@@ -20,123 +22,24 @@ export function parserConditionalStatements<T>(
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
         return undefined
     }
-    let conditions: PixiVNJsonConditions[] = []
-    data.forEach((item) => {
-        if (typeof item === "object" && "CNT?" in item) {
-            if ((new RegExp(/.*\.[0-9]\..*/)).test(item["CNT?"])) {
-                let items = item["CNT?"].split(".")
-                // remove the last element
-                let end = items.pop()
-                let stringNumber = items.pop()
-                if (stringNumber === undefined || end === undefined) {
-                    console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-                    return
-                }
-                let number = parseInt(stringNumber)
-                let label = items.join(".")
-                if (label.includes("^.")) {
-                    let labelArray = label.split(".")
-                    let end2 = labelArray[labelArray.length - 1].replace(".", CHOISE_LABEL_KEY_SEPARATOR)
-                    labelArray.pop()
-                    label = labelArray.join(".") + "." + end2
-                    if (end.includes("c-")) {
-                        label = label + CHOISE_LABEL_KEY_SEPARATOR + end
-                    }
-                }
-                else {
-                    label = label.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
-                }
-                conditions.push({
-                    type: "compare",
-                    leftValue: {
-                        type: "value",
-                        storageType: "label",
-                        storageOperationType: "get",
-                        valueType: "biggeststep",
-                        label: getLabelByStandardDivert(label, labelKey),
-                    },
-                    operator: ">=",
-                    rightValue: {
-                        type: "value",
-                        value: number,
-                    },
-                })
-            }
-            else {
-                conditions.push({
-                    type: "value",
-                    storageType: "label",
-                    storageOperationType: "get",
-                    label: getLabelByStandardDivert(item["CNT?"], labelKey),
-                })
-            }
-        }
-        else if (item === "&&" || item === "||") {
-            if (conditions.length < 2) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-            }
-            else {
-                let i: PixiVNJsonConditions = {
-                    type: "union",
-                    unionType: item === "&&" ? "and" : "or",
-                    conditions: [
-                        conditions[conditions.length - 2],
-                        conditions[conditions.length - 1]
-                    ]
-                }
-                // remove last two elements
-                conditions.pop()
-                conditions.pop()
-                conditions.push(i)
-            }
-        }
-        else if (item === "!") {
-            if (conditions.length === 0) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-            }
-            else {
-                let i: PixiVNJsonConditions = {
-                    type: "union",
-                    unionType: "not",
-                    condition: conditions[conditions.length - 1]
-                }
-                conditions[conditions.length - 1] = i
-            }
-        }
-        else if (item === "==" || item === "!=" || item === "<" || item === "<=" || item === ">" || item === ">=") {
-            if (conditions.length < 2) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-            }
-            else {
-                let i: PixiVNJsonConditions = {
-                    type: "compare",
-                    operator: item,
-                    leftValue: conditions[conditions.length - 1],
-                    rightValue: conditions[conditions.length - 2]
-                }
-                // remove last two elements
-                conditions.pop()
-                conditions.pop()
-                conditions.push(i)
-            }
-        }
-        else {
-            conditions.push(item)
-        }
-    })
+    let conditions = conditionaAritmeticParser(data, labelKey, paramNames)
     if (conditions.length === 0) {
         console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
     }
     else if (conditions.length === 1) {
-        return {
+        let res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: conditions[0],
             then: then,
             else: elseThen
         }
+        if (!res.else) {
+            delete res.else
+        }
+        return res
     }
     else {
-        return {
+        let res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: {
                 type: "union",
@@ -146,15 +49,20 @@ export function parserConditionalStatements<T>(
             then: then,
             else: elseThen
         }
+        if (!res.else) {
+            delete res.else
+        }
+        return res
     }
 }
 
 export function getConditionalValue<T>(
     preData: (ReadCount | (StandardDivert | Cond)[])[],
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,
+    paramNames: string[],
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalStatements<T> | undefined {
     if (preData.length === 0) {
@@ -168,6 +76,14 @@ export function getConditionalValue<T>(
         if (Array.isArray(item)) {
             data.push(item)
         }
+        else if (typeof item === "string" && item === "du") {
+            if (shareData.du) {
+                condition.push(shareData.du)
+            }
+            else {
+                shareData.du = condition[condition.length - 1]
+            }
+        }
         else if (typeof item !== "string" || item !== "/ev") {
             condition.push(item)
         }
@@ -178,29 +94,40 @@ export function getConditionalValue<T>(
         return undefined
     }
 
-    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId)
-    let elseThen = data.length > 1 ? getThen(data[1] as any, addSwitchElemen, addLabels, labelKey, shareData, nestedId) : undefined
-    return parserConditionalStatements<T>(then, condition, labelKey, elseThen)
+    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then", shareData, paramNames, nestedId)
+    let elseThen = undefined
+    if (data.length === 2) {
+        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, nestedId)
+    }
+    else if (data.length > 2) {
+        data.shift()
+        data.push("nop" as any)
+        data = [
+            { "b": data } as any
+        ]
+        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, nestedId)
+    }
+    shareData.du = undefined
+    return parserConditionalStatements<T>(then, condition, paramNames, labelKey, elseThen)
 }
 
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,
+    paramNames: string[],
     nestedId: string | undefined = undefined
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {
     let res: T[] = []
 
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
-            if (item.b.length > 2) {
-                // remove the last 2 items
-                item.b.pop()
-                item.b.pop()
-            }
-            parseLabel<T>(item.b, labelKey, shareData, res, addSwitchElemen, addSwitchElemen, addLabels, addChoiseIntoList, nestedId)
+            item.b = item.b.filter((item) => item !== null && !(
+                typeof item === "object" && "->" in item && (new RegExp(/.*\.[0-9]/)).test(item["->"])
+            ))
+            parseLabel<T>(item.b, labelKey, shareData, res, addSwitchElemen, addSwitchElemen, addLabels, addChoiseIntoList, nestedId, true, paramNames)
         }
     }
     if (res.length === 1) {

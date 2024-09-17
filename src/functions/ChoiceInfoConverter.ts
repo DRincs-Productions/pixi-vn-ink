@@ -18,10 +18,11 @@ export function addChoiseIntoList<T>(
     itemList: (T | PixiVNJsonConditionalStatements<T>)[],
     labelKey: string,
     shareData: ShareDataParserLabel,
+    paramNames: string[]
 ) {
     if (choiseList.length > 0) {
         let choices: LabelChoiceRes = {}
-        getLabelChoice(choiseList as any, choices)
+        getLabelChoice(choiseList as any, choices, paramNames)
         for (const [key, value] of Object.entries(choices)) {
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
@@ -32,7 +33,7 @@ export function addChoiseIntoList<T>(
                 type: "call",
                 oneTime: value.onetime,
             }
-            let choice = parserConditionalStatements(c, value.conditions, labelKey) || c
+            let choice = parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c
             let prevItem = itemList[itemList.length - 1]
             if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
                 prevItem = {
@@ -65,7 +66,12 @@ export function addChoiseIntoList<T>(
     }
 }
 
-export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[], result: LabelChoiceRes, lastLabel?: string) {
+export function getLabelChoice(
+    items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[],
+    result: LabelChoiceRes,
+    paramNames: string[],
+    lastLabel?: string
+) {
     let text: (string | PixiVNJsonConditionalStatements<string>)[] = []
     let label: string = ""
     let preDialog: string = ""
@@ -83,7 +89,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
             }
         }
         else if (Array.isArray(rootItem) && rootItem.includes("visit")) {
-            let secondConditionalItem = parserSwitch<string>(rootItem, addSwitchElemenText, (_storyItem, _dadLabelKey, _shareData) => { }, lastLabel, { preDialog: {} })
+            let secondConditionalItem = parserSwitch<string>(rootItem, addSwitchElemenText, (_storyItem, _dadLabelKey, _shareData) => { }, lastLabel, { preDialog: {} }, paramNames)
             text.push(secondConditionalItem)
         }
         else if (rootItem && typeof rootItem === "object") {
@@ -130,7 +136,7 @@ export function getLabelChoice(items: (TextType | ReadCount | NativeFunctions | 
             }
             // split text and label
             let newListItem = items.slice(index + 1)
-            getLabelChoice(newListItem, result, label)
+            getLabelChoice(newListItem, result, paramNames, label)
             return
         }
     }

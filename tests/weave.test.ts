@@ -499,7 +499,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -511,7 +511,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -523,7 +523,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -887,7 +887,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -899,7 +899,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -914,7 +914,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -929,7 +929,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -948,7 +948,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -1026,7 +1026,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -1128,7 +1128,7 @@ test('Example: a conversation with nested nodes', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-1_|_",
+						label: "start_|_g-1_|_g-2",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -1279,7 +1279,6 @@ test('Gathers and options can be labelled', async () => {
 								type: "call",
 								oneTime: true,
 							},
-							else: undefined,
 						},
 						{
 							text: "'Hmm?'",
@@ -1303,7 +1302,6 @@ test('Gathers and options can be labelled', async () => {
 								type: "call",
 								oneTime: true,
 							},
-							else: undefined,
 						},
 					],
 				},
@@ -1808,7 +1806,6 @@ test('Advanced: Loops in a weave', async () => {
 								type: "call",
 								oneTime: true,
 							},
-							else: undefined,
 						},
 					],
 				},
@@ -1838,14 +1835,13 @@ test('Advanced: Loops in a weave', async () => {
 									label: "fight_guard_|_opts",
 									type: "call",
 								},
-								glueEnabled: undefined,
 							},
 							{
 								dialogue: " ",
 							},
 						],
 						choiceType: "sequential",
-						end: undefined,
+						end: "lastItem",
 						nestedId: undefined,
 					},
 				},

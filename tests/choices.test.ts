@@ -531,7 +531,6 @@ test('Conditional Choices', async () => {
 						label: "visit_paris",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"visit_paris_|_c-1": [
@@ -540,7 +539,6 @@ test('Conditional Choices', async () => {
 						label: "visit_paris",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"visit_paris_|_c-2": [
@@ -549,7 +547,6 @@ test('Conditional Choices', async () => {
 						label: "phone_estelle",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"visit_paris_|_c-3": [
@@ -558,7 +555,6 @@ test('Conditional Choices', async () => {
 						label: "bored_of_paris",
 						type: "call",
 					},
-					glueEnabled: undefined,
 				},
 			],
 			"visit_paris_|_met_estelle": [
@@ -761,8 +757,8 @@ test('Conditional Choices', async () => {
 							condition: {
 								type: "compare",
 								operator: ">",
-								leftValue: 3,
-								rightValue: {
+								rightValue: 3,
+								leftValue: {
 									type: "value",
 									storageType: "label",
 									storageOperationType: "get",

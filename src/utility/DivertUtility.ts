@@ -3,21 +3,28 @@ import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant"
 export function getLabelByStandardDivert(divertName: string, labelKey: string): string {
     // start.0.g-1
     if (
-        !(new RegExp(/^\.\^.*$/)).test(divertName)
-        && divertName.includes("g-")
+        (new RegExp(/.*\.[0-9]+\..*$/)).test(divertName)
     ) {
-        return getLabelByStandardDivertInternal(labelKey) + CHOISE_LABEL_KEY_SEPARATOR + "g-" + divertName.split("g-")[1]
-    }
-
-    let counter = 0
-
-    if ((new RegExp(/.*\.[0-9]\..*/)).test(divertName)) {
         // remove .number. with regex
         let items = divertName.split(".").filter((item) => {
             return !item.match(/^[0-9]+$/)
         })
         divertName = items.join(".")
+        if (!divertName.startsWith(".")) {
+            return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+        }
     }
+
+    // start_|_g-0
+    if (
+        !(new RegExp(/^\.\^.*$/)).test(divertName)
+        && divertName.includes("g-")
+    ) {
+        let list = divertName.split("g-")
+        return getLabelByStandardDivertInternal(labelKey) + CHOISE_LABEL_KEY_SEPARATOR + "g-" + list[list.length - 1]
+    }
+
+    let counter = 0
 
     while ((new RegExp(/^\.\^.*$/)).test(divertName)) {
         counter++
@@ -39,7 +46,10 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
 function getLabelByStandardDivertInternal(labelKey: string, counter: number = 0): string {
     let array = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR)
     while (array.length > 1 && counter > 0) {
-        array.pop()
+        let i = array.pop()
+        if (i?.includes("g-")) {
+            counter--
+        }
         counter--
     }
     return array.join(CHOISE_LABEL_KEY_SEPARATOR)

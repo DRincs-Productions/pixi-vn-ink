@@ -7,34 +7,34 @@ import { StandardDivert } from "../types/parserItems/Divert"
 import NativeFunctions from "../types/parserItems/NativeFunctions"
 import RootParserItemType from "../types/parserItems/RootParserItemType"
 import TextType from "../types/parserItems/TextType"
+import { MyVariableAssignment } from "../types/parserItems/VariableAssignment"
 import { parseLabel, ShareDataParserLabel } from "./LabelParser"
 
 export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | ContainerTypeF)[]
 
 export function parserSwitch<T>(
     items: ConditionalList,
-    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T>, labelKey: string) => void,
+    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string = "",
     shareData: ShareDataParserLabel,
+    paramNames: string[],
     nestedId: string | undefined = undefined
 ): PixiVNJsonStepSwitch<T> {
     let elements: PixiVNJsonStepSwitchElementsType<T> = []
-    let type: "random" | "sequential" | "loop" = "sequential"
+    let type: "random" | "sequential" | "loop" | "sequentialrandom" = "sequential"
+    let min: boolean = false
     let haveFixedEnd: boolean = true
 
     items.forEach((item) => {
         if (item === "%") {
             type = "loop"
         }
-        if (item === "du") {
-            haveFixedEnd = false
-        }
         if (item === "seq") {
             type = "random"
         }
-        if (item === "env") {
-            haveFixedEnd = true
+        if (item === "MIN") {
+            min = true
         }
         if (typeof item === "number") {
         }
@@ -48,7 +48,7 @@ export function parserSwitch<T>(
             value = value.slice(1, value.length - 2)
             let itemList: T[] = []
 
-            parseLabel<T>(value, labelKey, shareData, itemList, addElement, addElement, addLabels, addChoiseIntoList, nestedId)
+            parseLabel<T>(value, labelKey, shareData, itemList, addElement, addElement, addLabels, addChoiseIntoList, nestedId, true, paramNames)
             if (itemList.length === 1) {
                 elements.push(itemList[0])
             }
@@ -60,8 +60,8 @@ export function parserSwitch<T>(
                 })
             }
         }
-        else {
-            console.error("[Pixi’VN Ink] Unhandled case: value is not an array", value)
+        else if (Array.isArray(value) && value.length === 3) {
+            haveFixedEnd = false
         }
     })
 
@@ -70,6 +70,16 @@ export function parserSwitch<T>(
             type: "stepswitch",
             elements: elements,
             choiceType: type,
+            end: haveFixedEnd ? "lastItem" : undefined,
+            nestedId: nestedId,
+        }
+        return res
+    }
+    if (min && type === "random") {
+        let res: PixiVNJsonStepSwitch<T> = {
+            type: "stepswitch",
+            elements: elements,
+            choiceType: "sequentialrandom",
             end: haveFixedEnd ? "lastItem" : undefined,
             nestedId: nestedId,
         }

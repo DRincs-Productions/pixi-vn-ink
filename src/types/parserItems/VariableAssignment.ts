@@ -1,3 +1,5 @@
+import { PixiVNJsonArithmeticOperations, PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn"
+
 type VariableAssignmentVar = {
     "VAR=": any
     "re": true
@@ -17,3 +19,27 @@ type VariableAssignmentTem = {
  */
 type VariableAssignment = VariableAssignmentVar | VariableAssignmentTem
 export default VariableAssignment
+
+export type MyVariableAssignment = {
+    typeVar: "storage" | "tempstorage",
+    typeOperation: "set",
+    name: string,
+    value: StorageElementType | PixiVNJsonValueGet
+} | {
+    typeVar: "params",
+    typeOperation: "set",
+    name: number,
+    value: StorageElementType | PixiVNJsonValueGet
+} | {
+    typeVar: "storage" | "tempstorage",
+    typeOperation: "get",
+    name: string,
+} | {
+    typeVar: "params",
+    typeOperation: "get",
+    name: number,
+} | {
+    typeVar: "logic",
+    typeOperation: "get",
+    value: PixiVNJsonArithmeticOperations
+}
