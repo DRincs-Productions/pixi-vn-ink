@@ -499,7 +499,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -511,7 +511,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,
@@ -523,7 +523,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					labelToOpen: {
-						label: "start_|_g-0",
+						label: "start_|_g-0_|_c-0_|_g-0",
 						type: "call",
 					},
 					glueEnabled: undefined,

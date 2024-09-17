@@ -9,8 +9,10 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         let items = divertName.split(".").filter((item) => {
             return !item.match(/^[0-9]+$/)
         })
-        divertName = items.join(CHOISE_LABEL_KEY_SEPARATOR)
-        return divertName
+        divertName = items.join(".")
+        if (!divertName.startsWith(".")) {
+            return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+        }
     }
 
     // start_|_g-0
