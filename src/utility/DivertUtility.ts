@@ -6,7 +6,8 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         !(new RegExp(/^\.\^.*$/)).test(divertName)
         && divertName.includes("g-")
     ) {
-        return getLabelByStandardDivertInternal(labelKey) + CHOISE_LABEL_KEY_SEPARATOR + "g-" + divertName.split("g-")[1]
+        let list = divertName.split("g-")
+        return getLabelByStandardDivertInternal(labelKey) + CHOISE_LABEL_KEY_SEPARATOR + "g-" + list[list.length - 1]
     }
 
     let counter = 0
