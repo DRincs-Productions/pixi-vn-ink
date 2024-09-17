@@ -1084,21 +1084,10 @@ test('Conditional Text', async () => {
 							dialogue: " \"OK\" ",
 						},
 						else: {
-							type: "resulttocombine",
-							combine: "cross",
-							secondConditionalItem: [
-								{
-									dialogue: " ",
-									goNextStep: true,
-								},
-								{
-									labelToOpen: {
-										label: "met_blofeld_|_learned_his_name",
-										type: "call",
-									},
-									glueEnabled: true,
-								},
-							],
+							labelToOpen: {
+								label: "met_blofeld_|_learned_his_name",
+								type: "call",
+							},
 						},
 					},
 				},
