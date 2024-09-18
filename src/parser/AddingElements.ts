@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { getCharacterById, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
@@ -47,7 +47,7 @@ function addConditionalElementStep(
             list[list.length - 1] = prevItem
         }
         if (typeof item === "string") {
-            list.push({ dialogue: item.substring(1) })
+            list.push(getDialog(item))
         }
         else if (item.typeVar === "logic") {
             list.push({
@@ -151,5 +151,30 @@ function addConditionalElementStep(
                 ]
             })
         }
+    }
+}
+
+function getDialog(text: string): PixiVNJsonLabelStep {
+    text = text.substring(1)
+    let character: string | undefined = undefined
+    if (text.includes(": ")) {
+        let parts = text.split(": ")
+        let c = parts[0]
+        let t = parts[1]
+        if (getCharacterById(c)) {
+            character = c
+            text = t
+        }
+    }
+    if (character) {
+        return {
+            dialogue: {
+                character: character,
+                text: text,
+            }
+        }
+    }
+    return {
+        dialogue: text
     }
 }
