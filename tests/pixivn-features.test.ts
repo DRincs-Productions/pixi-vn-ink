@@ -103,3 +103,14 @@ hello
 `);
     expect(res).toEqual(expected);
 });
+
+test('edit image', async () => {
+    let expected: PixiVNJson = {}
+    let res = convertInkText(`
+=== start
+#edit image bg x 20 y 30
+hello
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});

@@ -43,7 +43,8 @@ function addConditionalElementStep(
             let i = getOperationFromComment(item)
             if (i) {
                 list.push({
-                    operation: [i]
+                    operation: [i],
+                    goNextStep: true,
                 })
             }
         }
