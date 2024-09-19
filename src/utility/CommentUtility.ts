@@ -3,6 +3,7 @@ import PixiVNJsonMediaTransiotions from "@drincs/pixi-vn/dist/interface/PixiVNJs
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
+const QUOTES_CONVERTER = "§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
@@ -10,24 +11,56 @@ const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 export function getOperationFromComment(comment: string): PixiVNJsonOperation | undefined {
     try {
         comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
+        comment = comment.replaceAll("\\\'", QUOTES_CONVERTER);
         comment = comment.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
         comment = comment.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
         comment = comment.replaceAll("{", " { ");
         comment = comment.replaceAll("}", " } ");
         comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
         comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
-        let list = comment.split("\"")
+        let list: string[] = []
+        // for string characters
+        let startComment: "\"" | "\'" | undefined = undefined;
+        let temp = "";
+        for (let i = 0; i < comment.length; i++) {
+            let char = comment[i];
+            if (char === "\"" || char === "\'") {
+                if (startComment === undefined) {
+                    list.push(temp);
+                    temp = "";
+                    startComment = char;
+                    temp += char;
+                }
+                else if (startComment === char) {
+                    startComment = undefined;
+                    temp += char;
+                    list.push(temp);
+                    temp = "";
+                }
+                else {
+                    temp += char;
+                }
+            }
+            else {
+                temp += char;
+            }
+        }
+        if (temp !== "") {
+            list.push(temp);
+        }
+
         list.forEach((item, index) => {
             // if index is shots
             if (index % 2 === 1) {
                 list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
             }
         })
-        comment = list.join("\"");
+        comment = list.join("");
         list = comment.split(" ").filter((item) => item !== "");
         list = list.map((item) => item
             .replaceAll(SPACE_SEPARATOR, " ")
             .replaceAll(DOUBLE_QUOTES_CONVERTER, "\"")
+            .replaceAll(QUOTES_CONVERTER, "\'")
         )
         if (list[1] === "image") {
             return getImageOperationFromComment(list, "image");
