@@ -2,20 +2,22 @@ import { PixiVNJsonOperation } from "@drincs/pixi-vn";
 import PixiVNJsonMediaTransiotions from "@drincs/pixi-vn/dist/interface/PixiVNJsonMediaTransiotions";
 
 const SPACE_SEPARATOR = "§SPACE§";
+const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 
 export function getOperationFromComment(comment: string): PixiVNJsonOperation | undefined {
     try {
+        comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
         let list = comment.split("\"")
         list.forEach((item, index) => {
             // if index is shots
             if (index % 2 === 1) {
-                list[index] = item.replace(" ", SPACE_SEPARATOR);
+                list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
             }
         })
-        comment = list.join("");
+        comment = list.join("\"");
         list = comment.split(" ").filter((item) => item !== "");
-        list = list.map((item) => item.replace(SPACE_SEPARATOR, " "));
+        list = list.map((item) => item.replaceAll(SPACE_SEPARATOR, " ").replaceAll(DOUBLE_QUOTES_CONVERTER, "\""));
         if (list[1] === "image") {
             return getImageOperationFromComment(list, "image");
         }
@@ -101,7 +103,7 @@ function getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined 
  * into string list:
  * ["duration", "3", "x", "2", "y", "3", "name", "C J", "surname", "Smith", "position", "{ x: 2, y 3 }"]
  * into object:
- * { duration: 3, x: 2, y: 3, name: "C J", surname: "Smith", position: { x: 2, y 3 } }
+ * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
  */
 function convertListStringToObj(list: string[]): object {
     let objJson: string = "{"
@@ -111,6 +113,9 @@ function convertListStringToObj(list: string[]): object {
         } else {
             // if is string that contains only numbers, example: 0 or 999
             if (/^\d+$/.test(item)) {
+                objJson += item;
+            }
+            else if (item === "true" || item === "false") {
                 objJson += item;
             }
             // if the string is a json object
