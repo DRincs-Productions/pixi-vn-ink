@@ -24,6 +24,7 @@
   "homepage": "https://pixi-vn.web.app/start/ink.html",
   "devDependencies": {
     "jsdom": "^24.1.1",
+    "pixi.js": "^8.4.1",
     "ts-node": "^10.9.2",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4",

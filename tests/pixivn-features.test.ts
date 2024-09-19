@@ -93,11 +93,13 @@ test('show image', async () => {
         }
     }
     let res = convertInkText(`
+VAR duration = 3
 === start
 #show image bg /image.png
-# show image "bg 2" /image2.png
+# show image "bg 2 alice" /image2.png
 # show image  bg /image.png dissolve
 #show image bg /image.png  dissolve duration 3
+#show image bg /image.png  dissolve duration {duration}
 hello
 -> DONE
 `);
@@ -108,7 +110,7 @@ test('edit image', async () => {
     let expected: PixiVNJson = {}
     let res = convertInkText(`
 === start
-#edit image bg x 20 y 30
+#edit image bg position \\\{ "x": 20, "y": 30, "test": "test \\\\\\\} test" \\\} visible true   cursor "pointer" alpha 0.5 
 hello
 -> DONE
 `);
