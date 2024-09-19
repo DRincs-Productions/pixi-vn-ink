@@ -20,7 +20,7 @@ export function parseLabel<T>(
     labelKey: string,
     shareData: ShareDataParserLabel,
     itemList: T[] = [],
-    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine: boolean) => void,
+    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine: boolean, isComment: boolean) => void,
     addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine?: boolean) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     addChoiseList: (
@@ -37,20 +37,21 @@ export function parseLabel<T>(
     let isInEnv = false
     let envList: RootParserItemType[] = []
     let isConditionalText = false
+    let isComment = false
     let conditionalList: RootParserItemType[] = []
     if (shareData.preDialog[labelKey]) {
         // *	Hello [back!] right back to you!
         isNewLine = false
-        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, isNewLine)
+        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, isNewLine, isComment)
         delete shareData.preDialog[labelKey]
     }
     if (rootList.includes("visit")) {
         let item = parserSwitch<T>(rootList as any, addSwitchElemen, addLabels, labelKey, shareData, paramNames, nestedId)
         if (item) {
             if (!isNewLine && itemList.length > 0) {
-                addElement(itemList, "<>", labelKey, isNewLine)
+                addElement(itemList, "<>", labelKey, isNewLine, isComment)
             }
-            addElement(itemList, item, labelKey, isNewLine)
+            addElement(itemList, item, labelKey, isNewLine, isComment)
         }
         return
     }
@@ -62,6 +63,15 @@ export function parseLabel<T>(
         }
     }
     rootList.forEach((rootItem, index) => {
+        if (isComment) {
+            if (typeof rootItem === "string" && rootItem == "/#") {
+                isComment = false
+            }
+            else if (typeof rootItem === "string") {
+                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
+            }
+            return
+        }
         if (isInEnv) {
             if (Array.isArray(rootItem)) {
                 envList.push(rootItem)
@@ -103,7 +113,7 @@ export function parseLabel<T>(
                         }
                     }
                     if (typeof name !== "string" || !name.includes("$r")) {
-                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine)
+                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine, isComment)
                     }
                 }
                 else if ("VAR?" in rootItem) {
@@ -136,7 +146,7 @@ export function parseLabel<T>(
                                 type = "params"
                                 name = paramIndex
                             }
-                            addElement(itemList, { typeOperation: "get", typeVar: type, name: name }, labelKey, isNewLine)
+                            addElement(itemList, { typeOperation: "get", typeVar: type, name: name }, labelKey, isNewLine, isComment)
                         }
                         else {
                             let varList = []
@@ -147,12 +157,12 @@ export function parseLabel<T>(
                             let value = arithmeticParser(varList as any, labelKey, paramNames)
                             envList = []
                             if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "logic") {
-                                addElement(itemList, { typeOperation: "get", typeVar: "logic", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine)
+                                addElement(itemList, { typeOperation: "get", typeVar: "logic", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine, isComment)
                             }
                             else {
-                                addElement(itemList, "<>", labelKey, isNewLine)
+                                addElement(itemList, "<>", labelKey, isNewLine, isComment)
                                 value = `^${value}`
-                                addElement(itemList, value, labelKey, isNewLine)
+                                addElement(itemList, value, labelKey, isNewLine, isComment)
                             }
                         }
                         isNewLine = false
@@ -166,7 +176,7 @@ export function parseLabel<T>(
         else if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                addElement(itemList, rootItem, labelKey, isNewLine)
+                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
                 isNewLine = false
             }
             else if (rootItem == "ev") {
@@ -176,20 +186,23 @@ export function parseLabel<T>(
                 isNewLine = true
             }
             else if (rootItem == "done" || rootItem == "end") {
-                addElement(itemList, rootItem, labelKey, isNewLine)
+                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
                 isNewLine = false
             }
             else if (rootItem == "<>") {
-                addElement(itemList, rootItem, labelKey, isNewLine)
+                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
                 let res = getConditionalValue<T>(conditionalList as any[], addSwitchElemen, addLabels, labelKey, shareData, paramNames, nestedId)
                 if (res) {
-                    addElement(itemList, res, labelKey, isNewLine)
+                    addElement(itemList, res, labelKey, isNewLine, isComment)
                 }
                 isConditionalText = false
                 conditionalList = []
+            }
+            else if (rootItem == "#") {
+                isComment = true
             }
         }
         else if (rootItem instanceof Array) {
@@ -221,7 +234,7 @@ export function parseLabel<T>(
                 let newLabelKey = el["#n"]
                 delete (el as any)["#n"]
                 rootItem.push(el)
-                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, isNewLine);
+                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, isNewLine, isComment);
                 addLabels({
                     [newLabelKey]: rootItem
                 }, labelKey, shareData)
@@ -240,7 +253,7 @@ export function parseLabel<T>(
                     params = getParam(["ev", ...envList], labelKey, paramNames)
                 }
                 rootItem["params"] = params
-                addElement(itemList, rootItem, labelKey, isNewLine)
+                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
                 isNewLine = false
             }
             else if ("*" in rootItem && typeof rootItem["*"] === "string") {
@@ -279,7 +292,7 @@ export function parseLabel<T>(
                     let value = arithmeticParser(varList as any, labelKey, paramNames)
                     envList = []
                     if (value !== undefined || value !== null) {
-                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine)
+                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine, isComment)
                     }
                     isNewLine = false
                 }

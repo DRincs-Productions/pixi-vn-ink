@@ -1,6 +1,7 @@
 import { getCharacterById, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
+import { getOperationFromComment } from "../utility/CommentUtility";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
 
 export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment) {
@@ -21,20 +22,33 @@ export function addSwitchElemenStep(
     list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
-    isNewLine: boolean = true
+    isNewLine: boolean = true,
+    isComment: boolean = false
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine)
+    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine, isComment)
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
-    isNewLine: boolean
+    isNewLine: boolean,
+    isComment: boolean = false
 ) {
     if (!item) {
         return
     }
-    if (typeof item === "string" && item.startsWith("^") ||
+    if (isComment) {
+        if (typeof item === "string" && item.startsWith("^")) {
+            item = item.substring(1)
+            let i = getOperationFromComment(item)
+            if (i) {
+                list.push({
+                    operation: [i]
+                })
+            }
+        }
+    }
+    else if (typeof item === "string" && item.startsWith("^") ||
         (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
     ) {
         if (!isNewLine && list.length > 0) {
