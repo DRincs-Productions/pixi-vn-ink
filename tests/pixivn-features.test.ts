@@ -76,6 +76,9 @@ test('show image', async () => {
                             url: "/image.png",
                             transition: {
                                 type: "dissolve",
+                                props: {
+                                    duration: 3,
+                                },
                             },
                         },
                     ],

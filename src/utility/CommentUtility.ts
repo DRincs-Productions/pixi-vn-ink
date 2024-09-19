@@ -107,14 +107,14 @@ function convertListStringToObj(list: string[]): object {
     let objJson: string = "{"
     list.forEach((item, index) => {
         if (index % 2 === 0) {
-            objJson += item + ": ";
+            objJson += `"${item}": `
         } else {
             // if is string that contains only numbers, example: 0 or 999
             if (/^\d+$/.test(item)) {
                 objJson += item;
             }
             // if the string is a json object
-            if (item.startsWith("{") && item.endsWith("}")) {
+            else if (item.startsWith("{") && item.endsWith("}")) {
                 objJson += item;
             }
             else {
