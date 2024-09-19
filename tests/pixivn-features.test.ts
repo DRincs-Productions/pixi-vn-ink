@@ -110,7 +110,7 @@ test('edit image', async () => {
     let expected: PixiVNJson = {}
     let res = convertInkText(`
 === start
-#edit image bg position \\\{ "x": 20, "y": 30, "test": "test \\\\\\\} test" \\\} visible true   cursor "pointer" alpha 0.5 
+#edit image bg position \\\{ "x": 20, "y": 30, "test": "test \\\\\\\} ' test", test2: '"' \\\} visible true   cursor "pointer" alpha 0.5 
 hello
 -> DONE
 `);
