@@ -35,7 +35,7 @@ export function conditionaAritmeticParser(
                 let label = items.join(".")
                 if (label.includes("^.")) {
                     let labelArray = label.split(".")
-                    let end2 = labelArray[labelArray.length - 1].replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+                    let end2 = labelArray[labelArray.length - 1].replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
                     labelArray.pop()
                     label = labelArray.join(".") + "." + end2
                     if (end.includes("c-")) {
@@ -43,7 +43,7 @@ export function conditionaAritmeticParser(
                     }
                 }
                 else {
-                    label = label.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+                    label = label.replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
                 }
                 conditions.push({
                     type: "compare",

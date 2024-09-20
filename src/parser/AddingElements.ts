@@ -1,4 +1,4 @@
-import { getCharacterById, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { getCharacterById, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
@@ -21,20 +21,35 @@ export function addSwitchElemenStep(
     list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
-    isNewLine: boolean = true
+    isNewLine: boolean = true,
+    isComment: boolean = false
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine)
+    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine, isComment)
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
-    isNewLine: boolean
+    isNewLine: boolean,
+    isComment: boolean = false
 ) {
     if (!item) {
         return
     }
-    if (typeof item === "string" && item.startsWith("^") ||
+    if (isComment) {
+        if (Array.isArray(item)) {
+            if (item.length > 0) {
+                list.push({
+                    operation: [{
+                        type: "oprationtoconvert",
+                        values: item,
+                    }],
+                    goNextStep: true,
+                })
+            }
+        }
+    }
+    else if (typeof item === "string" && item.startsWith("^") ||
         (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
     ) {
         if (!isNewLine && list.length > 0) {
@@ -176,5 +191,56 @@ function getDialog(text: string): PixiVNJsonLabelStep {
     }
     return {
         dialogue: text
+    }
+}
+
+type TComment = string | PixiVNJsonValueGet | PixiVNJsonConditionalStatements<string | PixiVNJsonValueGet>
+export function addSwitchComment(
+    list: PixiVNJsonStepSwitchElementType<TComment>[],
+    item: string | TComment | StandardDivert | PixiVNJsonStepSwitchElementType<TComment> | MyVariableAssignment,
+    labelKey: string,
+    isNewLine: boolean = true,
+    isComment: boolean = false
+) {
+    return addConditionalComment(list as any, item as any, labelKey, isNewLine, isComment)
+}
+function addConditionalComment(
+    list: TComment[],
+    item: string | TComment | StandardDivert | PixiVNJsonConditionalStatements<TComment> | MyVariableAssignment,
+    _labelKey: string,
+    _isNewLine: boolean,
+    _isComment: boolean = false
+) {
+    if (!item) {
+        return
+    }
+
+    if (typeof item === "string" && item.startsWith("^") ||
+        (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
+    ) {
+        if (typeof item === "string") {
+            list.push(item.substring(1))
+        }
+        else if (item.typeVar === "logic") {
+            list.push({
+                type: "value",
+                storageType: item.typeVar,
+                storageOperationType: "get",
+                operation: item.value,
+            })
+        }
+        else if (item.typeVar) {
+            list.push({
+                type: "value",
+                storageType: item.typeVar,
+                storageOperationType: "get",
+                key: item.name as any,
+            })
+        }
+    }
+    else if (typeof item === "object") {
+        if ("type" in item) {
+            list.push(item as any)
+        }
     }
 }

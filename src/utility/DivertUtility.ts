@@ -11,7 +11,7 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         })
         divertName = items.join(".")
         if (!divertName.startsWith(".")) {
-            return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+            return divertName.replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
         }
     }
 
@@ -38,9 +38,9 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         && labelKey
     ) {
         let endOfLabel = divertName.substring(1)
-        return getLabelByStandardDivertInternal(labelKey, counter) + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel.replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+        return getLabelByStandardDivertInternal(labelKey, counter) + CHOISE_LABEL_KEY_SEPARATOR + endOfLabel.replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
     }
-    return divertName.replace(".", CHOISE_LABEL_KEY_SEPARATOR) || getLabelByStandardDivertInternal(labelKey, counter).replace(".", CHOISE_LABEL_KEY_SEPARATOR)
+    return divertName.replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR) || getLabelByStandardDivertInternal(labelKey, counter).replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
 }
 
 function getLabelByStandardDivertInternal(labelKey: string, counter: number = 0): string {
