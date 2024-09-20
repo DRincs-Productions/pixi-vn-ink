@@ -55,6 +55,10 @@ alice: Hello, world!
     expect(res).toEqual(expected);
 });
 
+/**
+ * Image
+ */
+
 test('show image', async () => {
     let expected1: PixiVNJson = {
         initialOperations: [
@@ -341,6 +345,138 @@ test('edit image', async () => {
 === start
 #edit image bg position \\\{ "x": 20, "y": 30, "test": "test \\\\\\\} ' test", "test2": "'" \\\} visible true   cursor "pointer" alpha 0.5 
 hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+test('remove image', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "remove image bg",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "remove image \"bg 2\"",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "remove image bg dissolve",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "remove image bg dissolve duration 3",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg 2",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 3,
+                                },
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+#remove image bg
+#remove image "bg 2"
+#remove image bg dissolve
+#remove image bg dissolve duration 3
+Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
