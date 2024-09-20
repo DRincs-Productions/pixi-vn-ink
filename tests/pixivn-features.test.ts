@@ -1,7 +1,7 @@
 import { CharacterBaseModel, PixiVNJson, saveCharacter } from '@drincs/pixi-vn';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
-import { getOperationFromComment } from '../src/utility/CommentUtility';
+import { getOperationFromCommand } from '../src/utility/CommandUtility';
 
 function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
@@ -16,7 +16,7 @@ function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            return getOperationFromComment(v);
+                            return getOperationFromCommand(v);
                         }
                         return operation;
                     }).filter((operation) => operation !== undefined);

@@ -8,7 +8,7 @@ const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 
-export function getOperationFromComment(comment: string): PixiVNJsonOperation | undefined {
+export function getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
     try {
         comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
         comment = comment.replaceAll("\\\'", QUOTES_CONVERTER);
@@ -80,7 +80,10 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
             }
         }
     }
-    catch (e) { }
+    catch (e) {
+        console.error("[Pixi’VN Ink] Error parsing ink command", comment)
+        throw e
+    }
     return undefined;
 }
 

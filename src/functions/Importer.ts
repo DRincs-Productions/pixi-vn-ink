@@ -1,5 +1,5 @@
 import { importPixiVNJson } from "@drincs/pixi-vn";
-import { getOperationFromComment } from "../utility/CommentUtility";
+import { getOperationFromCommand } from "../utility/CommandUtility";
 import { convertInkText } from "./InkToPixivn";
 
 /**
@@ -28,7 +28,7 @@ export function importInkText(text: string | string[]) {
     let data = convertInkText(text)
     if (data) {
         {
-            importPixiVNJson(data, getOperationFromComment)
+            importPixiVNJson(data, getOperationFromCommand)
         }
     }
 }
