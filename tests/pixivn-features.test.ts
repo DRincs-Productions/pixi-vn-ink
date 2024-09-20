@@ -119,10 +119,45 @@ test('show image', async () => {
                             values: [
                                 "show image bg /image.png  dissolve duration ",
                                 {
-                                    type: "value",
-                                    storageType: "storage",
-                                    storageOperationType: "get",
-                                    key: "duration",
+                                    type: "ifelse",
+                                    condition: {
+                                        type: "value",
+                                        storageType: "label",
+                                        storageOperationType: "get",
+                                        label: "start",
+                                    },
+                                    then: {
+                                        type: "resulttocombine",
+                                        combine: "cross",
+                                        secondConditionalItem: [
+                                            " ",
+                                            {
+                                                type: "value",
+                                                storageType: "storage",
+                                                storageOperationType: "get",
+                                                key: "duration",
+                                            },
+                                            " ",
+                                        ],
+                                    },
+                                    else: {
+                                        type: "resulttocombine",
+                                        combine: "cross",
+                                        secondConditionalItem: [
+                                            " ",
+                                            {
+                                                type: "stepswitch",
+                                                elements: [
+                                                    "duration",
+                                                    " 0 == 0",
+                                                ],
+                                                choiceType: "sequential",
+                                                end: "lastItem",
+                                                nestedId: undefined,
+                                            },
+                                            " ",
+                                        ],
+                                    },
                                 },
                             ],
                         },
@@ -213,7 +248,7 @@ test('show image', async () => {
                             transition: {
                                 type: "dissolve",
                                 props: {
-                                    duration: "value" as any,
+                                    duration: "ifelse" as any,
                                 },
                             },
                         },
@@ -236,7 +271,7 @@ VAR duration = 3
 # show image "bg 2 alice" /image2.png
 # show image  bg /image.png dissolve
 #show image bg /image.png  dissolve duration 3
-#show image bg /image.png  dissolve duration {start ? duration: duration| 0 }
+#show image bg /image.png  dissolve duration {start: {duration} | {duration| 0 == 0} }
 hello
 -> DONE
 `);
