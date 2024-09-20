@@ -7,6 +7,7 @@ import { StandardDivert } from '../types/parserItems/Divert';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { MyVariableAssignment } from '../types/parserItems/VariableAssignment';
 import { getParam } from '../utility/ValueUtility';
+import { addSwitchComment } from './AddingElements';
 import { getConditionalValue } from './ConditionalStatementsParser';
 import { parserSwitch } from './SwitchParser';
 
@@ -39,6 +40,7 @@ export function parseLabel<T>(
     let isConditionalText = false
     let isComment = false
     let conditionalList: RootParserItemType[] = []
+    let commentList: any[] = []
     if (shareData.preDialog[labelKey]) {
         // *	Hello [back!] right back to you!
         isNewLine = false
@@ -65,14 +67,18 @@ export function parseLabel<T>(
     rootList.forEach((rootItem, index) => {
         if (isComment) {
             if (typeof rootItem === "string" && rootItem == "/#") {
+                let myList: T[] = []
+                parseLabel(commentList, labelKey, shareData, myList, addSwitchComment as any, addSwitchComment as any, addLabels, addChoiseList, nestedId, isNewLine)
+                addElement(itemList, myList as any, labelKey, isNewLine, isComment)
                 isComment = false
+                commentList = []
             }
-            else if (typeof rootItem === "string") {
-                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
+            else {
+                commentList.push(rootItem)
             }
             return
         }
-        if (isInEnv) {
+        else if (isInEnv) {
             if (Array.isArray(rootItem)) {
                 envList.push(rootItem)
             }

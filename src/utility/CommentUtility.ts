@@ -62,10 +62,11 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
             .replaceAll(DOUBLE_QUOTES_CONVERTER, "\"")
             .replaceAll(QUOTES_CONVERTER, "\'")
         )
-        if (list[1] === "image") {
+        let operationType = removeExtraDoubleQuotes(list[1]);
+        if (operationType === "image") {
             return getImageOperationFromComment(list, "image");
         }
-        else if (list[1] === "video") {
+        else if (operationType === "video") {
             if (IMAGES_TYPES.includes(list[0])) {
                 return getImageOperationFromComment(list, "video");
             }
@@ -76,11 +77,11 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
 }
 
 function getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
-    let type = list[0];
+    let type = removeExtraDoubleQuotes(list[0]);
     if (!IMAGES_TYPES.includes(type)) {
         return undefined;
     }
-    let imageId = list[2];
+    let imageId = removeExtraDoubleQuotes(list[2]);
     if (type === "show") {
         let op: PixiVNJsonOperation = {
             type: typeCanvasElement,
@@ -186,5 +187,18 @@ function convertListStringToObj(listParm: string[]): object {
         }
     })
     objJson += "}"
-    return JSON.parse(objJson);
+    try {
+        return JSON.parse(objJson);
+    }
+    catch (e) {
+        console.error("[Pixi’VN Ink] Error parsing ink json", objJson)
+        throw e
+    }
+}
+
+function removeExtraDoubleQuotes(value: string): string {
+    if (value.startsWith("\"") && value.endsWith("\"")) {
+        return value.substring(1, value.length - 1);
+    }
+    return value;
 }
