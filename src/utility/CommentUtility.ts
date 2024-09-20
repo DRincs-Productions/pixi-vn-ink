@@ -63,12 +63,20 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
             .replaceAll(QUOTES_CONVERTER, "\'")
         )
         let operationType = removeExtraDoubleQuotes(list[1]);
+        let type = removeExtraDoubleQuotes(list[0]);
         if (operationType === "image") {
             return getImageOperationFromComment(list, "image");
         }
         else if (operationType === "video") {
-            if (IMAGES_TYPES.includes(list[0])) {
+            if (IMAGES_TYPES.includes(type)) {
                 return getImageOperationFromComment(list, "video");
+            }
+            if (type === "pause" || type === "resume") {
+                return {
+                    type: "video",
+                    operationType: type as any,
+                    alias: removeExtraDoubleQuotes(list[2])
+                }
             }
         }
     }

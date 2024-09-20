@@ -483,3 +483,130 @@ Hello
     convertOperation(res);
     expect(res).toEqual(expected2);
 });
+
+/**
+ * Video
+ */
+test('video', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "show video bg \"/video A.mp4\"",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "pause video bg",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "resume video bg",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "remove video bg",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "video",
+                            operationType: "show",
+                            alias: "bg",
+                            url: "\"/video A.mp4\"",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "video",
+                            operationType: "pause",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "video",
+                            operationType: "resume",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "video",
+                            operationType: "remove",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+# show video bg "/video A.mp4"
+# pause video bg
+# resume video bg
+# remove video bg
+hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    convertOperation(res);
+    expect(res).toEqual(expected2);
+});
