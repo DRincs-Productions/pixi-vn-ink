@@ -23,6 +23,7 @@
   },
   "homepage": "https://pixi-vn.web.app/start/ink.html",
   "devDependencies": {
+    "@pixi/sound": "^6.0.1",
     "jsdom": "^25.0.0",
     "pixi.js": "^8.4.1",
     "ts-node": "^10.9.2",

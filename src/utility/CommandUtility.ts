@@ -1,4 +1,4 @@
-import { PixiVNJsonOperation } from "@drincs/pixi-vn";
+import { PixiVNJsonOperation, SoundOptions } from "@drincs/pixi-vn";
 import PixiVNJsonMediaTransiotions from "@drincs/pixi-vn/dist/interface/PixiVNJsonMediaTransiotions";
 
 const SPACE_SEPARATOR = "§SPACE§";
@@ -8,6 +8,7 @@ const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
+const SOUND_TYPES = ["add", "play", "pause", "resume", "stop", "volume"]
 
 export function getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
     try {
@@ -82,6 +83,9 @@ export function getOperationFromCommand(comment: string): PixiVNJsonOperation | 
                 }
             }
         }
+        else if (operationType === "sound") {
+            return getSoundOperationFromComment(list);
+        }
     }
     catch (e) {
         console.error("[Pixi’VN Ink] Error parsing ink command", comment)
@@ -137,6 +141,30 @@ function getImageOperationFromComment(list: string[], typeCanvasElement: "image"
     return undefined;
 }
 
+function getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
+    let type = removeExtraDoubleQuotes(list[0]);
+    if (!SOUND_TYPES.includes(type)) {
+        return undefined;
+    }
+    let soundId = removeExtraDoubleQuotes(list[2]);
+    if (type === "add") {
+        let op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "add",
+            alias: soundId,
+            url: removeExtraDoubleQuotes(list[3]),
+        }
+        if (list.length > 4) {
+            let props = getSoundOption(list.slice(4));
+            if (props !== undefined) {
+                op.props = props;
+            }
+        }
+        return op;
+    }
+    return undefined;
+}
+
 function getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined {
     let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout"];
     if (!transitionTypes.includes(list[0])) {
@@ -153,6 +181,15 @@ function getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined 
         catch (_) { }
     }
     return transition;
+}
+
+function getSoundOption(list: string[]): SoundOptions | undefined {
+    try {
+        return convertListStringToObj(list);
+    }
+    catch (_) {
+        return undefined;
+    }
 }
 
 /**
