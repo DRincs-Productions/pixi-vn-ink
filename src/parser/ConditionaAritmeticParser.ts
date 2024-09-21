@@ -2,6 +2,7 @@ import { PixiVNJsonArithmeticOperations, PixiVNJsonComparation, PixiVNJsonCondit
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { arithmeticFunctions, ArithmeticFunctions, arithmeticFunctionsSingle, ArithmeticFunctionsSingle, conditionFunctions, ConditionFunctions } from "../types/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
+import { getText } from "../utility/TextUtility";
 
 export function conditionaAritmeticParser(
     list: any[],
@@ -167,7 +168,7 @@ export function conditionaAritmeticParser(
         }
         else if (item && typeof item === "string") {
             if (item.startsWith("^")) {
-                conditions.push(item.substring(1))
+                conditions.push(getText(item))
             }
         }
         else if (typeof item === "object" && "^->" in item) {

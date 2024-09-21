@@ -12,6 +12,7 @@ import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
 import { unionStringOrArray } from '../utility/ArrayUtility';
+import { getText } from '../utility/TextUtility';
 
 export function addChoiseIntoList<T>(
     choiseList: RootParserItemType[],
@@ -82,7 +83,7 @@ export function getLabelChoice(
         if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                text.push(rootItem.substring(1))
+                text.push(getText(rootItem))
             }
             else if (nativeFunctions.includes(rootItem as NativeFunctions)) {
                 condition.push(rootItem as NativeFunctions)
@@ -146,7 +147,7 @@ function findChoiceText(items: RootParserItemType[]): string | undefined {
     for (const item of items) {
         if (typeof item === "string") {
             if (item.startsWith("^")) {
-                return item.substring(1)
+                return getText(item)
             }
         }
         else if (item instanceof Array) {
