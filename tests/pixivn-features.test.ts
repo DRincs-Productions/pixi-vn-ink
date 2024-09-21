@@ -553,7 +553,7 @@ test('video', async () => {
                             type: "video",
                             operationType: "show",
                             alias: "bg",
-                            url: "\"/video A.mp4\"",
+                            url: "/video A.mp4",
                         },
                     ],
                     goNextStep: true,
