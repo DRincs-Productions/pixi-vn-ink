@@ -4,14 +4,16 @@ import PixiVNJsonMediaTransiotions from "@drincs/pixi-vn/dist/interface/PixiVNJs
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
 const QUOTES_CONVERTER = "§QUOTES§";
+const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 
-export function getOperationFromComment(comment: string): PixiVNJsonOperation | undefined {
+export function getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
     try {
         comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
-        comment = comment.replaceAll("\\\'", QUOTES_CONVERTER);
+        comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
+        comment = comment.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
         comment = comment.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
         comment = comment.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
         comment = comment.replaceAll("{", " { ");
@@ -20,11 +22,11 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
         comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
         let list: string[] = []
         // for string characters
-        let startComment: "\"" | "\'" | undefined = undefined;
+        let startComment: "\"" | "'" | "`" | undefined = undefined;
         let temp = "";
         for (let i = 0; i < comment.length; i++) {
             let char = comment[i];
-            if (char === "\"" || char === "\'") {
+            if (char === "\"" || char === "'" || char === "`") {
                 if (startComment === undefined) {
                     list.push(temp);
                     temp = "";
@@ -60,7 +62,8 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
         list = list.map((item) => item
             .replaceAll(SPACE_SEPARATOR, " ")
             .replaceAll(DOUBLE_QUOTES_CONVERTER, "\"")
-            .replaceAll(QUOTES_CONVERTER, "\'")
+            .replaceAll(QUOTES_CONVERTER, "'")
+            .replaceAll(SPECIAL_QUOTES_CONVERTER, "`")
         )
         let operationType = removeExtraDoubleQuotes(list[1]);
         let type = removeExtraDoubleQuotes(list[0]);
@@ -80,7 +83,10 @@ export function getOperationFromComment(comment: string): PixiVNJsonOperation | 
             }
         }
     }
-    catch (e) { }
+    catch (e) {
+        console.error("[Pixi’VN Ink] Error parsing ink command", comment)
+        throw e
+    }
     return undefined;
 }
 
@@ -95,7 +101,7 @@ function getImageOperationFromComment(list: string[], typeCanvasElement: "image"
             type: typeCanvasElement,
             operationType: "show",
             alias: imageId,
-            url: list[3],
+            url: removeExtraDoubleQuotes(list[3]),
         }
         if (list.length > 4) {
             let transition = getTransition(list.slice(4));
@@ -206,6 +212,12 @@ function convertListStringToObj(listParm: string[]): object {
 
 function removeExtraDoubleQuotes(value: string): string {
     if (value.startsWith("\"") && value.endsWith("\"")) {
+        return value.substring(1, value.length - 1);
+    }
+    if (value.startsWith("\'") && value.endsWith("\'")) {
+        return value.substring(1, value.length - 1);
+    }
+    if (value.startsWith("\`") && value.endsWith("\`")) {
         return value.substring(1, value.length - 1);
     }
     return value;

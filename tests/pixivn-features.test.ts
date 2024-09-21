@@ -1,7 +1,7 @@
 import { CharacterBaseModel, PixiVNJson, saveCharacter } from '@drincs/pixi-vn';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
-import { getOperationFromComment } from '../src/utility/CommentUtility';
+import { getOperationFromCommand } from '../src/utility/CommandUtility';
 
 function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
@@ -16,7 +16,7 @@ function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            return getOperationFromComment(v);
+                            return getOperationFromCommand(v);
                         }
                         return operation;
                     }).filter((operation) => operation !== undefined);
@@ -99,7 +99,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image  bg /image.png dissolve",
+                                "show image  bg '/image.png' dissolve",
                             ],
                         },
                     ],
@@ -121,7 +121,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image bg /image.png  dissolve duration ",
+                                "show image bg `/image.png`  dissolve duration ",
                                 {
                                     type: "ifelse",
                                     condition: {
@@ -273,9 +273,9 @@ VAR duration = 3
 === start
 #show image bg /image.png
 # show image "bg 2 alice" /image2.png
-# show image  bg /image.png dissolve
+# show image  bg '/image.png' dissolve
 #show image bg /image.png  dissolve duration 3
-#show image bg /image.png  dissolve duration {start: {duration} | {duration| 0 == 0} }
+#show image bg \`/image.png\`  dissolve duration {start: {duration} | {duration| 0 == 0} }
 hello
 -> DONE
 `);
@@ -609,4 +609,251 @@ hello
     expect(res).toEqual(expected1);
     convertOperation(res);
     expect(res).toEqual(expected2);
+});
+
+/**
+ * markdown
+ */
+test('markdown', async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    dialogue: "# Markdown Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "For example in React, you can use the library [react-markdown](https://www.npmjs.com/package/react-markdown). \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Colored Text \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "<span style=\"color:blue\">some *blue* text</span>. \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "<span style=\"color:red\">some *red* text</span>. \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "<span style=\"color:green\">some *green* text</span>. \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Bold Text \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "**This is bold text.** \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Italic Text \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "*This is italic text.* \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Delete Text \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "~~This is deleted text.~~ \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Link Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "[Link to Google](https://www.google.com) \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## H2 Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "### H3 Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "#### H4 Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Code Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "`Hello World` \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "```js \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "console.log(\"Hello World\") \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "``` \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## List Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "- Item 1 \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "* Item 2 \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "- [x] Item 3 \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Table Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "| Header 1 | Header 2 | \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "| -------- | -------- | \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "| Cell 1   | Cell 2   | \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "## Separator Test \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "*** \n",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Footer",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+\\# Markdown Test \\\\n<>
+Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \\\\n<>
+
+For example in React, you can use the library [react-markdown](https:\\/\\/www.npmjs.com/package/react-markdown). \\\\n<>
+
+\\#\\# Colored Text \\\\n<>
+
+<span style="color:blue">some *blue* text</span>. \\\\n<>
+
+<span style="color:red">some *red* text</span>. \\\\n<>
+
+<span style="color:green">some *green* text</span>. \\\\n<>
+
+\\#\\# Bold Text \\\\n<>
+
+\\**This is bold text.** \\\\n<>
+
+\\#\\# Italic Text \\\\n<>
+
+\\*This is italic text.* \\\\n<>
+
+\\#\\# Delete Text \\\\n<>
+
+\\~~This is deleted text.~~ \\\\n<>
+
+\\#\\# Link Test \\\\n<>
+
+[Link to Google](https:\\/\\/www.google.com) \\\\n<>
+
+\\#\\# H2 Test \\\\n<>
+
+\\#\\#\\# H3 Test \\\\n<>
+
+\\#\\#\\#\\# H4 Test \\\\n<>
+ 
+\\#\\# Code Test \\\\n<>
+
+\\\`Hello World\\\` \\\\n<>
+
+\\\`\\\`\\\`js \\\\n<>
+console.log("Hello World") \\\\n<>
+\\\`\\\`\\\` \\\\n<>
+
+\\#\\# List Test \\\\n<>
+
+\\- Item 1 \\\\n<>
+\\* Item 2 \\\\n<>
+\\- [x] Item 3 \\\\n<>
+
+\\#\\# Table Test \\\\n<>
+
+\\| Header 1 \\| Header 2 \\| \\\\n<>
+\\| -------- \\| -------- \\| \\\\n<>
+\\| Cell 1   \\| Cell 2   \\| \\\\n<>
+
+\\#\\# Separator Test \\\\n<>
+
+\\*\\*\\* \\\\n<>
+Footer
+-> DONE
+`);
+    expect(res).toEqual(expected);
 });

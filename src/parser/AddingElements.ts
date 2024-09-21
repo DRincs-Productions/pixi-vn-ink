@@ -2,6 +2,7 @@ import { getCharacterById, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep,
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
+import { getText } from "../utility/TextUtility";
 
 export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment) {
     if (!item) {
@@ -9,7 +10,7 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
     }
     if (typeof item === "string") {
         if (item.startsWith("^")) {
-            list.push(item.substring(1))
+            list.push(getText(item))
         }
     }
     else if (typeof item === "object" && "type" in item) {
@@ -62,7 +63,7 @@ function addConditionalElementStep(
             list[list.length - 1] = prevItem
         }
         if (typeof item === "string") {
-            list.push(getDialog(item))
+            list.push(getDialog(getText(item)))
         }
         else if (item.typeVar === "logic") {
             list.push({
@@ -151,7 +152,7 @@ function addConditionalElementStep(
         if ("typeVar" in item && item.typeOperation === "set") {
             let value = item.value
             if (typeof value === "string" && value.startsWith("^")) {
-                value = value.substring(1)
+                value = getText(value)
             }
             list.push({
                 goNextStep: true,
@@ -170,7 +171,6 @@ function addConditionalElementStep(
 }
 
 function getDialog(text: string): PixiVNJsonLabelStep {
-    text = text.substring(1)
     let character: string | undefined = undefined
     if (text.includes(": ")) {
         let parts = text.split(": ")
@@ -219,7 +219,7 @@ function addConditionalComment(
         (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
     ) {
         if (typeof item === "string") {
-            list.push(item.substring(1))
+            list.push(getText(item))
         }
         else if (item.typeVar === "logic") {
             list.push({
