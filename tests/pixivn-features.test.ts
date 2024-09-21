@@ -99,7 +99,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image  bg /image.png dissolve",
+                                "show image  bg '/image.png' dissolve",
                             ],
                         },
                     ],
@@ -121,7 +121,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image bg /image.png  dissolve duration ",
+                                "show image bg `/image.png`  dissolve duration ",
                                 {
                                     type: "ifelse",
                                     condition: {
@@ -273,9 +273,9 @@ VAR duration = 3
 === start
 #show image bg /image.png
 # show image "bg 2 alice" /image2.png
-# show image  bg /image.png dissolve
+# show image  bg '/image.png' dissolve
 #show image bg /image.png  dissolve duration 3
-#show image bg /image.png  dissolve duration {start: {duration} | {duration| 0 == 0} }
+#show image bg \`/image.png\`  dissolve duration {start: {duration} | {duration| 0 == 0} }
 hello
 -> DONE
 `);
