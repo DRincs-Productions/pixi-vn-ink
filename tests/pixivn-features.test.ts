@@ -612,6 +612,184 @@ hello
 });
 
 /**
+ * Sound
+ */
+test('sound', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "add sound bird resources/bird.mp3 volume 0",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "play sound bird volume 100",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "pause sound bird",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "resume sound bird",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "remove sound bird",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "volume sound bird 100",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "sound",
+                            operationType: "add",
+                            alias: "bird",
+                            url: "resources/bird.mp3",
+                            props: {
+                                volume: 0,
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "sound",
+                            operationType: "play",
+                            alias: "bird",
+                            props: {
+                                volume: 100,
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "sound",
+                            operationType: "pause",
+                            alias: "bird",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "sound",
+                            operationType: "resume",
+                            alias: "bird",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "sound",
+                            operationType: "remove",
+                            alias: "bird",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "sound",
+                            operationType: "volume",
+                            alias: "bird",
+                            value: 100,
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+#add sound bird resources/bird.mp3 volume 0
+# play sound bird volume 100
+# pause sound bird
+# resume sound bird
+# remove sound bird
+# volume sound bird 100
+Hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+/**
  * markdown
  */
 test('markdown', async () => {
