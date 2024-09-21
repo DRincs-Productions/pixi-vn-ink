@@ -1,4 +1,4 @@
-import { PixiVNJsonOperation, SoundOptions } from "@drincs/pixi-vn";
+import { PixiVNJsonOperation, SoundOptions, SoundPlayOptions } from "@drincs/pixi-vn";
 import PixiVNJsonMediaTransiotions from "@drincs/pixi-vn/dist/interface/PixiVNJsonMediaTransiotions";
 
 const SPACE_SEPARATOR = "§SPACE§";
@@ -8,7 +8,7 @@ const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
-const SOUND_TYPES = ["add", "play", "pause", "resume", "stop", "volume"]
+const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"]
 
 export function getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
     try {
@@ -162,6 +162,47 @@ function getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | und
         }
         return op;
     }
+    else if (type === "play") {
+        let op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "play",
+            alias: soundId,
+        }
+        if (list.length > 3) {
+            let props = getSoundPlayOptions(list.slice(3));
+            if (props !== undefined) {
+                op.props = props;
+            }
+        }
+        return op;
+    }
+    else if (type === "pause" || type === "resume") {
+        let op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: type as any,
+            alias: soundId,
+        }
+        return op;
+    }
+    else if (type === "remove") {
+        let op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "remove",
+            alias: soundId,
+        }
+        return op;
+    }
+    else if (type === "volume") {
+        // varse Float or Int
+        let number = parseFloat(list[3]);
+        let op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "volume",
+            alias: soundId,
+            value: number,
+        }
+        return op;
+    }
     return undefined;
 }
 
@@ -184,6 +225,14 @@ function getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined 
 }
 
 function getSoundOption(list: string[]): SoundOptions | undefined {
+    try {
+        return convertListStringToObj(list);
+    }
+    catch (_) {
+        return undefined;
+    }
+}
+function getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
     try {
         return convertListStringToObj(list);
     }
