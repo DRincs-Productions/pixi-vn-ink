@@ -790,6 +790,109 @@ Hello
 });
 
 /**
+ * Input
+ */
+test('input', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "request input",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "request input number",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "request input 'array of string'",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operation: [
+                        {
+                            type: "input",
+                            operationType: "request",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "input",
+                            operationType: "request",
+                            valueType: "number",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operation: [
+                        {
+                            type: "input",
+                            operationType: "request",
+                            valueType: "array of string",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    end: "label_end",
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+# request input
+# request input number
+# request input 'array of string'
+Hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+/**
  * markdown
  */
 test('markdown', async () => {

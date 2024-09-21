@@ -86,6 +86,16 @@ export function getOperationFromCommand(comment: string): PixiVNJsonOperation | 
         else if (operationType === "sound") {
             return getSoundOperationFromComment(list);
         }
+        else if (operationType === "input" && type === "request") {
+            let op: PixiVNJsonOperation = {
+                type: "input",
+                operationType: "request",
+            }
+            if (list.length > 2) {
+                op.valueType = removeExtraDoubleQuotes(list[2]);
+            }
+            return op;
+        }
     }
     catch (e) {
         console.error("[Pixi’VN Ink] Error parsing ink command", comment)
