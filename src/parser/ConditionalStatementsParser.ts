@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
 import InkRootType from "../types/InkRootType";

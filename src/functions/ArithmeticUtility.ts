@@ -1,4 +1,5 @@
-import { PixiVNJsonValueGet, StorageElementType } from '@drincs/pixi-vn';
+import { StorageElementType } from '@drincs/pixi-vn';
+import { PixiVNJsonValueGet } from '@drincs/pixi-vn-json';
 import { conditionaAritmeticParser } from '../parser/ConditionaAritmeticParser';
 import { ArithmeticFunctions } from '../types/parserItems/NativeFunctions';
 import VariableReference from '../types/parserItems/VariableReference';

@@ -1,4 +1,4 @@
-import { PixiVNJsonArithmeticOperations, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn';
+import { PixiVNJsonArithmeticOperations, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import { arithmeticParser } from '../functions/ArithmeticUtility';
 import InkRootType from '../types/InkRootType';

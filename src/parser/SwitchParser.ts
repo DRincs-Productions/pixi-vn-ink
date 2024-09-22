@@ -1,4 +1,4 @@
-import { PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn"
+import { PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn-json"
 import { addChoiseIntoList } from "../functions/ChoiceInfoConverter"
 import InkRootType from "../types/InkRootType"
 import { ContainerTypeF } from "../types/parserItems/ContainerType"

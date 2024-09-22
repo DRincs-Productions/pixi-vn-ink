@@ -1,4 +1,4 @@
-import { importPixiVNJson } from "@drincs/pixi-vn";
+import { importPixiVNJson } from "@drincs/pixi-vn-json";
 import { getOperationFromCommand } from "../utility/CommandUtility";
 import { convertInkText } from "./InkToPixivn";
 

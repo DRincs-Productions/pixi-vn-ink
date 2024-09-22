@@ -1,4 +1,4 @@
-import { PixiVNJson } from '@drincs/pixi-vn';
+import { PixiVNJson } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 

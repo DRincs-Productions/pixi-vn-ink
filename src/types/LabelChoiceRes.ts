@@ -1,4 +1,4 @@
-import { PixiVNJsonConditionalStatements } from "@drincs/pixi-vn"
+import { PixiVNJsonConditionalStatements } from "@drincs/pixi-vn-json"
 import NativeFunctions from "./parserItems/NativeFunctions"
 import ReadCount from "./parserItems/ReadCount"
 

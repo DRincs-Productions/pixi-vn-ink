@@ -1,5 +1,5 @@
-import { PixiVNJsonOperation, SoundOptions, SoundPlayOptions } from "@drincs/pixi-vn";
-import PixiVNJsonMediaTransiotions from "@drincs/pixi-vn/dist/interface/PixiVNJsonMediaTransiotions";
+import { SoundOptions, SoundPlayOptions } from "@drincs/pixi-vn";
+import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";

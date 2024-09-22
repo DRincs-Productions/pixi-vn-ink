@@ -1,4 +1,5 @@
-import { PixiVNJsonArithmeticOperations, PixiVNJsonComparation, PixiVNJsonConditions, PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn";
+import { StorageElementType } from "@drincs/pixi-vn";
+import { PixiVNJsonArithmeticOperations, PixiVNJsonComparation, PixiVNJsonConditions, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { arithmeticFunctions, ArithmeticFunctions, arithmeticFunctionsSingle, ArithmeticFunctionsSingle, conditionFunctions, ConditionFunctions } from "../types/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";

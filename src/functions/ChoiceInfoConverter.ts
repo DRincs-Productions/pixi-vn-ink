@@ -1,5 +1,4 @@
-import { PixiVNJsonConditionalStatements } from '@drincs/pixi-vn';
-import { PixiVNJsonChoice } from '@drincs/pixi-vn/dist/interface/PixiVNJsonLabelStep';
+import { PixiVNJsonChoice, PixiVNJsonConditionalStatements } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import { addSwitchElemenText } from '../parser/AddingElements';
 import { parserConditionalStatements } from '../parser/ConditionalStatementsParser';

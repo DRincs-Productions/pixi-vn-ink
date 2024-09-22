@@ -1,4 +1,4 @@
-import { PixiVNJsonLabel, PixiVNJsonLabels, PixiVNJsonStepSwitch } from '@drincs/pixi-vn';
+import { PixiVNJsonLabel, PixiVNJsonLabels, PixiVNJsonStepSwitch } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR, MY_LABEL_KER_EXTERNAL_VALUE } from '../constant';
 import { addSwitchElemenStep, addSwitchElemenText } from '../parser/AddingElements';
 import { parseLabel, ShareDataParserLabel } from '../parser/LabelParser';

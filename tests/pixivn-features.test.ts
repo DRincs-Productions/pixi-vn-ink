@@ -1,4 +1,5 @@
-import { CharacterBaseModel, PixiVNJson, saveCharacter } from '@drincs/pixi-vn';
+import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
+import { PixiVNJson } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 import { getOperationFromCommand } from '../src/utility/CommandUtility';
@@ -327,7 +328,7 @@ test('edit image', async () => {
                                 visible: true,
                                 cursor: "pointer",
                                 alpha: 0.5,
-                            },
+                            } as any,
                         },
                     ],
                     goNextStep: true,

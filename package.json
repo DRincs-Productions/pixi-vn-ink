@@ -23,6 +23,7 @@
   },
   "homepage": "https://pixi-vn.web.app/start/ink.html",
   "devDependencies": {
+    "@drincs/pixi-vn-json": "^1.0.0",
     "inkjs": "^2.3.0",
     "jsdom": "^25.0.0",
     "ts-node": "^10.9.2",
@@ -31,7 +32,7 @@
     "vitest": "^2.1.1"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=0.7.1"
+    "@drincs/pixi-vn": ">=0.8.0"
   },
   "keywords": [
     "game",

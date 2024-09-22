@@ -1,4 +1,4 @@
-import { PixiVNJson } from "@drincs/pixi-vn";
+import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { GLOBAL_DECL, MY_LABEL_KER_EXTERNAL_VALUE } from "../constant";
 import InkStoryType from "../types/InkStoryType";

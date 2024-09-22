@@ -1,4 +1,5 @@
-import { getCharacterById, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn";
+import { getCharacterById } from "@drincs/pixi-vn";
+import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";

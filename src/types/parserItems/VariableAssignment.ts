@@ -1,4 +1,5 @@
-import { PixiVNJsonArithmeticOperations, PixiVNJsonValueGet, StorageElementType } from "@drincs/pixi-vn"
+import { StorageElementType } from "@drincs/pixi-vn"
+import { PixiVNJsonArithmeticOperations, PixiVNJsonValueGet } from "@drincs/pixi-vn-json"
 
 type VariableAssignmentVar = {
     "VAR=": any
