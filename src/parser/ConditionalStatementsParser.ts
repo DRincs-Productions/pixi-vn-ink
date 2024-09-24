@@ -19,14 +19,10 @@ export function parserConditionalStatements<T>(
     elseThen?: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>
 ): undefined | PixiVNJsonConditionalStatements<T> {
     if (data.length === 0) {
-        console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
         return undefined
     }
     let conditions = conditionaAritmeticParser(data, labelKey, paramNames)
-    if (conditions.length === 0) {
-        console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-    }
-    else if (conditions.length === 1) {
+    if (conditions.length === 1) {
         let res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: conditions[0],
@@ -38,7 +34,7 @@ export function parserConditionalStatements<T>(
         }
         return res
     }
-    else {
+    else if (conditions.length > 1) {
         let res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: {

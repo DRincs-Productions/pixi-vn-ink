@@ -30,7 +30,4 @@ export function arithmeticParser(
             return first
         }
     }
-    else {
-        console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", data)
-    }
 }

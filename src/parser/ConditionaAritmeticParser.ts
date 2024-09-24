@@ -92,10 +92,7 @@ export function conditionaAritmeticParser(
             }
         }
         else if (item === "&&" || item === "||") {
-            if (conditions.length < 2) {
-                console.error("[Pixi’VN Ink] Error parsing ink file: Conditional statement is not valid", list)
-            }
-            else {
+            if (conditions.length >= 2) {
                 let i: PixiVNJsonConditions = {
                     type: "union",
                     unionType: item === "&&" ? "and" : "or",
