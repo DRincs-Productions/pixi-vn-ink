@@ -22,6 +22,7 @@ test('Label test 1', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			]
 		}
@@ -56,6 +57,7 @@ test('Label test 2', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			]
 		}
@@ -185,6 +187,7 @@ test('Local diverts', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			the_orient_express: [

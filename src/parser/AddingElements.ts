@@ -92,7 +92,10 @@ function addConditionalElementStep(
             list.push({ end: "game_end" })
         }
         else if (item === "done") {
-            list.push({ end: "label_end" })
+            list.push({
+                end: "label_end",
+                goNextStep: true,
+            })
         }
         else if (item == "<>") {
             if (list.length > 0) {

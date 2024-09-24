@@ -45,6 +45,7 @@ test('Defining Global Variables', async () => {
             they_all_die_of_the_plague: [
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -133,11 +134,13 @@ test('Advanced: storing diverts as variables', async () => {
             everybody_dies: [
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             more_hopeless_introspection: [
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -216,6 +219,7 @@ test('Printing variables', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -460,6 +464,7 @@ test('Logic', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -524,6 +529,7 @@ test('Mathematics', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -915,6 +921,7 @@ test('String queries', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -1529,6 +1536,7 @@ test('Example: context-relevant content', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             dream_about_polish_beer: [
@@ -1537,6 +1545,7 @@ test('Example: context-relevant content', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             dream_about_marmalade: [
@@ -1545,6 +1554,7 @@ test('Example: context-relevant content', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -1634,6 +1644,7 @@ test('Conditional blocks are not limited to logic', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             know_about_wager: [
@@ -1642,6 +1653,7 @@ test('Conditional blocks are not limited to logic', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -1767,6 +1779,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             door_open: [
@@ -1775,6 +1788,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             go_outside: [
@@ -1783,6 +1797,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             open_door: [
@@ -1791,6 +1806,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -2397,6 +2413,7 @@ test('Temporary variables are for scratch calculations', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -2560,6 +2577,7 @@ test('Knots and stitches can take parameters', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -2845,6 +2863,7 @@ test('Global Constants', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
             found_japps_bloodied_glove: [
@@ -2853,6 +2872,7 @@ test('Global Constants', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -2976,6 +2996,7 @@ test('Global Constants 2', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }

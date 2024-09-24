@@ -324,6 +324,7 @@ test('Basic branching', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			paragraph_3: [
@@ -332,6 +333,7 @@ test('Basic branching', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			paragraph_4: [
@@ -340,6 +342,7 @@ test('Basic branching', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 		}
@@ -563,6 +566,7 @@ test('Conditional Choices', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			visit_paris: [
@@ -782,6 +786,7 @@ test('Conditional Choices', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			bored_of_paris: [
@@ -790,6 +795,7 @@ test('Conditional Choices', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 		}

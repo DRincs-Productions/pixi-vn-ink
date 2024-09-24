@@ -44,6 +44,7 @@ test('Assign dialogue to a character', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -174,6 +175,7 @@ test('show image', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -265,6 +267,7 @@ test('show image', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -305,6 +308,7 @@ test('edit image', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -338,6 +342,7 @@ test('edit image', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -406,6 +411,7 @@ test('remove image', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -467,6 +473,7 @@ test('remove image', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -541,6 +548,7 @@ test('video', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -594,6 +602,7 @@ test('video', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -690,6 +699,7 @@ test('sound', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -770,6 +780,7 @@ test('sound', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -835,6 +846,7 @@ test('input', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -876,6 +888,7 @@ test('input', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -1070,6 +1083,7 @@ test('markdown', async () => {
                 },
                 {
                     end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }

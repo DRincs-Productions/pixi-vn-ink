@@ -74,6 +74,7 @@ test('Gathers', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			start: [
@@ -245,6 +246,7 @@ test('Options and gathers form chains of content', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			start: [
@@ -455,6 +457,7 @@ test('Options can be nested', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			start: [
@@ -688,6 +691,7 @@ test('Gather points can be nested too', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			start: [
@@ -846,6 +850,7 @@ test('Advanced: What gathers do', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			start: [
@@ -1312,6 +1317,7 @@ test('Gathers and options can be labelled', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			meet_guard: [
@@ -1343,6 +1349,7 @@ test('Gathers and options can be labelled', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 		}
@@ -1387,6 +1394,7 @@ test('Scope', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			"knot_|_stitch_one": [
@@ -1404,6 +1412,7 @@ test('Scope', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			"knot_|_stitch_two": [
@@ -1520,6 +1529,7 @@ test('Scope2', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			"knot_two_|_stitch_two_|_gather_two": [
@@ -1670,6 +1680,7 @@ test('Advanced: all options can be labelled', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			fight_guard: [
@@ -1816,6 +1827,7 @@ test('Advanced: Loops in a weave', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			"fight_guard_|_loop": [
@@ -2000,6 +2012,7 @@ test('Advanced: diverting to options', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			fight_guard: [
@@ -2017,6 +2030,7 @@ test('Advanced: diverting to options', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 		}
@@ -2125,6 +2139,7 @@ test('Advanced: Gathers directly after an option', async () => {
 				},
 				{
 					end: "label_end",
+					goNextStep: true,
 				},
 			],
 			fight_guard: [
