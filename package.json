@@ -1,8 +1,8 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
-  "description": "Pixi’VN gives you the ability to write your own narrative using Ink",
+  "description": "PixiiVN gives you the ability to write your own narrative using Ink",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
