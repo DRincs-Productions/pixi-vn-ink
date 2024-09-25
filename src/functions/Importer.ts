@@ -27,8 +27,6 @@ export function importInkText(text: string | string[]) {
     }
     let data = convertInkText(text)
     if (data) {
-        {
-            importPixiVNJson(data, getOperationFromCommand)
-        }
+        importPixiVNJson(data, getOperationFromCommand)
     }
 }
