@@ -27,19 +27,15 @@ export function addChoiseIntoList<T>(
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
             let c: PixiVNJsonChoice = {
+                text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
                 type: "jump",
                 oneTime: value.onetime,
             }
-            if (value.text.length === 1) {
-                c.text = value.text[0]
-            }
-            else if (value.text.length > 1) {
-                c.text = value.text
-            }
-            if (!c.text) {
+            if (value.text.length === 0) {
                 c.onlyHaveNoChoice = true
+                c.autoSelect = true
             }
             if (c.oneTime === false) {
                 delete c.oneTime
