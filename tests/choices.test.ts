@@ -428,18 +428,27 @@ test('Example of a fallback choice', async () => {
 				{
 					choices: [
 						{
-							text: ["The woman in the hat", "?",],
+							text: ["The woman in the hat", "?"],
 							label: "find_help_|_c-0",
 							props: {},
 							type: "jump",
 							oneTime: true,
 						},
 						{
-							text: ["The man with the briefcase", "?",],
+							text: ["The man with the briefcase", "?"],
 							label: "find_help_|_c-1",
 							props: {},
 							type: "jump",
 							oneTime: true,
+						},
+						{
+							autoSelect: true,
+							label: "find_help_|_c-2",
+							oneTime: true,
+							onlyHaveNoChoice: true,
+							props: {},
+							text: [],
+							type: "jump",
 						},
 					],
 				},
@@ -496,7 +505,6 @@ test('Sticky choices', async () => {
 							label: "homers_couch_|_c-0",
 							props: {},
 							type: "jump",
-							oneTime: false,
 						},
 						{
 							text: "Get off the couch",
@@ -621,7 +629,6 @@ test('Conditional Choices', async () => {
 								label: "visit_paris_|_c-1",
 								props: {},
 								type: "jump",
-								oneTime: false,
 							},
 						},
 						{

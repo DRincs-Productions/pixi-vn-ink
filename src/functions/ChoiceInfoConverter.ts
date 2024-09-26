@@ -33,6 +33,13 @@ export function addChoiseIntoList<T>(
                 type: "jump",
                 oneTime: value.onetime,
             }
+            if (value.text.length === 0) {
+                c.onlyHaveNoChoice = true
+                c.autoSelect = true
+            }
+            if (c.oneTime === false) {
+                delete c.oneTime
+            }
             let choice = parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c
             let prevItem = itemList[itemList.length - 1]
             if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
@@ -124,12 +131,16 @@ export function getLabelChoice(
         else {
             condition.push(rootItem)
         }
-        if (text.length > 0 && label) {
+        if (label) {
             if (result[label]) {
                 result[label].text = unionStringOrArray<string | (string | PixiVNJsonConditionalStatements<string>)>(text, result[label].text)
             }
             else {
-                result[label] = { text: text, onetime: onetime, conditions: condition }
+                result[label] = {
+                    text: text,
+                    onetime: onetime,
+                    conditions: condition
+                }
             }
             if (preDialog) {
                 result[label].preDialog = { text: preDialog }
