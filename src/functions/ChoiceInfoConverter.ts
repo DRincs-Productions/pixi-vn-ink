@@ -27,11 +27,23 @@ export function addChoiseIntoList<T>(
             let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key
             // if last step is choice
             let c: PixiVNJsonChoice = {
-                text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
                 type: "jump",
                 oneTime: value.onetime,
+            }
+            if (value.text.length === 1) {
+                c.text = value.text[0]
+            }
+            else if (value.text.length > 1) {
+                c.text = value.text
+            }
+            if (c.oneTime && !c.text) {
+                c.onlyHaveNoChoice = true
+                delete c.oneTime
+            }
+            if (c.oneTime === false) {
+                delete c.oneTime
             }
             let choice = parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c
             let prevItem = itemList[itemList.length - 1]
@@ -124,12 +136,16 @@ export function getLabelChoice(
         else {
             condition.push(rootItem)
         }
-        if (text.length > 0 && label) {
+        if (label) {
             if (result[label]) {
                 result[label].text = unionStringOrArray<string | (string | PixiVNJsonConditionalStatements<string>)>(text, result[label].text)
             }
             else {
-                result[label] = { text: text, onetime: onetime, conditions: condition }
+                result[label] = {
+                    text: text,
+                    onetime: onetime,
+                    conditions: condition
+                }
             }
             if (preDialog) {
                 result[label].preDialog = { text: preDialog }

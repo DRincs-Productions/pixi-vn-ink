@@ -290,7 +290,6 @@ test('Evaluating strings', async () => {
                             label: "start_|_c-0",
                             props: {},
                             type: "jump",
-                            oneTime: false,
                         },
                     ],
                 },
