@@ -675,6 +675,7 @@ test('Examples', async () => {
 							props: {},
 							type: "jump",
 							onlyHaveNoChoice: true,
+							oneTime: true,
 						},
 					],
 				},

@@ -446,6 +446,7 @@ test('Example of a fallback choice', async () => {
 							props: {},
 							type: "jump",
 							onlyHaveNoChoice: true,
+							oneTime: true,
 						},
 					],
 				},

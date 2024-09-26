@@ -38,9 +38,8 @@ export function addChoiseIntoList<T>(
             else if (value.text.length > 1) {
                 c.text = value.text
             }
-            if (c.oneTime && !c.text) {
+            if (!c.text) {
                 c.onlyHaveNoChoice = true
-                delete c.oneTime
             }
             if (c.oneTime === false) {
                 delete c.oneTime
