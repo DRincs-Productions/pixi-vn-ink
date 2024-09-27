@@ -2279,6 +2279,7 @@ test('Temporary variables are for scratch calculations', async () => {
             near_north_pole: [
                 {
                     goNextStep: true,
+                    glueEnabled: true,
                     operation: [
                         {
                             type: "value",
@@ -2527,6 +2528,8 @@ test('Knots and stitches can take parameters', async () => {
                 },
                 {
                     dialogue: "\"Really?\" Japp replied. \"",
+                    goNextStep: true,
+                    glueEnabled: true,
                 },
                 {
                     conditionalStep: {
@@ -2608,6 +2611,7 @@ test('Example: a recursive knot definition', async () => {
         labels: {
             add_one_to_one_hundred: [
                 {
+                    glueEnabled: true,
                     goNextStep: true,
                     operation: [
                         {

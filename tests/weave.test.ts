@@ -1646,6 +1646,8 @@ test('Advanced: all options can be labelled', async () => {
 			"fight_guard_|_throw": [
 				{
 					dialogue: "You hurl ",
+					goNextStep: true,
+					glueEnabled: true,
 				},
 				{
 					conditionalStep: {

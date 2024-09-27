@@ -948,6 +948,8 @@ test('Conditional Text', async () => {
 							secondConditionalItem: [
 								{
 									dialogue: " \"I saw him. Only for a moment. His real name was ",
+									glueEnabled: true,
+									goNextStep: true,
 								},
 								{
 									conditionalStep: {

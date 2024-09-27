@@ -93,8 +93,8 @@ export function parseLabel<T>(
                     }
                     else {
                         envList.push(rootItem)
+                        isNewLine = false
                     }
-                    isNewLine = false
                 }
                 else if ("VAR=" in rootItem || "temp=" in rootItem) {
                     let type: "storage" | "tempstorage" | "params" = "VAR=" in rootItem ? "storage" : "tempstorage"
@@ -120,6 +120,7 @@ export function parseLabel<T>(
                     }
                     if (typeof name !== "string" || !name.includes("$r")) {
                         addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine, isComment)
+                        isNewLine = true
                     }
                 }
                 else if ("VAR?" in rootItem) {

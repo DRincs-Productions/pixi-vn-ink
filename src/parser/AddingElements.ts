@@ -114,6 +114,15 @@ function addConditionalElementStep(
     }
     else if (typeof item === "object") {
         if ("type" in item) {
+            if (!isNewLine && list.length > 0) {
+                let prevItem = list[list.length - 1]
+                // in this case: <> text
+                if (!prevItem.glueEnabled) {
+                    prevItem.glueEnabled = true
+                    prevItem.goNextStep = true
+                }
+                list[list.length - 1] = prevItem
+            }
             list.push({ conditionalStep: item })
         }
         else if ("->" in item) {
