@@ -908,6 +908,8 @@ test('Conditional Text', async () => {
 				},
 				{
 					dialogue: "\"His real name was ",
+					glueEnabled: true,
+					goNextStep: true,
 				},
 				{
 					conditionalStep: {
