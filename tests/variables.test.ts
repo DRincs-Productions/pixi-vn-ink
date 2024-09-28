@@ -134,7 +134,7 @@ test('Advanced: storing diverts as variables', async () => {
         labels: {
             "continue_or_quit_|_c-0": [
                 {
-                    dialogue: " \t",
+                    dialogue: "  ",
                     goNextStep: true,
                 },
                 {
@@ -147,7 +147,7 @@ test('Advanced: storing diverts as variables', async () => {
             ],
             "continue_or_quit_|_c-1": [
                 {
-                    dialogue: " \t\t",
+                    dialogue: "   ",
                     goNextStep: true,
                 },
                 {
@@ -1743,7 +1743,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: " and I fancied I heard my master quietly tutting to himself. \t\t\t",
+                    dialogue: " and I fancied I heard my master quietly tutting to himself.    ",
                     goNextStep: true,
                 },
                 {
@@ -1761,7 +1761,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: " and Monsieur Fogg looked surprised. \t",
+                    dialogue: " and Monsieur Fogg looked surprised.  ",
                     goNextStep: true,
                 },
                 {

@@ -378,7 +378,7 @@ test('Examples', async () => {
 		labels: {
 			"whack_a_mole_|_c-0": [
 				{
-					dialogue: " \t",
+					dialogue: "  ",
 					goNextStep: true,
 				},
 				{
@@ -407,7 +407,7 @@ test('Examples', async () => {
 			],
 			"whack_a_mole_|_c-3": [
 				{
-					dialogue: " \t",
+					dialogue: "  ",
 					goNextStep: true,
 				},
 				{
@@ -420,7 +420,7 @@ test('Examples', async () => {
 			],
 			"whack_a_mole_|_c-4": [
 				{
-					dialogue: " \t",
+					dialogue: "  ",
 					goNextStep: true,
 				},
 				{
@@ -707,7 +707,7 @@ test('Examples 2', async () => {
 		labels: {
 			"turn_on_television_|_c-0": [
 				{
-					dialogue: "\t \t\t",
+					dialogue: "    ",
 					goNextStep: true,
 				},
 				{
@@ -720,15 +720,10 @@ test('Examples 2', async () => {
 			],
 			"turn_on_television_|_c-1": [
 				{
-					dialogue: "\t",
-					goNextStep: true,
-				},
-				{
 					labelToOpen: {
 						label: "go_outside_instead",
 						type: "jump",
 					},
-					glueEnabled: true,
 				},
 			],
 			turn_on_television: [

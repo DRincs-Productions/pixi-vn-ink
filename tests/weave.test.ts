@@ -1242,7 +1242,7 @@ test('Gathers and options can be labelled', async () => {
 			],
 			"meet_guard_|_g-0_|_c-4": [
 				{
-					dialogue: " \t ",
+					dialogue: "   ",
 				},
 				{
 					dialogue: "You shove him sharply. He stares in reply, and draws his sword!",

@@ -5,7 +5,8 @@ export function getText(text: string): string {
     }
     text = text.replaceAll("\\\\", DOUBLE_SLASH_CONVERTOR)
     text = text.replaceAll("\\n", "\n")
-    text = text.replaceAll("\\t", "\t")
+    text = text.replaceAll("\\t", " ")
+    text = text.replaceAll("\t", " ")
     text = text.replaceAll(DOUBLE_SLASH_CONVERTOR, "\\\\")
     return text
 }
