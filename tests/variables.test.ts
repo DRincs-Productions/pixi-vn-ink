@@ -670,6 +670,48 @@ test('RANDOM(min, max)', async () => {
                         },
                     ],
                 },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "dice_roll",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "lazy_grading_for_test_paper",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "number_of_heads_the_serpent_has",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
             ],
         }
     }
@@ -681,6 +723,9 @@ test('RANDOM(min, max)', async () => {
 ~ temp lazy_grading_for_test_paper = RANDOM(30, 75)
 
 ~ temp number_of_heads_the_serpent_has = RANDOM(3, 8)
+
+{dice_roll} {lazy_grading_for_test_paper} {number_of_heads_the_serpent_has}
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
