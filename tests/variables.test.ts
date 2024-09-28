@@ -44,6 +44,59 @@ test('Defining Global Variables', async () => {
         labels: {
             they_all_die_of_the_plague: [
                 {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "knowledge_of_the_cure",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "players_name",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "number_of_infected_people",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "current_epilogue",
+                    },
+                },
+                {
                     end: "label_end",
                     goNextStep: true,
                 },
@@ -56,7 +109,9 @@ VAR players_name = "Emilia"
 VAR number_of_infected_people = 521
 VAR current_epilogue = -> they_all_die_of_the_plague
 
+-> they_all_die_of_the_plague
 === they_all_die_of_the_plague
+{knowledge_of_the_cure} {players_name} {number_of_infected_people} {current_epilogue}
 -> DONE
 `);
     expect(res).toEqual(expected);
