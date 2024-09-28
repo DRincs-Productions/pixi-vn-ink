@@ -90,10 +90,10 @@ export function getConditionalValue<T>(
         return undefined
     }
 
-    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then", shareData, paramNames, nestedId)
+    let then = getThen(data[0] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then", shareData, paramNames, `${nestedId || ""}then`)
     let elseThen = undefined
     if (data.length === 2) {
-        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, nestedId)
+        elseThen = getThen(data[1] as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, `${nestedId || ""}else`)
     }
     else if (data.length > 2) {
         data.shift()
@@ -101,7 +101,7 @@ export function getConditionalValue<T>(
         data = [
             { "b": data } as any
         ]
-        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, nestedId)
+        elseThen = getThen(data as any, addSwitchElemen, addLabels, labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else", shareData, paramNames, `${nestedId || ""}else`)
     }
     shareData.du = undefined
     return parserConditionalStatements<T>(then, condition, paramNames, labelKey, elseThen)

@@ -159,7 +159,7 @@ test('show image', async () => {
                                                 ],
                                                 choiceType: "sequential",
                                                 end: "lastItem",
-                                                nestedId: undefined,
+                                                nestedId: "else",
                                             },
                                             " ",
                                         ],
