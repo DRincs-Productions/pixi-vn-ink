@@ -825,6 +825,49 @@ test('Advanced: numerical types are implicit', async () => {
                             },
                         },
                     ],
+                    glueEnabled: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "x",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "y",
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "z",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
@@ -838,6 +881,8 @@ VAR z = 0
 ~ x = 2 / 3
 ~ y = 7 / 3
 ~ z = 1.2 / 0.5
+{x} {y} {z}
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1093,7 +1138,7 @@ test('A simple if', async () => {
                                         operation: {
                                             type: "arithmetic",
                                             operator: "-",
-                                            rightValue: 1,
+                                            rightValue: 2,
                                             leftValue: {
                                                 type: "value",
                                                 storageType: "storage",
@@ -1105,20 +1150,33 @@ test('A simple if', async () => {
                                 },
                             ],
                         },
-                        else: undefined,
                     },
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "y",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
                 },
             ],
         }
     }
     let res = convertInkText(`
-VAR x = 0
+VAR x = 1
 VAR y = 0
 -> start
 === start
 { x > 0:
-	~ y = x - 1
+	~ y = x - 2
 }
+{y}
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1216,6 +1274,18 @@ test('A simple else', async () => {
                         },
                     },
                 },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "y",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
             ],
         }
     }
@@ -1229,6 +1299,8 @@ VAR y = 0
 - else:
 	~ y = x + 1
 }
+{y}
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1354,6 +1426,18 @@ test('Extended if/else if/else blocks', async () => {
                         },
                     },
                 },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "y",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
             ],
         }
     }
@@ -1370,6 +1454,8 @@ VAR y = 0
 	- else:
 		~ y = x + 1
 }
+{y}
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
@@ -1496,7 +1582,7 @@ test('Example: context-relevant content', async () => {
             },
         ],
         labels: {
-            dream: [
+            start: [
                 {
                     conditionalStep: {
                         type: "ifelse",
@@ -1634,6 +1720,14 @@ test('Example: context-relevant content', async () => {
                     dialogue: "dream_about_snakes",
                 },
                 {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "fear",
+                    },
+                },
+                {
                     end: "label_end",
                     goNextStep: true,
                 },
@@ -1643,6 +1737,14 @@ test('Example: context-relevant content', async () => {
                     dialogue: "dream_about_polish_beer",
                 },
                 {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "fear",
+                    },
+                },
+                {
                     end: "label_end",
                     goNextStep: true,
                 },
@@ -1650,6 +1752,14 @@ test('Example: context-relevant content', async () => {
             dream_about_marmalade: [
                 {
                     dialogue: "dream_about_marmalade",
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "storage",
+                        storageOperationType: "get",
+                        key: "fear",
+                    },
                 },
                 {
                     end: "label_end",
@@ -1663,8 +1773,8 @@ VAR fear = 0
 VAR visited_poland = true
 VAR visited_snakes = true
 
--> dream
-=== dream ===
+-> start
+=== start ===
 	{
 		- visited_snakes && not dream_about_snakes:
 			~ fear++
@@ -1680,12 +1790,15 @@ VAR visited_snakes = true
 	}
 === dream_about_snakes ===
 dream_about_snakes
+{fear}
 -> DONE
 === dream_about_polish_beer ===
 dream_about_polish_beer
+{fear}
 -> DONE
 === dream_about_marmalade ===
 dream_about_marmalade
+{fear}
 -> DONE
 `);
     expect(res).toEqual(expected);
