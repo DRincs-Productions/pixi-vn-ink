@@ -1924,7 +1924,7 @@ test('Conditional blocks are not limited to logic 2', async () => {
                 },
                 {
                     labelToOpen: {
-                        label: "open_door",
+                        label: "door_open",
                         type: "jump",
                     },
                     glueEnabled: true,
@@ -1999,6 +1999,12 @@ test('Conditional blocks are not limited to logic 2', async () => {
                     dialogue: "door_open",
                 },
                 {
+                    labelToOpen: {
+                        label: "start",
+                        type: "jump",
+                    },
+                },
+                {
                     end: "label_end",
                     goNextStep: true,
                 },
@@ -2029,12 +2035,13 @@ test('Conditional blocks are not limited to logic 2', async () => {
 { door_open:
 	* 	I strode out of the compartment[] and I fancied I heard my master quietly tutting to himself. 			-> go_outside
 - else:
-	*	I asked permission to leave[] and Monsieur Fogg looked surprised. 	-> open_door
+	*	I asked permission to leave[] and Monsieur Fogg looked surprised. 	-> door_open
 	* 	I stood and went to open the door[]. Monsieur Fogg seemed untroubled by this small rebellion. -> open_door
 }
 -> DONE
 == door_open
 door_open
+-> start
 -> DONE
 == go_outside
 go_outside
