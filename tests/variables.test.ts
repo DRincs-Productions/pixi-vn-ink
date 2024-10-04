@@ -2829,9 +2829,17 @@ test('Knots and stitches can take parameters', async () => {
 test('Example: a recursive knot definition', async () => {
     let expected: PixiVNJson = {
         labels: {
+            start: [
+                {
+                    labelToOpen: {
+                        label: "add_one_to_one_hundred",
+                        type: "jump",
+                        params: [0, 1,],
+                    },
+                },
+            ],
             add_one_to_one_hundred: [
                 {
-                    glueEnabled: true,
                     goNextStep: true,
                     operation: [
                         {
@@ -2890,7 +2898,6 @@ test('Example: a recursive knot definition', async () => {
                                     },
                                 ],
                             },
-                            glueEnabled: undefined,
                         },
                         else: {
                             labelToOpen: {
@@ -2916,7 +2923,6 @@ test('Example: a recursive knot definition', async () => {
                                     },
                                 ],
                             },
-                            glueEnabled: undefined,
                         },
                     },
                 },
@@ -2950,6 +2956,9 @@ test('Example: a recursive knot definition', async () => {
         }
     }
     let res = convertInkText(`
+-> start()
+
+=== start
 -> add_one_to_one_hundred(0, 1)
 
 === add_one_to_one_hundred(total, x) ===
