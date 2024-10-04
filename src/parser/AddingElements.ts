@@ -57,7 +57,7 @@ function addConditionalElementStep(
         if (!isNewLine && list.length > 0) {
             let prevItem = list[list.length - 1]
             // in this case: <> text
-            if (!prevItem.glueEnabled) {
+            if (!prevItem.glueEnabled && !prevItem.operation) {
                 prevItem.glueEnabled = true
                 prevItem.goNextStep = true
             }
@@ -117,7 +117,7 @@ function addConditionalElementStep(
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1]
                 // in this case: <> text
-                if (!prevItem.glueEnabled) {
+                if (!prevItem.glueEnabled && !prevItem.operation) {
                     prevItem.glueEnabled = true
                     prevItem.goNextStep = true
                 }

@@ -825,7 +825,6 @@ test('Advanced: numerical types are implicit', async () => {
                             },
                         },
                     ],
-                    glueEnabled: true,
                 },
                 {
                     dialogue: {
@@ -2499,7 +2498,6 @@ test('Temporary variables are for scratch calculations', async () => {
             near_north_pole: [
                 {
                     goNextStep: true,
-                    glueEnabled: true,
                     operation: [
                         {
                             type: "value",
