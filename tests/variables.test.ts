@@ -1097,7 +1097,7 @@ test('A simple if', async () => {
                 storageOperationType: "set",
                 storageType: "storage",
                 key: "x",
-                value: 0,
+                value: 1,
             },
             {
                 type: "value",
