@@ -63,6 +63,7 @@ export function parseLabel<T>(
             paramNames.push((rootList[0] as any)["temp="])
             rootList.shift()
         }
+        paramNames = paramNames.reverse()
     }
     rootList.forEach((rootItem, index) => {
         if (isComment) {
