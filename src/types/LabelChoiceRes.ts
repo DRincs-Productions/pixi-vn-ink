@@ -5,7 +5,7 @@ import ReadCount from "./parserItems/ReadCount"
 type LabelChoiceRes = {
     [label: string]: {
         text: string | (string | PixiVNJsonConditionalStatements<string>)[]
-        preDialog?: { text: string }
+        preDialog?: { text: string, glue: boolean }
         onetime: boolean
         conditions: (ReadCount | NativeFunctions)[]
     }

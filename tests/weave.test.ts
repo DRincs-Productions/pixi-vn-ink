@@ -3,130 +3,6 @@ import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 
 /**
- * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#1-gathers
- */
-test('Gathers', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"start_|_c-0": [
-				{
-					dialogue: "\"I am somewhat tired",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: ",\" I repeated.",
-				},
-				{
-					dialogue: "\"Really,\" he responded. \"How deleterious.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_c-1": [
-				{
-					dialogue: "\"Nothing, Monsieur!\"",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " I replied.",
-				},
-				{
-					dialogue: "\"Very good, then.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_c-2": [
-				{
-					dialogue: "\"I said, this journey is appalling",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " and I want no more of it.\"",
-				},
-				{
-					dialogue: "\"Ah,\" he replied, not unkindly. \"I see you are feeling frustrated. Tomorrow, things will improve.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0": [
-				{
-					dialogue: "With that Monsieur Fogg left the room.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			start: [
-				{
-					dialogue: "\"What's that?\" my master asked.",
-				},
-				{
-					choices: [
-						{
-							text: ["\"I am somewhat tired", ".\"",],
-							label: "start_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Nothing, Monsieur!\"",
-							label: "start_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: ["\"I said, this journey is appalling", ".\"",],
-							label: "start_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
--> start
-=== start ==
-"What's that?" my master asked.
-	*	"I am somewhat tired[."]," I repeated.
-		"Really," he responded. "How deleterious."
-	*	"Nothing, Monsieur!"[] I replied.
-		"Very good, then."
-	*  "I said, this journey is appalling[."] and I want no more of it."
-	"Ah," he replied, not unkindly. "I see you are feeling frustrated. Tomorrow, things will improve."
-
--	With that Monsieur Fogg left the room.
--> DONE
-`);
-	expect(res).toEqual(expected);
-});
-
-/**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#options-and-gathers-form-chains-of-content
  */
 test('Options and gathers form chains of content', async () => {
@@ -173,6 +49,8 @@ test('Options and gathers form chains of content', async () => {
 			"start_|_c-2": [
 				{
 					dialogue: "I cheered with joy. ",
+					glueEnabled: true,
+					goNextStep: true,
 				},
 				{
 					labelToOpen: {

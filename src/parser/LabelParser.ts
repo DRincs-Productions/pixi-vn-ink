@@ -12,7 +12,7 @@ import { getConditionalValue } from './ConditionalStatementsParser';
 import { parserSwitch } from './SwitchParser';
 
 export type ShareDataParserLabel = {
-    preDialog: { [label: string]: { text: string } },
+    preDialog: { [label: string]: { text: string, glue: boolean } },
     du?: any
     params?: {}
 }
@@ -58,6 +58,9 @@ export function parseLabel<T>(
         // *	Hello [back!] right back to you!
         isNewLine = false
         addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, paramNames, isNewLine, isComment)
+        if (shareData.preDialog[labelKey].glue) {
+            addElement(itemList, "<>", labelKey, paramNames, isNewLine, isComment)
+        }
         delete shareData.preDialog[labelKey]
     }
     if (rootList.includes("visit")) {
