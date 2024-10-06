@@ -54,7 +54,12 @@ export function parserConditionalStatements<T>(
 
 export function getConditionalValue<T>(
     preData: (ReadCount | (StandardDivert | Cond)[])[],
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
+    addSwitchElemen: (
+        list: PixiVNJsonStepSwitchElementType<T>[],
+        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        labelKey: string,
+        paramNames: string[],
+    ) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,
@@ -109,7 +114,12 @@ export function getConditionalValue<T>(
 
 function getThen<T>(
     cond: (StandardDivert | Cond)[],
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
+    addSwitchElemen: (
+        list: PixiVNJsonStepSwitchElementType<T>[],
+        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        labelKey: string,
+        paramNames: string[],
+    ) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string,
     shareData: ShareDataParserLabel,

@@ -3005,8 +3005,8 @@ test('Advanced: sending divert targets as parameters', async () => {
                         label: {
                             type: "value",
                             storageOperationType: "get",
-                            storageType: "storage",
-                            key: "waking",
+                            storageType: "params",
+                            key: 0,
                         },
                         type: "jump",
                     },

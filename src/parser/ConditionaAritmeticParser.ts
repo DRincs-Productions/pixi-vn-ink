@@ -4,6 +4,7 @@ import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { arithmeticFunctions, ArithmeticFunctions, arithmeticFunctionsSingle, ArithmeticFunctionsSingle, conditionFunctions, ConditionFunctions } from "../types/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
 import { getText } from "../utility/TextUtility";
+import { getValue } from "../utility/ValueUtility";
 
 export function conditionaAritmeticParser(
     list: any[],
@@ -73,23 +74,7 @@ export function conditionaAritmeticParser(
             }
         }
         else if (typeof item === "object" && "VAR?" in item) {
-            let paramIndex = paramNames.indexOf(item["VAR?"])
-            if (paramIndex >= 0) {
-                conditions.push({
-                    type: "value",
-                    storageType: "params",
-                    storageOperationType: "get",
-                    key: paramIndex,
-                })
-            }
-            else {
-                conditions.push({
-                    type: "value",
-                    storageType: "storage",
-                    storageOperationType: "get",
-                    key: item["VAR?"],
-                })
-            }
+            conditions.push(getValue(item["VAR?"], paramNames))
         }
         else if (item === "&&" || item === "||") {
             if (conditions.length >= 2) {

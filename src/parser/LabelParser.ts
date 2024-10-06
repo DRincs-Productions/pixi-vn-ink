@@ -6,7 +6,7 @@ import { ContainerTypeN } from '../types/parserItems/ContainerType';
 import { StandardDivert } from '../types/parserItems/Divert';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { MyVariableAssignment } from '../types/parserItems/VariableAssignment';
-import { getParam } from '../utility/ValueUtility';
+import { getParam, getSetValue, getValue } from '../utility/ValueUtility';
 import { addSwitchComment } from './AddingElements';
 import { getConditionalValue } from './ConditionalStatementsParser';
 import { parserSwitch } from './SwitchParser';
@@ -21,8 +21,21 @@ export function parseLabel<T>(
     labelKey: string,
     shareData: ShareDataParserLabel,
     itemList: T[] = [],
-    addElement: (list: T[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine: boolean, isComment: boolean) => void,
-    addSwitchElemen: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string, isNewLine?: boolean) => void,
+    addElement: (
+        list: T[],
+        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        labelKey: string,
+        paramNames: string[],
+        isNewLine: boolean,
+        isComment: boolean,
+    ) => void,
+    addSwitchElemen: (
+        list: PixiVNJsonStepSwitchElementType<T>[],
+        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        labelKey: string,
+        paramNames: string[],
+        isNewLine?: boolean,
+    ) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     addChoiseList: (
         choiseList: RootParserItemType[],
@@ -44,16 +57,16 @@ export function parseLabel<T>(
     if (shareData.preDialog[labelKey]) {
         // *	Hello [back!] right back to you!
         isNewLine = false
-        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, isNewLine, isComment)
+        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, paramNames, isNewLine, isComment)
         delete shareData.preDialog[labelKey]
     }
     if (rootList.includes("visit")) {
         let item = parserSwitch<T>(rootList as any, addSwitchElemen, addLabels, labelKey, shareData, paramNames, nestedId)
         if (item) {
             if (!isNewLine && itemList.length > 0) {
-                addElement(itemList, "<>", labelKey, isNewLine, isComment)
+                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isComment)
             }
-            addElement(itemList, item, labelKey, isNewLine, isComment)
+            addElement(itemList, item, labelKey, paramNames, isNewLine, isComment)
         }
         return
     }
@@ -70,7 +83,7 @@ export function parseLabel<T>(
             if (typeof rootItem === "string" && rootItem == "/#") {
                 let myList: T[] = []
                 parseLabel(commentList, labelKey, shareData, myList, addSwitchComment as any, addSwitchComment as any, addLabels, addChoiseList, nestedId, isNewLine)
-                addElement(itemList, myList as any, labelKey, isNewLine, isComment)
+                addElement(itemList, myList as any, labelKey, paramNames, isNewLine, isComment)
                 isComment = false
                 commentList = []
             }
@@ -98,29 +111,27 @@ export function parseLabel<T>(
                     }
                 }
                 else if ("VAR=" in rootItem || "temp=" in rootItem) {
-                    let type: "storage" | "tempstorage" | "params" = "VAR=" in rootItem ? "storage" : "tempstorage"
-                    let name = "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp=']
-                    let paramIndex = paramNames.indexOf(name)
-                    if (paramIndex >= 0) {
-                        type = "params"
-                        name = paramIndex
+                    let obj = getSetValue(
+                        "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp='],
+                        paramNames,
+                        rootList[index - 1],
+                        "VAR=" in rootItem ? "storage" : "tempstorage",
+                    )
+                    if (obj.value && typeof obj.value === "string" && obj.value == "/str") {
+                        obj.value = rootList[index - 2]
                     }
-                    let value = rootList[index - 1]
-                    if (value && typeof value === "string" && value == "/str") {
-                        value = rootList[index - 2]
-                    }
-                    if (value && typeof value === "object" && "^->" in value) {
-                        value = (value as any)["^->"]
+                    if (obj.value && typeof obj.value === "object" && "^->" in obj.value) {
+                        obj.value = (obj.value as any)["^->"]
                     }
                     if (envList.length > 1) {
                         let arm = arithmeticParser(envList as any, labelKey, paramNames)
                         envList = []
                         if (arm && typeof arm === "object" && "type" in arm && arm.type == "value" && "storageType" in arm && arm.storageType == "logic") {
-                            value = arm.operation as any
+                            obj.value = arm.operation as any
                         }
                     }
-                    if (typeof name !== "string" || !name.includes("$r")) {
-                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value as any, name: name }, labelKey, isNewLine, isComment)
+                    if (typeof obj.key !== "string" || !obj.key.includes("$r")) {
+                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isComment)
                         isNewLine = true
                     }
                 }
@@ -147,14 +158,12 @@ export function parseLabel<T>(
                         let lastValue = envList[envList.length - 1]
                         if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
                             envList.pop()
-                            let type: "storage" | "params" = "storage"
-                            let name: any = lastValue['VAR?']
-                            let paramIndex = paramNames.indexOf(name)
-                            if (paramIndex >= 0) {
-                                type = "params"
-                                name = paramIndex
-                            }
-                            addElement(itemList, { typeOperation: "get", typeVar: type, name: name }, labelKey, isNewLine, isComment)
+                            let obj = getValue(
+                                lastValue['VAR?'],
+                                paramNames,
+                                "storage"
+                            )
+                            addElement(itemList, obj, labelKey, paramNames, isNewLine, isComment)
                         }
                         else {
                             let varList = []
@@ -165,12 +174,12 @@ export function parseLabel<T>(
                             let value = arithmeticParser(varList as any, labelKey, paramNames)
                             envList = []
                             if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "logic") {
-                                addElement(itemList, { typeOperation: "get", typeVar: "logic", value: value.operation as PixiVNJsonArithmeticOperations }, labelKey, isNewLine, isComment)
+                                addElement(itemList, { storageOperationType: "get", storageType: "logic", operation: value.operation as PixiVNJsonArithmeticOperations, type: "value" }, labelKey, paramNames, isNewLine, isComment)
                             }
                             else {
-                                addElement(itemList, "<>", labelKey, isNewLine, isComment)
+                                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isComment)
                                 value = `^${value}`
-                                addElement(itemList, value, labelKey, isNewLine, isComment)
+                                addElement(itemList, value, labelKey, paramNames, isNewLine, isComment)
                             }
                         }
                         isNewLine = false
@@ -184,7 +193,7 @@ export function parseLabel<T>(
         else if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
                 isNewLine = false
             }
             else if (rootItem == "ev") {
@@ -194,17 +203,17 @@ export function parseLabel<T>(
                 isNewLine = true
             }
             else if (rootItem == "done" || rootItem == "end") {
-                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
                 isNewLine = false
             }
             else if (rootItem == "<>") {
-                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
                 let res = getConditionalValue<T>(conditionalList as any[], addSwitchElemen, addLabels, labelKey, shareData, paramNames, nestedId)
                 if (res) {
-                    addElement(itemList, res, labelKey, isNewLine, isComment)
+                    addElement(itemList, res, labelKey, paramNames, isNewLine, isComment)
                 }
                 isConditionalText = false
                 conditionalList = []
@@ -242,7 +251,7 @@ export function parseLabel<T>(
                 let newLabelKey = el["#n"]
                 delete (el as any)["#n"]
                 rootItem.push(el)
-                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, isNewLine, isComment);
+                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, paramNames, isNewLine, isComment);
                 addLabels({
                     [newLabelKey]: rootItem
                 }, labelKey, shareData)
@@ -261,7 +270,7 @@ export function parseLabel<T>(
                     params = getParam(["ev", ...envList], labelKey, paramNames)
                 }
                 rootItem["params"] = params
-                addElement(itemList, rootItem, labelKey, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
                 isNewLine = false
             }
             else if ("*" in rootItem && typeof rootItem["*"] === "string") {
@@ -281,14 +290,13 @@ export function parseLabel<T>(
             }
             else if ("VAR=" in rootItem || "temp=" in rootItem) {
                 let varList = []
-                let type: "storage" | "tempstorage" | "params" = "VAR=" in rootItem ? "storage" : "tempstorage"
-                let name = "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp=']
-                let paramIndex = paramNames.indexOf(name)
-                if (paramIndex >= 0) {
-                    type = "params"
-                    name = paramIndex
-                }
-                if (name !== "$r") {
+                let obj = getSetValue(
+                    "VAR=" in rootItem ? rootItem['VAR='] : rootItem['temp='],
+                    paramNames,
+                    undefined,
+                    "VAR=" in rootItem ? "storage" : "tempstorage",
+                )
+                if (obj.key !== "$r") {
                     envList.pop()
                     if (envList[envList.length - 1] == "/ev") {
                         envList.pop()
@@ -297,10 +305,10 @@ export function parseLabel<T>(
                         varList.push(envList.pop())
                     }
                     varList = varList.reverse()
-                    let value = arithmeticParser(varList as any, labelKey, paramNames)
+                    obj.value = arithmeticParser(varList as any, labelKey, paramNames)
                     envList = []
-                    if (value !== undefined || value !== null) {
-                        addElement(itemList, { typeOperation: "set", typeVar: type, value: value, name: name }, labelKey, isNewLine, isComment)
+                    if (obj.value !== undefined || obj.value !== null) {
+                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isComment)
                     }
                     isNewLine = false
                 }

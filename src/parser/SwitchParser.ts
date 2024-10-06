@@ -14,7 +14,12 @@ export type ConditionalList = (number | ControlCommands | StandardDivert | Nativ
 
 export function parserSwitch<T>(
     items: ConditionalList,
-    addElement: (list: PixiVNJsonStepSwitchElementType<T>[], item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment, labelKey: string) => void,
+    addElement: (
+        list: PixiVNJsonStepSwitchElementType<T>[],
+        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        labelKey: string,
+        paramNames: string[],
+    ) => void,
     addLabels: (storyItem: InkRootType | RootParserItemType, dadLabelKey: string, shareData: ShareDataParserLabel) => void,
     labelKey: string = "",
     shareData: ShareDataParserLabel,

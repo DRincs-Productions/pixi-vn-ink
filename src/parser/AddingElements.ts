@@ -4,6 +4,7 @@ import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
 import { getText } from "../utility/TextUtility";
+import { getValue } from "../utility/ValueUtility";
 
 export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment) {
     if (!item) {
@@ -14,7 +15,7 @@ export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string
             list.push(getText(item))
         }
     }
-    else if (typeof item === "object" && "type" in item) {
+    else if (typeof item === "object" && "type" in item && item.type !== "value") {
         list.push(item)
     }
 }
@@ -23,17 +24,19 @@ export function addSwitchElemenStep(
     list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
+    paramNames: string[],
     isNewLine: boolean = true,
-    isComment: boolean = false
+    isComment: boolean = false,
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey, isNewLine, isComment)
+    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, isNewLine, isComment)
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
     item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep> | MyVariableAssignment,
     labelKey: string,
+    paramNames: string[],
     isNewLine: boolean,
-    isComment: boolean = false
+    isComment: boolean = false,
 ) {
     if (!item) {
         return
@@ -52,7 +55,7 @@ function addConditionalElementStep(
         }
     }
     else if (typeof item === "string" && item.startsWith("^") ||
-        (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
+        (item && typeof item === "object" && "type" in item && item.type == "value" && item.storageOperationType === "get")
     ) {
         if (!isNewLine && list.length > 0) {
             let prevItem = list[list.length - 1]
@@ -66,24 +69,9 @@ function addConditionalElementStep(
         if (typeof item === "string") {
             list.push(getDialog(getText(item)))
         }
-        else if (item.typeVar === "logic") {
+        else {
             list.push({
-                dialogue: {
-                    type: "value",
-                    storageType: item.typeVar,
-                    storageOperationType: "get",
-                    operation: item.value,
-                }
-            })
-        }
-        else if (item.typeVar) {
-            list.push({
-                dialogue: {
-                    type: "value",
-                    storageType: item.typeVar,
-                    storageOperationType: "get",
-                    key: item.name as any,
-                }
+                dialogue: item
             })
         }
     }
@@ -113,7 +101,7 @@ function addConditionalElementStep(
         }
     }
     else if (typeof item === "object") {
-        if ("type" in item) {
+        if ("type" in item && item.type !== "value") {
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1]
                 // in this case: <> text
@@ -138,12 +126,7 @@ function addConditionalElementStep(
             if (item.var) {
                 list.push({
                     labelToOpen: {
-                        label: {
-                            type: "value",
-                            storageOperationType: "get",
-                            storageType: "storage", // TODO: check if it's correct
-                            key: item["->"],
-                        },
+                        label: getValue(item["->"], paramNames),
                         type: "jump",
                         params: item.params,
                     },
@@ -162,22 +145,13 @@ function addConditionalElementStep(
                 })
             }
         }
-        if ("typeVar" in item && item.typeOperation === "set") {
-            let value = item.value
-            if (typeof value === "string" && value.startsWith("^")) {
-                value = getText(value)
+        if ("type" in item && item.type == "value" && item.storageOperationType === "set") {
+            if (typeof item.value === "string" && item.value.startsWith("^")) {
+                item.value = getText(item.value)
             }
             list.push({
                 goNextStep: true,
-                operation: [
-                    {
-                        type: "value",
-                        storageOperationType: "set",
-                        storageType: item.typeVar as any,
-                        key: item.name as any,
-                        value: value,
-                    }
-                ]
+                operation: [item]
             })
         }
     }
@@ -229,26 +203,13 @@ function addConditionalComment(
     }
 
     if (typeof item === "string" && item.startsWith("^") ||
-        (item && typeof item === "object" && "typeVar" in item && item.typeOperation === "get")
+        (item && typeof item === "object" && "type" in item && item.type == "value" && item.storageOperationType === "get")
     ) {
         if (typeof item === "string") {
             list.push(getText(item))
         }
-        else if (item.typeVar === "logic") {
-            list.push({
-                type: "value",
-                storageType: item.typeVar,
-                storageOperationType: "get",
-                operation: item.value,
-            })
-        }
-        else if (item.typeVar) {
-            list.push({
-                type: "value",
-                storageType: item.typeVar,
-                storageOperationType: "get",
-                key: item.name as any,
-            })
+        else {
+            list.push(item)
         }
     }
     else if (typeof item === "object") {
