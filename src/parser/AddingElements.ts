@@ -62,7 +62,8 @@ function addConditionalElementStep(
             // in this case: <> text
             if (!prevItem.glueEnabled && !prevItem.operation) {
                 prevItem.glueEnabled = true
-                prevItem.goNextStep = true
+                if (!prevItem.labelToOpen)
+                    prevItem.goNextStep = true
             }
             list[list.length - 1] = prevItem
         }
@@ -89,7 +90,8 @@ function addConditionalElementStep(
             if (list.length > 0) {
                 let prevItem = list[list.length - 1]
                 prevItem.glueEnabled = true
-                prevItem.goNextStep = true
+                if (!prevItem.labelToOpen)
+                    prevItem.goNextStep = true
                 list[list.length - 1] = prevItem
             }
             else {
@@ -107,7 +109,8 @@ function addConditionalElementStep(
                 // in this case: <> text
                 if (!prevItem.glueEnabled && !prevItem.operation) {
                     prevItem.glueEnabled = true
-                    prevItem.goNextStep = true
+                    if (!prevItem.labelToOpen)
+                        prevItem.goNextStep = true
                 }
                 list[list.length - 1] = prevItem
             }
@@ -117,7 +120,8 @@ function addConditionalElementStep(
             let glueEnabled = isNewLine ? undefined : true
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1]
-                prevItem.goNextStep = true
+                if (!prevItem.labelToOpen)
+                    prevItem.goNextStep = true
                 list[list.length - 1] = prevItem
             }
             if (item.params && item.params.length === 0) {
