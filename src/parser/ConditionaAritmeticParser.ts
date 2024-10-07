@@ -1,5 +1,5 @@
 import { StorageElementType } from "@drincs/pixi-vn";
-import { PixiVNJsonArithmeticOperations, PixiVNJsonComparation, PixiVNJsonConditions, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
+import { PixiVNJsonArithmeticOperations, PixiVNJsonChoiceGet, PixiVNJsonComparation, PixiVNJsonConditions, PixiVNJsonLabelGet, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { arithmeticFunctions, ArithmeticFunctions, arithmeticFunctionsSingle, ArithmeticFunctionsSingle, conditionFunctions, ConditionFunctions } from "../types/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utility/DivertUtility";
@@ -50,13 +50,7 @@ export function conditionaAritmeticParser(
                 }
                 conditions.push({
                     type: "compare",
-                    leftValue: {
-                        type: "value",
-                        storageType: "label",
-                        storageOperationType: "get",
-                        valueType: "biggeststep",
-                        label: getLabelByStandardDivert(label, labelKey),
-                    },
+                    leftValue: getPixiVNJsonLabelChoice(getLabelByStandardDivert(label, labelKey)),
                     operator: ">=",
                     rightValue: {
                         type: "value",
@@ -65,12 +59,7 @@ export function conditionaAritmeticParser(
                 })
             }
             else {
-                conditions.push({
-                    type: "value",
-                    storageType: "label",
-                    storageOperationType: "get",
-                    label: getLabelByStandardDivert(item["CNT?"], labelKey),
-                })
+                conditions.push(getPixiVNJsonLabelChoice(getLabelByStandardDivert(item["CNT?"], labelKey)))
             }
         }
         else if (typeof item === "object" && "VAR?" in item) {
@@ -165,4 +154,28 @@ export function conditionaAritmeticParser(
         }
     })
     return conditions
+}
+
+function getPixiVNJsonLabelChoice(label: string): PixiVNJsonLabelGet | PixiVNJsonChoiceGet {
+    try {
+        let list = label.split(CHOISE_LABEL_KEY_SEPARATOR)
+        let end = list[list.length - 1]
+        if (end.includes("c-")) {
+            let stringNumber = end.split("c-")[1]
+            let number = parseInt(stringNumber)
+            return {
+                type: "value",
+                storageType: "choice",
+                storageOperationType: "get",
+                index: number,
+            }
+        }
+    } catch (e) { }
+
+    return {
+        type: "value",
+        storageType: "label",
+        storageOperationType: "get",
+        label: label,
+    }
 }
