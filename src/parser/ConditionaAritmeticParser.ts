@@ -157,20 +157,20 @@ export function conditionaAritmeticParser(
 }
 
 function getPixiVNJsonLabelChoice(label: string): PixiVNJsonLabelGet | PixiVNJsonChoiceGet {
-    try {
-        let list = label.split(CHOISE_LABEL_KEY_SEPARATOR)
-        let end = list[list.length - 1]
-        if (end.includes("c-")) {
-            let stringNumber = end.split("c-")[1]
-            let number = parseInt(stringNumber)
-            return {
-                type: "value",
-                storageType: "choice",
-                storageOperationType: "get",
-                index: number,
-            }
-        }
-    } catch (e) { }
+    // try {
+    //     let list = label.split(CHOISE_LABEL_KEY_SEPARATOR)
+    //     let end = list[list.length - 1]
+    //     if (end.includes("c-")) {
+    //         let stringNumber = end.split("c-")[1]
+    //         let number = parseInt(stringNumber)
+    //         return {
+    //             type: "value",
+    //             storageType: "choice",
+    //             storageOperationType: "get",
+    //             index: number,
+    //         }
+    //     }
+    // } catch (e) { }
 
     return {
         type: "value",

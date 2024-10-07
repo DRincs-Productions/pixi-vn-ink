@@ -1,4 +1,4 @@
-import { PixiVNJsonChoice, PixiVNJsonConditionalStatements } from '@drincs/pixi-vn-json';
+import { PixiVNJsonChoice, PixiVNJsonChoices, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
 import { addSwitchElemenText } from '../parser/AddingElements';
 import { parserConditionalStatements } from '../parser/ConditionalStatementsParser';
@@ -50,14 +50,29 @@ export function addChoiseIntoList<T>(
             if (itemList.length > 0 &&
                 typeof prevItem === "object" && prevItem
                 && "choices" in prevItem && prevItem.choices) {
-                let choices = prevItem.choices
+                let choices = (prevItem as PixiVNJsonLabelStep).choices as PixiVNJsonChoices
                 if (choices && Array.isArray(choices)) {
                     choices.push(choice)
                 }
                 else {
                     console.error("[Pixi’VN Ink] Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined", value, choices)
                 }
-                prevItem.choices = choices
+                prevItem.choices = choices.sort((a, b) => {
+                    try {
+                        let labelArrayA = (a as PixiVNJsonChoice).label.split(".")
+                        let endA = labelArrayA[labelArrayA.length - 1].replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
+                        let labelArrayB = (b as PixiVNJsonChoice).label.split(".")
+                        let endB = labelArrayB[labelArrayB.length - 1].replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
+                        if (endA.includes("c-") && endB.includes("c-")) {
+                            let stringNumberA = endA.split("c-")[1]
+                            let numberA = parseInt(stringNumberA)
+                            let stringNumberB = endB.split("c-")[1]
+                            let numberB = parseInt(stringNumberB)
+                            return numberA - numberB
+                        }
+                    } catch (error) { }
+                    return 0
+                })
             }
             else {
                 itemList.push({
