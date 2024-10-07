@@ -1205,15 +1205,15 @@ test('Gathers and options can be labelled', async () => {
 				{
 					choices: [
 						{
-							text: ["'Get out of my way", ".'",],
-							label: "meet_guard_|_c-1",
+							text: "Greet him",
+							label: "meet_guard_|_c-0",
 							props: {},
 							type: "jump",
 							oneTime: true,
 						},
 						{
-							text: "Greet him",
-							label: "meet_guard_|_c-0",
+							text: ["'Get out of my way", ".'",],
+							label: "meet_guard_|_c-1",
 							props: {},
 							type: "jump",
 							oneTime: true,
