@@ -1131,7 +1131,6 @@ test('Gathers and options can be labelled', async () => {
 						type: "jump",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
 				},
 				{
 					labelToOpen: {
@@ -1644,7 +1643,6 @@ test('Advanced: Loops in a weave', async () => {
 						type: "jump",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
 				},
 				{
 					labelToOpen: {
@@ -1982,7 +1980,6 @@ test('Advanced: Gathers directly after an option', async () => {
 						type: "jump",
 					},
 					glueEnabled: undefined,
-					goNextStep: true,
 				},
 				{
 					labelToOpen: {
