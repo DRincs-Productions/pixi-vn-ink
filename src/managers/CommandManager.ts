@@ -10,101 +10,112 @@ const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"]
 
-export function getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
-    try {
-        comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
-        comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
-        comment = comment.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
-        comment = comment.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
-        comment = comment.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
-        comment = comment.replaceAll("{", " { ");
-        comment = comment.replaceAll("}", " } ");
-        comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
-        comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
-        let list: string[] = []
-        // for string characters
-        let startComment: "\"" | "'" | "`" | undefined = undefined;
-        let temp = "";
-        for (let i = 0; i < comment.length; i++) {
-            let char = comment[i];
-            if (char === "\"" || char === "'" || char === "`") {
-                if (startComment === undefined) {
-                    list.push(temp);
-                    temp = "";
-                    startComment = char;
-                    temp += char;
-                }
-                else if (startComment === char) {
-                    startComment = undefined;
-                    temp += char;
-                    list.push(temp);
-                    temp = "";
+
+export default class CommandManager {
+    private static _customCommand: (command: string[]) => boolean = (_command: string[]) => false;
+    private static runCustomCommand(command: string[]): boolean {
+        return CommandManager._customCommand(command)
+    }
+    static set customCommand(value: (command: string[]) => boolean) {
+        CommandManager._customCommand = value;
+    }
+
+    static getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
+        try {
+            comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
+            comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
+            comment = comment.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
+            comment = comment.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
+            comment = comment.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
+            comment = comment.replaceAll("{", " { ");
+            comment = comment.replaceAll("}", " } ");
+            comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
+            comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
+            let list: string[] = []
+            // for string characters
+            let startComment: "\"" | "'" | "`" | undefined = undefined;
+            let temp = "";
+            for (let i = 0; i < comment.length; i++) {
+                let char = comment[i];
+                if (char === "\"" || char === "'" || char === "`") {
+                    if (startComment === undefined) {
+                        list.push(temp);
+                        temp = "";
+                        startComment = char;
+                        temp += char;
+                    }
+                    else if (startComment === char) {
+                        startComment = undefined;
+                        temp += char;
+                        list.push(temp);
+                        temp = "";
+                    }
+                    else {
+                        temp += char;
+                    }
                 }
                 else {
                     temp += char;
                 }
             }
-            else {
-                temp += char;
+            if (temp !== "") {
+                list.push(temp);
             }
-        }
-        if (temp !== "") {
-            list.push(temp);
-        }
 
-        list.forEach((item, index) => {
-            // if index is shots
-            if (index % 2 === 1) {
-                list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
+            list.forEach((item, index) => {
+                // if index is shots
+                if (index % 2 === 1) {
+                    list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
+                }
+            })
+            comment = list.join("");
+            list = comment.split(" ").filter((item) => item !== "");
+            list = list.map((item) => item
+                .replaceAll(SPACE_SEPARATOR, " ")
+                .replaceAll(DOUBLE_QUOTES_CONVERTER, "\"")
+                .replaceAll(QUOTES_CONVERTER, "'")
+                .replaceAll(SPECIAL_QUOTES_CONVERTER, "`")
+            )
+
+            // TODO: Add more operations
+
+            let operationType = removeExtraDoubleQuotes(list[1]);
+            let type = removeExtraDoubleQuotes(list[0]);
+            if (operationType === "image") {
+                return getImageOperationFromComment(list, "image");
             }
-        })
-        comment = list.join("");
-        list = comment.split(" ").filter((item) => item !== "");
-        list = list.map((item) => item
-            .replaceAll(SPACE_SEPARATOR, " ")
-            .replaceAll(DOUBLE_QUOTES_CONVERTER, "\"")
-            .replaceAll(QUOTES_CONVERTER, "'")
-            .replaceAll(SPECIAL_QUOTES_CONVERTER, "`")
-        )
-
-        // TODO: Add more operations
-
-        let operationType = removeExtraDoubleQuotes(list[1]);
-        let type = removeExtraDoubleQuotes(list[0]);
-        if (operationType === "image") {
-            return getImageOperationFromComment(list, "image");
-        }
-        else if (operationType === "video") {
-            if (IMAGES_TYPES.includes(type)) {
-                return getImageOperationFromComment(list, "video");
-            }
-            if (type === "pause" || type === "resume") {
-                return {
-                    type: "video",
-                    operationType: type as any,
-                    alias: removeExtraDoubleQuotes(list[2])
+            else if (operationType === "video") {
+                if (IMAGES_TYPES.includes(type)) {
+                    return getImageOperationFromComment(list, "video");
+                }
+                if (type === "pause" || type === "resume") {
+                    return {
+                        type: "video",
+                        operationType: type as any,
+                        alias: removeExtraDoubleQuotes(list[2])
+                    }
                 }
             }
-        }
-        else if (operationType === "sound") {
-            return getSoundOperationFromComment(list);
-        }
-        else if (operationType === "input" && type === "request") {
-            let op: PixiVNJsonOperation = {
-                type: "input",
-                operationType: "request",
+            else if (operationType === "sound") {
+                return getSoundOperationFromComment(list);
             }
-            if (list.length > 2) {
-                op.valueType = removeExtraDoubleQuotes(list[2]);
+            else if (operationType === "input" && type === "request") {
+                let op: PixiVNJsonOperation = {
+                    type: "input",
+                    operationType: "request",
+                }
+                if (list.length > 2) {
+                    op.valueType = removeExtraDoubleQuotes(list[2]);
+                }
+                return op;
             }
-            return op;
         }
+        catch (e) {
+            console.error("[Pixi’VN Ink] Error parsing ink command", comment)
+            throw e
+        }
+        return undefined;
     }
-    catch (e) {
-        console.error("[Pixi’VN Ink] Error parsing ink command", comment)
-        throw e
-    }
-    return undefined;
 }
 
 function getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
