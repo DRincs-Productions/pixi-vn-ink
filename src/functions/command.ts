@@ -1,3 +1,4 @@
+import { StepLabelPropsType } from "@drincs/pixi-vn";
 import CommandManager from "../managers/CommandManager";
 
 /**
@@ -28,6 +29,10 @@ export function onInkCustomCommand(
          * For example, the command `# command "Hello World"` will be split into `["command", "Hello World"]`.
          */
         command: string[],
+        /**
+         * The properties of the step. It is an object that contains the properties of the step.
+         */
+        props: {} | StepLabelPropsType,
         /**
          * It is often useful after writing a basic command to add parameters with the following logic: "field name" "value".
          * Furthermore, these parameters can be written in a different order, to simplify writing.

@@ -1,4 +1,4 @@
-import { SoundOptions, SoundPlayOptions } from "@drincs/pixi-vn";
+import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
 import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
 
 const SPACE_SEPARATOR = "§SPACE§";
@@ -12,15 +12,15 @@ const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"]
 
 
 export default class CommandManager {
-    private static _customCommand: (command: string[], convertListStringToObj: (listParm: string[]) => object) => boolean = (_command: string[]) => false;
-    private static runCustomCommand(command: string[]): boolean {
-        return CommandManager._customCommand(command, CommandManager.convertListStringToObj);
+    private static _customCommand: (command: string[], props: StepLabelPropsType, convertListStringToObj: (listParm: string[]) => object) => boolean = (_command: string[]) => false;
+    private static runCustomCommand(command: string[], props: StepLabelPropsType): boolean {
+        return CommandManager._customCommand(command, props, CommandManager.convertListStringToObj);
     }
-    static set customCommand(value: (command: string[], convertListStringToObj: (listParm: string[]) => object) => boolean) {
+    static set customCommand(value: (command: string[], props: StepLabelPropsType, convertListStringToObj: (listParm: string[]) => object) => boolean) {
         CommandManager._customCommand = value;
     }
 
-    static generateOrRunOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
+    static generateOrRunOperationFromCommand(comment: string, props: StepLabelPropsType): PixiVNJsonOperation | undefined {
         try {
             comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
             comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
@@ -78,7 +78,7 @@ export default class CommandManager {
             )
 
             // If is a custom command, it will run the custom operation
-            if (CommandManager.runCustomCommand(list)) {
+            if (CommandManager.runCustomCommand(list, props)) {
                 return undefined;
             }
 
