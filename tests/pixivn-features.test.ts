@@ -10,7 +10,8 @@ async function convertOperation(res?: PixiVNJson) {
             let tempSteps = []
             for (let step of res.labels[label]) {
                 if (step.operation) {
-                    step.operation = step.operation.map((operation) => {
+                    let ops = []
+                    for (let operation of step.operation) {
                         if (operation.type === "oprationtoconvert") {
                             let v: string = operation.values.map((v) => {
                                 if (typeof v === "string") {
@@ -18,10 +19,16 @@ async function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            return await CommandManager.generateOrRunOperationFromCommand(v, {});
+                            let res = await CommandManager.generateOrRunOperationFromCommand(v, {});
+                            if (res) {
+                                ops.push(res);
+                            }
                         }
-                        return operation;
-                    }).filter((operation) => operation !== undefined);
+                        else {
+                            ops.push(operation);
+                        }
+                    }
+                    step.operation = ops;
                 }
                 tempSteps.push(step);
             }
@@ -286,7 +293,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -356,7 +363,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -490,7 +497,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -619,7 +626,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -799,7 +806,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -904,7 +911,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
