@@ -2,7 +2,7 @@ import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
 import { PixiVNJson } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
-import { getOperationFromCommand } from '../src/utility/command-utility';
+import { getOperationFromCommand } from '../src/managers/CommandManager';
 
 function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {

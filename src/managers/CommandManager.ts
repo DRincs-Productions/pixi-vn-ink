@@ -66,6 +66,9 @@ export function getOperationFromCommand(comment: string): PixiVNJsonOperation | 
             .replaceAll(QUOTES_CONVERTER, "'")
             .replaceAll(SPECIAL_QUOTES_CONVERTER, "`")
         )
+
+        // TODO: Add more operations
+
         let operationType = removeExtraDoubleQuotes(list[1]);
         let type = removeExtraDoubleQuotes(list[0]);
         if (operationType === "image") {
