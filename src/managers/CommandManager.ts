@@ -82,11 +82,11 @@ export default class CommandManager {
             let operationType = removeExtraDoubleQuotes(list[1]);
             let type = removeExtraDoubleQuotes(list[0]);
             if (operationType === "image") {
-                return getImageOperationFromComment(list, "image");
+                return CommandManager.getImageOperationFromComment(list, "image");
             }
             else if (operationType === "video") {
                 if (IMAGES_TYPES.includes(type)) {
-                    return getImageOperationFromComment(list, "video");
+                    return CommandManager.getImageOperationFromComment(list, "video");
                 }
                 if (type === "pause" || type === "resume") {
                     return {
@@ -116,53 +116,53 @@ export default class CommandManager {
         }
         return undefined;
     }
-}
 
-function getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
-    let type = removeExtraDoubleQuotes(list[0]);
-    if (!IMAGES_TYPES.includes(type)) {
+    static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
+        let type = removeExtraDoubleQuotes(list[0]);
+        if (!IMAGES_TYPES.includes(type)) {
+            return undefined;
+        }
+        let imageId = removeExtraDoubleQuotes(list[2]);
+        if (type === "show") {
+            let op: PixiVNJsonOperation = {
+                type: typeCanvasElement,
+                operationType: "show",
+                alias: imageId,
+                url: removeExtraDoubleQuotes(list[3]),
+            }
+            if (list.length > 4) {
+                let transition = getTransition(list.slice(4));
+                if (transition !== undefined) {
+                    op.transition = transition;
+                }
+            }
+            return op;
+        }
+        else if (type === "edit") {
+            let op: PixiVNJsonOperation = {
+                type: typeCanvasElement,
+                operationType: "edit",
+                alias: imageId,
+                props: convertListStringToObj(list.slice(3)) as any
+            }
+            return op;
+        }
+        else if (type === "remove") {
+            let op: PixiVNJsonOperation = {
+                type: typeCanvasElement,
+                operationType: "remove",
+                alias: imageId,
+            }
+            if (list.length > 3) {
+                let transition = getTransition(list.slice(3));
+                if (transition !== undefined) {
+                    op.transition = transition;
+                }
+            }
+            return op;
+        }
         return undefined;
     }
-    let imageId = removeExtraDoubleQuotes(list[2]);
-    if (type === "show") {
-        let op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            url: removeExtraDoubleQuotes(list[3]),
-        }
-        if (list.length > 4) {
-            let transition = getTransition(list.slice(4));
-            if (transition !== undefined) {
-                op.transition = transition;
-            }
-        }
-        return op;
-    }
-    else if (type === "edit") {
-        let op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "edit",
-            alias: imageId,
-            props: convertListStringToObj(list.slice(3)) as any
-        }
-        return op;
-    }
-    else if (type === "remove") {
-        let op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "remove",
-            alias: imageId,
-        }
-        if (list.length > 3) {
-            let transition = getTransition(list.slice(3));
-            if (transition !== undefined) {
-                op.transition = transition;
-            }
-        }
-        return op;
-    }
-    return undefined;
 }
 
 function getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
