@@ -1,5 +1,5 @@
 import { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json";
-import { conditionaAritmeticParser } from "../parser/ConditionaAritmeticParser";
+import { conditionaAritmeticParser } from "../parser/conditiona-aritmetic-parser";
 
 export function getParam(list: any[],
     labelKey: string,

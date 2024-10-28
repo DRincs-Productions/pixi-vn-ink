@@ -1,6 +1,6 @@
 import { PixiVNJsonConditionalResultToCombine, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { addChoiseIntoList } from "../functions/ChoiceInfoConverter";
+import { addChoiseIntoList } from "../functions/choice-info-converter";
 import InkRootType from "../types/InkRootType";
 import Cond from "../types/parserItems/Cond";
 import { StandardDivert } from "../types/parserItems/Divert";
@@ -8,8 +8,8 @@ import NativeFunctions from "../types/parserItems/NativeFunctions";
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
-import { conditionaAritmeticParser } from "./ConditionaAritmeticParser";
-import { parseLabel, ShareDataParserLabel } from "./LabelParser";
+import { conditionaAritmeticParser } from "./conditiona-aritmetic-parser";
+import { parseLabel, ShareDataParserLabel } from "./label-parser";
 
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,

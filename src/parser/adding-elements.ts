@@ -2,9 +2,9 @@ import { getCharacterById } from "@drincs/pixi-vn";
 import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
-import { getLabelByStandardDivert } from "../utility/DivertUtility";
-import { getText } from "../utility/TextUtility";
-import { getValue } from "../utility/ValueUtility";
+import { getLabelByStandardDivert } from "../utility/divert-utility";
+import { getText } from "../utility/text-utility";
+import { getValue } from "../utility/value-utility";
 
 export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment) {
     if (!item) {

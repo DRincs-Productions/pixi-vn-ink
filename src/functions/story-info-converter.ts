@@ -1,11 +1,11 @@
 import { PixiVNJsonLabel, PixiVNJsonLabels, PixiVNJsonStepSwitch } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR, MY_LABEL_KER_EXTERNAL_VALUE } from '../constant';
-import { addSwitchElemenStep, addSwitchElemenText } from '../parser/AddingElements';
-import { parseLabel, ShareDataParserLabel } from '../parser/LabelParser';
-import { ConditionalList, parserSwitch } from '../parser/SwitchParser';
+import { addSwitchElemenStep, addSwitchElemenText } from '../parser/adding-elements';
+import { parseLabel, ShareDataParserLabel } from '../parser/label-parser';
+import { ConditionalList, parserSwitch } from '../parser/switch-parser';
 import InkRootType from '../types/InkRootType';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
-import { addChoiseIntoList } from './ChoiceInfoConverter';
+import { addChoiseIntoList } from './choice-info-converter';
 
 export function getInkLabel(story: (InkRootType | RootParserItemType | RootParserItemType[])[]): PixiVNJsonLabels | undefined {
     try {

@@ -2,9 +2,9 @@ import { StorageElementType } from "@drincs/pixi-vn";
 import { PixiVNJsonArithmeticOperations, PixiVNJsonChoiceGet, PixiVNJsonComparation, PixiVNJsonConditions, PixiVNJsonLabelGet, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { arithmeticFunctions, ArithmeticFunctions, arithmeticFunctionsSingle, ArithmeticFunctionsSingle, conditionFunctions, ConditionFunctions } from "../types/parserItems/NativeFunctions";
-import { getLabelByStandardDivert } from "../utility/DivertUtility";
-import { getText } from "../utility/TextUtility";
-import { getValue } from "../utility/ValueUtility";
+import { getLabelByStandardDivert } from "../utility/divert-utility";
+import { getText } from "../utility/text-utility";
+import { getValue } from "../utility/value-utility";
 
 export function conditionaAritmeticParser(
     list: any[],

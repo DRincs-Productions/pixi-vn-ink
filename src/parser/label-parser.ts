@@ -1,15 +1,15 @@
 import { PixiVNJsonArithmeticOperations, PixiVNJsonConditionalStatements, PixiVNJsonStepSwitchElementType } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
-import { arithmeticParser } from '../functions/ArithmeticUtility';
 import InkRootType from '../types/InkRootType';
 import { ContainerTypeN } from '../types/parserItems/ContainerType';
 import { StandardDivert } from '../types/parserItems/Divert';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import { MyVariableAssignment } from '../types/parserItems/VariableAssignment';
-import { getParam, getSetValue, getValue } from '../utility/ValueUtility';
-import { addSwitchComment } from './AddingElements';
-import { getConditionalValue } from './ConditionalStatementsParser';
-import { parserSwitch } from './SwitchParser';
+import { getParam, getSetValue, getValue } from '../utility/value-utility';
+import { addSwitchComment } from './adding-elements';
+import { arithmeticParser } from './arithmetic-parser';
+import { getConditionalValue } from './conditional-statements-parser';
+import { parserSwitch } from './switch-parser';
 
 export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string, glue: boolean } },

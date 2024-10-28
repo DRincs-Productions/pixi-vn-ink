@@ -1,17 +1,17 @@
 import { PixiVNJsonChoice, PixiVNJsonChoices, PixiVNJsonConditionalStatements, PixiVNJsonLabelStep } from '@drincs/pixi-vn-json';
 import { CHOISE_LABEL_KEY_SEPARATOR } from '../constant';
-import { addSwitchElemenText } from '../parser/AddingElements';
-import { parserConditionalStatements } from '../parser/ConditionalStatementsParser';
-import { ShareDataParserLabel } from '../parser/LabelParser';
-import { ConditionalList, parserSwitch } from '../parser/SwitchParser';
+import { addSwitchElemenText } from '../parser/adding-elements';
+import { parserConditionalStatements } from '../parser/conditional-statements-parser';
+import { ShareDataParserLabel } from '../parser/label-parser';
+import { ConditionalList, parserSwitch } from '../parser/switch-parser';
 import LabelChoiceRes from '../types/LabelChoiceRes';
 import ChoicePoint, { ChoiceInfo } from '../types/parserItems/ChoicePoint';
 import NativeFunctions, { nativeFunctions } from '../types/parserItems/NativeFunctions';
 import ReadCount from '../types/parserItems/ReadCount';
 import RootParserItemType from '../types/parserItems/RootParserItemType';
 import TextType from '../types/parserItems/TextType';
-import { unionStringOrArray } from '../utility/ArrayUtility';
-import { getText } from '../utility/TextUtility';
+import { unionStringOrArray } from '../utility/array-utility';
+import { getText } from '../utility/text-utility';
 
 export function addChoiseIntoList<T>(
     choiseList: RootParserItemType[],
