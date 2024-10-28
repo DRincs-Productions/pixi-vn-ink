@@ -12,15 +12,15 @@ const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"]
 
 
 export default class CommandManager {
-    private static _customCommand: (command: string[]) => boolean = (_command: string[]) => false;
+    private static _customCommand: (command: string[], convertListStringToObj: (listParm: string[]) => object) => boolean = (_command: string[]) => false;
     private static runCustomCommand(command: string[]): boolean {
-        return CommandManager._customCommand(command)
+        return CommandManager._customCommand(command, CommandManager.convertListStringToObj);
     }
-    static set customCommand(value: (command: string[]) => boolean) {
+    static set customCommand(value: (command: string[], convertListStringToObj: (listParm: string[]) => object) => boolean) {
         CommandManager._customCommand = value;
     }
 
-    static getOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
+    static generateOrRunOperationFromCommand(comment: string): PixiVNJsonOperation | undefined {
         try {
             comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
             comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
@@ -77,7 +77,10 @@ export default class CommandManager {
                 .replaceAll(SPECIAL_QUOTES_CONVERTER, "`")
             )
 
-            // TODO: Add more operations
+            // If is a custom command, it will run the custom operation
+            if (CommandManager.runCustomCommand(list)) {
+                return undefined;
+            }
 
             let operationType = CommandManager.removeExtraDoubleQuotes(list[1]);
             let type = CommandManager.removeExtraDoubleQuotes(list[0]);
@@ -274,6 +277,10 @@ export default class CommandManager {
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
     private static convertListStringToObj(listParm: string[]): object {
+        // listParm.length must be even
+        if (listParm.length % 2 !== 0) {
+            throw new Error("[Pixi’VN Ink]  Error parsing ink json, the list must be even");
+        }
         let list: string[] = []
         let curly_brackets = 0;
         let temp = "";

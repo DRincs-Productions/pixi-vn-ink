@@ -17,7 +17,7 @@ function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            return CommandManager.getOperationFromCommand(v);
+                            return CommandManager.generateOrRunOperationFromCommand(v);
                         }
                         return operation;
                     }).filter((operation) => operation !== undefined);

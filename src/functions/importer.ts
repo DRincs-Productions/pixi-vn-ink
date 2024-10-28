@@ -30,7 +30,7 @@ export function importInkText(text: string | string[]): PixiVNJson[] {
     let data = convertInkText(text)
     if (data) {
         importPixiVNJson(data, {
-            operationStringConvert: CommandManager.getOperationFromCommand,
+            operationStringConvert: CommandManager.generateOrRunOperationFromCommand,
             skipEmptyDialogs: true,
         })
         res.push(data)
