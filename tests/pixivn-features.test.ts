@@ -4,12 +4,14 @@ import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 import CommandManager from '../src/managers/CommandManager';
 
-function convertOperation(res?: PixiVNJson) {
+async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
         for (let label in res.labels) {
-            res.labels[label] = res.labels[label].map((step) => {
+            let tempSteps = []
+            for (let step of res.labels[label]) {
                 if (step.operation) {
-                    step.operation = step.operation.map((operation) => {
+                    let ops = []
+                    for (let operation of step.operation) {
                         if (operation.type === "oprationtoconvert") {
                             let v: string = operation.values.map((v) => {
                                 if (typeof v === "string") {
@@ -17,13 +19,20 @@ function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            return CommandManager.generateOrRunOperationFromCommand(v, {});
+                            let res = await CommandManager.generateOrRunOperationFromCommand(v, {});
+                            if (res) {
+                                ops.push(res);
+                            }
                         }
-                        return operation;
-                    }).filter((operation) => operation !== undefined);
+                        else {
+                            ops.push(operation);
+                        }
+                    }
+                    step.operation = ops;
                 }
-                return step;
-            });
+                tempSteps.push(step);
+            }
+            res.labels[label] = tempSteps;
         }
     }
 }
@@ -284,7 +293,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -354,7 +363,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -488,7 +497,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -617,7 +626,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -797,7 +806,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 
@@ -902,7 +911,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected1);
-    convertOperation(res);
+    await convertOperation(res);
     expect(res).toEqual(expected2);
 });
 

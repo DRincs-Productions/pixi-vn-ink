@@ -1,4 +1,4 @@
-import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
+import { narration, SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
 import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
 
 const SPACE_SEPARATOR = "§SPACE§";
@@ -20,7 +20,7 @@ export default class CommandManager {
         CommandManager._customCommand = value;
     }
 
-    static generateOrRunOperationFromCommand(comment: string, props: StepLabelPropsType): PixiVNJsonOperation | undefined {
+    static async generateOrRunOperationFromCommand(comment: string, props: StepLabelPropsType): Promise<PixiVNJsonOperation | undefined> {
         try {
             comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
             comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
@@ -111,6 +111,12 @@ export default class CommandManager {
                     op.valueType = CommandManager.removeExtraDoubleQuotes(list[2]);
                 }
                 return op;
+            }
+            else if (operationType && type === "call") {
+                await narration.callLabel(operationType, props)
+            }
+            else if (operationType && type === "jump") {
+                await narration.jumpLabel(operationType, props)
             }
         }
         catch (e) {
