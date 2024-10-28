@@ -1,5 +1,5 @@
 import { PixiVNJsonStepSwitch, PixiVNJsonStepSwitchElementsType, PixiVNJsonStepSwitchElementType } from "@drincs/pixi-vn-json"
-import { addChoiseIntoList } from "../functions/ChoiceInfoConverter"
+import { addChoiseIntoList } from "../functions/choice-info-converter"
 import InkRootType from "../types/InkRootType"
 import { ContainerTypeF } from "../types/parserItems/ContainerType"
 import ControlCommands from "../types/parserItems/ControlCommands"
@@ -8,7 +8,7 @@ import NativeFunctions from "../types/parserItems/NativeFunctions"
 import RootParserItemType from "../types/parserItems/RootParserItemType"
 import TextType from "../types/parserItems/TextType"
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment"
-import { parseLabel, ShareDataParserLabel } from "./LabelParser"
+import { parseLabel, ShareDataParserLabel } from "./label-parser"
 
 export type ConditionalList = (number | ControlCommands | StandardDivert | NativeFunctions | TextType | ContainerTypeF)[]
 

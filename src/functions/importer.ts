@@ -1,6 +1,6 @@
 import { importPixiVNJson } from "@drincs/pixi-vn-json";
-import { getOperationFromCommand } from "../utility/CommandUtility";
-import { convertInkText } from "./InkToPixivn";
+import { getOperationFromCommand } from "../utility/command-utility";
+import { convertInkText } from "./ink-to-pixivn";
 
 /**
  * This function imports string or array of strings written in ink language into the Pixi’VN engine.

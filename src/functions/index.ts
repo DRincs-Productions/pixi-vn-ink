@@ -1,3 +1,3 @@
-export { importInkText } from './Importer';
-export { convertInkText } from './InkToPixivn';
+export { importInkText } from './importer';
+export { convertInkText } from './ink-to-pixivn';
 

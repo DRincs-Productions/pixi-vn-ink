@@ -1,8 +1,8 @@
 import { StorageElementType } from '@drincs/pixi-vn';
 import { PixiVNJsonValueGet } from '@drincs/pixi-vn-json';
-import { conditionaAritmeticParser } from '../parser/ConditionaAritmeticParser';
 import { ArithmeticFunctions } from '../types/parserItems/NativeFunctions';
 import VariableReference from '../types/parserItems/VariableReference';
+import { conditionaAritmeticParser } from './conditiona-aritmetic-parser';
 
 export function arithmeticParser(
     data: (ArithmeticFunctions | VariableReference)[],

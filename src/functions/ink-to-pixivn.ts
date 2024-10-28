@@ -2,7 +2,7 @@ import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { GLOBAL_DECL, MY_LABEL_KER_EXTERNAL_VALUE } from "../constant";
 import InkStoryType from "../types/InkStoryType";
-import { getInkLabel } from "./StoryInfoConverter";
+import { getInkLabel } from "./story-info-converter";
 
 /**
  * This function converts string written in ink language into the LabelJsonType.
