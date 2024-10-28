@@ -79,8 +79,8 @@ export default class CommandManager {
 
             // TODO: Add more operations
 
-            let operationType = removeExtraDoubleQuotes(list[1]);
-            let type = removeExtraDoubleQuotes(list[0]);
+            let operationType = CommandManager.removeExtraDoubleQuotes(list[1]);
+            let type = CommandManager.removeExtraDoubleQuotes(list[0]);
             if (operationType === "image") {
                 return CommandManager.getImageOperationFromComment(list, "image");
             }
@@ -92,12 +92,12 @@ export default class CommandManager {
                     return {
                         type: "video",
                         operationType: type as any,
-                        alias: removeExtraDoubleQuotes(list[2])
+                        alias: CommandManager.removeExtraDoubleQuotes(list[2])
                     }
                 }
             }
             else if (operationType === "sound") {
-                return getSoundOperationFromComment(list);
+                return CommandManager.getSoundOperationFromComment(list);
             }
             else if (operationType === "input" && type === "request") {
                 let op: PixiVNJsonOperation = {
@@ -105,7 +105,7 @@ export default class CommandManager {
                     operationType: "request",
                 }
                 if (list.length > 2) {
-                    op.valueType = removeExtraDoubleQuotes(list[2]);
+                    op.valueType = CommandManager.removeExtraDoubleQuotes(list[2]);
                 }
                 return op;
             }
@@ -117,21 +117,21 @@ export default class CommandManager {
         return undefined;
     }
 
-    static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
-        let type = removeExtraDoubleQuotes(list[0]);
+    private static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
+        let type = CommandManager.removeExtraDoubleQuotes(list[0]);
         if (!IMAGES_TYPES.includes(type)) {
             return undefined;
         }
-        let imageId = removeExtraDoubleQuotes(list[2]);
+        let imageId = CommandManager.removeExtraDoubleQuotes(list[2]);
         if (type === "show") {
             let op: PixiVNJsonOperation = {
                 type: typeCanvasElement,
                 operationType: "show",
                 alias: imageId,
-                url: removeExtraDoubleQuotes(list[3]),
+                url: CommandManager.removeExtraDoubleQuotes(list[3]),
             }
             if (list.length > 4) {
-                let transition = getTransition(list.slice(4));
+                let transition = CommandManager.getTransition(list.slice(4));
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
@@ -143,7 +143,7 @@ export default class CommandManager {
                 type: typeCanvasElement,
                 operationType: "edit",
                 alias: imageId,
-                props: convertListStringToObj(list.slice(3)) as any
+                props: CommandManager.convertListStringToObj(list.slice(3)) as any
             }
             return op;
         }
@@ -154,7 +154,7 @@ export default class CommandManager {
                 alias: imageId,
             }
             if (list.length > 3) {
-                let transition = getTransition(list.slice(3));
+                let transition = CommandManager.getTransition(list.slice(3));
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
@@ -163,172 +163,173 @@ export default class CommandManager {
         }
         return undefined;
     }
-}
 
-function getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
-    let type = removeExtraDoubleQuotes(list[0]);
-    if (!SOUND_TYPES.includes(type)) {
+    private static getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
+        let type = CommandManager.removeExtraDoubleQuotes(list[0]);
+        if (!SOUND_TYPES.includes(type)) {
+            return undefined;
+        }
+        let soundId = CommandManager.removeExtraDoubleQuotes(list[2]);
+        if (type === "add") {
+            let op: PixiVNJsonOperation = {
+                type: "sound",
+                operationType: "add",
+                alias: soundId,
+                url: CommandManager.removeExtraDoubleQuotes(list[3]),
+            }
+            if (list.length > 4) {
+                let props = CommandManager.getSoundOption(list.slice(4));
+                if (props !== undefined) {
+                    op.props = props;
+                }
+            }
+            return op;
+        }
+        else if (type === "play") {
+            let op: PixiVNJsonOperation = {
+                type: "sound",
+                operationType: "play",
+                alias: soundId,
+            }
+            if (list.length > 3) {
+                let props = CommandManager.getSoundPlayOptions(list.slice(3));
+                if (props !== undefined) {
+                    op.props = props;
+                }
+            }
+            return op;
+        }
+        else if (type === "pause" || type === "resume") {
+            let op: PixiVNJsonOperation = {
+                type: "sound",
+                operationType: type as any,
+                alias: soundId,
+            }
+            return op;
+        }
+        else if (type === "remove") {
+            let op: PixiVNJsonOperation = {
+                type: "sound",
+                operationType: "remove",
+                alias: soundId,
+            }
+            return op;
+        }
+        else if (type === "volume") {
+            // varse Float or Int
+            let number = parseFloat(list[3]);
+            let op: PixiVNJsonOperation = {
+                type: "sound",
+                operationType: "volume",
+                alias: soundId,
+                value: number,
+            }
+            return op;
+        }
         return undefined;
     }
-    let soundId = removeExtraDoubleQuotes(list[2]);
-    if (type === "add") {
-        let op: PixiVNJsonOperation = {
-            type: "sound",
-            operationType: "add",
-            alias: soundId,
-            url: removeExtraDoubleQuotes(list[3]),
-        }
-        if (list.length > 4) {
-            let props = getSoundOption(list.slice(4));
-            if (props !== undefined) {
-                op.props = props;
-            }
-        }
-        return op;
-    }
-    else if (type === "play") {
-        let op: PixiVNJsonOperation = {
-            type: "sound",
-            operationType: "play",
-            alias: soundId,
-        }
-        if (list.length > 3) {
-            let props = getSoundPlayOptions(list.slice(3));
-            if (props !== undefined) {
-                op.props = props;
-            }
-        }
-        return op;
-    }
-    else if (type === "pause" || type === "resume") {
-        let op: PixiVNJsonOperation = {
-            type: "sound",
-            operationType: type as any,
-            alias: soundId,
-        }
-        return op;
-    }
-    else if (type === "remove") {
-        let op: PixiVNJsonOperation = {
-            type: "sound",
-            operationType: "remove",
-            alias: soundId,
-        }
-        return op;
-    }
-    else if (type === "volume") {
-        // varse Float or Int
-        let number = parseFloat(list[3]);
-        let op: PixiVNJsonOperation = {
-            type: "sound",
-            operationType: "volume",
-            alias: soundId,
-            value: number,
-        }
-        return op;
-    }
-    return undefined;
-}
 
-function getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined {
-    let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout"];
-    if (!transitionTypes.includes(list[0])) {
-        return undefined;
+    private static getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined {
+        let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout"];
+        if (!transitionTypes.includes(list[0])) {
+            return undefined;
+        }
+        let transition: PixiVNJsonMediaTransiotions = {
+            type: list[0] as any
+        }
+        if (list.length > 1) {
+            try {
+                let props = CommandManager.convertListStringToObj(list.slice(1));
+                transition.props = props;
+            }
+            catch (_) { }
+        }
+        return transition;
     }
-    let transition: PixiVNJsonMediaTransiotions = {
-        type: list[0] as any
-    }
-    if (list.length > 1) {
+
+    private static getSoundOption(list: string[]): SoundOptions | undefined {
         try {
-            let props = convertListStringToObj(list.slice(1));
-            transition.props = props;
+            return CommandManager.convertListStringToObj(list);
         }
-        catch (_) { }
-    }
-    return transition;
-}
-
-function getSoundOption(list: string[]): SoundOptions | undefined {
-    try {
-        return convertListStringToObj(list);
-    }
-    catch (_) {
-        return undefined;
-    }
-}
-function getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
-    try {
-        return convertListStringToObj(list);
-    }
-    catch (_) {
-        return undefined;
-    }
-}
-
-/**
- * For example: 
- * Into Ink text:
- * duration 3 name "C J" surname Smith position "{ x: 2, y 3 }"
- * into string list:
- * ["duration", "3", "x", "2", "y", "3", "name", "C J", "surname", "Smith", "position", "{ x: 2, y 3 }"]
- * into object:
- * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
- */
-function convertListStringToObj(listParm: string[]): object {
-    let list: string[] = []
-    let curly_brackets = 0;
-    let temp = "";
-    for (let i = 0; i < listParm.length; i++) {
-        let item = listParm[i];
-        if (item.startsWith("{")) {
-            curly_brackets++;
-            temp += item;
+        catch (_) {
+            return undefined;
         }
-        else if (item.endsWith("}") && curly_brackets > 0) {
-            curly_brackets--;
-            temp += item;
-            if (curly_brackets === 0) {
-                list.push(temp);
-                temp = "";
+    }
+    private static getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
+        try {
+            return CommandManager.convertListStringToObj(list);
+        }
+        catch (_) {
+            return undefined;
+        }
+    }
+
+    /**
+     * For example: 
+     * Into Ink text:
+     * duration 3 name "C J" surname Smith position "{ x: 2, y 3 }"
+     * into string list:
+     * ["duration", "3", "x", "2", "y", "3", "name", "C J", "surname", "Smith", "position", "{ x: 2, y 3 }"]
+     * into object:
+     * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
+     */
+    private static convertListStringToObj(listParm: string[]): object {
+        let list: string[] = []
+        let curly_brackets = 0;
+        let temp = "";
+        for (let i = 0; i < listParm.length; i++) {
+            let item = listParm[i];
+            if (item.startsWith("{")) {
+                curly_brackets++;
+                temp += item;
+            }
+            else if (item.endsWith("}") && curly_brackets > 0) {
+                curly_brackets--;
+                temp += item;
+                if (curly_brackets === 0) {
+                    list.push(temp);
+                    temp = "";
+                }
+            }
+            else if (curly_brackets > 0) {
+                temp += item;
+            }
+            else {
+                list.push(item);
             }
         }
-        else if (curly_brackets > 0) {
-            temp += item;
-        }
-        else {
-            list.push(item);
-        }
-    }
-    let objJson: string = "{"
-    list.forEach((item, index) => {
-        if (index % 2 === 0) {
-            objJson += `"${item}": `
-        } else {
-            objJson += `${item}`
-            if (index < list.length - 1) {
-                objJson += ", ";
+        let objJson: string = "{"
+        list.forEach((item, index) => {
+            if (index % 2 === 0) {
+                objJson += `"${item}": `
+            } else {
+                objJson += `${item}`
+                if (index < list.length - 1) {
+                    objJson += ", ";
+                }
             }
+        })
+        objJson += "}"
+        try {
+            return JSON.parse(objJson);
         }
-    })
-    objJson += "}"
-    try {
-        return JSON.parse(objJson);
+        catch (e) {
+            console.error("[Pixi’VN Ink] Error parsing ink json", objJson)
+            throw e
+        }
     }
-    catch (e) {
-        console.error("[Pixi’VN Ink] Error parsing ink json", objJson)
-        throw e
-    }
-}
 
-function removeExtraDoubleQuotes(value: string): string {
-    if (value.startsWith("\"") && value.endsWith("\"")) {
-        return value.substring(1, value.length - 1);
+    private static removeExtraDoubleQuotes(value: string): string {
+        if (value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("\'") && value.endsWith("\'")) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("\`") && value.endsWith("\`")) {
+            return value.substring(1, value.length - 1);
+        }
+        return value;
     }
-    if (value.startsWith("\'") && value.endsWith("\'")) {
-        return value.substring(1, value.length - 1);
-    }
-    if (value.startsWith("\`") && value.endsWith("\`")) {
-        return value.substring(1, value.length - 1);
-    }
-    return value;
+
 }
