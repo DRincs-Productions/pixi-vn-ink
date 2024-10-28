@@ -4,10 +4,11 @@ import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
 import CommandManager from '../src/managers/CommandManager';
 
-function convertOperation(res?: PixiVNJson) {
+async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
         for (let label in res.labels) {
-            res.labels[label] = res.labels[label].map((step) => {
+            let tempSteps = []
+            for (let step of res.labels[label]) {
                 if (step.operation) {
                     step.operation = step.operation.map((operation) => {
                         if (operation.type === "oprationtoconvert") {
@@ -17,13 +18,14 @@ function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            return CommandManager.generateOrRunOperationFromCommand(v, {});
+                            return await CommandManager.generateOrRunOperationFromCommand(v, {});
                         }
                         return operation;
                     }).filter((operation) => operation !== undefined);
                 }
-                return step;
-            });
+                tempSteps.push(step);
+            }
+            res.labels[label] = tempSteps;
         }
     }
 }
