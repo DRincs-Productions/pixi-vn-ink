@@ -1,5 +1,7 @@
 # Ink Language Integration
 
+![pixi-vn-logo-ink](https://github.com/user-attachments/assets/c36250b2-4e3c-4069-8daa-706394febde4)
+
 Pixi’VN gives you the ability to write your own narrative using Ink.
 
 ## What is ink?
