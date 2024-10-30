@@ -49,5 +49,5 @@ export function generateJsonInkTranslation(labels: PixiVNJsonLabelStep[] | PixiV
             tempLabels = tempLabels.concat(label)
         })
     }
-    return TranslatorManager.generateTranslateJson(tempLabels, json, options)
+    return TranslatorManager.generateJsonTranslation(tempLabels, json, options)
 }

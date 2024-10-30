@@ -1,5 +1,5 @@
 import { importPixiVNJson, PixiVNJson } from "@drincs/pixi-vn-json";
-import CommandManager from "../managers/CommandManager";
+import HashtagScriptManager from "../managers/HashtagScriptManager";
 import { convertInkText } from "./ink-to-pixivn";
 
 /**
@@ -30,7 +30,7 @@ export function importInkText(text: string | string[]): PixiVNJson[] {
     let data = convertInkText(text)
     if (data) {
         importPixiVNJson(data, {
-            operationStringConvert: CommandManager.generateOrRunOperationFromCommand,
+            operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
             skipEmptyDialogs: true,
         })
         res.push(data)
