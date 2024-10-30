@@ -2,7 +2,7 @@ import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
 import { PixiVNJson } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
 import { convertInkText } from '../src/functions';
-import CommandManager from '../src/managers/CommandManager';
+import HashtagScriptManager from '../src/managers/HashtagScriptManager';
 
 async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
@@ -19,7 +19,7 @@ async function convertOperation(res?: PixiVNJson) {
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            let res = await CommandManager.generateOrRunOperationFromCommand(v, {});
+                            let res = await HashtagScriptManager.generateOrRunOperationFromHashtagScript(v, {});
                             if (res) {
                                 ops.push(res);
                             }

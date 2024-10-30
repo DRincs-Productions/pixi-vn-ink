@@ -11,16 +11,16 @@ const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"]
 
 
-export default class CommandManager {
-    private static _customCommand: (command: string[], props: StepLabelPropsType, convertListStringToObj: (listParm: string[]) => object) => boolean = (_command: string[]) => false;
-    private static runCustomCommand(command: string[], props: StepLabelPropsType): boolean {
-        return CommandManager._customCommand(command, props, CommandManager.convertListStringToObj);
+export default class HashtagScriptManager {
+    private static _customHashtagScript: (script: string[], props: StepLabelPropsType, convertListStringToObj: (listParm: string[]) => object) => boolean = (_script: string[]) => false;
+    private static runCustomHashtagScript(script: string[], props: StepLabelPropsType): boolean {
+        return HashtagScriptManager._customHashtagScript(script, props, HashtagScriptManager.convertListStringToObj);
     }
-    static set customCommand(value: (command: string[], props: StepLabelPropsType, convertListStringToObj: (listParm: string[]) => object) => boolean) {
-        CommandManager._customCommand = value;
+    static set customHashtagScript(value: (script: string[], props: StepLabelPropsType, convertListStringToObj: (listParm: string[]) => object) => boolean) {
+        HashtagScriptManager._customHashtagScript = value;
     }
 
-    static async generateOrRunOperationFromCommand(comment: string, props: StepLabelPropsType): Promise<PixiVNJsonOperation | undefined> {
+    static async generateOrRunOperationFromHashtagScript(comment: string, props: StepLabelPropsType): Promise<PixiVNJsonOperation | undefined> {
         try {
             comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
             comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
@@ -78,29 +78,29 @@ export default class CommandManager {
             )
 
             // If is a custom command, it will run the custom operation
-            if (CommandManager.runCustomCommand(list, props)) {
+            if (HashtagScriptManager.runCustomHashtagScript(list, props)) {
                 return undefined;
             }
 
-            let operationType = CommandManager.removeExtraDoubleQuotes(list[1]);
-            let type = CommandManager.removeExtraDoubleQuotes(list[0]);
+            let operationType = HashtagScriptManager.removeExtraDoubleQuotes(list[1]);
+            let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
             if (operationType === "image") {
-                return CommandManager.getImageOperationFromComment(list, "image");
+                return HashtagScriptManager.getImageOperationFromComment(list, "image");
             }
             else if (operationType === "video") {
                 if (IMAGES_TYPES.includes(type)) {
-                    return CommandManager.getImageOperationFromComment(list, "video");
+                    return HashtagScriptManager.getImageOperationFromComment(list, "video");
                 }
                 if (type === "pause" || type === "resume") {
                     return {
                         type: "video",
                         operationType: type as any,
-                        alias: CommandManager.removeExtraDoubleQuotes(list[2])
+                        alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2])
                     }
                 }
             }
             else if (operationType === "sound") {
-                return CommandManager.getSoundOperationFromComment(list);
+                return HashtagScriptManager.getSoundOperationFromComment(list);
             }
             else if (operationType === "input" && type === "request") {
                 let op: PixiVNJsonOperation = {
@@ -108,7 +108,7 @@ export default class CommandManager {
                     operationType: "request",
                 }
                 if (list.length > 2) {
-                    op.valueType = CommandManager.removeExtraDoubleQuotes(list[2]);
+                    op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
                 }
                 return op;
             }
@@ -120,27 +120,27 @@ export default class CommandManager {
             }
         }
         catch (e) {
-            console.error("[Pixi’VN Ink] Error parsing ink command", comment)
+            console.error("[Pixi’VN Ink] Error parsing ink hashtag-script", comment)
             throw e
         }
         return undefined;
     }
 
     private static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
-        let type = CommandManager.removeExtraDoubleQuotes(list[0]);
+        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
         if (!IMAGES_TYPES.includes(type)) {
             return undefined;
         }
-        let imageId = CommandManager.removeExtraDoubleQuotes(list[2]);
+        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         if (type === "show") {
             let op: PixiVNJsonOperation = {
                 type: typeCanvasElement,
                 operationType: "show",
                 alias: imageId,
-                url: CommandManager.removeExtraDoubleQuotes(list[3]),
+                url: HashtagScriptManager.removeExtraDoubleQuotes(list[3]),
             }
             if (list.length > 4) {
-                let transition = CommandManager.getTransition(list.slice(4));
+                let transition = HashtagScriptManager.getTransition(list.slice(4));
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
@@ -152,7 +152,7 @@ export default class CommandManager {
                 type: typeCanvasElement,
                 operationType: "edit",
                 alias: imageId,
-                props: CommandManager.convertListStringToObj(list.slice(3)) as any
+                props: HashtagScriptManager.convertListStringToObj(list.slice(3)) as any
             }
             return op;
         }
@@ -163,7 +163,7 @@ export default class CommandManager {
                 alias: imageId,
             }
             if (list.length > 3) {
-                let transition = CommandManager.getTransition(list.slice(3));
+                let transition = HashtagScriptManager.getTransition(list.slice(3));
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
@@ -174,20 +174,20 @@ export default class CommandManager {
     }
 
     private static getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
-        let type = CommandManager.removeExtraDoubleQuotes(list[0]);
+        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
         if (!SOUND_TYPES.includes(type)) {
             return undefined;
         }
-        let soundId = CommandManager.removeExtraDoubleQuotes(list[2]);
+        let soundId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         if (type === "add") {
             let op: PixiVNJsonOperation = {
                 type: "sound",
                 operationType: "add",
                 alias: soundId,
-                url: CommandManager.removeExtraDoubleQuotes(list[3]),
+                url: HashtagScriptManager.removeExtraDoubleQuotes(list[3]),
             }
             if (list.length > 4) {
-                let props = CommandManager.getSoundOption(list.slice(4));
+                let props = HashtagScriptManager.getSoundOption(list.slice(4));
                 if (props !== undefined) {
                     op.props = props;
                 }
@@ -201,7 +201,7 @@ export default class CommandManager {
                 alias: soundId,
             }
             if (list.length > 3) {
-                let props = CommandManager.getSoundPlayOptions(list.slice(3));
+                let props = HashtagScriptManager.getSoundPlayOptions(list.slice(3));
                 if (props !== undefined) {
                     op.props = props;
                 }
@@ -248,7 +248,7 @@ export default class CommandManager {
         }
         if (list.length > 1) {
             try {
-                let props = CommandManager.convertListStringToObj(list.slice(1));
+                let props = HashtagScriptManager.convertListStringToObj(list.slice(1));
                 transition.props = props;
             }
             catch (_) { }
@@ -258,7 +258,7 @@ export default class CommandManager {
 
     private static getSoundOption(list: string[]): SoundOptions | undefined {
         try {
-            return CommandManager.convertListStringToObj(list);
+            return HashtagScriptManager.convertListStringToObj(list);
         }
         catch (_) {
             return undefined;
@@ -266,7 +266,7 @@ export default class CommandManager {
     }
     private static getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
         try {
-            return CommandManager.convertListStringToObj(list);
+            return HashtagScriptManager.convertListStringToObj(list);
         }
         catch (_) {
             return undefined;
