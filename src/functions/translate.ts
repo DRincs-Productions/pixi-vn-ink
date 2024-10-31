@@ -29,8 +29,9 @@ export function onInkTranslate(t: (text: string) => string) {
  * ```ts
  * import { generateTranslateJson, importInkText } from 'pixi-vn-ink'
  * 
- * let labels = importInkText( your_ink_text_here )
- * let json = generateTranslateJson(labels)
+ * importInkText( your_ink_text_here ).then((labels) => {
+ *     let json = generateTranslateJson(labels)
+ * })
  * ```
  */
 export function generateJsonInkTranslation(labels: PixiVNJsonLabelStep[] | PixiVNJson, json: object = {}, options: {
