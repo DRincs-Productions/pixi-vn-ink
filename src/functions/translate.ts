@@ -1,5 +1,4 @@
-import { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
-import TranslatorManager from "@drincs/pixi-vn-json/dist/managers/TranslateManager";
+import { PixiVNJson, PixiVNJsonLabelStep, translator } from "@drincs/pixi-vn-json";
 
 /**
  * This function set the function to translate the text
@@ -16,7 +15,7 @@ import TranslatorManager from "@drincs/pixi-vn-json/dist/managers/TranslateManag
  * ```
  */
 export function onInkTranslate(t: (text: string) => string) {
-    TranslatorManager.translate = t
+    translator.translate = t
 }
 
 /**
@@ -50,5 +49,5 @@ export function generateJsonInkTranslation(labels: PixiVNJsonLabelStep[] | PixiV
             tempLabels = tempLabels.concat(label)
         })
     }
-    return TranslatorManager.generateJsonTranslation(tempLabels, json, options)
+    return translator.generateJsonTranslation(tempLabels, json, options)
 }

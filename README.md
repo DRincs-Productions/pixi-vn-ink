@@ -4,25 +4,23 @@
 
 Pixi’VN gives you the ability to write your own narrative using Ink.
 
-## What is ink?
+**What is ink?**
 
 Ink is a scripting language for writing interactive narrative. It is used in games like 80 Days, Heaven's Vault, and Sorcery! to create branching stories.
 
-This language is very simple to learn, you can learn the basics in a few minutes. Go on [ink website](https://www.inklestudios.com/ink/) to learn more about it.
+This language is very simple to learn. Go on [ink website](https://www.inklestudios.com/ink/) to learn more about it.
 
 ## Why use Ink integration?
 
 Programming a game narrative in **Javascript/Typescript** has the advantage of having total development freedom, but the disadvantage is that it slows down the writing of a narrative (it makes you write a lot of code).
 
-**Ink** is a language that allows you to write a narrative easily, without having to write a lot of code. Plus, it only takes you about ten minutes to learn the basic functions. Ink is basically designed only for writing narratives, so it doesn't require a canvas or other features outside of narrative.
+Javascript/Typescript and Ink share the same memory and canvas, and it is also possible to launch Ink labels (or knots) from Javascript/Typescript and vice versa. This allows you to use the best of both languages. You can use Ink to write the narration, while using Javascript/Typescript to create minigames or complex animations.
 
-Launching narrative labels (or knots) from Javascript/Typescript to Ink sharing the same memory and canvas is a double benefit. You can use Ink to write the narration, while using Javascript/Typescript to handle everything that is not possible with Ink.
-
-Furthermore, novice developers can use a template to start writing narratives with Ink. After becoming familiar with Javascript/Typescript they can start to create more laborious features, like minigames or complex animations.
+The novice developers can use a [ink template](/start/getting-started.md#project-initialization) to start developing just with Ink, and then gradually learn Javascript/Typescript to create more complex features.
 
 ## Start using Ink in Pixi’VN
 
-If you have not created a project yet then it is recommended to use the [template](https://pixi-vn.web.app/start/getting-started.html#project-initialization) and select a template that is based on ink.
+If you have not created a project yet then it is recommended to use the [template](https://pixi-vn.web.app/start/getting-started.html#project-initialization) to start your project with Ink.
 
 Otherwise to add ink to your Pixi’VN project you need to install the `@drincs/pixi-vn-ink` package.
 
@@ -40,7 +38,7 @@ pnpm add @drincs/pixi-vn-ink
 bun add @drincs/pixi-vn-ink
 ```
 
-After installing the package you need to import the `importInkText()` function from the package and use it to import the ink script into your project.
+After installing the package you need to use the `importInkText()` function to import the ink script into your project.
 
 ```typescript
 // main.ts
@@ -55,15 +53,17 @@ Hello
 importInkText([inkText, ...])
 ```
 
-Now you can run the `start` knot (or label) with [Pixi’VN functions](https://pixi-vn.web.app/start/labels.html#run-a-label).
+Now you can run the ink knot (or label) with [Pixi’VN functions](https://pixi-vn.web.app/start/labels.html#run-a-label).
 
 ```typescript
+import { narration } from '@drincs/pixi-vn'
+
 narration.callLabel(`start`, {})
 ```
 
 ### Import text contained in .ink files
 
-( This method has been tested only on projects generated with vitejs )
+For this guide we will use the [Vite](https://vitejs.dev/) project, but you can use the same logic in other projects.
 
 To import text contained in .ink files you need create the file `ink.d.ts`:
 
@@ -100,7 +100,7 @@ importInkText([startLabel, ...])
 
 The following features are in development and will be added in the future:
 
-( Add a like or comment to the issue to show your interest in the feature )
+( Add a like or comment to the issue to show your interest )
 
 * [Functions and Game Queries](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#9-game-queries-and-functions) (issue [#11](https://github.com/DRincs-Productions/pixi-vn-ink/issues/11)):
   * [User-created functions](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#5-functions) (issue [#32](https://github.com/DRincs-Productions/pixi-vn-ink/issues/32))
@@ -114,7 +114,7 @@ The following features are in development and will be added in the future:
 
 ## Ink syntax that will be ignored by Pixi’VN
 
-The following syntax will be ignored by Pixi’VN (They will not create errors).
+The following syntax will be ignored by Pixi’VN. You can use them in your ink script ( For example if you want test your script with **Inky editor** ), but they will be ignored by Pixi’VN.
 
 ### INCLUDE
 
@@ -124,18 +124,68 @@ In Pixi’VN you can use the `importInkText()` function to import the ink files.
 
 ### Narration outside the knots
 
-The narration outside the knots (or labels) will be ignored.
-The reason is that as explained by Pixi’VN you can't start a whole ink file, but you have to use this [functions](https://pixi-vn.web.app/start/labels.html#run-a-label) for run a knot (or label).
+The narration outside the knots (or labels) will be ignored, except for variables. The reason is that you must run the first knot (or label) with the [Pixi’VN functions](https://pixi-vn.web.app/start/labels.html#run-a-label).
 
 So for example the following cases will be ignored:
 
 ```ink
+VAR my_var = false ✅ This will be handled (because it is a variable)
 Hello # ❌ This will be ignored
 -> start # ❌ This will be ignored
 === start === # ✅ This will be handled
 My name is John # ✅ This will be handled
 -> DONE # ✅ This will be handled
 ```
+
+## Differences between Native Ink and Pixi’VN Ink
+
+* in this case:
+
+    ```ink
+    { shuffle:
+      -  2 of Diamonds.
+        'You lose this time!' crowed the croupier.
+    }
+    ```
+
+    **In Native Ink**, you will see 2 different dialogues, the first one will be `2 of Diamonds.` and the second one will be `'You lose this time!' crowed the croupier.`.
+
+    **In Pixi’VN Ink**, you will not see 2 different dialogues, but the following dialogue: `2 of Diamonds.\n\n'You lose this time!' crowed the croupier.`. In [Markdown](/ink/ink-markdown.md) it will be displayed as:
+
+    ```txt
+    2 of Diamonds.
+    'You lose this time!' crowed the croupier.
+    ```
+
+* if a `weave` (In following example `shove`) is attached to a one time choice, and it is opened with `-> shove` it will not invalidate the one time choice. To invalidate it you will have to select the choice as usual.
+
+    Here is an example:
+
+    ```ink
+    -> start
+    === start ===
+    * [1] -> shove
+    * (shove) [2] 2
+    * {shove} [3] -> END
+    -  -> start
+    -> DONE
+    ```
+
+    In case you take choice 1, the second time it will be opened `start`:
+  * if you use **Native Ink**, you will only be able to choose choice `3`. The choice `2` is hidden because being "one time" Native Ink will know that you have already made this decision with `-> shove`.
+  * if you use **Pixi’VN Ink**, you will be able to choose choice `2` or `3`. The choice `2` is not hidden because Pixi'VN Ink doesn't know that `shove` is paired with a choice.
+
+  To get the same logic as `start` both in Native Ink and Pixi'VN Ink you will have to write the following code:
+
+  ```ink
+  -> start
+  === start ===
+  * [1] -> shove
+  * (shove) {!shove} [2] 2
+  * {shove} [3] -> END
+  -  -> start
+  -> DONE
+  ```
 
 ## Using Pixi’VN Features from Ink
 
@@ -144,3 +194,5 @@ My name is John # ✅ This will be handled
 * [Use PixiJS Canvas in Ink](https://pixi-vn.web.app/ink/ink-canvas.html)
 * [Use Sounds and Music in Ink](https://pixi-vn.web.app/ink/ink-sound.html)
 * [Use input in Ink](https://pixi-vn.web.app/ink/ink-input.html)
+* [How translate Ink text](https://pixi-vn.web.app/ink/ink-translate.html)
+* [Custome Hashtag Script](https://pixi-vn.web.app/ink/ink-hashtag.html)
