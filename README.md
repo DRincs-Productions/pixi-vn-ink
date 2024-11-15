@@ -24,8 +24,6 @@ If you have not created a project yet then it is recommended to use the [templat
 
 Otherwise to add ***ink*** to your Pixi’VN project you need to install the `@drincs/pixi-vn-ink` package.
 
-
-
 ```bash
 # npm
 npm install @drincs/pixi-vn-ink
