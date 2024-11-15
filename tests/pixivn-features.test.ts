@@ -10,9 +10,9 @@ async function convertOperation(res?: PixiVNJson) {
         for (let label in res.labels) {
             let tempSteps = []
             for (let step of res.labels[label]) {
-                if (step.operation) {
+                if (step.operations) {
                     let ops: PixiVNJsonOperations = []
-                    for (let operation of step.operation) {
+                    for (let operation of step.operations) {
                         if (operation.type === "oprationtoconvert") {
                             let v: string = operation.values.map((v) => {
                                 if (typeof v === "string") {
@@ -29,7 +29,7 @@ async function convertOperation(res?: PixiVNJson) {
                             ops.push(operation);
                         }
                     }
-                    step.operation = ops;
+                    step.operations = ops;
                 }
                 tempSteps.push(step);
             }
@@ -85,7 +85,7 @@ test('show image', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -96,7 +96,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -107,7 +107,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -118,7 +118,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -129,7 +129,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -203,7 +203,7 @@ test('show image', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "show",
@@ -214,7 +214,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "show",
@@ -225,7 +225,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "show",
@@ -239,7 +239,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "show",
@@ -256,7 +256,7 @@ test('show image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "show",
@@ -303,7 +303,7 @@ test('edit image', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -327,7 +327,7 @@ test('edit image', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "edit",
@@ -373,7 +373,7 @@ test('remove image', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -384,7 +384,7 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -395,7 +395,7 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -406,7 +406,7 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -430,7 +430,7 @@ test('remove image', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "remove",
@@ -440,7 +440,7 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "remove",
@@ -450,7 +450,7 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "remove",
@@ -463,7 +463,7 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "image",
                             operationType: "remove",
@@ -510,7 +510,7 @@ test('video', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -521,7 +521,7 @@ test('video', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -532,7 +532,7 @@ test('video', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -543,7 +543,7 @@ test('video', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -567,7 +567,7 @@ test('video', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "video",
                             operationType: "show",
@@ -578,7 +578,7 @@ test('video', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "video",
                             operationType: "pause",
@@ -588,7 +588,7 @@ test('video', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "video",
                             operationType: "resume",
@@ -598,7 +598,7 @@ test('video', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "video",
                             operationType: "remove",
@@ -639,7 +639,7 @@ test('sound', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -650,7 +650,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -661,7 +661,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -672,7 +672,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -683,7 +683,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -694,7 +694,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -718,7 +718,7 @@ test('sound', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "sound",
                             operationType: "add",
@@ -732,7 +732,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "sound",
                             operationType: "play",
@@ -745,7 +745,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "sound",
                             operationType: "pause",
@@ -755,7 +755,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "sound",
                             operationType: "resume",
@@ -765,7 +765,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "sound",
                             operationType: "remove",
@@ -775,7 +775,7 @@ test('sound', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "sound",
                             operationType: "volume",
@@ -819,7 +819,7 @@ test('input', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -830,7 +830,7 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -844,7 +844,7 @@ test('input', async () => {
                     dialogue: undefined,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "oprationtoconvert",
                             values: [
@@ -868,7 +868,7 @@ test('input', async () => {
         labels: {
             start: [
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "input",
                             operationType: "request",
@@ -877,7 +877,7 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "input",
                             operationType: "request",
@@ -890,7 +890,7 @@ test('input', async () => {
                     dialogue: undefined,
                 },
                 {
-                    operation: [
+                    operations: [
                         {
                             type: "input",
                             operationType: "request",

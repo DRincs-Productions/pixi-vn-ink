@@ -407,7 +407,7 @@ test('Logic', async () => {
             set_some_variables: [
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -419,7 +419,7 @@ test('Logic', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -481,7 +481,7 @@ test('Logic', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -606,7 +606,7 @@ test('RANDOM(min, max)', async () => {
             start: [
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -628,7 +628,7 @@ test('RANDOM(min, max)', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -650,7 +650,7 @@ test('RANDOM(min, max)', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -762,7 +762,7 @@ test('Advanced: numerical types are implicit', async () => {
             start: [
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -784,7 +784,7 @@ test('Advanced: numerical types are implicit', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -806,7 +806,7 @@ test('Advanced: numerical types are implicit', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -1124,7 +1124,7 @@ test('A simple if', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -1219,7 +1219,7 @@ test('A simple else', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -1246,7 +1246,7 @@ test('A simple else', async () => {
                         },
                         else: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -1343,7 +1343,7 @@ test('Extended if/else if/else blocks', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -1369,7 +1369,7 @@ test('Extended if/else if/else blocks', async () => {
                                 },
                                 then: {
                                     goNextStep: true,
-                                    operation: [
+                                    operations: [
                                         {
                                             type: "value",
                                             storageOperationType: "set",
@@ -1396,7 +1396,7 @@ test('Extended if/else if/else blocks', async () => {
                                 },
                                 else: {
                                     goNextStep: true,
-                                    operation: [
+                                    operations: [
                                         {
                                             type: "value",
                                             storageOperationType: "set",
@@ -1613,7 +1613,7 @@ test('Example: context-relevant content', async () => {
                             secondConditionalItem: [
                                 {
                                     goNextStep: true,
-                                    operation: [
+                                    operations: [
                                         {
                                             type: "value",
                                             storageOperationType: "set",
@@ -1673,7 +1673,7 @@ test('Example: context-relevant content', async () => {
                                     secondConditionalItem: [
                                         {
                                             goNextStep: true,
-                                            operation: [
+                                            operations: [
                                                 {
                                                     type: "value",
                                                     storageOperationType: "set",
@@ -2156,7 +2156,7 @@ test('Multiline blocks', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -2285,7 +2285,7 @@ test('Advanced: modified shuffles', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -2393,7 +2393,7 @@ test('Advanced: modified shuffles 2', async () => {
                 },
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -2498,7 +2498,7 @@ test('Temporary variables are for scratch calculations', async () => {
             near_north_pole: [
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -2519,7 +2519,7 @@ test('Temporary variables are for scratch calculations', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -2552,7 +2552,7 @@ test('Temporary variables are for scratch calculations', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -2585,7 +2585,7 @@ test('Temporary variables are for scratch calculations', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -2839,7 +2839,7 @@ test('Example: a recursive knot definition', async () => {
             add_one_to_one_hundred: [
                 {
                     goNextStep: true,
-                    operation: [
+                    operations: [
                         {
                             type: "value",
                             storageOperationType: "set",
@@ -3066,7 +3066,7 @@ test('Global Constants', async () => {
                         },
                         then: {
                             goNextStep: true,
-                            operation: [
+                            operations: [
                                 {
                                     type: "value",
                                     storageOperationType: "set",
@@ -3179,7 +3179,7 @@ test('Global Constants 2', async () => {
                                 },
                                 {
                                     goNextStep: true,
-                                    operation: [
+                                    operations: [
                                         {
                                             type: "value",
                                             storageOperationType: "set",
@@ -3200,7 +3200,7 @@ test('Global Constants 2', async () => {
                                 },
                                 {
                                     goNextStep: true,
-                                    operation: [
+                                    operations: [
                                         {
                                             type: "value",
                                             storageOperationType: "set",

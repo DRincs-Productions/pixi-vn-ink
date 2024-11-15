@@ -51,7 +51,7 @@ function addConditionalElementStep(
                         dialogue: undefined,
                     }
                     if (tempList.length > 0) {
-                        value.operation = [{
+                        value.operations = [{
                             type: "oprationtoconvert",
                             values: tempList,
                         }]
@@ -65,7 +65,7 @@ function addConditionalElementStep(
             })
             if (tempList.length > 0) {
                 list.push({
-                    operation: [{
+                    operations: [{
                         type: "oprationtoconvert",
                         values: tempList,
                     }],
@@ -80,7 +80,7 @@ function addConditionalElementStep(
         if (!isNewLine && list.length > 0) {
             let prevItem = list[list.length - 1]
             // in this case: <> text
-            if (!prevItem.glueEnabled && !prevItem.operation) {
+            if (!prevItem.glueEnabled && !prevItem.operations) {
                 prevItem.glueEnabled = true
                 if (!prevItem.labelToOpen)
                     prevItem.goNextStep = true
@@ -127,7 +127,7 @@ function addConditionalElementStep(
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1]
                 // in this case: <> text
-                if (!prevItem.glueEnabled && !prevItem.operation) {
+                if (!prevItem.glueEnabled && !prevItem.operations) {
                     prevItem.glueEnabled = true
                     if (!prevItem.labelToOpen)
                         prevItem.goNextStep = true
@@ -175,7 +175,7 @@ function addConditionalElementStep(
             }
             list.push({
                 goNextStep: true,
-                operation: [item]
+                operations: [item]
             })
         }
     }
