@@ -1,5 +1,6 @@
 import { getCharacterById } from "@drincs/pixi-vn";
 import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
+import { PAUSE_HASHTAG_SCRIPT } from "../constant";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/divert-utility";
@@ -26,9 +27,9 @@ export function addSwitchElemenStep(
     labelKey: string,
     paramNames: string[],
     isNewLine: boolean = true,
-    isComment: boolean = false,
+    isHashtagScript: boolean = false,
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, isNewLine, isComment)
+    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, isNewLine, isHashtagScript)
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
@@ -36,18 +37,37 @@ function addConditionalElementStep(
     labelKey: string,
     paramNames: string[],
     isNewLine: boolean,
-    isComment: boolean = false,
+    isHashtagScript: boolean = false,
 ) {
     if (!item) {
         return
     }
-    if (isComment) {
+    if (isHashtagScript) {
         if (Array.isArray(item)) {
-            if (item.length > 0) {
+            let tempList: any[] = []
+            item.forEach((i) => {
+                if (typeof i === "string" && i === PAUSE_HASHTAG_SCRIPT) {
+                    let value: PixiVNJsonLabelStep = {
+                        dialogue: undefined,
+                    }
+                    if (tempList.length > 0) {
+                        value.operation = [{
+                            type: "oprationtoconvert",
+                            values: tempList,
+                        }]
+                        tempList = []
+                    }
+                    list.push(value)
+                }
+                else {
+                    tempList.push(i)
+                }
+            })
+            if (tempList.length > 0) {
                 list.push({
                     operation: [{
                         type: "oprationtoconvert",
-                        values: item,
+                        values: tempList,
                     }],
                     goNextStep: true,
                 })
@@ -191,16 +211,16 @@ export function addSwitchComment(
     item: string | TComment | StandardDivert | PixiVNJsonStepSwitchElementType<TComment> | MyVariableAssignment,
     labelKey: string,
     isNewLine: boolean = true,
-    isComment: boolean = false
+    isHashtagScript: boolean = false
 ) {
-    return addConditionalComment(list as any, item as any, labelKey, isNewLine, isComment)
+    return addConditionalComment(list as any, item as any, labelKey, isNewLine, isHashtagScript)
 }
 function addConditionalComment(
     list: TComment[],
     item: string | TComment | StandardDivert | PixiVNJsonConditionalStatements<TComment> | MyVariableAssignment,
     _labelKey: string,
     _isNewLine: boolean,
-    _isComment: boolean = false
+    _isHashtagScript: boolean = false
 ) {
     if (!item) {
         return

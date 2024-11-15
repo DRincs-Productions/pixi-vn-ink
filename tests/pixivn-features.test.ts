@@ -1,6 +1,7 @@
 import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
-import { PixiVNJson } from '@drincs/pixi-vn-json';
+import { PixiVNJson, PixiVNJsonOperations } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
+import { PAUSE_HASHTAG_SCRIPT } from '../src/constant';
 import { convertInkText } from '../src/functions';
 import HashtagScriptManager from '../src/managers/HashtagScriptManager';
 
@@ -10,7 +11,7 @@ async function convertOperation(res?: PixiVNJson) {
             let tempSteps = []
             for (let step of res.labels[label]) {
                 if (step.operation) {
-                    let ops = []
+                    let ops: PixiVNJsonOperations = []
                     for (let operation of step.operation) {
                         if (operation.type === "oprationtoconvert") {
                             let v: string = operation.values.map((v) => {
@@ -840,6 +841,9 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
+                    dialogue: undefined,
+                },
+                {
                     operation: [
                         {
                             type: "oprationtoconvert",
@@ -883,6 +887,9 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
+                    dialogue: undefined,
+                },
+                {
                     operation: [
                         {
                             type: "input",
@@ -906,6 +913,7 @@ test('input', async () => {
 === start
 # request input
 # request input number
+# ${PAUSE_HASHTAG_SCRIPT}
 # request input 'array of string'
 Hello
 -> DONE
