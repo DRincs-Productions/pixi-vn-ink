@@ -27,7 +27,7 @@ export function parseLabel<T>(
         labelKey: string,
         paramNames: string[],
         isNewLine: boolean,
-        isComment: boolean,
+        isHashtagScript: boolean,
     ) => void,
     addSwitchElemen: (
         list: PixiVNJsonStepSwitchElementType<T>[],
@@ -51,15 +51,15 @@ export function parseLabel<T>(
     let isInEnv = false
     let envList: RootParserItemType[] = []
     let isConditionalText = false
-    let isComment = false
+    let isHashtagScript = false
     let conditionalList: RootParserItemType[] = []
     let commentList: any[] = []
     if (shareData.preDialog[labelKey]) {
         // *	Hello [back!] right back to you!
         isNewLine = false
-        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, paramNames, isNewLine, isComment)
+        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, paramNames, isNewLine, isHashtagScript)
         if (shareData.preDialog[labelKey].glue) {
-            addElement(itemList, "<>", labelKey, paramNames, isNewLine, isComment)
+            addElement(itemList, "<>", labelKey, paramNames, isNewLine, isHashtagScript)
         }
         delete shareData.preDialog[labelKey]
     }
@@ -67,9 +67,9 @@ export function parseLabel<T>(
         let item = parserSwitch<T>(rootList as any, addSwitchElemen, addLabels, labelKey, shareData, paramNames, nestedId)
         if (item) {
             if (!isNewLine && itemList.length > 0) {
-                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isComment)
+                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isHashtagScript)
             }
-            addElement(itemList, item, labelKey, paramNames, isNewLine, isComment)
+            addElement(itemList, item, labelKey, paramNames, isNewLine, isHashtagScript)
         }
         return
     }
@@ -82,12 +82,12 @@ export function parseLabel<T>(
         paramNames = paramNames.reverse()
     }
     rootList.forEach((rootItem, index) => {
-        if (isComment) {
+        if (isHashtagScript) {
             if (typeof rootItem === "string" && rootItem == "/#") {
                 let myList: T[] = []
                 parseLabel(commentList, labelKey, shareData, myList, addSwitchComment as any, addSwitchComment as any, addLabels, addChoiseList, nestedId, isNewLine)
-                addElement(itemList, myList as any, labelKey, paramNames, isNewLine, isComment)
-                isComment = false
+                addElement(itemList, myList as any, labelKey, paramNames, isNewLine, isHashtagScript)
+                isHashtagScript = false
                 commentList = []
             }
             else {
@@ -134,7 +134,7 @@ export function parseLabel<T>(
                         }
                     }
                     if (typeof obj.key !== "string" || !obj.key.includes("$r")) {
-                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isComment)
+                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isHashtagScript)
                         isNewLine = true
                     }
                 }
@@ -166,7 +166,7 @@ export function parseLabel<T>(
                                 paramNames,
                                 "storage"
                             )
-                            addElement(itemList, obj, labelKey, paramNames, isNewLine, isComment)
+                            addElement(itemList, obj, labelKey, paramNames, isNewLine, isHashtagScript)
                         }
                         else {
                             let varList = []
@@ -177,12 +177,12 @@ export function parseLabel<T>(
                             let value = arithmeticParser(varList as any, labelKey, paramNames)
                             envList = []
                             if (value && typeof value === "object" && "type" in value && value.type == "value" && "storageType" in value && value.storageType == "logic") {
-                                addElement(itemList, { storageOperationType: "get", storageType: "logic", operation: value.operation as PixiVNJsonArithmeticOperations, type: "value" }, labelKey, paramNames, isNewLine, isComment)
+                                addElement(itemList, { storageOperationType: "get", storageType: "logic", operation: value.operation as PixiVNJsonArithmeticOperations, type: "value" }, labelKey, paramNames, isNewLine, isHashtagScript)
                             }
                             else {
-                                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isComment)
+                                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isHashtagScript)
                                 value = `^${value}`
-                                addElement(itemList, value, labelKey, paramNames, isNewLine, isComment)
+                                addElement(itemList, value, labelKey, paramNames, isNewLine, isHashtagScript)
                             }
                         }
                         isNewLine = false
@@ -196,7 +196,7 @@ export function parseLabel<T>(
         else if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript)
                 isNewLine = false
             }
             else if (rootItem == "ev") {
@@ -206,23 +206,23 @@ export function parseLabel<T>(
                 isNewLine = true
             }
             else if (rootItem == "done" || rootItem == "end") {
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript)
                 isNewLine = false
             }
             else if (rootItem == "<>") {
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript)
                 isNewLine = false
             }
             else if (rootItem == 'nop' && isConditionalText) {
                 let res = getConditionalValue<T>(conditionalList as any[], addSwitchElemen, addLabels, labelKey, shareData, paramNames, nestedId)
                 if (res) {
-                    addElement(itemList, res, labelKey, paramNames, isNewLine, isComment)
+                    addElement(itemList, res, labelKey, paramNames, isNewLine, isHashtagScript)
                 }
                 isConditionalText = false
                 conditionalList = []
             }
             else if (rootItem == "#") {
-                isComment = true
+                isHashtagScript = true
             }
         }
         else if (rootItem instanceof Array) {
@@ -254,7 +254,7 @@ export function parseLabel<T>(
                 let newLabelKey = el["#n"]
                 delete (el as any)["#n"]
                 rootItem.push(el)
-                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, paramNames, isNewLine, isComment);
+                addElement(itemList, { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey }, labelKey, paramNames, isNewLine, isHashtagScript);
                 addLabels({
                     [newLabelKey]: rootItem
                 }, labelKey, shareData)
@@ -273,7 +273,7 @@ export function parseLabel<T>(
                     params = getParam(["ev", ...envList], labelKey, paramNames)
                 }
                 rootItem["params"] = params
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isComment)
+                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript)
                 isNewLine = false
             }
             else if ("*" in rootItem && typeof rootItem["*"] === "string") {
@@ -311,7 +311,7 @@ export function parseLabel<T>(
                     obj.value = arithmeticParser(varList as any, labelKey, paramNames)
                     envList = []
                     if (obj.value !== undefined || obj.value !== null) {
-                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isComment)
+                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isHashtagScript)
                     }
                     isNewLine = false
                 }

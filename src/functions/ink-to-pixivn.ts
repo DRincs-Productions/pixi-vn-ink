@@ -25,8 +25,8 @@ export function convertInkText(text: string): PixiVNJson | undefined {
         let global = result.labels[GLOBAL_DECL]
         delete result.labels[GLOBAL_DECL]
         global.forEach((item) => {
-            if (item.operation) {
-                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operation] : [...item.operation]
+            if (item.operations) {
+                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operations] : [...item.operations]
             }
         })
     }
@@ -34,8 +34,8 @@ export function convertInkText(text: string): PixiVNJson | undefined {
         let global = result.labels[MY_LABEL_KER_EXTERNAL_VALUE]
         delete result.labels[MY_LABEL_KER_EXTERNAL_VALUE]
         global.forEach((item) => {
-            if (item.operation) {
-                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operation] : [...item.operation]
+            if (item.operations) {
+                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operations] : [...item.operations]
             }
         })
     }

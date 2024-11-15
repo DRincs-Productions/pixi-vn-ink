@@ -43,7 +43,7 @@ function findLabel(
                         labels[MY_LABEL_KER_EXTERNAL_VALUE] = []
                     }
                     labels[MY_LABEL_KER_EXTERNAL_VALUE].push({
-                        operation: [{
+                        operations: [{
                             type: "value",
                             value: sharedVariables.externalSwitch as any,
                             key: storyItem["VAR="],
