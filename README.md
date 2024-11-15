@@ -194,6 +194,7 @@ My name is John // ✅ This will be handled
 * [*ink* text style](https://pixi-vn.web.app/ink/ink-markdown.html)
 * [Use canvas in *ink*](https://pixi-vn.web.app/ink/ink-canvas.html)
 * [Using sounds and music in *ink*](https://pixi-vn.web.app/ink/ink-sound.html)
+* [Using pause in *ink*](https://pixi-vn.web.app/ink/ink-pause.html)
 * [Use input in *ink*](https://pixi-vn.web.app/ink/ink-input.html)
 * [How translate *ink* text](https://pixi-vn.web.app/ink/ink-translate.html)
 * [Custome Hashtag Script](https://pixi-vn.web.app/ink/ink-hashtag.html)
