@@ -10,10 +10,10 @@ import { onInkTranslate } from "./translate"
  * @param getTextToReplace The function to get the text to replace 
  * @example
  * ```ts
- * import { onGetCharacterText } from 'pixi-vn-ink'
+ * import { onReplaceTextAfterTranslation } from 'pixi-vn-ink'
  * import { getCharacterById } from "@drincs/pixi-vn";
  * 
- * onGetCharacterText((key) => {
+ * onReplaceTextAfterTranslation((key) => {
  *     let character = getCharacterById(key)
  *     if (character) {
  *         return character.name

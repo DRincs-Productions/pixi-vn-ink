@@ -17,7 +17,9 @@ import HashtagScriptManager from "../managers/HashtagScriptManager";
  *            prop = convertListStringToObj(script.slice(2))
  *        }
  *        navigateTo(script[1], prop)
+ *        return true
  *    }
+ *    return false
  * })
  * ```
  */
