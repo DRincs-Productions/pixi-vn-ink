@@ -111,7 +111,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image  bg '/image.png' dissolve",
+                                "show image  bg '/image.png' with dissolve",
                             ],
                         },
                     ],
@@ -122,7 +122,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image bg /image.png  dissolve duration 3",
+                                "show image bg /image.png  with dissolve duration 3",
                             ],
                         },
                     ],
@@ -133,7 +133,7 @@ test('show image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "show image bg `/image.png`  dissolve duration ",
+                                "show image bg `/image.png` x 10  with dissolve duration ",
                                 {
                                     type: "ifelse",
                                     condition: {
@@ -149,8 +149,8 @@ test('show image', async () => {
                                             " ",
                                             {
                                                 type: "value",
-                                                storageType: "storage",
                                                 storageOperationType: "get",
+                                                storageType: "storage",
                                                 key: "duration",
                                             },
                                             " ",
@@ -268,6 +268,9 @@ test('show image', async () => {
                                     duration: "ifelse" as any,
                                 },
                             },
+                            props: {
+                                x: 10,
+                            },
                         },
                     ],
                     goNextStep: true,
@@ -287,9 +290,9 @@ VAR duration = 3
 === start
 #show image bg /image.png
 # show image "bg 2 alice" /image2.png
-# show image  bg '/image.png' dissolve
-#show image bg /image.png  dissolve duration 3
-#show image bg \`/image.png\`  dissolve duration {start: {duration} | {duration| 0 == 0} }
+# show image  bg '/image.png' with dissolve
+#show image bg /image.png  with dissolve duration 3
+#show image bg \`/image.png\` x 10  with dissolve duration {start: {duration} | {duration| 0 == 0} }
 hello
 -> DONE
 `);
