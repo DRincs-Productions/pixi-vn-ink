@@ -171,8 +171,9 @@ export default class HashtagScriptManager {
                 operationType: "remove",
                 alias: imageId,
             }
-            if (list.length > 3) {
-                let transition = HashtagScriptManager.getTransition(list.slice(3));
+            if (list.length > 4 && list[3] === "with") {
+                let transitionList = list.slice(4);
+                let transition = HashtagScriptManager.getTransition(transitionList);
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
