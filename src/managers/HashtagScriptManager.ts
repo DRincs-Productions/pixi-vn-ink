@@ -140,9 +140,18 @@ export default class HashtagScriptManager {
                 url: HashtagScriptManager.removeExtraDoubleQuotes(list[3]),
             }
             if (list.length > 4) {
-                let transition = HashtagScriptManager.getTransition(list.slice(4));
-                if (transition !== undefined) {
-                    op.transition = transition;
+                let propList = list.slice(4);
+                if (list.includes("with")) {
+                    let transitionList = list.slice(list.indexOf("with") + 1);
+                    propList = list.slice(4, list.indexOf("with"));
+                    let transition = HashtagScriptManager.getTransition(transitionList);
+                    if (transition !== undefined) {
+                        op.transition = transition;
+                    }
+                }
+                if (propList.length > 0) {
+                    let props = HashtagScriptManager.convertListStringToObj(propList);
+                    op.props = props as any;
                 }
             }
             return op;
