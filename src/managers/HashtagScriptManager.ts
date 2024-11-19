@@ -1,5 +1,6 @@
 import { narration, SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
-import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation, PixiVNJsonTicker } from "@drincs/pixi-vn-json";
+import PixiVNJsonEffect from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonEffect";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -84,39 +85,66 @@ export default class HashtagScriptManager {
 
             let operationType = HashtagScriptManager.removeExtraDoubleQuotes(list[1]);
             let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-            if (operationType === "image") {
-                return HashtagScriptManager.getImageOperationFromComment(list, "image");
-            }
-            else if (operationType === "video") {
-                if (IMAGES_TYPES.includes(type)) {
-                    return HashtagScriptManager.getImageOperationFromComment(list, "video");
-                }
-                if (type === "pause" || type === "resume") {
-                    return {
-                        type: "video",
-                        operationType: type as any,
-                        alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2])
+            switch (operationType) {
+                case "image":
+                    return HashtagScriptManager.getImageOperationFromComment(list, "image");
+                case "video":
+                    if (IMAGES_TYPES.includes(type)) {
+                        return HashtagScriptManager.getImageOperationFromComment(list, "video");
                     }
-                }
-            }
-            else if (operationType === "sound") {
-                return HashtagScriptManager.getSoundOperationFromComment(list);
-            }
-            else if (operationType === "input" && type === "request") {
-                let op: PixiVNJsonOperation = {
-                    type: "input",
-                    operationType: "request",
-                }
-                if (list.length > 2) {
-                    op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-                }
-                return op;
-            }
-            else if (operationType && type === "call") {
-                await narration.callLabel(operationType, props)
-            }
-            else if (operationType && type === "jump") {
-                await narration.jumpLabel(operationType, props)
+                    if (type === "pause" || type === "resume") {
+                        return {
+                            type: "video",
+                            operationType: type as any,
+                            alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2])
+                        }
+                    }
+                case "sound":
+                    return HashtagScriptManager.getSoundOperationFromComment(list);
+                case "input":
+                    if (type === "request") {
+                        let op: PixiVNJsonOperation = {
+                            type: "input",
+                            operationType: "request",
+                        }
+                        if (list.length > 2) {
+                            op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+                        }
+                        return op;
+                    }
+                default:
+                    if (operationType) {
+                        switch (type) {
+                            case "call":
+                                await narration.callLabel(operationType, props)
+                                break
+                            case "jump":
+                                await narration.jumpLabel(operationType, props)
+                                break
+                            case "fade":
+                            case "move":
+                            case "rotate":
+                            case "zoom":
+                            case "shake":
+                                let propsEffect = {}
+                                if (list.length > 2) {
+                                    try {
+                                        propsEffect = HashtagScriptManager.convertListStringToObj(list.slice(2))
+                                    }
+                                    catch (_) { }
+                                }
+                                if (type == "move" && !("destination" in propsEffect)) {
+                                    console.error("[Pixi’VN Ink] The move operation must have a destination property", comment)
+                                    return undefined;
+                                }
+                                let effect: PixiVNJsonEffect | PixiVNJsonTicker = {
+                                    alias: operationType,
+                                    type: type,
+                                    props: propsEffect as any
+                                }
+                                return effect
+                        }
+                    }
             }
         }
         catch (e) {
