@@ -1,5 +1,6 @@
 import { narration, SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
-import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation, PixiVNJsonTicker } from "@drincs/pixi-vn-json";
+import PixiVNJsonEffect from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonEffect";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -116,8 +117,32 @@ export default class HashtagScriptManager {
                         switch (type) {
                             case "call":
                                 await narration.callLabel(operationType, props)
+                                break
                             case "jump":
                                 await narration.jumpLabel(operationType, props)
+                                break
+                            case "fade":
+                            case "move":
+                            case "rotate":
+                            case "zoom":
+                            case "shake":
+                                let propsEffect = {}
+                                if (list.length > 2) {
+                                    try {
+                                        propsEffect = HashtagScriptManager.convertListStringToObj(list.slice(2))
+                                    }
+                                    catch (_) { }
+                                }
+                                if (type == "move" && !("destination" in propsEffect)) {
+                                    console.error("[Pixi’VN Ink] The move operation must have a destination property", comment)
+                                    return undefined;
+                                }
+                                let effect: PixiVNJsonEffect | PixiVNJsonTicker = {
+                                    alias: operationType,
+                                    type: type,
+                                    props: propsEffect as any
+                                }
+                                return effect
                         }
                     }
             }
