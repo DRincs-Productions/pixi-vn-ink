@@ -402,7 +402,7 @@ test('remove image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "remove image bg dissolve",
+                                "remove image bg with dissolve",
                             ],
                         },
                     ],
@@ -413,7 +413,7 @@ test('remove image', async () => {
                         {
                             type: "oprationtoconvert",
                             values: [
-                                "remove image bg dissolve duration 3",
+                                "remove image bg with dissolve duration 3",
                             ],
                         },
                     ],
@@ -495,9 +495,120 @@ test('remove image', async () => {
 === start
 #remove image bg
 #remove image "bg 2"
-#remove image bg dissolve
-#remove image bg dissolve duration 3
+#remove image bg with dissolve
+#remove image bg with dissolve duration 3
 Hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    await convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+test('effect image', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "move bg destination { \"x\": 20, \"y\": 30 }",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "shake bg",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "oprationtoconvert",
+                            values: [
+                                "rotate bg clockwise true",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: undefined,
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "move",
+                            props: {
+                                destination: {
+                                    x: 20,
+                                    y: 30,
+                                },
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "shake",
+                            props: {
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "rotate",
+                            props: {
+                                clockwise: true,
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: undefined,
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+# move bg destination \\\{ "x": 20, "y": 30 \\\}
+# shake bg
+# rotate bg clockwise true
+# pause
 -> DONE
 `);
     expect(res).toEqual(expected1);
