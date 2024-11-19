@@ -133,9 +133,14 @@ export default class HashtagScriptManager {
                                     }
                                     catch (_) { }
                                 }
-                                if (type == "move" && !("destination" in propsEffect)) {
-                                    console.error("[Pixi’VN Ink] The move operation must have a destination property", comment)
+                                if (type == "move" && (!("destination" in propsEffect)) && (!("x" in propsEffect) || !("y" in propsEffect))) {
+                                    console.error("[Pixi’VN Ink] The move operation must have a x and y or destination property", comment)
                                     return undefined;
+                                }
+                                else if (type == "move" && "x" in propsEffect && "y" in propsEffect) {
+                                    (propsEffect as any)["destination"] = { x: propsEffect.x, y: propsEffect.y }
+                                    delete propsEffect.x
+                                    delete propsEffect.y
                                 }
                                 let effect: PixiVNJsonEffect | PixiVNJsonTicker = {
                                     alias: operationType,
