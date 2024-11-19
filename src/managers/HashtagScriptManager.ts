@@ -84,39 +84,42 @@ export default class HashtagScriptManager {
 
             let operationType = HashtagScriptManager.removeExtraDoubleQuotes(list[1]);
             let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-            if (operationType === "image") {
-                return HashtagScriptManager.getImageOperationFromComment(list, "image");
-            }
-            else if (operationType === "video") {
-                if (IMAGES_TYPES.includes(type)) {
-                    return HashtagScriptManager.getImageOperationFromComment(list, "video");
-                }
-                if (type === "pause" || type === "resume") {
-                    return {
-                        type: "video",
-                        operationType: type as any,
-                        alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2])
+            switch (operationType) {
+                case "image":
+                    return HashtagScriptManager.getImageOperationFromComment(list, "image");
+                case "video":
+                    if (IMAGES_TYPES.includes(type)) {
+                        return HashtagScriptManager.getImageOperationFromComment(list, "video");
                     }
-                }
-            }
-            else if (operationType === "sound") {
-                return HashtagScriptManager.getSoundOperationFromComment(list);
-            }
-            else if (operationType === "input" && type === "request") {
-                let op: PixiVNJsonOperation = {
-                    type: "input",
-                    operationType: "request",
-                }
-                if (list.length > 2) {
-                    op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-                }
-                return op;
-            }
-            else if (operationType && type === "call") {
-                await narration.callLabel(operationType, props)
-            }
-            else if (operationType && type === "jump") {
-                await narration.jumpLabel(operationType, props)
+                    if (type === "pause" || type === "resume") {
+                        return {
+                            type: "video",
+                            operationType: type as any,
+                            alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2])
+                        }
+                    }
+                case "sound":
+                    return HashtagScriptManager.getSoundOperationFromComment(list);
+                case "input":
+                    if (type === "request") {
+                        let op: PixiVNJsonOperation = {
+                            type: "input",
+                            operationType: "request",
+                        }
+                        if (list.length > 2) {
+                            op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+                        }
+                        return op;
+                    }
+                default:
+                    if (operationType) {
+                        switch (type) {
+                            case "call":
+                                await narration.callLabel(operationType, props)
+                            case "jump":
+                                await narration.jumpLabel(operationType, props)
+                        }
+                    }
             }
         }
         catch (e) {
