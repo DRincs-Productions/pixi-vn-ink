@@ -1,6 +1,5 @@
 import { narration, SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
-import { PixiVNJsonMediaTransiotions, PixiVNJsonOperation, PixiVNJsonTicker } from "@drincs/pixi-vn-json";
-import PixiVNJsonEffect from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonEffect";
+import { PixiVNJsonCanvasEffect, PixiVNJsonCanvasTicker, PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -142,7 +141,7 @@ export default class HashtagScriptManager {
                                     delete propsEffect.x
                                     delete propsEffect.y
                                 }
-                                let effect: PixiVNJsonEffect | PixiVNJsonTicker = {
+                                let effect: PixiVNJsonCanvasEffect | PixiVNJsonCanvasTicker = {
                                     alias: operationType,
                                     type: type,
                                     props: propsEffect as any
@@ -282,7 +281,7 @@ export default class HashtagScriptManager {
     }
 
     private static getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined {
-        let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout"];
+        let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout", "pushin", "pushout"];
         if (!transitionTypes.includes(list[0])) {
             return undefined;
         }
