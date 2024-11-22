@@ -52,7 +52,7 @@ function addConditionalElementStep(
                     }
                     if (tempList.length > 0) {
                         value.operations = [{
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: tempList,
                         }]
                         tempList = []
@@ -64,9 +64,10 @@ function addConditionalElementStep(
                 }
             })
             if (tempList.length > 0) {
+                // TODO: call or jump
                 list.push({
                     operations: [{
-                        type: "oprationtoconvert",
+                        type: "operationtoconvert",
                         values: tempList,
                     }],
                     goNextStep: true,

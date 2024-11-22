@@ -1,5 +1,5 @@
-import { narration, SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
-import { PixiVNJsonCanvasEffect, PixiVNJsonCanvasTicker, PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
+import { PixiVNJsonCanvasEffect, PixiVNJsonCanvasTicker, PixiVNJsonLabelStep, PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -20,7 +20,7 @@ export default class HashtagScriptManager {
         HashtagScriptManager._customHashtagScript = value;
     }
 
-    static async generateOrRunOperationFromHashtagScript(comment: string, props: StepLabelPropsType): Promise<PixiVNJsonOperation | undefined> {
+    static async generateOrRunOperationFromHashtagScript(comment: string, step: PixiVNJsonLabelStep, props: StepLabelPropsType): Promise<PixiVNJsonOperation | undefined> {
         try {
             comment = comment.replaceAll("\\\"", DOUBLE_QUOTES_CONVERTER);
             comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
@@ -115,10 +115,12 @@ export default class HashtagScriptManager {
                     if (operationType) {
                         switch (type) {
                             case "call":
-                                await narration.callLabel(operationType, props)
-                                break
                             case "jump":
-                                await narration.jumpLabel(operationType, props)
+                                step.labelToOpen = {
+                                    label: operationType,
+                                    type: type,
+                                }
+                                step.goNextStep = undefined
                                 break
                             case "fade":
                             case "move":

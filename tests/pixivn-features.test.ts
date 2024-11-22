@@ -1,7 +1,6 @@
 import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
 import { PixiVNJson, PixiVNJsonOperations } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
-import { PAUSE_HASHTAG_SCRIPT } from '../src/constant';
 import { convertInkText } from '../src/functions';
 import HashtagScriptManager from '../src/managers/HashtagScriptManager';
 
@@ -13,16 +12,16 @@ async function convertOperation(res?: PixiVNJson) {
                 if (step.operations) {
                     let ops: PixiVNJsonOperations = []
                     for (let operation of step.operations) {
-                        if (operation.type === "oprationtoconvert") {
+                        if (operation.type === "operationtoconvert") {
                             let v: string = operation.values.map((v) => {
                                 if (typeof v === "string") {
                                     return v;
                                 }
                                 return `"${v.type}"`;
                             }).join("");
-                            let res = await HashtagScriptManager.generateOrRunOperationFromHashtagScript(v, {});
-                            if (res) {
-                                ops.push(res);
+                            let resOp = await HashtagScriptManager.generateOrRunOperationFromHashtagScript(v, step, {});
+                            if (resOp) {
+                                ops.push(resOp);
                             }
                         }
                         else {
@@ -87,7 +86,7 @@ test('show image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "show image bg /image.png",
                             ],
@@ -98,7 +97,7 @@ test('show image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "show image \"bg 2 alice\" /image2.png",
                             ],
@@ -109,7 +108,7 @@ test('show image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "show image  bg '/image.png' with dissolve",
                             ],
@@ -120,7 +119,7 @@ test('show image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "show image bg /image.png  with dissolve duration 3",
                             ],
@@ -131,7 +130,7 @@ test('show image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "show image bg `/image.png` x 10  with dissolve duration ",
                                 {
@@ -308,7 +307,7 @@ test('edit image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "edit image bg position { \"x\": 20, \"y\": 30, \"test\": \"test \\} ' test\", \"test2\": \"'\" } visible true   cursor \"pointer\" alpha 0.5",
                             ],
@@ -378,7 +377,7 @@ test('remove image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "remove image bg",
                             ],
@@ -389,7 +388,7 @@ test('remove image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "remove image \"bg 2\"",
                             ],
@@ -400,7 +399,7 @@ test('remove image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "remove image bg with dissolve",
                             ],
@@ -411,7 +410,7 @@ test('remove image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "remove image bg with dissolve duration 3",
                             ],
@@ -512,7 +511,7 @@ test('effect image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "move bg destination { \"x\": 20, \"y\": 30 }",
                             ],
@@ -523,7 +522,7 @@ test('effect image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "shake bg",
                             ],
@@ -534,7 +533,7 @@ test('effect image', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "rotate bg clockwise true",
                             ],
@@ -626,7 +625,7 @@ test('video', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "show video bg \"/video A.mp4\"",
                             ],
@@ -637,7 +636,7 @@ test('video', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "pause video bg",
                             ],
@@ -648,7 +647,7 @@ test('video', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "resume video bg",
                             ],
@@ -659,7 +658,7 @@ test('video', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "remove video bg",
                             ],
@@ -755,7 +754,7 @@ test('sound', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "add sound bird resources/bird.mp3 volume 0",
                             ],
@@ -766,7 +765,7 @@ test('sound', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "play sound bird volume 100",
                             ],
@@ -777,7 +776,7 @@ test('sound', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "pause sound bird",
                             ],
@@ -788,7 +787,7 @@ test('sound', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "resume sound bird",
                             ],
@@ -799,7 +798,7 @@ test('sound', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "remove sound bird",
                             ],
@@ -810,7 +809,7 @@ test('sound', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "volume sound bird 100",
                             ],
@@ -935,7 +934,7 @@ test('input', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "request input",
                             ],
@@ -946,7 +945,7 @@ test('input', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "request input number",
                             ],
@@ -960,7 +959,7 @@ test('input', async () => {
                 {
                     operations: [
                         {
-                            type: "oprationtoconvert",
+                            type: "operationtoconvert",
                             values: [
                                 "request input 'array of string'",
                             ],
@@ -1027,7 +1026,7 @@ test('input', async () => {
 === start
 # request input
 # request input number
-# ${PAUSE_HASHTAG_SCRIPT}
+# pause
 # request input 'array of string'
 Hello
 -> DONE
@@ -1283,4 +1282,101 @@ Footer
 -> DONE
 `);
     expect(res).toEqual(expected);
+});
+
+/**
+ * markdown
+ */
+test('jump', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    dialogue: "Start",
+                },
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
+                                "jump after",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "Start End",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            after: [
+                {
+                    dialogue: "After",
+                },
+                {
+                    dialogue: "After End",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    dialogue: "Start",
+                },
+                {
+                    operations: [
+                    ],
+                    goNextStep: undefined,
+                    labelToOpen: {
+                        label: "after",
+                        type: "jump",
+                    },
+                },
+                {
+                    dialogue: "Start End",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            after: [
+                {
+                    dialogue: "After",
+                },
+                {
+                    dialogue: "After End",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start ===
+Start
+# jump after // [!code focus]
+Start End
+-> DONE
+
+=== after ===
+After
+After End
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    await convertOperation(res);
+    expect(res).toEqual(expected2);
 });
