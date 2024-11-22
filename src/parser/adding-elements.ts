@@ -1,6 +1,5 @@
 import { getCharacterById } from "@drincs/pixi-vn";
 import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
-import { PAUSE_HASHTAG_SCRIPT } from "../constant";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/divert-utility";
@@ -44,31 +43,11 @@ function addConditionalElementStep(
     }
     if (isHashtagScript) {
         if (Array.isArray(item)) {
-            let tempList: any[] = []
-            item.forEach((i) => {
-                if (typeof i === "string" && i === PAUSE_HASHTAG_SCRIPT) {
-                    let value: PixiVNJsonLabelStep = {
-                        dialogue: undefined,
-                    }
-                    if (tempList.length > 0) {
-                        value.operations = [{
-                            type: "operationtoconvert",
-                            values: tempList,
-                        }]
-                        tempList = []
-                    }
-                    list.push(value)
-                }
-                else {
-                    tempList.push(i)
-                }
-            })
-            if (tempList.length > 0) {
-                // TODO: call or jump
+            if (item.length > 0) {
                 list.push({
                     operations: [{
                         type: "operationtoconvert",
-                        values: tempList,
+                        values: item,
                     }],
                     goNextStep: true,
                 })

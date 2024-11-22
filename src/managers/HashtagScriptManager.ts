@@ -82,8 +82,8 @@ export default class HashtagScriptManager {
                 return undefined;
             }
 
-            let operationType = HashtagScriptManager.removeExtraDoubleQuotes(list[1]);
-            let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+            let operationType = list.length > 1 ? HashtagScriptManager.removeExtraDoubleQuotes(list[1]) : "";
+            let type = list.length > 0 ? HashtagScriptManager.removeExtraDoubleQuotes(list[0]) : "";
             switch (operationType) {
                 case "image":
                     return HashtagScriptManager.getImageOperationFromComment(list, "image");
@@ -149,6 +149,18 @@ export default class HashtagScriptManager {
                                     props: propsEffect as any
                                 }
                                 return effect
+                        }
+                    }
+                    else {
+                        switch (type) {
+                            case "pause":
+                                if ("dialogue" in step) {
+                                    delete step.dialogue
+                                }
+                                if ("goNextStep" in step) {
+                                    delete step.goNextStep
+                                }
+                                break
                         }
                     }
             }

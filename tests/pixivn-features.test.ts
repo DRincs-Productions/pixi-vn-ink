@@ -542,7 +542,15 @@ test('effect image', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: undefined,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
+                                "pause",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
                 },
                 {
                     end: "label_end",
@@ -593,7 +601,7 @@ test('effect image', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: undefined,
+                    operations: [],
                 },
                 {
                     end: "label_end",
@@ -954,7 +962,15 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: undefined,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
+                                "pause",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
                 },
                 {
                     operations: [
@@ -1000,7 +1016,8 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: undefined,
+                    operations: [
+                    ],
                 },
                 {
                     operations: [
