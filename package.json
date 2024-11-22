@@ -34,7 +34,7 @@
     "vitest": "^2.1.5"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=0.8.6"
+    "@drincs/pixi-vn": ">=0.8.8"
   },
   "keywords": [
     "game",
