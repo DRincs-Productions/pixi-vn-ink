@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "type": "module",
   "description": "Pixi'VN gives you the ability to write your own narrative using Ink",
   "main": "./dist/index.cjs",
@@ -30,7 +30,7 @@
     "jsdom": "^25.0.1",
     "ts-node": "^10.9.2",
     "tsup": "^8.3.5",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "vitest": "^2.1.5"
   },
   "peerDependencies": {

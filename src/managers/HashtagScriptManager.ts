@@ -107,12 +107,12 @@ export default class HashtagScriptManager {
                             operationType: "request",
                         }
                         if (list.length > 2) {
-                            op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-                        }
-                        if (list.length > 4) {
                             try {
-                                let propList = list.slice(3);
+                                let propList = list.slice(2);
                                 let props = HashtagScriptManager.convertListStringToObj(propList);
+                                if ("type" in props && typeof props.type === "string") {
+                                    op.valueType = props.type;
+                                }
                                 if ("default" in props) {
                                     op.defaultValue = props.default;
                                 }
