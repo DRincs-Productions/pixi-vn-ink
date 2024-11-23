@@ -955,7 +955,7 @@ test('input', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
-                                "request input number",
+                                "request input number default 0",
                             ],
                         },
                     ],
@@ -1011,6 +1011,7 @@ test('input', async () => {
                             type: "input",
                             operationType: "request",
                             valueType: "number",
+                            defaultValue: 0,
                         },
                     ],
                     goNextStep: true,
@@ -1042,7 +1043,7 @@ test('input', async () => {
     let res = convertInkText(`
 === start
 # request input
-# request input number
+# request input number default 0
 # pause
 # request input 'array of string'
 Hello

@@ -109,6 +109,16 @@ export default class HashtagScriptManager {
                         if (list.length > 2) {
                             op.valueType = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
                         }
+                        if (list.length > 4) {
+                            try {
+                                let propList = list.slice(3);
+                                let props = HashtagScriptManager.convertListStringToObj(propList);
+                                if ("default" in props) {
+                                    op.defaultValue = props.default;
+                                }
+                            }
+                            catch (_) { }
+                        }
                         return op;
                     }
                 default:
