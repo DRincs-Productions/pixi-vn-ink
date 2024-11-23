@@ -309,7 +309,7 @@ test('edit image', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
-                                "edit image bg position { \"x\": 20, \"y\": 30, \"test\": \"test \\} ' test\", \"test2\": \"'\" } visible true   cursor \"pointer\" alpha 0.5",
+                                "edit image bg position { \"x\": -20.5, \"y\": 30, \"test\": \"test \\} ' test\", \"test2\": \"'\" } visible true   cursor \"pointer\" alpha 0.5",
                             ],
                         },
                     ],
@@ -336,7 +336,7 @@ test('edit image', async () => {
                             alias: "bg",
                             props: {
                                 position: {
-                                    x: 20,
+                                    x: -20.5,
                                     y: 30,
                                     test: "test } ' test",
                                     test2: "'",
@@ -361,7 +361,7 @@ test('edit image', async () => {
     }
     let res = convertInkText(`
 === start
-#edit image bg position \\\{ "x": 20, "y": 30, "test": "test \\\\\\\} ' test", "test2": "'" \\\} visible true   cursor "pointer" alpha 0.5 
+#edit image bg position \\\{ "x": -20.5, "y": 30, "test": "test \\\\\\\} ' test", "test2": "'" \\\} visible true   cursor "pointer" alpha 0.5 
 hello
 -> DONE
 `);
@@ -955,7 +955,7 @@ test('input', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
-                                "request input number default 0",
+                                "request input type number default 0",
                             ],
                         },
                     ],
@@ -977,7 +977,7 @@ test('input', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
-                                "request input 'array of string'",
+                                "request input  type 'array of string'",
                             ],
                         },
                     ],
@@ -1043,9 +1043,9 @@ test('input', async () => {
     let res = convertInkText(`
 === start
 # request input
-# request input number default 0
+# request input type number default 0
 # pause
-# request input 'array of string'
+# request input  type 'array of string'
 Hello
 -> DONE
 `);

@@ -378,7 +378,31 @@ export default class HashtagScriptManager {
             if (index % 2 === 0) {
                 objJson += `"${item}": `
             } else {
-                objJson += `${item}`
+                switch (item) {
+                    case "null":
+                    case "undefined":
+                    case "true":
+                    case "false":
+                        objJson += `${item}`
+                        break;
+                    default:
+                        if (HashtagScriptManager.containExtraDoubleQuotes(item)) {
+                            item = HashtagScriptManager.removeExtraDoubleQuotes(item);
+                            objJson += `"${item}"`
+                        }
+                        else if (item.startsWith("{") && item.endsWith("}")) {
+                            objJson += `${item}`
+                        }
+                        else if (item.startsWith("\"") && item.endsWith("\"")) {
+                            objJson += `${item}`
+                        }
+                        else if (!isNaN(parseFloat(item))) {
+                            objJson += `${item}`
+                        }
+                        else {
+                            objJson += `"${item}"`
+                        }
+                }
                 if (index < list.length - 1) {
                     objJson += ", ";
                 }
@@ -405,6 +429,18 @@ export default class HashtagScriptManager {
             return value.substring(1, value.length - 1);
         }
         return value;
+    }
+    private static containExtraDoubleQuotes(value: string): boolean {
+        if (value.startsWith("\"") && value.endsWith("\"")) {
+            return true;
+        }
+        if (value.startsWith("\'") && value.endsWith("\'")) {
+            return true;
+        }
+        if (value.startsWith("\`") && value.endsWith("\`")) {
+            return true;
+        }
+        return false;
     }
 
 }
