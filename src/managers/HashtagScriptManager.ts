@@ -284,14 +284,14 @@ export default class HashtagScriptManager {
             return undefined;
         }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        let propsList = list.slice(3);
+        let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3))
         switch (type) {
             case "edit":
                 let editOp: PixiVNJsonOperation = {
                     type: typeCanvasElement,
                     operationType: "edit",
                     alias: imageId,
-                    props: HashtagScriptManager.convertListStringToObj(propsList) as any
+                    props: HashtagScriptManager.convertPropListStringToObj(propsList) as any
                 }
                 return editOp;
             case "remove":
@@ -308,6 +308,8 @@ export default class HashtagScriptManager {
                     }
                 }
                 return removeOp;
+            default:
+                console.error("[Pixi’VN Ink] The operation type is not valid", type)
         }
         return undefined;
     }
