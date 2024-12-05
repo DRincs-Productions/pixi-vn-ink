@@ -275,18 +275,22 @@ export default class HashtagScriptManager {
 
         return this.getCanvasOperationFromComment(list, typeCanvasElement);
     }
-    private static getCanvasOperationFromComment(list: string[], typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"): PixiVNJsonOperation | undefined {
+    private static getCanvasOperationFromComment(
+        list: string[],
+        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"
+    ): PixiVNJsonOperation | undefined {
         let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
         if (!IMAGES_TYPES.includes(type)) {
             return undefined;
         }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+        let propsList = list.slice(3);
         if (type === "edit") {
             let op: PixiVNJsonOperation = {
                 type: typeCanvasElement,
                 operationType: "edit",
                 alias: imageId,
-                props: HashtagScriptManager.convertListStringToObj(list.slice(3)) as any
+                props: HashtagScriptManager.convertListStringToObj(propsList) as any
             }
             return op;
         }
@@ -296,8 +300,8 @@ export default class HashtagScriptManager {
                 operationType: "remove",
                 alias: imageId,
             }
-            if (list.length > 4 && list[3] === "with") {
-                let transitionList = list.slice(4);
+            if (propsList.length > 1 && propsList[0] === "with") {
+                let transitionList = propsList.slice(1);
                 let transition = HashtagScriptManager.getTransition(transitionList);
                 if (transition !== undefined) {
                     op.transition = transition;
