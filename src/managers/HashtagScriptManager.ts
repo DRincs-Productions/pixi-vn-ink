@@ -87,12 +87,12 @@ export default class HashtagScriptManager {
             let type = list.length > 0 ? HashtagScriptManager.removeExtraDoubleQuotes(list[0]) : "";
             switch (operationType) {
                 case "image":
-                    return HashtagScriptManager.getImageOperationFromComment(list, "image");
                 case "imagecontainer":
-                    return HashtagScriptManager.getContainerOperationFromComment(list, "imagecontainer");
+                case "canvaselement":
+                    return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
                 case "video":
                     if (IMAGES_TYPES.includes(type)) {
-                        return HashtagScriptManager.getImageOperationFromComment(list, "video");
+                        return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
                     }
                     if (type === "pause" || type === "resume") {
                         return {
@@ -196,6 +196,17 @@ export default class HashtagScriptManager {
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3))
         switch (type) {
+            case "show":
+                switch (typeCanvasElement) {
+                    case "image":
+                    case "video":
+                        return HashtagScriptManager.getImageOperationFromComment(typeCanvasElement, imageId, propsList)
+                    case "imagecontainer":
+                        return HashtagScriptManager.getContainerOperationFromComment(typeCanvasElement, imageId, propsList);
+                    case "canvaselement":
+                    default:
+                        console.error("[Pixi’VN Ink] This show operation is not valid for this type of element", typeCanvasElement)
+                }
             case "edit":
                 let editOp: PixiVNJsonOperation = {
                     type: typeCanvasElement,
@@ -224,69 +235,59 @@ export default class HashtagScriptManager {
         }
         return undefined;
     }
-    private static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
-        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-        if (!IMAGES_TYPES.includes(type)) {
-            return undefined;
+    private static getImageOperationFromComment(
+        typeCanvasElement: "image" | "video",
+        imageId: string,
+        list: string[]
+    ): PixiVNJsonOperation | undefined {
+        let url = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+        let propList = HashtagScriptManager.convertListStringToPropList(list.slice(1))
+        let op: PixiVNJsonOperation = {
+            type: typeCanvasElement,
+            operationType: "show",
+            alias: imageId,
+            url: url,
         }
-        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        if (type === "show") {
-            let url = HashtagScriptManager.removeExtraDoubleQuotes(list[3]);
-            let propList = HashtagScriptManager.convertListStringToPropList(list.slice(4))
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "show",
-                alias: imageId,
-                url: url,
-            }
-            return HashtagScriptManager.setShowProps(op, propList)
-        }
-
-        return this.getCanvasOperationFromComment(list, typeCanvasElement);
+        return HashtagScriptManager.setShowProps(op, propList)
     }
-    private static getContainerOperationFromComment(list: string[], typeCanvasElement: "imagecontainer"): PixiVNJsonOperation | undefined {
-        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-        if (!IMAGES_TYPES.includes(type)) {
+    private static getContainerOperationFromComment(
+        typeCanvasElement: "imagecontainer",
+        imageId: string,
+        list: string[]
+    ): PixiVNJsonOperation | undefined {
+        // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
+        let urls = []
+        let startIndex = list.findIndex((item) => item.startsWith("["));
+        let endIndex = list.findIndex((item) => item.endsWith("]"));
+        if (startIndex === -1 || endIndex === -1) {
+            console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
             return undefined;
         }
-        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        if (type === "show") {
-            // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
-            let urls = []
-            let startIndex = list.findIndex((item) => item.startsWith("["));
-            let endIndex = list.findIndex((item) => item.endsWith("]"));
-            if (startIndex === -1 || endIndex === -1) {
-                console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
-                return undefined;
-            }
-            urls = list.slice(startIndex, endIndex + 1);
-            if (urls.length < 2) {
-                console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
-                return undefined;
-            }
-            if (urls[0] === "[") {
-                urls.shift();
-            }
-            else {
-                urls[0] = urls[0].substring(1);
-            }
-            if (urls[urls.length - 1] === "]") {
-                urls.pop();
-            }
-            else {
-                urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
-            }
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "show",
-                alias: imageId,
-                urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
-            }
-            let propList = HashtagScriptManager.convertListStringToPropList(list.slice(endIndex + 1))
-            return HashtagScriptManager.setShowProps(op, propList)
+        urls = list.slice(startIndex, endIndex + 1);
+        if (urls.length < 2) {
+            console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
+            return undefined;
         }
-
-        return this.getCanvasOperationFromComment(list, typeCanvasElement);
+        if (urls[0] === "[") {
+            urls.shift();
+        }
+        else {
+            urls[0] = urls[0].substring(1);
+        }
+        if (urls[urls.length - 1] === "]") {
+            urls.pop();
+        }
+        else {
+            urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
+        }
+        let op: PixiVNJsonOperation = {
+            type: typeCanvasElement,
+            operationType: "show",
+            alias: imageId,
+            urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
+        }
+        let propList = HashtagScriptManager.convertListStringToPropList(list.slice(endIndex + 1))
+        return HashtagScriptManager.setShowProps(op, propList)
     }
 
     private static getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
