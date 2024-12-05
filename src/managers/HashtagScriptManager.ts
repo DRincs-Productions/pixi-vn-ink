@@ -374,6 +374,7 @@ export default class HashtagScriptManager {
             }
         }
         if (list.length % 2 !== 0) {
+            console.error("[Pixi’VN Ink] The props list must have a pair number of elements", list)
             throw new Error("[Pixi’VN Ink] The props list must have a pair number of elements")
         }
         let objJson: string = "{"
