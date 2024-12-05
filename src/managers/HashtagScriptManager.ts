@@ -87,6 +87,8 @@ export default class HashtagScriptManager {
             switch (operationType) {
                 case "image":
                     return HashtagScriptManager.getImageOperationFromComment(list, "image");
+                case "imagecontainer":
+                    return HashtagScriptManager.getContainerOperationFromComment(list, "imagecontainer");
                 case "video":
                     if (IMAGES_TYPES.includes(type)) {
                         return HashtagScriptManager.getImageOperationFromComment(list, "video");
@@ -212,7 +214,27 @@ export default class HashtagScriptManager {
             }
             return op;
         }
-        else if (type === "edit") {
+
+        return this.getCanvasOperationFromComment(list, typeCanvasElement);
+    }
+    private static getContainerOperationFromComment(list: string[], typeCanvasElement: "imagecontainer"): PixiVNJsonOperation | undefined {
+        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+        if (!IMAGES_TYPES.includes(type)) {
+            return undefined;
+        }
+        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+        if (type === "show") {
+        }
+
+        return this.getCanvasOperationFromComment(list, typeCanvasElement);
+    }
+    private static getCanvasOperationFromComment(list: string[], typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"): PixiVNJsonOperation | undefined {
+        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+        if (!IMAGES_TYPES.includes(type)) {
+            return undefined;
+        }
+        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+        if (type === "edit") {
             let op: PixiVNJsonOperation = {
                 type: typeCanvasElement,
                 operationType: "edit",
