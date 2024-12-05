@@ -191,18 +191,20 @@ export default class HashtagScriptManager {
         }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         if (type === "show") {
+            let url = HashtagScriptManager.removeExtraDoubleQuotes(list[3]);
+            let propList = HashtagScriptManager.convertListStringToPropList(list.slice(4))
             let op: PixiVNJsonOperation = {
                 type: typeCanvasElement,
                 operationType: "show",
                 alias: imageId,
-                url: HashtagScriptManager.removeExtraDoubleQuotes(list[3]),
+                url: url,
             }
-            if (list.length > 4) {
-                let propList = list.slice(4);
-                if (list.includes("with")) {
-                    let transitionList = list.slice(list.indexOf("with") + 1);
-                    propList = list.slice(4, list.indexOf("with"));
-                    let transition = HashtagScriptManager.getTransition(transitionList);
+            if (propList.length > 0) {
+                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                    let transitionType = propList[propList.indexOf("with") + 1];
+                    let transitionList = propList.slice(propList.indexOf("with") + 2)
+                    propList = propList.slice(0, propList.indexOf("with"));
+                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
                     if (transition !== undefined) {
                         op.transition = transition;
                     }
@@ -255,12 +257,13 @@ export default class HashtagScriptManager {
                 alias: imageId,
                 urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
             }
-            if (list.length > endIndex + 1) {
-                let propList = list.slice(endIndex + 1);
-                if (list.includes("with")) {
-                    let transitionList = list.slice(list.indexOf("with") + 1);
-                    propList = list.slice(endIndex + 1, list.indexOf("with"));
-                    let transition = HashtagScriptManager.getTransition(transitionList);
+            let propList = HashtagScriptManager.convertListStringToPropList(list.slice(endIndex + 1))
+            if (propList.length > 0) {
+                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                    let transitionType = propList[propList.indexOf("with") + 1];
+                    let transitionList = propList.slice(propList.indexOf("with") + 2)
+                    propList = propList.slice(0, propList.indexOf("with"));
+                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
                     if (transition !== undefined) {
                         op.transition = transition;
                     }
@@ -301,8 +304,9 @@ export default class HashtagScriptManager {
                     alias: imageId,
                 }
                 if (propsList.length > 1 && propsList[0] === "with") {
-                    let transitionList = propsList.slice(1);
-                    let transition = HashtagScriptManager.getTransition(transitionList);
+                    let transitionType = list[list.indexOf("with") + 1];
+                    let transitionList = list.slice(list.indexOf("with") + 2)
+                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
                     if (transition !== undefined) {
                         removeOp.transition = transition;
                     }
@@ -379,17 +383,29 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
-    private static getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined {
-        let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout", "pushin", "pushout"];
-        if (!transitionTypes.includes(list[0])) {
-            return undefined;
+    private static getTransition(
+        transitionType: string,
+        propsList: string[]
+    ): PixiVNJsonMediaTransiotions | undefined {
+        switch (transitionType) {
+            case "dissolve":
+            case "fade":
+            case "movein":
+            case "moveout":
+            case "zoomin":
+            case "zoomout":
+            case "pushin":
+            case "pushout":
+                break;
+            default:
+                return undefined;
         }
         let transition: PixiVNJsonMediaTransiotions = {
-            type: list[0] as any
+            type: transitionType
         }
-        if (list.length > 1) {
+        if (propsList.length > 0) {
             try {
-                let props = HashtagScriptManager.convertListStringToObj(list.slice(1));
+                let props = HashtagScriptManager.convertPropListStringToObj(propsList);
                 transition.props = props;
             }
             catch (_) { }
