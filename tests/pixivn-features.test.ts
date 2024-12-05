@@ -88,6 +88,17 @@ test('show image', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
+                                "show image alias",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
                                 "show image bg /image.png",
                             ],
                         },
@@ -206,6 +217,17 @@ test('show image', async () => {
                         {
                             type: "image",
                             operationType: "show",
+                            alias: "alias",
+                            url: "alias",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "image",
+                            operationType: "show",
                             alias: "bg",
                             url: "/image.png",
                         },
@@ -287,6 +309,7 @@ test('show image', async () => {
     let res = convertInkText(`
 VAR duration = 3
 === start
+#show image alias
 #show image bg /image.png
 # show image "bg 2 alice" /image2.png
 # show image  bg '/image.png' with dissolve

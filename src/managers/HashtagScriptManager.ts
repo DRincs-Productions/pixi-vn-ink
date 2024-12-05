@@ -240,8 +240,16 @@ export default class HashtagScriptManager {
         imageId: string,
         list: string[]
     ): PixiVNJsonOperation | undefined {
-        let url = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-        let propList = HashtagScriptManager.convertListStringToPropList(list.slice(1))
+        let url: string
+        let propList: string[]
+        if (list.length % 2 === 0) {
+            url = imageId
+            propList = list
+        }
+        else {
+            url = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+            propList = HashtagScriptManager.convertListStringToPropList(list.slice(1))
+        }
         let op: PixiVNJsonOperation = {
             type: typeCanvasElement,
             operationType: "show",
