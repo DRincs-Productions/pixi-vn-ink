@@ -418,6 +418,10 @@ export default class HashtagScriptManager {
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
     private static convertListStringToObj(listParm: string[]): object {
+        let list: string[] = HashtagScriptManager.convertListStringToPropList(listParm);
+        return HashtagScriptManager.convertPropListStringToObj(list);
+    }
+    private static convertListStringToPropList(listParm: string[]): string[] {
         let list: string[] = []
         let curly_brackets = 0;
         let temp = "";
@@ -442,6 +446,9 @@ export default class HashtagScriptManager {
                 list.push(item);
             }
         }
+        return list
+    }
+    private static convertPropListStringToObj(list: string[]): object {
         if (list.length % 2 !== 0) {
             console.error("[Pixi’VN Ink] The props list must have a pair number of elements", list)
             throw new Error("[Pixi’VN Ink] The props list must have a pair number of elements")
