@@ -285,29 +285,29 @@ export default class HashtagScriptManager {
         }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         let propsList = list.slice(3);
-        if (type === "edit") {
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "edit",
-                alias: imageId,
-                props: HashtagScriptManager.convertListStringToObj(propsList) as any
-            }
-            return op;
-        }
-        else if (type === "remove") {
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "remove",
-                alias: imageId,
-            }
-            if (propsList.length > 1 && propsList[0] === "with") {
-                let transitionList = propsList.slice(1);
-                let transition = HashtagScriptManager.getTransition(transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
+        switch (type) {
+            case "edit":
+                let editOp: PixiVNJsonOperation = {
+                    type: typeCanvasElement,
+                    operationType: "edit",
+                    alias: imageId,
+                    props: HashtagScriptManager.convertListStringToObj(propsList) as any
                 }
-            }
-            return op;
+                return editOp;
+            case "remove":
+                let removeOp: PixiVNJsonOperation = {
+                    type: typeCanvasElement,
+                    operationType: "remove",
+                    alias: imageId,
+                }
+                if (propsList.length > 1 && propsList[0] === "with") {
+                    let transitionList = propsList.slice(1);
+                    let transition = HashtagScriptManager.getTransition(transitionList);
+                    if (transition !== undefined) {
+                        removeOp.transition = transition;
+                    }
+                }
+                return removeOp;
         }
         return undefined;
     }
