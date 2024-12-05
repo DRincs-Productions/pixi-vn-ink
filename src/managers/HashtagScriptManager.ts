@@ -185,6 +185,45 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
+    private static getCanvasOperationFromComment(
+        list: string[],
+        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"
+    ): PixiVNJsonOperation | undefined {
+        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+        if (!IMAGES_TYPES.includes(type)) {
+            return undefined;
+        }
+        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+        let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3))
+        switch (type) {
+            case "edit":
+                let editOp: PixiVNJsonOperation = {
+                    type: typeCanvasElement,
+                    operationType: "edit",
+                    alias: imageId,
+                    props: HashtagScriptManager.convertPropListStringToObj(propsList) as any
+                }
+                return editOp;
+            case "remove":
+                let removeOp: PixiVNJsonOperation = {
+                    type: typeCanvasElement,
+                    operationType: "remove",
+                    alias: imageId,
+                }
+                if (propsList.length > 1 && propsList[0] === "with") {
+                    let transitionType = list[list.indexOf("with") + 1];
+                    let transitionList = list.slice(list.indexOf("with") + 2)
+                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
+                    if (transition !== undefined) {
+                        removeOp.transition = transition;
+                    }
+                }
+                return removeOp;
+            default:
+                console.error("[Pixi’VN Ink] The operation type is not valid", type)
+        }
+        return undefined;
+    }
     private static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
         let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
         if (!IMAGES_TYPES.includes(type)) {
@@ -248,45 +287,6 @@ export default class HashtagScriptManager {
         }
 
         return this.getCanvasOperationFromComment(list, typeCanvasElement);
-    }
-    private static getCanvasOperationFromComment(
-        list: string[],
-        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"
-    ): PixiVNJsonOperation | undefined {
-        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-        if (!IMAGES_TYPES.includes(type)) {
-            return undefined;
-        }
-        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3))
-        switch (type) {
-            case "edit":
-                let editOp: PixiVNJsonOperation = {
-                    type: typeCanvasElement,
-                    operationType: "edit",
-                    alias: imageId,
-                    props: HashtagScriptManager.convertPropListStringToObj(propsList) as any
-                }
-                return editOp;
-            case "remove":
-                let removeOp: PixiVNJsonOperation = {
-                    type: typeCanvasElement,
-                    operationType: "remove",
-                    alias: imageId,
-                }
-                if (propsList.length > 1 && propsList[0] === "with") {
-                    let transitionType = list[list.indexOf("with") + 1];
-                    let transitionList = list.slice(list.indexOf("with") + 2)
-                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
-                    if (transition !== undefined) {
-                        removeOp.transition = transition;
-                    }
-                }
-                return removeOp;
-            default:
-                console.error("[Pixi’VN Ink] The operation type is not valid", type)
-        }
-        return undefined;
     }
 
     private static getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
