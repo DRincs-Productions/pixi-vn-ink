@@ -224,6 +224,53 @@ export default class HashtagScriptManager {
         }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         if (type === "show") {
+            // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
+            let urls = []
+            let startIndex = list.findIndex((item) => item.startsWith("["));
+            let endIndex = list.findIndex((item) => item.endsWith("]"));
+            if (startIndex === -1 || endIndex === -1) {
+                console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
+                return undefined;
+            }
+            urls = list.slice(startIndex, endIndex + 1);
+            if (urls.length < 2) {
+                console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
+                return undefined;
+            }
+            if (urls[0] === "[") {
+                urls.shift();
+            }
+            else {
+                urls[0] = urls[0].substring(1);
+            }
+            if (urls[urls.length - 1] === "]") {
+                urls.pop();
+            }
+            else {
+                urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
+            }
+            let op: PixiVNJsonOperation = {
+                type: typeCanvasElement,
+                operationType: "show",
+                alias: imageId,
+                urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
+            }
+            if (list.length > endIndex + 1) {
+                let propList = list.slice(endIndex + 1);
+                if (list.includes("with")) {
+                    let transitionList = list.slice(list.indexOf("with") + 1);
+                    propList = list.slice(endIndex + 1, list.indexOf("with"));
+                    let transition = HashtagScriptManager.getTransition(transitionList);
+                    if (transition !== undefined) {
+                        op.transition = transition;
+                    }
+                }
+                if (propList.length > 0) {
+                    let props = HashtagScriptManager.convertListStringToObj(propList);
+                    op.props = props as any;
+                }
+            }
+            return op;
         }
 
         return this.getCanvasOperationFromComment(list, typeCanvasElement);
