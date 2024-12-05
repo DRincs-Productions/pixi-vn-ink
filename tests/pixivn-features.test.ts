@@ -753,6 +753,101 @@ hello
 });
 
 /**
+ * ImageContainer
+ */
+test('imagecontainer', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
+                                "show imagecontainer bg [\"/image A.png\" image  ] x 10 y 20 with dissolve",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
+                                "remove imagecontainer bg",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "hello",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "show",
+                            alias: "bg",
+                            urls: [
+                                "/image A.png",
+                                "image",
+                            ],
+                            transition: {
+                                type: "dissolve",
+                            },
+                            props: {
+                                x: 10,
+                                y: 20,
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "hello",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+# show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve
+# remove imagecontainer bg
+hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    await convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+/**
  * Sound
  */
 test('sound', async () => {

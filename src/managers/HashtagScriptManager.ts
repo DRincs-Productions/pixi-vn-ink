@@ -1,5 +1,6 @@
 import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
 import { PixiVNJsonCanvasEffect, PixiVNJsonCanvasTicker, PixiVNJsonLabelStep, PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import { PixiVNJsonCanvasShow } from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonCanvas";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -86,10 +87,12 @@ export default class HashtagScriptManager {
             let type = list.length > 0 ? HashtagScriptManager.removeExtraDoubleQuotes(list[0]) : "";
             switch (operationType) {
                 case "image":
-                    return HashtagScriptManager.getImageOperationFromComment(list, "image");
+                case "imagecontainer":
+                case "canvaselement":
+                    return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
                 case "video":
                     if (IMAGES_TYPES.includes(type)) {
-                        return HashtagScriptManager.getImageOperationFromComment(list, "video");
+                        return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
                     }
                     if (type === "pause" || type === "resume") {
                         return {
@@ -182,61 +185,109 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
-    private static getImageOperationFromComment(list: string[], typeCanvasElement: "image" | "video"): PixiVNJsonOperation | undefined {
+    private static getCanvasOperationFromComment(
+        list: string[],
+        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"
+    ): PixiVNJsonOperation | undefined {
         let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
         if (!IMAGES_TYPES.includes(type)) {
             return undefined;
         }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        if (type === "show") {
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "show",
-                alias: imageId,
-                url: HashtagScriptManager.removeExtraDoubleQuotes(list[3]),
-            }
-            if (list.length > 4) {
-                let propList = list.slice(4);
-                if (list.includes("with")) {
-                    let transitionList = list.slice(list.indexOf("with") + 1);
-                    propList = list.slice(4, list.indexOf("with"));
-                    let transition = HashtagScriptManager.getTransition(transitionList);
+        let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3))
+        switch (type) {
+            case "show":
+                switch (typeCanvasElement) {
+                    case "image":
+                    case "video":
+                        return HashtagScriptManager.getImageOperationFromComment(typeCanvasElement, imageId, propsList)
+                    case "imagecontainer":
+                        return HashtagScriptManager.getContainerOperationFromComment(typeCanvasElement, imageId, propsList);
+                    case "canvaselement":
+                    default:
+                        console.error("[Pixi’VN Ink] This show operation is not valid for this type of element", typeCanvasElement)
+                }
+            case "edit":
+                let editOp: PixiVNJsonOperation = {
+                    type: typeCanvasElement,
+                    operationType: "edit",
+                    alias: imageId,
+                    props: HashtagScriptManager.convertPropListStringToObj(propsList) as any
+                }
+                return editOp;
+            case "remove":
+                let removeOp: PixiVNJsonOperation = {
+                    type: typeCanvasElement,
+                    operationType: "remove",
+                    alias: imageId,
+                }
+                if (propsList.length > 1 && propsList[0] === "with") {
+                    let transitionType = list[list.indexOf("with") + 1];
+                    let transitionList = list.slice(list.indexOf("with") + 2)
+                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
                     if (transition !== undefined) {
-                        op.transition = transition;
+                        removeOp.transition = transition;
                     }
                 }
-                if (propList.length > 0) {
-                    let props = HashtagScriptManager.convertListStringToObj(propList);
-                    op.props = props as any;
-                }
-            }
-            return op;
-        }
-        else if (type === "edit") {
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "edit",
-                alias: imageId,
-                props: HashtagScriptManager.convertListStringToObj(list.slice(3)) as any
-            }
-            return op;
-        }
-        else if (type === "remove") {
-            let op: PixiVNJsonOperation = {
-                type: typeCanvasElement,
-                operationType: "remove",
-                alias: imageId,
-            }
-            if (list.length > 4 && list[3] === "with") {
-                let transitionList = list.slice(4);
-                let transition = HashtagScriptManager.getTransition(transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
-                }
-            }
-            return op;
+                return removeOp;
+            default:
+                console.error("[Pixi’VN Ink] The operation type is not valid", type)
         }
         return undefined;
+    }
+    private static getImageOperationFromComment(
+        typeCanvasElement: "image" | "video",
+        imageId: string,
+        list: string[]
+    ): PixiVNJsonOperation | undefined {
+        let url = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+        let propList = HashtagScriptManager.convertListStringToPropList(list.slice(1))
+        let op: PixiVNJsonOperation = {
+            type: typeCanvasElement,
+            operationType: "show",
+            alias: imageId,
+            url: url,
+        }
+        return HashtagScriptManager.setShowProps(op, propList)
+    }
+    private static getContainerOperationFromComment(
+        typeCanvasElement: "imagecontainer",
+        imageId: string,
+        list: string[]
+    ): PixiVNJsonOperation | undefined {
+        // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
+        let urls = []
+        let startIndex = list.findIndex((item) => item.startsWith("["));
+        let endIndex = list.findIndex((item) => item.endsWith("]"));
+        if (startIndex === -1 || endIndex === -1) {
+            console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
+            return undefined;
+        }
+        urls = list.slice(startIndex, endIndex + 1);
+        if (urls.length < 2) {
+            console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list)
+            return undefined;
+        }
+        if (urls[0] === "[") {
+            urls.shift();
+        }
+        else {
+            urls[0] = urls[0].substring(1);
+        }
+        if (urls[urls.length - 1] === "]") {
+            urls.pop();
+        }
+        else {
+            urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
+        }
+        let op: PixiVNJsonOperation = {
+            type: typeCanvasElement,
+            operationType: "show",
+            alias: imageId,
+            urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
+        }
+        let propList = HashtagScriptManager.convertListStringToPropList(list.slice(endIndex + 1))
+        return HashtagScriptManager.setShowProps(op, propList)
     }
 
     private static getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
@@ -304,17 +355,47 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
-    private static getTransition(list: string[]): PixiVNJsonMediaTransiotions | undefined {
-        let transitionTypes = ["dissolve", "fade", "movein", "moveout", "zoomin", "zoomout", "pushin", "pushout"];
-        if (!transitionTypes.includes(list[0])) {
-            return undefined;
+    private static setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
+        if (propList.length > 0) {
+            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                let transitionType = propList[propList.indexOf("with") + 1];
+                let transitionList = propList.slice(propList.indexOf("with") + 2)
+                propList = propList.slice(0, propList.indexOf("with"));
+                let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
+                if (transition !== undefined) {
+                    op.transition = transition;
+                }
+            }
+            if (propList.length > 0) {
+                let props = HashtagScriptManager.convertListStringToObj(propList);
+                op.props = props as any;
+            }
+        }
+        return op
+    }
+    private static getTransition(
+        transitionType: string,
+        propsList: string[]
+    ): PixiVNJsonMediaTransiotions | undefined {
+        switch (transitionType) {
+            case "dissolve":
+            case "fade":
+            case "movein":
+            case "moveout":
+            case "zoomin":
+            case "zoomout":
+            case "pushin":
+            case "pushout":
+                break;
+            default:
+                return undefined;
         }
         let transition: PixiVNJsonMediaTransiotions = {
-            type: list[0] as any
+            type: transitionType
         }
-        if (list.length > 1) {
+        if (propsList.length > 0) {
             try {
-                let props = HashtagScriptManager.convertListStringToObj(list.slice(1));
+                let props = HashtagScriptManager.convertPropListStringToObj(propsList);
                 transition.props = props;
             }
             catch (_) { }
@@ -349,6 +430,10 @@ export default class HashtagScriptManager {
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
     private static convertListStringToObj(listParm: string[]): object {
+        let list: string[] = HashtagScriptManager.convertListStringToPropList(listParm);
+        return HashtagScriptManager.convertPropListStringToObj(list);
+    }
+    private static convertListStringToPropList(listParm: string[]): string[] {
         let list: string[] = []
         let curly_brackets = 0;
         let temp = "";
@@ -373,6 +458,9 @@ export default class HashtagScriptManager {
                 list.push(item);
             }
         }
+        return list
+    }
+    private static convertPropListStringToObj(list: string[]): object {
         if (list.length % 2 !== 0) {
             console.error("[Pixi’VN Ink] The props list must have a pair number of elements", list)
             throw new Error("[Pixi’VN Ink] The props list must have a pair number of elements")
