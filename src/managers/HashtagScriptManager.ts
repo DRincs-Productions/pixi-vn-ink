@@ -1,5 +1,6 @@
 import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
 import { PixiVNJsonCanvasEffect, PixiVNJsonCanvasTicker, PixiVNJsonLabelStep, PixiVNJsonMediaTransiotions, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import { PixiVNJsonCanvasShow } from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonCanvas";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -199,22 +200,7 @@ export default class HashtagScriptManager {
                 alias: imageId,
                 url: url,
             }
-            if (propList.length > 0) {
-                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                    let transitionType = propList[propList.indexOf("with") + 1];
-                    let transitionList = propList.slice(propList.indexOf("with") + 2)
-                    propList = propList.slice(0, propList.indexOf("with"));
-                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
-                    if (transition !== undefined) {
-                        op.transition = transition;
-                    }
-                }
-                if (propList.length > 0) {
-                    let props = HashtagScriptManager.convertListStringToObj(propList);
-                    op.props = props as any;
-                }
-            }
-            return op;
+            return HashtagScriptManager.setShowProps(op, propList)
         }
 
         return this.getCanvasOperationFromComment(list, typeCanvasElement);
@@ -258,22 +244,7 @@ export default class HashtagScriptManager {
                 urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
             }
             let propList = HashtagScriptManager.convertListStringToPropList(list.slice(endIndex + 1))
-            if (propList.length > 0) {
-                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                    let transitionType = propList[propList.indexOf("with") + 1];
-                    let transitionList = propList.slice(propList.indexOf("with") + 2)
-                    propList = propList.slice(0, propList.indexOf("with"));
-                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
-                    if (transition !== undefined) {
-                        op.transition = transition;
-                    }
-                }
-                if (propList.length > 0) {
-                    let props = HashtagScriptManager.convertListStringToObj(propList);
-                    op.props = props as any;
-                }
-            }
-            return op;
+            return HashtagScriptManager.setShowProps(op, propList)
         }
 
         return this.getCanvasOperationFromComment(list, typeCanvasElement);
@@ -383,6 +354,24 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
+    private static setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
+        if (propList.length > 0) {
+            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                let transitionType = propList[propList.indexOf("with") + 1];
+                let transitionList = propList.slice(propList.indexOf("with") + 2)
+                propList = propList.slice(0, propList.indexOf("with"));
+                let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
+                if (transition !== undefined) {
+                    op.transition = transition;
+                }
+            }
+            if (propList.length > 0) {
+                let props = HashtagScriptManager.convertListStringToObj(propList);
+                op.props = props as any;
+            }
+        }
+        return op
+    }
     private static getTransition(
         transitionType: string,
         propsList: string[]
