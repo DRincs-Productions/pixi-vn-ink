@@ -8,7 +8,6 @@ const QUOTES_CONVERTER = "§QUOTES§";
 const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
-const IMAGES_TYPES = ["show", "edit", "remove", "move"]
 const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"]
 
 
@@ -89,17 +88,16 @@ export default class HashtagScriptManager {
                 case "image":
                 case "imagecontainer":
                 case "canvaselement":
-                    return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
                 case "video":
-                    if (IMAGES_TYPES.includes(type)) {
-                        return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
-                    }
-                    if (type === "pause" || type === "resume") {
+                    if (operationType === "video" && (type === "pause" || type === "resume")) {
                         return {
                             type: "video",
                             operationType: type as any,
                             alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2])
                         }
+                    }
+                    else {
+                        return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
                     }
                 case "sound":
                     return HashtagScriptManager.getSoundOperationFromComment(list);
@@ -121,6 +119,15 @@ export default class HashtagScriptManager {
                                 }
                             }
                             catch (_) { }
+                        }
+                        return op;
+                    }
+                case "assets":
+                    if (type === "load") {
+                        let op: PixiVNJsonOperation = {
+                            type: "assets",
+                            operationType: "load",
+                            assets: list.slice(2),
                         }
                         return op;
                     }
@@ -190,9 +197,6 @@ export default class HashtagScriptManager {
         typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"
     ): PixiVNJsonOperation | undefined {
         let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-        if (!IMAGES_TYPES.includes(type)) {
-            return undefined;
-        }
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
         let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3))
         switch (type) {
