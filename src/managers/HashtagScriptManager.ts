@@ -124,6 +124,15 @@ export default class HashtagScriptManager {
                         }
                         return op;
                     }
+                case "assets":
+                    if (type === "load") {
+                        let op: PixiVNJsonOperation = {
+                            type: "assets",
+                            operationType: "load",
+                            assets: list.slice(2),
+                        }
+                        return op;
+                    }
                 default:
                     if (operationType) {
                         switch (type) {

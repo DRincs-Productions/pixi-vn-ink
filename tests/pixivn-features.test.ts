@@ -1051,6 +1051,71 @@ Hello
 });
 
 /**
+ * Assets
+ */
+test('assets', async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: [
+                                "load assets url1 url2",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "hello",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "assets",
+                            operationType: "load",
+                            assets: [
+                                "url1",
+                                "url2",
+                            ],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "hello",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start
+# load assets url1 url2
+hello
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    await convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+/**
  * Input
  */
 test('input', async () => {
