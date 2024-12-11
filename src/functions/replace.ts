@@ -88,7 +88,7 @@ function replaceText(text: string, getTextToReplace: (key: string) => string | u
         let characterId = matches[1]
         let character = getTextToReplace(characterId)
         if (character) {
-            text = text.replace(matches[0], character)
+            text = text.replaceAll(matches[0], character)
         }
     }
     return text
