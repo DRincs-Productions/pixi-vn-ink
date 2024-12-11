@@ -882,17 +882,6 @@ test('sound', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
-                                "add sound bird resources/bird.mp3 volume 0",
-                            ],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: [
                                 "play sound bird volume 100",
                             ],
                         },
@@ -960,20 +949,6 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "sound",
-                            operationType: "add",
-                            alias: "bird",
-                            url: "resources/bird.mp3",
-                            props: {
-                                volume: 0,
-                            },
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "sound",
                             operationType: "play",
                             alias: "bird",
                             props: {
@@ -1007,7 +982,7 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "sound",
-                            operationType: "remove",
+                            operationType: "stop",
                             alias: "bird",
                         },
                     ],
@@ -1036,7 +1011,6 @@ test('sound', async () => {
     }
     let res = convertInkText(`
 === start
-#add sound bird resources/bird.mp3 volume 0
 # play sound bird volume 100
 # pause sound bird
 # resume sound bird
