@@ -308,61 +308,46 @@ export default class HashtagScriptManager {
             return undefined;
         }
         let soundId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        if (type === "add") {
-            let op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: "add",
-                alias: soundId,
-                url: HashtagScriptManager.removeExtraDoubleQuotes(list[3]),
-            }
-            if (list.length > 4) {
-                let props = HashtagScriptManager.getSoundOption(list.slice(4));
-                if (props !== undefined) {
-                    op.props = props;
+        switch (type) {
+            case "play":
+                let opplay: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: "play",
+                    alias: soundId,
                 }
-            }
-            return op;
-        }
-        else if (type === "play") {
-            let op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: "play",
-                alias: soundId,
-            }
-            if (list.length > 3) {
-                let props = HashtagScriptManager.getSoundPlayOptions(list.slice(3));
-                if (props !== undefined) {
-                    op.props = props;
+                if (list.length > 3) {
+                    let props = HashtagScriptManager.getSoundPlayOptions(list.slice(3));
+                    if (props !== undefined) {
+                        opplay.props = props;
+                    }
                 }
-            }
-            return op;
-        }
-        else if (type === "pause" || type === "resume") {
-            let op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: type as any,
-                alias: soundId,
-            }
-            return op;
-        }
-        else if (type === "remove") {
-            let op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: "remove",
-                alias: soundId,
-            }
-            return op;
-        }
-        else if (type === "volume") {
-            // varse Float or Int
-            let number = parseFloat(list[3]);
-            let op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: "volume",
-                alias: soundId,
-                value: number,
-            }
-            return op;
+                return opplay;
+            case "pause":
+            case "resume":
+                let oppause: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: type as any,
+                    alias: soundId,
+                }
+                return oppause;
+            case "stop":
+            case "remove":
+                let opremove: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: "stop",
+                    alias: soundId,
+                }
+                return opremove;
+            case "volume":
+                // varse Float or Int
+                let number = parseFloat(list[3]);
+                let opvolume: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: "volume",
+                    alias: soundId,
+                    value: number,
+                }
+                return opvolume;
         }
         return undefined;
     }
