@@ -154,14 +154,24 @@ export default class HashtagScriptManager {
                                     }
                                     catch (_) { }
                                 }
-                                if (type == "move" && (!("destination" in propsEffect)) && (!("x" in propsEffect) || !("y" in propsEffect))) {
-                                    console.error("[Pixi’VN Ink] The move operation must have a x and y or destination property", comment)
-                                    return undefined;
-                                }
-                                else if (type == "move" && "x" in propsEffect && "y" in propsEffect) {
-                                    (propsEffect as any)["destination"] = { x: propsEffect.x, y: propsEffect.y }
+                                if (type == "move" && "x" in propsEffect && "y" in propsEffect) {
+                                    (propsEffect as any)["destination"] = { x: propsEffect.x, y: propsEffect.y, type: "pixel" }
                                     delete propsEffect.x
                                     delete propsEffect.y
+                                }
+                                if (type == "move" && "xAlign" in propsEffect && "yAlign" in propsEffect) {
+                                    (propsEffect as any)["destination"] = { x: propsEffect.xAlign, y: propsEffect.yAlign, type: "align" }
+                                    delete propsEffect.xAlign
+                                    delete propsEffect.yAlign
+                                }
+                                if (type == "move" && "xPercentage" in propsEffect && "yPercentage" in propsEffect) {
+                                    (propsEffect as any)["destination"] = { x: propsEffect.xPercentage, y: propsEffect.yPercentage, type: "percentage" }
+                                    delete propsEffect.xPercentage
+                                    delete propsEffect.yPercentage
+                                }
+                                if (type == "move" && (!("destination" in propsEffect))) {
+                                    console.error("[Pixi’VN Ink] The move operation don't have a destination or destination is not valid", propsEffect)
+                                    return undefined;
                                 }
                                 let effect: PixiVNJsonCanvasEffect | PixiVNJsonCanvasTicker = {
                                     alias: operationType,
