@@ -66,6 +66,35 @@ alice: Hello, world!
     expect(res).toEqual(expected);
 });
 
+test('Assign dialogue to a character: double colons in a sentence', async () => {
+    let james = new CharacterBaseModel("james", {
+        name: "James"
+    })
+    saveCharacter(james)
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    dialogue: {
+                        character: "james",
+                        text: "Well, I mean, you are kinda acting like a father. Like, I can totally see it: I'm the daughter, and you as my father, you want to make sure I'm going out with the right guy... or something...",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        }
+    }
+    let res = convertInkText(`
+=== start ===
+james: Well, I mean, you are kinda acting like a father. Like, I can totally see it: I'm the daughter, and you as my father, you want to make sure I'm going out with the right guy... or something...
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+});
+
 /**
  * Image
  */

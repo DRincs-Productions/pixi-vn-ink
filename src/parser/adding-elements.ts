@@ -166,7 +166,7 @@ function getDialog(text: string): PixiVNJsonLabelStep {
     if (text.includes(": ")) {
         let parts = text.split(": ")
         let c = parts[0]
-        let t = parts[1]
+        let t = parts.slice(1).join(": ")
         if (getCharacterById(c)) {
             character = c
             text = t
