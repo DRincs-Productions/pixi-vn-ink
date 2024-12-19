@@ -97,7 +97,7 @@ function addConditionalElementStep(
             else {
                 list.push({
                     glueEnabled: true,
-                    goNextStep: true,
+                    goNextStep: false,
                 })
             }
         }

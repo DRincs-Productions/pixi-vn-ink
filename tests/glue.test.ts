@@ -73,7 +73,7 @@ test('Glue', async () => {
             as_fast_as_we_could: [
                 {
                     glueEnabled: true,
-                    goNextStep: true,
+                    goNextStep: false,
                 },
                 {
                     dialogue: " as fast as we could.",
@@ -206,7 +206,7 @@ test('Branching and joining', async () => {
             as_fast_as_we_could: [
                 {
                     glueEnabled: true,
-                    goNextStep: true,
+                    goNextStep: false,
                 },
                 {
                     dialogue: " as fast as we could.",
