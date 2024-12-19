@@ -90,6 +90,7 @@ function replaceText(text: string, getTextToReplace: (key: string) => string | u
         if (character) {
             text = text.replaceAll(matches[0], character)
         }
+        return replaceText(text, getTextToReplace)
     }
     return text
 }
