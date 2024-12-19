@@ -1,7 +1,7 @@
 import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
-import { PixiVNJson, PixiVNJsonOperations } from '@drincs/pixi-vn-json';
+import { PixiVNJson, PixiVNJsonOperations, translator } from '@drincs/pixi-vn-json';
 import { expect, test } from 'vitest';
-import { convertInkText } from '../src/functions';
+import { convertInkText, onReplaceTextAfterTranslation } from '../src/functions';
 import HashtagScriptManager from '../src/managers/HashtagScriptManager';
 
 async function convertOperation(res?: PixiVNJson) {
@@ -1238,6 +1238,22 @@ Hello
     expect(res).toEqual(expected1);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+});
+
+/**
+ * Replace
+ */
+test('replace', async () => {
+    onReplaceTextAfterTranslation((key) => {
+        if (key === "john") {
+            return "John";
+        }
+        if (key === "alice") {
+            return "Alice";
+        }
+    });
+    let res = translator.translate(`Hello [john], my name is [alice]`);
+    expect(res).toEqual(`Hello John, my name is Alice`);
 });
 
 /**
