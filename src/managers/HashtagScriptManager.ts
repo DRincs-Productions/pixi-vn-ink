@@ -170,7 +170,7 @@ export default class HashtagScriptManager {
                                     delete propsEffect.yPercentage
                                 }
                                 if (type == "move" && (!("destination" in propsEffect))) {
-                                    console.error("[Pixi’VN Ink] The move operation must have a destination property", comment)
+                                    console.error("[Pixi’VN Ink] The move operation don't have a destination or destination is not valid", propsEffect)
                                     return undefined;
                                 }
                                 let effect: PixiVNJsonCanvasEffect | PixiVNJsonCanvasTicker = {
