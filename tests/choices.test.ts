@@ -830,3 +830,154 @@ bored_of_paris
 `);
 	expect(res).toEqual(expected);
 });
+
+test('start_|_s', async () => {
+	let expected: PixiVNJson = {
+		initialOperations: [
+			{
+				type: "value",
+				storageOperationType: "set",
+				storageType: "storage",
+				key: "_input_value_",
+				value: "",
+			},
+		],
+		labels: {
+			"start_|_c-0": [
+				{
+					dialogue: "Yes, I want to continue",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "second_part",
+						type: "jump",
+						params: undefined,
+					},
+					glueEnabled: undefined,
+				},
+			],
+			"start_|_c-1": [
+				{
+					dialogue: "No, I want to stop here",
+					goNextStep: true,
+				},
+				{
+					labelToOpen: {
+						label: "start_|_s",
+						type: "jump",
+						params: undefined,
+					},
+					glueEnabled: true,
+				},
+				{
+					end: "game_end",
+				},
+			],
+			start: [
+				{
+					operations: [
+						{
+							type: "operationtoconvert",
+							values: [
+								"show image bg bg01-hallway",
+							],
+						},
+					],
+					goNextStep: true,
+				},
+				{
+					operations: [
+						{
+							type: "operationtoconvert",
+							values: [
+								"show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1",
+							],
+						},
+					],
+					goNextStep: true,
+				},
+				{
+					dialogue: "james: You're my roommate's replacement, huh?",
+				},
+				{
+					dialogue: "You want continue to the next part?",
+				},
+				{
+					choices: [
+						{
+							text: "Yes, I want to continue",
+							label: "start_|_c-0",
+							props: {
+							},
+							type: "jump",
+							oneTime: true,
+						},
+						{
+							text: "No, I want to stop here",
+							label: "start_|_c-1",
+							props: {
+							},
+							type: "jump",
+							oneTime: true,
+						},
+					],
+				},
+			],
+			second_part: [
+				{
+					operations: [
+						{
+							type: "operationtoconvert",
+							values: [
+								"show image bg bg02-dorm",
+							],
+						},
+					],
+					goNextStep: true,
+				},
+				{
+					operations: [
+						{
+							type: "operationtoconvert",
+							values: [
+								"show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]",
+							],
+						},
+					],
+					goNextStep: true,
+				},
+				{
+					dialogue: "She enters my room before I'VE even had a chance to.",
+				},
+				{
+					end: "label_end",
+					goNextStep: true,
+				},
+			],
+		}
+	}
+	let res = convertInkText(`
+VAR _input_value_ = ""
+
+=== start ===
+# show image bg bg01-hallway
+# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1
+james: You're my roommate's replacement, huh?
+
+You want continue to the next part?
+* Yes, I want to continue
+-> second_part
+* No, I want to stop here
+-> END
+
+=== second_part ===
+
+# show image bg bg02-dorm
+# show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]
+She enters my room before I'VE even had a chance to.
+
+-> DONE
+`);
+	expect(res).toEqual(expected);
+});
