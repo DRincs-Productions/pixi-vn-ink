@@ -48,9 +48,13 @@ export function conditionaAritmeticParser(
                 else {
                     label = label.replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR)
                 }
+                let labelIdToOpen = getLabelByStandardDivert(label, labelKey)
+                if (!labelIdToOpen) {
+                    return
+                }
                 conditions.push({
                     type: "compare",
-                    leftValue: getPixiVNJsonLabelChoice(getLabelByStandardDivert(label, labelKey)),
+                    leftValue: getPixiVNJsonLabelChoice(labelIdToOpen),
                     operator: ">=",
                     rightValue: {
                         type: "value",
@@ -59,7 +63,11 @@ export function conditionaAritmeticParser(
                 })
             }
             else {
-                conditions.push(getPixiVNJsonLabelChoice(getLabelByStandardDivert(item["CNT?"], labelKey)))
+                let labelIdToOpen = getLabelByStandardDivert(item["CNT?"], labelKey)
+                if (!labelIdToOpen) {
+                    return
+                }
+                conditions.push(getPixiVNJsonLabelChoice(labelIdToOpen))
             }
         }
         else if (typeof item === "object" && "VAR?" in item) {

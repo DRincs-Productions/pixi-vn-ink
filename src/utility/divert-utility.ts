@@ -1,6 +1,11 @@
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant"
 
-export function getLabelByStandardDivert(divertName: string, labelKey: string): string {
+export function getLabelByStandardDivert(divertName: string, labelKey: string): string | undefined {
+    // .^.^.10.s
+    if (divertName.endsWith(".s")) {
+        return
+    }
+
     // start.0.g-1
     if (
         (new RegExp(/.*\.[0-9]+\..*$/)).test(divertName)

@@ -139,6 +139,9 @@ function addConditionalElementStep(
             }
             else {
                 let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
+                if (!labelIdToOpen) {
+                    return
+                }
                 list.push({
                     labelToOpen: {
                         label: labelIdToOpen,

@@ -863,14 +863,6 @@ test('start_|_s', async () => {
 					goNextStep: true,
 				},
 				{
-					labelToOpen: {
-						label: "start_|_s",
-						type: "jump",
-						params: undefined,
-					},
-					glueEnabled: true,
-				},
-				{
 					end: "game_end",
 				},
 			],
