@@ -4,6 +4,7 @@ import HashtagScriptManager from "../managers/HashtagScriptManager";
 /**
  * This function is called before the system interprets a possible Hashtag-Script that starts with `#`.
  * The developer can use this function to run a custom Hashtag-Script. If the function returns `true`, the system will not interpret the Hashtag-Script.
+ * If returns a array of strings, the system will interpret the array as a new Hashtag-Script.
  * @param runCustomHashtagScript The function to run a custom Hashtag-Script
  * @example
  * ```ts

@@ -21,8 +21,8 @@ export default class HashtagScriptManager {
         script: string[],
         props: StepLabelPropsType,
         convertListStringToObj: (listParm: string[]) => object
-    ) => boolean = (_script: string[]) => false;
-    private static runCustomHashtagScript(script: string[], props: StepLabelPropsType): boolean {
+    ) => boolean | string[] = (_script: string[]) => false;
+    private static runCustomHashtagScript(script: string[], props: StepLabelPropsType): boolean | string[] {
         return HashtagScriptManager._customHashtagScript(script, props, HashtagScriptManager.convertListStringToObj);
     }
     static set customHashtagScript(
@@ -30,7 +30,7 @@ export default class HashtagScriptManager {
             script: string[],
             props: StepLabelPropsType,
             convertListStringToObj: (listParm: string[]) => object
-        ) => boolean
+        ) => boolean | string[]
     ) {
         HashtagScriptManager._customHashtagScript = value;
     }
@@ -95,8 +95,11 @@ export default class HashtagScriptManager {
             );
 
             // If is a custom command, it will run the custom operation
-            if (HashtagScriptManager.runCustomHashtagScript(list, props)) {
+            let customCommand = HashtagScriptManager.runCustomHashtagScript(list, props);
+            if (customCommand && typeof customCommand === "boolean") {
                 return undefined;
+            } else if (customCommand && Array.isArray(customCommand)) {
+                list = customCommand;
             }
 
             let operationType = list.length > 1 ? HashtagScriptManager.removeExtraDoubleQuotes(list[1]) : "";
