@@ -8,7 +8,7 @@ import HashtagScriptManager from "../managers/HashtagScriptManager";
  * @example
  * ```ts
  * import { onInkHashtagScript } from 'pixi-vn-ink'
- * 
+ *
  * onInkHashtagScript((script, convertListStringToObj) => {
  *    // script: # navigate scene_name prop1 "value 1" prop2 "value 2"
  *    if (script[0] === "navigate" && script.length > 1) {
@@ -42,7 +42,7 @@ export function onInkHashtagScript(
          * This is the array: `["name", "John", "age", "20", "position", "{ x: 2, y 3 }"]` and this is the json: `{name: "John", age: 20, position: { x: 2, y: 3 }}`.
          */
         convertListStringToObj: (listParm: string[]) => object
-    ) => boolean
+    ) => boolean | string[]
 ) {
-    HashtagScriptManager.customHashtagScript = runCustomHashtagScript
+    HashtagScriptManager.customHashtagScript = runCustomHashtagScript;
 }
