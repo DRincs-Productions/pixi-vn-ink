@@ -96,7 +96,7 @@ export default class HashtagScriptManager {
 
             // If is a custom command, it will run the custom operation
             let customCommand = HashtagScriptManager.runCustomHashtagScript(list, props);
-            if (customCommand && typeof customCommand === "boolean") {
+            if (customCommand === true) {
                 return undefined;
             } else if (customCommand && Array.isArray(customCommand)) {
                 list = customCommand;
