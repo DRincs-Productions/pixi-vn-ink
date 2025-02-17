@@ -99,6 +99,9 @@ export default class HashtagScriptManager {
             if (customCommand === true) {
                 return undefined;
             } else if (typeof customCommand === "string") {
+                if (customCommand.startsWith("#")) {
+                    customCommand = customCommand.substring(1);
+                }
                 return HashtagScriptManager.generateOrRunOperationFromHashtagScript(customCommand, step, props);
             }
 
