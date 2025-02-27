@@ -2,8 +2,8 @@ import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import InkStoryType from "../types/InkStoryType";
+import { getInkLabels } from "./labels-converter";
 import { logger } from "./log-utility";
-import { getInkLabel } from "./story-info-converter";
 
 /**
  * This function converts string written in ink language into the LabelJsonType.
@@ -21,7 +21,7 @@ export function convertInkText(text: string): PixiVNJson | undefined {
         return;
     }
 
-    result.labels = getInkLabel(obj.root);
+    result.labels = getInkLabels(obj.root);
     if (result.labels && GLOBAL_DECL in result.labels) {
         let global = result.labels[GLOBAL_DECL];
         delete result.labels[GLOBAL_DECL];

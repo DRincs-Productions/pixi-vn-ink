@@ -8,7 +8,7 @@ import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { addChoiseIntoList } from "./choice-info-converter";
 import { logger } from "./log-utility";
 
-export function getInkLabel(
+export function getInkLabels(
     story: (InkRootType | RootParserItemType | RootParserItemType[])[]
 ): PixiVNJsonLabels | undefined {
     try {
