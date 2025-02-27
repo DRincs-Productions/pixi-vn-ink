@@ -7,6 +7,7 @@ import {
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import { PixiVNJsonCanvasShow } from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonCanvas";
+import { logger } from "../functions/log-utility";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -202,8 +203,8 @@ export default class HashtagScriptManager {
                                     delete propsEffect.yPercentage;
                                 }
                                 if (type == "move" && !("destination" in propsEffect)) {
-                                    console.error(
-                                        "[Pixi’VN Ink] The move operation don't have a destination or destination is not valid",
+                                    logger.error(
+                                        "The move operation don't have a destination or destination is not valid",
                                         propsEffect
                                     );
                                     return undefined;
@@ -229,7 +230,7 @@ export default class HashtagScriptManager {
                     }
             }
         } catch (e) {
-            console.error("[Pixi’VN Ink] Error parsing ink hashtag-script", comment);
+            logger.error("Error parsing ink hashtag-script", comment);
             throw e;
         }
         return undefined;
@@ -256,10 +257,7 @@ export default class HashtagScriptManager {
                         );
                     case "canvaselement":
                     default:
-                        console.error(
-                            "[Pixi’VN Ink] This show operation is not valid for this type of element",
-                            typeCanvasElement
-                        );
+                        logger.error("This show operation is not valid for this type of element", typeCanvasElement);
                 }
             case "edit":
                 let editOp: PixiVNJsonOperation = {
@@ -285,7 +283,7 @@ export default class HashtagScriptManager {
                 }
                 return removeOp;
             default:
-                console.error("[Pixi’VN Ink] The operation type is not valid", type);
+                logger.error("The operation type is not valid", type);
         }
         return undefined;
     }
@@ -321,12 +319,12 @@ export default class HashtagScriptManager {
         let startIndex = list.findIndex((item) => item.startsWith("["));
         let endIndex = list.findIndex((item) => item.endsWith("]"));
         if (startIndex === -1 || endIndex === -1) {
-            console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list);
+            logger.error("Show imagecontainer must have a list of image ulrs", list);
             return undefined;
         }
         urls = list.slice(startIndex, endIndex + 1);
         if (urls.length < 2) {
-            console.error("[Pixi’VN Ink] show imagecontainer must have a list of image ulrs", list);
+            logger.error("Show imagecontainer must have a list of image ulrs", list);
             return undefined;
         }
         if (urls[0] === "[") {
@@ -497,8 +495,8 @@ export default class HashtagScriptManager {
     }
     private static convertPropListStringToObj(list: string[]): object {
         if (list.length % 2 !== 0) {
-            console.error("[Pixi’VN Ink] The props list must have a pair number of elements", list);
-            throw new Error("[Pixi’VN Ink] The props list must have a pair number of elements");
+            logger.error("The props list must have a pair number of elements", list);
+            throw new Error("The props list must have a pair number of elements");
         }
         let objJson: string = "{";
         list.forEach((item, index) => {
@@ -535,7 +533,7 @@ export default class HashtagScriptManager {
         try {
             return JSON.parse(objJson);
         } catch (e) {
-            console.error("[Pixi’VN Ink] Error parsing ink json", objJson);
+            logger.error("Error parsing ink json", objJson);
             throw e;
         }
     }

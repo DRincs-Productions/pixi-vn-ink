@@ -2,6 +2,7 @@ import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { GLOBAL_DECL, MY_LABEL_KER_EXTERNAL_VALUE } from "../constant";
 import InkStoryType from "../types/InkStoryType";
+import { logger } from "./log-utility";
 import { getInkLabel } from "./story-info-converter";
 
 /**
@@ -10,37 +11,41 @@ import { getInkLabel } from "./story-info-converter";
  * @returns LabelJsonType or undefined
  */
 export function convertInkText(text: string): PixiVNJson | undefined {
-    let result: PixiVNJson = {}
+    let result: PixiVNJson = {};
     let json = convertorInkToJson(text);
-    let obj: InkStoryType
+    let obj: InkStoryType;
     try {
         obj = JSON.parse(json);
     } catch (e) {
-        console.error("[Pixi’VN Ink] Error parsing ink file")
-        return
+        logger.error("Error parsing ink file");
+        return;
     }
 
-    result.labels = getInkLabel(obj.root)
+    result.labels = getInkLabel(obj.root);
     if (result.labels && GLOBAL_DECL in result.labels) {
-        let global = result.labels[GLOBAL_DECL]
-        delete result.labels[GLOBAL_DECL]
+        let global = result.labels[GLOBAL_DECL];
+        delete result.labels[GLOBAL_DECL];
         global.forEach((item) => {
             if (item.operations) {
-                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operations] : [...item.operations]
+                result.initialOperations = result.initialOperations
+                    ? [...result.initialOperations, ...item.operations]
+                    : [...item.operations];
             }
-        })
+        });
     }
     if (result.labels && MY_LABEL_KER_EXTERNAL_VALUE in result.labels) {
-        let global = result.labels[MY_LABEL_KER_EXTERNAL_VALUE]
-        delete result.labels[MY_LABEL_KER_EXTERNAL_VALUE]
+        let global = result.labels[MY_LABEL_KER_EXTERNAL_VALUE];
+        delete result.labels[MY_LABEL_KER_EXTERNAL_VALUE];
         global.forEach((item) => {
             if (item.operations) {
-                result.initialOperations = result.initialOperations ? [...result.initialOperations, ...item.operations] : [...item.operations]
+                result.initialOperations = result.initialOperations
+                    ? [...result.initialOperations, ...item.operations]
+                    : [...item.operations];
             }
-        })
+        });
     }
 
-    return result
+    return result;
 }
 
 function convertorInkToJson(test: string): string {
@@ -49,7 +54,7 @@ function convertorInkToJson(test: string): string {
         let json = story.ToJson();
         return json || "";
     } catch (e) {
-        console.error("[Pixi’VN Ink] Error compiling ink file", e)
-        return ""
+        logger.error("Error compiling ink file", e);
+        return "";
     }
 }
