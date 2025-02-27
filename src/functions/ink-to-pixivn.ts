@@ -1,6 +1,6 @@
 import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { Compiler } from "inkjs/compiler/Compiler";
-import { GLOBAL_DECL, MY_LABEL_KER_EXTERNAL_VALUE } from "../constant";
+import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import InkStoryType from "../types/InkStoryType";
 import { logger } from "./log-utility";
 import { getInkLabel } from "./story-info-converter";
@@ -33,9 +33,9 @@ export function convertInkText(text: string): PixiVNJson | undefined {
             }
         });
     }
-    if (result.labels && MY_LABEL_KER_EXTERNAL_VALUE in result.labels) {
-        let global = result.labels[MY_LABEL_KER_EXTERNAL_VALUE];
-        delete result.labels[MY_LABEL_KER_EXTERNAL_VALUE];
+    if (result.labels && SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES in result.labels) {
+        let global = result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
+        delete result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         global.forEach((item) => {
             if (item.operations) {
                 result.initialOperations = result.initialOperations

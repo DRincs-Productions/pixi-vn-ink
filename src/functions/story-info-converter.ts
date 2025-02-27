@@ -1,5 +1,5 @@
 import { PixiVNJsonLabel, PixiVNJsonLabels, PixiVNJsonStepSwitch } from "@drincs/pixi-vn-json";
-import { CHOISE_LABEL_KEY_SEPARATOR, MY_LABEL_KER_EXTERNAL_VALUE } from "../constant";
+import { CHOISE_LABEL_KEY_SEPARATOR, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import { addSwitchElemenStep, addSwitchElemenText } from "../parser/adding-elements";
 import { parseLabel, ShareDataParserLabel } from "../parser/label-parser";
 import { ConditionalList, parserSwitch } from "../parser/switch-parser";
@@ -47,10 +47,10 @@ function findLabel(
                 }
             } else if (typeof storyItem === "object") {
                 if (storyItem && "VAR=" in storyItem && sharedVariables.externalSwitch) {
-                    if (!labels[MY_LABEL_KER_EXTERNAL_VALUE]) {
-                        labels[MY_LABEL_KER_EXTERNAL_VALUE] = [];
+                    if (!labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES]) {
+                        labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES] = [];
                     }
-                    labels[MY_LABEL_KER_EXTERNAL_VALUE].push({
+                    labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES].push({
                         operations: [
                             {
                                 type: "value",
