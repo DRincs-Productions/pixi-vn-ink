@@ -1,4 +1,4 @@
-import { PixiVNJsonLabel, PixiVNJsonLabels, PixiVNJsonStepSwitch } from "@drincs/pixi-vn-json";
+import { PixiVNJsonLabels, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import { addSwitchElemenStep, addSwitchElemenText } from "../parser/adding-elements";
 import { parseLabel, ShareDataParserLabel } from "../parser/label-parser";
@@ -81,7 +81,7 @@ export function addLabels(
     for (const [key, value] of Object.entries(storyItem)) {
         // if value is an array
         if (value instanceof Array) {
-            let labels: PixiVNJsonLabel = [];
+            let labels: PixiVNJsonLabelStep[] = [];
             let subLabels: PixiVNJsonLabels = {};
             let labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key;
             // if (key.includes("g-")) {
