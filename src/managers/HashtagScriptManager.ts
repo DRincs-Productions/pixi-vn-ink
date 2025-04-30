@@ -168,7 +168,7 @@ export default class HashtagScriptManager {
                                     type: type,
                                 };
                                 step.goNextStep = undefined;
-                                break;
+                                return;
                             case "fade":
                             case "move":
                             case "rotate":
