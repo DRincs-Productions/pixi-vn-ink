@@ -1,4 +1,4 @@
-import { importPixiVNJson, PixiVNJson } from "@drincs/pixi-vn-json";
+import { importPixiVNJson } from "@drincs/pixi-vn-json";
 import HashtagScriptManager from "../managers/HashtagScriptManager";
 import { convertInkText } from "./ink-to-pixivn";
 
@@ -14,26 +14,21 @@ import { convertInkText } from "./ink-to-pixivn";
  *     GameStepManager.callLabel("back_in_london", {})
  * })
  * ```
- * @param text string or array of strings written in ink language
- * @returns 
+ * @param texts string or array of strings written in ink language
+ * @returns
  */
-export async function importInkText(text: string | string[]): Promise<PixiVNJson[]> {
-    let res: PixiVNJson[] = []
-    // if is array
-    if (Array.isArray(text)) {
-        for (let t of text) {
-            let labels = await importInkText(t)
-            res.concat(labels)
+export async function importInkText(texts: string | string[]): Promise<void[]> {
+    if (!Array.isArray(texts)) {
+        texts = [texts];
+    }
+    const promises = texts.map(async (text) => {
+        let data = convertInkText(text);
+        if (data) {
+            await importPixiVNJson(data, {
+                operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
+                skipEmptyDialogs: true,
+            });
         }
-        return res
-    }
-    let data = convertInkText(text)
-    if (data) {
-        importPixiVNJson(data, {
-            operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
-            skipEmptyDialogs: true,
-        })
-        res.push(data)
-    }
-    return res
+    });
+    return await Promise.all(promises);
 }
