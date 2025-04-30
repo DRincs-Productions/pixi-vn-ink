@@ -1,30 +1,31 @@
-import { CharacterBaseModel, saveCharacter } from '@drincs/pixi-vn';
-import { PixiVNJson, PixiVNJsonOperations, translator } from '@drincs/pixi-vn-json';
-import { expect, test } from 'vitest';
-import { convertInkText, onReplaceTextAfterTranslation } from '../src/functions';
-import HashtagScriptManager from '../src/managers/HashtagScriptManager';
+import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
+import { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation, translator } from "@drincs/pixi-vn-json";
+import { expect, test } from "vitest";
+import { convertInkText, onReplaceTextAfterTranslation } from "../src/functions";
+import HashtagScriptManager from "../src/managers/HashtagScriptManager";
 
 async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
         for (let label in res.labels) {
-            let tempSteps = []
+            let tempSteps = [];
             for (let step of res.labels[label]) {
                 if (step.operations) {
-                    let ops: PixiVNJsonOperations = []
+                    let ops: (PixiVNJsonOperation | PixiVNJsonIfElse<PixiVNJsonOperation>)[] = [];
                     for (let operation of step.operations) {
                         if (operation.type === "operationtoconvert") {
-                            let v: string = operation.values.map((v) => {
-                                if (typeof v === "string") {
-                                    return v;
-                                }
-                                return `"${v.type}"`;
-                            }).join("");
+                            let v: string = operation.values
+                                .map((v) => {
+                                    if (typeof v === "string") {
+                                        return v;
+                                    }
+                                    return `"${v.type}"`;
+                                })
+                                .join("");
                             let resOp = await HashtagScriptManager.generateOrRunOperationFromHashtagScript(v, step, {});
                             if (resOp) {
                                 ops.push(resOp);
                             }
-                        }
-                        else {
+                        } else {
                             ops.push(operation);
                         }
                     }
@@ -37,11 +38,11 @@ async function convertOperation(res?: PixiVNJson) {
     }
 }
 
-test('Assign dialogue to a character', async () => {
+test("Assign dialogue to a character", async () => {
     let alice = new CharacterBaseModel("alice", {
-        name: "Alice"
-    })
-    saveCharacter(alice)
+        name: "Alice",
+    });
+    RegisteredCharacters.add(alice);
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -56,8 +57,8 @@ test('Assign dialogue to a character', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 alice: Hello, world!
@@ -66,11 +67,11 @@ alice: Hello, world!
     expect(res).toEqual(expected);
 });
 
-test('Assign dialogue to a character: double colons in a sentence', async () => {
+test("Assign dialogue to a character: double colons in a sentence", async () => {
     let james = new CharacterBaseModel("james", {
-        name: "James"
-    })
-    saveCharacter(james)
+        name: "James",
+    });
+    RegisteredCharacters.add(james);
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -85,8 +86,8 @@ test('Assign dialogue to a character: double colons in a sentence', async () => 
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start ===
 james: Well, I mean, you are kinda acting like a father. Like, I can totally see it: I'm the daughter, and you as my father, you want to make sure I'm going out with the right guy... or something...
@@ -99,7 +100,7 @@ james: Well, I mean, you are kinda acting like a father. Like, I can totally see
  * Image
  */
 
-test('show image', async () => {
+test("show image", async () => {
     let expected1: PixiVNJson = {
         initialOperations: [
             {
@@ -116,9 +117,7 @@ test('show image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show image alias",
-                            ],
+                            values: ["show image alias"],
                         },
                     ],
                     goNextStep: true,
@@ -127,9 +126,7 @@ test('show image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show image bg /image.png",
-                            ],
+                            values: ["show image bg /image.png"],
                         },
                     ],
                     goNextStep: true,
@@ -138,9 +135,7 @@ test('show image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show image \"bg 2 alice\" /image2.png",
-                            ],
+                            values: ['show image "bg 2 alice" /image2.png'],
                         },
                     ],
                     goNextStep: true,
@@ -149,9 +144,7 @@ test('show image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show image  bg '/image.png' with dissolve",
-                            ],
+                            values: ["show image  bg '/image.png' with dissolve"],
                         },
                     ],
                     goNextStep: true,
@@ -160,9 +153,7 @@ test('show image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show image bg /image.png  with dissolve duration 3",
-                            ],
+                            values: ["show image bg /image.png  with dissolve duration 3"],
                         },
                     ],
                     goNextStep: true,
@@ -202,10 +193,7 @@ test('show image', async () => {
                                             " ",
                                             {
                                                 type: "stepswitch",
-                                                elements: [
-                                                    "duration",
-                                                    " 0 == 0",
-                                                ],
+                                                elements: ["duration", " 0 == 0"],
                                                 choiceType: "sequential",
                                                 end: "lastItem",
                                                 nestedId: "else",
@@ -227,8 +215,8 @@ test('show image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         initialOperations: [
             {
@@ -333,8 +321,8 @@ test('show image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR duration = 3
 === start
@@ -352,7 +340,7 @@ hello
     expect(res).toEqual(expected2);
 });
 
-test('edit image', async () => {
+test("edit image", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -361,7 +349,7 @@ test('edit image', async () => {
                         {
                             type: "operationtoconvert",
                             values: [
-                                "edit image bg position { \"x\": -20.5, \"y\": 30, \"test\": \"test \\} ' test\", \"test2\": \"'\" } visible true   cursor \"pointer\" alpha 0.5",
+                                'edit image bg position { "x": -20.5, "y": 30, "test": "test \\} \' test", "test2": "\'" } visible true   cursor "pointer" alpha 0.5',
                             ],
                         },
                     ],
@@ -375,8 +363,8 @@ test('edit image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -409,8 +397,8 @@ test('edit image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 #edit image bg position \\\{ "x": -20.5, "y": 30, "test": "test \\\\\\\} ' test", "test2": "'" \\\} visible true   cursor "pointer" alpha 0.5 
@@ -422,7 +410,7 @@ hello
     expect(res).toEqual(expected2);
 });
 
-test('remove image', async () => {
+test("remove image", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -430,9 +418,7 @@ test('remove image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove image bg",
-                            ],
+                            values: ["remove image bg"],
                         },
                     ],
                     goNextStep: true,
@@ -441,9 +427,7 @@ test('remove image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove image \"bg 2\"",
-                            ],
+                            values: ['remove image "bg 2"'],
                         },
                     ],
                     goNextStep: true,
@@ -452,9 +436,7 @@ test('remove image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove image bg with dissolve",
-                            ],
+                            values: ["remove image bg with dissolve"],
                         },
                     ],
                     goNextStep: true,
@@ -463,9 +445,7 @@ test('remove image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove image bg with dissolve duration 3",
-                            ],
+                            values: ["remove image bg with dissolve duration 3"],
                         },
                     ],
                     goNextStep: true,
@@ -478,8 +458,8 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -540,8 +520,8 @@ test('remove image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 #remove image bg
@@ -556,7 +536,7 @@ Hello
     expect(res).toEqual(expected2);
 });
 
-test('effect image', async () => {
+test("effect image", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -564,9 +544,7 @@ test('effect image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "move bg destination { \"x\": 20, \"y\": 30 }",
-                            ],
+                            values: ['move bg destination { "x": 20, "y": 30 }'],
                         },
                     ],
                     goNextStep: true,
@@ -575,9 +553,7 @@ test('effect image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "shake bg",
-                            ],
+                            values: ["shake bg"],
                         },
                     ],
                     goNextStep: true,
@@ -586,9 +562,7 @@ test('effect image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "rotate bg clockwise true",
-                            ],
+                            values: ["rotate bg clockwise true"],
                         },
                     ],
                     goNextStep: true,
@@ -597,9 +571,7 @@ test('effect image', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "pause",
-                            ],
+                            values: ["pause"],
                         },
                     ],
                     goNextStep: true,
@@ -609,8 +581,8 @@ test('effect image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -634,8 +606,7 @@ test('effect image', async () => {
                         {
                             alias: "bg",
                             type: "shake",
-                            props: {
-                            },
+                            props: {},
                         },
                     ],
                     goNextStep: true,
@@ -660,8 +631,8 @@ test('effect image', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 # move bg destination \\\{ "x": 20, "y": 30 \\\}
@@ -678,7 +649,7 @@ test('effect image', async () => {
 /**
  * Video
  */
-test('video', async () => {
+test("video", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -686,9 +657,7 @@ test('video', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show video bg \"/video A.mp4\"",
-                            ],
+                            values: ['show video bg "/video A.mp4"'],
                         },
                     ],
                     goNextStep: true,
@@ -697,9 +666,7 @@ test('video', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "pause video bg",
-                            ],
+                            values: ["pause video bg"],
                         },
                     ],
                     goNextStep: true,
@@ -708,9 +675,7 @@ test('video', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "resume video bg",
-                            ],
+                            values: ["resume video bg"],
                         },
                     ],
                     goNextStep: true,
@@ -719,9 +684,7 @@ test('video', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove video bg",
-                            ],
+                            values: ["remove video bg"],
                         },
                     ],
                     goNextStep: true,
@@ -734,8 +697,8 @@ test('video', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -788,8 +751,8 @@ test('video', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 # show video bg "/video A.mp4"
@@ -807,7 +770,7 @@ hello
 /**
  * ImageContainer
  */
-test('imagecontainer', async () => {
+test("imagecontainer", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -815,9 +778,7 @@ test('imagecontainer', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "show imagecontainer bg [\"/image A.png\" image  ] x 10 y 20 with dissolve",
-                            ],
+                            values: ['show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve'],
                         },
                     ],
                     goNextStep: true,
@@ -826,9 +787,7 @@ test('imagecontainer', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove imagecontainer bg",
-                            ],
+                            values: ["remove imagecontainer bg"],
                         },
                     ],
                     goNextStep: true,
@@ -841,8 +800,8 @@ test('imagecontainer', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -852,10 +811,7 @@ test('imagecontainer', async () => {
                             type: "imagecontainer",
                             operationType: "show",
                             alias: "bg",
-                            urls: [
-                                "/image A.png",
-                                "image",
-                            ],
+                            urls: ["/image A.png", "image"],
                             transition: {
                                 type: "dissolve",
                             },
@@ -885,8 +841,8 @@ test('imagecontainer', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 # show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve
@@ -902,7 +858,7 @@ hello
 /**
  * Sound
  */
-test('sound', async () => {
+test("sound", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -910,9 +866,7 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "play sound bird volume 100",
-                            ],
+                            values: ["play sound bird volume 100"],
                         },
                     ],
                     goNextStep: true,
@@ -921,9 +875,7 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "pause sound bird",
-                            ],
+                            values: ["pause sound bird"],
                         },
                     ],
                     goNextStep: true,
@@ -932,9 +884,7 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "resume sound bird",
-                            ],
+                            values: ["resume sound bird"],
                         },
                     ],
                     goNextStep: true,
@@ -943,9 +893,7 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "remove sound bird",
-                            ],
+                            values: ["remove sound bird"],
                         },
                     ],
                     goNextStep: true,
@@ -954,9 +902,7 @@ test('sound', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "volume sound bird 100",
-                            ],
+                            values: ["volume sound bird 100"],
                         },
                     ],
                     goNextStep: true,
@@ -969,8 +915,8 @@ test('sound', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -1036,8 +982,8 @@ test('sound', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 # play sound bird volume 100
@@ -1056,7 +1002,7 @@ Hello
 /**
  * Assets
  */
-test('assets', async () => {
+test("assets", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -1064,9 +1010,7 @@ test('assets', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "load assets url1 url2",
-                            ],
+                            values: ["load assets url1 url2"],
                         },
                     ],
                     goNextStep: true,
@@ -1079,8 +1023,8 @@ test('assets', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -1089,10 +1033,7 @@ test('assets', async () => {
                         {
                             type: "assets",
                             operationType: "load",
-                            assets: [
-                                "url1",
-                                "url2",
-                            ],
+                            aliases: ["url1", "url2"],
                         },
                     ],
                     goNextStep: true,
@@ -1105,8 +1046,8 @@ test('assets', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 # load assets url1 url2
@@ -1121,7 +1062,7 @@ hello
 /**
  * Input
  */
-test('input', async () => {
+test("input", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -1129,9 +1070,7 @@ test('input', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "request input",
-                            ],
+                            values: ["request input"],
                         },
                     ],
                     goNextStep: true,
@@ -1140,9 +1079,7 @@ test('input', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "request input type number default 0",
-                            ],
+                            values: ["request input type number default 0"],
                         },
                     ],
                     goNextStep: true,
@@ -1151,9 +1088,7 @@ test('input', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "pause",
-                            ],
+                            values: ["pause"],
                         },
                     ],
                     goNextStep: true,
@@ -1162,9 +1097,7 @@ test('input', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "request input  type 'array of string'",
-                            ],
+                            values: ["request input  type 'array of string'"],
                         },
                     ],
                     goNextStep: true,
@@ -1177,8 +1110,8 @@ test('input', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -1203,8 +1136,7 @@ test('input', async () => {
                     goNextStep: true,
                 },
                 {
-                    operations: [
-                    ],
+                    operations: [],
                 },
                 {
                     operations: [
@@ -1224,8 +1156,8 @@ test('input', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 # request input
@@ -1243,7 +1175,7 @@ Hello
 /**
  * Replace
  */
-test('replace', async () => {
+test("replace", async () => {
     onReplaceTextAfterTranslation((key) => {
         if (key === "john") {
             return "John";
@@ -1259,7 +1191,7 @@ test('replace', async () => {
 /**
  * markdown
  */
-test('markdown', async () => {
+test("markdown", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -1269,12 +1201,14 @@ test('markdown', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: "Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \n",
+                    dialogue:
+                        "Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \n",
                     glueEnabled: true,
                     goNextStep: true,
                 },
                 {
-                    dialogue: "For example in React, you can use the library [react-markdown](https://www.npmjs.com/package/react-markdown). \n",
+                    dialogue:
+                        "For example in React, you can use the library [react-markdown](https://www.npmjs.com/package/react-markdown). \n",
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -1284,17 +1218,17 @@ test('markdown', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: "<span style=\"color:blue\">some *blue* text</span>. \n",
+                    dialogue: '<span style="color:blue">some *blue* text</span>. \n',
                     glueEnabled: true,
                     goNextStep: true,
                 },
                 {
-                    dialogue: "<span style=\"color:red\">some *red* text</span>. \n",
+                    dialogue: '<span style="color:red">some *red* text</span>. \n',
                     glueEnabled: true,
                     goNextStep: true,
                 },
                 {
-                    dialogue: "<span style=\"color:green\">some *green* text</span>. \n",
+                    dialogue: '<span style="color:green">some *green* text</span>. \n',
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -1369,7 +1303,7 @@ test('markdown', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: "console.log(\"Hello World\") \n",
+                    dialogue: 'console.log("Hello World") \n',
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -1436,8 +1370,8 @@ test('markdown', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 \\# Markdown Test \\\\n<>
@@ -1507,7 +1441,7 @@ Footer
 /**
  * markdown
  */
-test('jump', async () => {
+test("jump", async () => {
     let expected1: PixiVNJson = {
         labels: {
             start: [
@@ -1518,9 +1452,7 @@ test('jump', async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: [
-                                "jump after",
-                            ],
+                            values: ["jump after"],
                         },
                     ],
                     goNextStep: true,
@@ -1545,8 +1477,8 @@ test('jump', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let expected2: PixiVNJson = {
         labels: {
             start: [
@@ -1554,8 +1486,7 @@ test('jump', async () => {
                     dialogue: "Start",
                 },
                 {
-                    operations: [
-                    ],
+                    operations: [],
                     goNextStep: undefined,
                     labelToOpen: {
                         label: "after",
@@ -1582,8 +1513,8 @@ test('jump', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start ===
 Start

@@ -144,15 +144,20 @@ export default class HashtagScriptManager {
                         }
                         return op;
                     }
+                    break;
                 case "assets":
-                    if (type === "load") {
-                        let op: PixiVNJsonOperation = {
-                            type: "assets",
-                            operationType: "load",
-                            assets: list.slice(2),
-                        };
-                        return op;
+                case "bundle":
+                    switch (type) {
+                        case "load":
+                        case "lazyload":
+                            let op: PixiVNJsonOperation = {
+                                type: operationType,
+                                operationType: type,
+                                aliases: list.slice(2),
+                            };
+                            return op;
                     }
+                    break;
                 default:
                     if (operationType) {
                         switch (type) {
@@ -233,6 +238,7 @@ export default class HashtagScriptManager {
             logger.error("Error parsing ink hashtag-script", comment);
             throw e;
         }
+        logger.error("The operation is not valid", comment);
         return undefined;
     }
 
