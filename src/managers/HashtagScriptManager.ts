@@ -500,6 +500,9 @@ export default class HashtagScriptManager {
         return list;
     }
     private static convertPropListStringToObj(list: string[]): object {
+        if (list.length === 0) {
+            return {};
+        }
         if (list.length % 2 !== 0) {
             logger.error("The props list must have a pair number of elements", list);
             throw new Error("The props list must have a pair number of elements");
