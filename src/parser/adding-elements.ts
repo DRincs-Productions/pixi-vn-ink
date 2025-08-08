@@ -1,131 +1,143 @@
-import { getCharacterById } from "@drincs/pixi-vn";
-import { PixiVNJsonConditionalStatements, PixiVNJsonLabelStep, PixiVNJsonStepSwitchElementType, PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
+import { RegisteredCharacters } from "@drincs/pixi-vn";
+import {
+    PixiVNJsonConditionalStatements,
+    PixiVNJsonLabelStep,
+    PixiVNJsonStepSwitchElementType,
+    PixiVNJsonValueGet,
+} from "@drincs/pixi-vn-json";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utility/divert-utility";
 import { getText } from "../utility/text-utility";
 import { getValue } from "../utility/value-utility";
 
-export function addSwitchElemenText(list: PixiVNJsonStepSwitchElementType<string>[], item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment) {
+export function addSwitchElemenText(
+    list: PixiVNJsonStepSwitchElementType<string>[],
+    item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment
+) {
     if (!item) {
-        return
+        return;
     }
     if (typeof item === "string") {
         if (item.startsWith("^")) {
-            list.push(getText(item))
+            list.push(getText(item));
         }
-    }
-    else if (typeof item === "object" && "type" in item && item.type !== "value") {
-        list.push(item)
+    } else if (typeof item === "object" && "type" in item && item.type !== "value") {
+        list.push(item);
     }
 }
 
 export function addSwitchElemenStep(
     list: PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>[],
-    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep> | MyVariableAssignment,
+    item:
+        | string
+        | PixiVNJsonLabelStep
+        | StandardDivert
+        | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>
+        | MyVariableAssignment,
     labelKey: string,
     paramNames: string[],
     isNewLine: boolean = true,
-    isHashtagScript: boolean = false,
+    isHashtagScript: boolean = false
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, isNewLine, isHashtagScript)
+    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, isNewLine, isHashtagScript);
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
-    item: string | PixiVNJsonLabelStep | StandardDivert | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep> | MyVariableAssignment,
+    item:
+        | string
+        | PixiVNJsonLabelStep
+        | StandardDivert
+        | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>
+        | MyVariableAssignment,
     labelKey: string,
     paramNames: string[],
     isNewLine: boolean,
-    isHashtagScript: boolean = false,
+    isHashtagScript: boolean = false
 ) {
     if (!item) {
-        return
+        return;
     }
     if (isHashtagScript) {
         if (Array.isArray(item)) {
             if (item.length > 0) {
                 list.push({
-                    operations: [{
-                        type: "operationtoconvert",
-                        values: item,
-                    }],
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: item,
+                        },
+                    ],
                     goNextStep: true,
-                })
+                });
             }
         }
-    }
-    else if (typeof item === "string" && item.startsWith("^") ||
-        (item && typeof item === "object" && "type" in item && item.type == "value" && item.storageOperationType === "get")
+    } else if (
+        (typeof item === "string" && item.startsWith("^")) ||
+        (item &&
+            typeof item === "object" &&
+            "type" in item &&
+            item.type == "value" &&
+            item.storageOperationType === "get")
     ) {
         if (!isNewLine && list.length > 0) {
-            let prevItem = list[list.length - 1]
+            let prevItem = list[list.length - 1];
             // in this case: <> text
             if (!prevItem.glueEnabled && !prevItem.operations) {
-                prevItem.glueEnabled = true
-                if (!prevItem.labelToOpen)
-                    prevItem.goNextStep = true
+                prevItem.glueEnabled = true;
+                if (!prevItem.labelToOpen) prevItem.goNextStep = true;
             }
-            list[list.length - 1] = prevItem
+            list[list.length - 1] = prevItem;
         }
         if (typeof item === "string") {
-            list.push(getDialog(getText(item)))
-        }
-        else {
+            list.push(getDialog(getText(item)));
+        } else {
             list.push({
-                dialogue: item
-            })
+                dialogue: item,
+            });
         }
-    }
-    else if (typeof item === "string") {
+    } else if (typeof item === "string") {
         if (item === "end") {
-            list.push({ end: "game_end" })
-        }
-        else if (item === "done") {
+            list.push({ end: "game_end" });
+        } else if (item === "done") {
             list.push({
                 end: "label_end",
                 goNextStep: true,
-            })
-        }
-        else if (item == "<>") {
+            });
+        } else if (item == "<>") {
             if (list.length > 0) {
-                let prevItem = list[list.length - 1]
-                prevItem.glueEnabled = true
-                if (!prevItem.labelToOpen)
-                    prevItem.goNextStep = true
-                list[list.length - 1] = prevItem
-            }
-            else {
+                let prevItem = list[list.length - 1];
+                prevItem.glueEnabled = true;
+                if (!prevItem.labelToOpen) prevItem.goNextStep = true;
+                list[list.length - 1] = prevItem;
+            } else {
                 list.push({
                     glueEnabled: true,
                     goNextStep: false,
-                })
+                });
             }
         }
-    }
-    else if (typeof item === "object") {
+    } else if (typeof item === "object") {
         if ("type" in item && item.type !== "value") {
             if (!isNewLine && list.length > 0) {
-                let prevItem = list[list.length - 1]
+                let prevItem = list[list.length - 1];
                 // in this case: <> text
                 if (!prevItem.glueEnabled && !prevItem.operations) {
-                    prevItem.glueEnabled = true
-                    if (!prevItem.labelToOpen)
-                        prevItem.goNextStep = true
+                    prevItem.glueEnabled = true;
+                    if (!prevItem.labelToOpen) prevItem.goNextStep = true;
                 }
-                list[list.length - 1] = prevItem
+                list[list.length - 1] = prevItem;
             }
-            list.push({ conditionalStep: item })
-        }
-        else if ("->" in item) {
-            let glueEnabled = isNewLine ? undefined : true
+            list.push({ conditionalStep: item });
+        } else if ("->" in item) {
+            let glueEnabled = isNewLine ? undefined : true;
             if (!isNewLine && list.length > 0) {
-                let prevItem = list[list.length - 1]
-                if (!prevItem.labelToOpen)
-                    prevItem.goNextStep = true
-                list[list.length - 1] = prevItem
+                let prevItem = list[list.length - 1];
+                if (!prevItem.labelToOpen) prevItem.goNextStep = true;
+                list[list.length - 1] = prevItem;
             }
             if (item.params && item.params.length === 0) {
-                item.params = undefined
+                item.params = undefined;
             }
             if (item.var) {
                 list.push({
@@ -135,12 +147,11 @@ function addConditionalElementStep(
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,
-                })
-            }
-            else {
-                let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey)
+                });
+            } else {
+                let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey);
                 if (!labelIdToOpen) {
-                    return
+                    return;
                 }
                 list.push({
                     labelToOpen: {
@@ -149,30 +160,30 @@ function addConditionalElementStep(
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,
-                })
+                });
             }
         }
         if ("type" in item && item.type == "value" && item.storageOperationType === "set") {
             if (typeof item.value === "string" && item.value.startsWith("^")) {
-                item.value = getText(item.value)
+                item.value = getText(item.value);
             }
             list.push({
                 goNextStep: true,
-                operations: [item]
-            })
+                operations: [item],
+            });
         }
     }
 }
 
 function getDialog(text: string): PixiVNJsonLabelStep {
-    let character: string | undefined = undefined
+    let character: string | undefined = undefined;
     if (text.includes(": ")) {
-        let parts = text.split(": ")
-        let c = parts[0]
-        let t = parts.slice(1).join(": ")
-        if (getCharacterById(c)) {
-            character = c
-            text = t
+        let parts = text.split(": ");
+        let c = parts[0];
+        let t = parts.slice(1).join(": ");
+        if (RegisteredCharacters.get(c)) {
+            character = c;
+            text = t;
         }
     }
     if (character) {
@@ -180,15 +191,15 @@ function getDialog(text: string): PixiVNJsonLabelStep {
             dialogue: {
                 character: character,
                 text: text,
-            }
-        }
+            },
+        };
     }
     return {
-        dialogue: text
-    }
+        dialogue: text,
+    };
 }
 
-type TComment = string | PixiVNJsonValueGet | PixiVNJsonConditionalStatements<string | PixiVNJsonValueGet>
+type TComment = string | PixiVNJsonValueGet | PixiVNJsonConditionalStatements<string | PixiVNJsonValueGet>;
 export function addSwitchComment(
     list: PixiVNJsonStepSwitchElementType<TComment>[],
     item: string | TComment | StandardDivert | PixiVNJsonStepSwitchElementType<TComment> | MyVariableAssignment,
@@ -196,7 +207,7 @@ export function addSwitchComment(
     isNewLine: boolean = true,
     isHashtagScript: boolean = false
 ) {
-    return addConditionalComment(list as any, item as any, labelKey, isNewLine, isHashtagScript)
+    return addConditionalComment(list as any, item as any, labelKey, isNewLine, isHashtagScript);
 }
 function addConditionalComment(
     list: TComment[],
@@ -206,22 +217,25 @@ function addConditionalComment(
     _isHashtagScript: boolean = false
 ) {
     if (!item) {
-        return
+        return;
     }
 
-    if (typeof item === "string" && item.startsWith("^") ||
-        (item && typeof item === "object" && "type" in item && item.type == "value" && item.storageOperationType === "get")
+    if (
+        (typeof item === "string" && item.startsWith("^")) ||
+        (item &&
+            typeof item === "object" &&
+            "type" in item &&
+            item.type == "value" &&
+            item.storageOperationType === "get")
     ) {
         if (typeof item === "string") {
-            list.push(getText(item))
+            list.push(getText(item));
+        } else {
+            list.push(item);
         }
-        else {
-            list.push(item)
-        }
-    }
-    else if (typeof item === "object") {
+    } else if (typeof item === "object") {
         if ("type" in item) {
-            list.push(item as any)
+            list.push(item as any);
         }
     }
 }

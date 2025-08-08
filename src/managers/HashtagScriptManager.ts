@@ -1,5 +1,6 @@
 import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
 import {
+    PixiVNJsonCanvasAnimate,
     PixiVNJsonCanvasEffect,
     PixiVNJsonCanvasTicker,
     PixiVNJsonLabelStep,
@@ -220,6 +221,33 @@ export default class HashtagScriptManager {
                                     props: propsEffect as any,
                                 };
                                 return effect;
+                            case "animate":
+                                let keyframes = {};
+                                let options = {};
+                                if (list.length > 2) {
+                                    let keyframesList = list.slice(2);
+                                    let optionsList: string[] = [];
+                                    if (keyframesList.includes("options")) {
+                                        let optionsIndex = keyframesList.indexOf("options");
+                                        optionsList = keyframesList.slice(optionsIndex + 1);
+                                        keyframesList = keyframesList.slice(0, optionsIndex);
+                                    }
+                                    try {
+                                        keyframes = HashtagScriptManager.convertListStringToObj(keyframesList);
+                                    } catch (_) {}
+                                    if (optionsList.length > 0) {
+                                        try {
+                                            options = HashtagScriptManager.convertListStringToObj(optionsList);
+                                        } catch (_) {}
+                                    }
+                                }
+                                let animate: PixiVNJsonCanvasAnimate = {
+                                    alias: operationType,
+                                    type: type,
+                                    keyframes: keyframes,
+                                    options: options,
+                                };
+                                return animate;
                         }
                     } else {
                         switch (type) {
