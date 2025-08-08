@@ -22,7 +22,7 @@
   "bugs": {
     "url": "https://github.com/DRincs-Productions/pixi-vn-ink/issues"
   },
-  "homepage": "https://pixi-vn.web.app/ink/ink.html",
+  "homepage": "https://pixi-vn.web.app/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "devDependencies": {
     "@drincs/pixi-vn-json": "^1.6.0",
