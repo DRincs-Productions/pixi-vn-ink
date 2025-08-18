@@ -7,7 +7,7 @@ import { PixiVNJson, PixiVNJsonLabelStep, translator } from "@drincs/pixi-vn-jso
  * ```ts
  * import { onInkTranslate } from 'pixi-vn-ink'
  * import { useTranslation } from "react-i18next";
- * 
+ *
  * const { t } = useTranslation(["narration"]);
  * onInkTranslate((text) => {
  *    return t(text)
@@ -15,7 +15,7 @@ import { PixiVNJson, PixiVNJsonLabelStep, translator } from "@drincs/pixi-vn-jso
  * ```
  */
 export function onInkTranslate(t: (text: string) => string) {
-    translator.translate = t
+    translator.translate = t;
 }
 
 /**
@@ -27,27 +27,30 @@ export function onInkTranslate(t: (text: string) => string) {
  * @example
  * ```ts
  * import { generateTranslateJson, importInkText } from 'pixi-vn-ink'
- * 
+ *
  * importInkText( your_ink_text_here ).then((labels) => {
  *     let json = generateTranslateJson(labels)
  * })
  * ```
  */
-export function generateJsonInkTranslation(labels: PixiVNJsonLabelStep[] | PixiVNJson, json: object = {}, options: {
-    /**
-     * Default value to set if the key is not found
-     * @default "empty_string"
-     */
-    defaultValue?: "empty_string" | "copy_key"
-} = {}) {
-    let tempLabels: PixiVNJsonLabelStep[] = []
+export function generateJsonInkTranslation(
+    labels: PixiVNJsonLabelStep[] | PixiVNJson,
+    json: object = {},
+    options: {
+        /**
+         * Default value to set if the key is not found
+         * @default "copy_key"
+         */
+        defaultValue?: "empty_string" | "copy_key";
+    } = {}
+) {
+    let tempLabels: PixiVNJsonLabelStep[] = [];
     if (Array.isArray(labels)) {
-        tempLabels = labels
-    }
-    else if (labels.labels) {
+        tempLabels = labels;
+    } else if (labels.labels) {
         Object.values(labels.labels).forEach((label) => {
-            tempLabels = tempLabels.concat(label)
-        })
+            tempLabels = tempLabels.concat(label);
+        });
     }
-    return translator.generateJsonTranslation(tempLabels, json, options)
+    return translator.generateJsonTranslation(tempLabels, json, options);
 }
