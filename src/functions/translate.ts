@@ -20,7 +20,7 @@ export function onInkTranslate(t: (text: string) => string) {
 
 /**
  * Generate a json object with the keys of the labels and the values of the text to be translated
- * @param labels The labels to be used in the narrative. They will be added to the system
+ * @param pixivnJson The labels to be used in the narrative. They will be added to the system
  * @param json If you want to add more keys to the existing json
  * @param options The options to set the default value if the key is not found
  * @returns The json object with the keys of the labels and the values of the text to be translated
@@ -34,7 +34,7 @@ export function onInkTranslate(t: (text: string) => string) {
  * ```
  */
 export function generateJsonInkTranslation(
-    labels: PixiVNJsonLabelStep[] | PixiVNJson,
+    pixivnJson: PixiVNJson,
     json: object = {},
     options: {
         /**
@@ -45,10 +45,8 @@ export function generateJsonInkTranslation(
     } = {}
 ) {
     let tempLabels: PixiVNJsonLabelStep[] = [];
-    if (Array.isArray(labels)) {
-        tempLabels = labels;
-    } else if (labels.labels) {
-        Object.values(labels.labels).forEach((label) => {
+    if (pixivnJson.labels) {
+        Object.values(pixivnJson.labels).forEach((label) => {
             tempLabels = tempLabels.concat(label);
         });
     }
