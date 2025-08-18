@@ -24,8 +24,10 @@
   },
   "homepage": "https://pixi-vn.web.app/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
+  "dependencies": {
+    "@drincs/pixi-vn-json": "^1.6.1"
+  },
   "devDependencies": {
-    "@drincs/pixi-vn-json": "^1.6.0",
     "inkjs": "^2.3.2",
     "jsdom": "^26.1.0",
     "ts-node": "^10.9.2",
