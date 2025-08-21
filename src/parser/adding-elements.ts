@@ -1,10 +1,10 @@
-import { RegisteredCharacters } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonConditionalStatements,
     PixiVNJsonLabelStep,
     PixiVNJsonStepSwitchElementType,
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
+import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
