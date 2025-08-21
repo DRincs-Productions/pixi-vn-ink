@@ -1,4 +1,4 @@
-import { StorageElementType } from "@drincs/pixi-vn";
+import type { StorageElementType } from "@drincs/pixi-vn";
 import {
     PixiVNJsonArithmeticOperations,
     PixiVNJsonChoiceGet,
@@ -17,9 +17,9 @@ import {
     conditionFunctions,
     ConditionFunctions,
 } from "../types/parserItems/NativeFunctions";
-import { getLabelByStandardDivert } from "../utility/divert-utility";
-import { getText } from "../utility/text-utility";
-import { getValue } from "../utility/value-utility";
+import { getLabelByStandardDivert } from "../utils/divert-utility";
+import { getText } from "../utils/text-utility";
+import { getValue } from "../utils/value-utility";
 
 export function conditionaAritmeticParser(list: any[], labelKey: string, paramNames: string[]) {
     list = list.map((item) => {

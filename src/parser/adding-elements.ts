@@ -7,9 +7,9 @@ import {
 } from "@drincs/pixi-vn-json";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
-import { getLabelByStandardDivert } from "../utility/divert-utility";
-import { getText } from "../utility/text-utility";
-import { getValue } from "../utility/value-utility";
+import { getLabelByStandardDivert } from "../utils/divert-utility";
+import { getText } from "../utils/text-utility";
+import { getValue } from "../utils/value-utility";
 
 export function addSwitchElemenText(
     list: PixiVNJsonStepSwitchElementType<string>[],

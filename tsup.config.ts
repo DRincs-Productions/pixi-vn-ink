@@ -13,7 +13,7 @@ export default defineConfig({
     minify: true,
     bundle: true,
     skipNodeModulesBundle: false, // Skip bundling of node_modules
-    noExternal: ["@drincs/pixi-vn-json"],
+    external: ["@drincs/pixi-vn-json"],
     outExtension({ format }) {
         return {
             js: format === "esm" ? ".mjs" : ".cjs",

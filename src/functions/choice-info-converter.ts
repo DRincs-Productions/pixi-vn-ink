@@ -15,8 +15,8 @@ import NativeFunctions, { nativeFunctions } from "../types/parserItems/NativeFun
 import ReadCount from "../types/parserItems/ReadCount";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
 import TextType from "../types/parserItems/TextType";
-import { unionStringOrArray } from "../utility/array-utility";
-import { getText } from "../utility/text-utility";
+import { unionStringOrArray } from "../utils/array-utility";
+import { getText } from "../utils/text-utility";
 import { logger } from "./log-utility";
 
 export function addChoiseIntoList<T>(

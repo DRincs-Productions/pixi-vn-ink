@@ -1,4 +1,4 @@
-import { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { StepLabelPropsType } from "@drincs/pixi-vn";
 import HashtagScriptManager from "../managers/HashtagScriptManager";
 
 /**

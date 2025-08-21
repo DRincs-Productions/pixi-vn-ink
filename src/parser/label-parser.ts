@@ -10,7 +10,7 @@ import { ContainerTypeN } from "../types/parserItems/ContainerType";
 import { StandardDivert } from "../types/parserItems/Divert";
 import RootParserItemType from "../types/parserItems/RootParserItemType";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
-import { getParam, getSetValue, getValue } from "../utility/value-utility";
+import { getParam, getSetValue, getValue } from "../utils/value-utility";
 import { addSwitchComment } from "./adding-elements";
 import { arithmeticParser } from "./arithmetic-parser";
 import { getConditionalValue } from "./conditional-statements-parser";
