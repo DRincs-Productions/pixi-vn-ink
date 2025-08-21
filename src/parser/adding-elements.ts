@@ -1,5 +1,5 @@
 import { RegisteredCharacters } from "@drincs/pixi-vn";
-import {
+import type {
     PixiVNJsonConditionalStatements,
     PixiVNJsonLabelStep,
     PixiVNJsonStepSwitchElementType,

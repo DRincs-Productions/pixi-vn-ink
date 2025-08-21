@@ -1,23 +1,23 @@
-import { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json"
+import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json";
 
 type VariableAssignmentVar = {
-    "VAR=": any
-    "re": true
-}
+    "VAR=": any;
+    re: true;
+};
 type VariableAssignmentTem = {
-    "temp=": string
-}
+    "temp=": string;
+};
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md#variable-assignment
- * 
+ *
  * Pops a value from the evaluation stack, and assigns it to a named variable, either globally or locally (in a temp, or a passed parameter). The "re" property being set indicates that it's a re-assignment rather than a brand new declaration.
- * 
+ *
  * Examples:
  * - {"VAR=": "money", "re": true} - Pop a value from the evaluation stack, and assign it to the already-declared global variable money.
  * - {"temp=": "x"} - Pop a value from the evaluation stack, and assign it to a newly declared temporary variable named x.
  */
-type VariableAssignment = VariableAssignmentVar | VariableAssignmentTem
-export default VariableAssignment
+type VariableAssignment = VariableAssignmentVar | VariableAssignmentTem;
+export default VariableAssignment;
 
-export type MyVariableAssignment = PixiVNJsonValueSet | PixiVNJsonValueGet
+export type MyVariableAssignment = PixiVNJsonValueSet | PixiVNJsonValueGet;

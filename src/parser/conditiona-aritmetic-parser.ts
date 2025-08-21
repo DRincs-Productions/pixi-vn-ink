@@ -1,5 +1,5 @@
 import type { StorageElementType } from "@drincs/pixi-vn";
-import {
+import type {
     PixiVNJsonArithmeticOperations,
     PixiVNJsonChoiceGet,
     PixiVNJsonComparation,

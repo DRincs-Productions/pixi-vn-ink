@@ -1,10 +1,7 @@
-import { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json";
+import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json";
 import { conditionaAritmeticParser } from "../parser/conditiona-aritmetic-parser";
 
-export function getParam(list: any[],
-    labelKey: string,
-    paramNames: string[],
-): any[] {
+export function getParam(list: any[], labelKey: string, paramNames: string[]): any[] {
     let res: any[] = conditionaAritmeticParser(list, labelKey, paramNames);
     return res;
 }
@@ -14,21 +11,21 @@ export function getValue(
     paramNames: string[],
     defaultType: "storage" | "tempstorage" = "storage"
 ): PixiVNJsonValueGet {
-    let paramIndex = paramNames.indexOf(key)
+    let paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
         return {
             type: "value",
             storageType: "params",
             storageOperationType: "get",
             key: paramIndex,
-        }
+        };
     }
     return {
         type: "value",
         storageOperationType: "get",
         storageType: defaultType,
         key: key,
-    }
+    };
 }
 
 export function getSetValue(
@@ -37,7 +34,7 @@ export function getSetValue(
     value: any,
     defaultType: "storage" | "tempstorage" = "storage"
 ): PixiVNJsonValueSet {
-    let paramIndex = paramNames.indexOf(key)
+    let paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
         return {
             type: "value",
@@ -45,7 +42,7 @@ export function getSetValue(
             storageOperationType: "set",
             key: paramIndex,
             value: value,
-        }
+        };
     }
     return {
         type: "value",
@@ -53,5 +50,5 @@ export function getSetValue(
         storageType: defaultType,
         key: key,
         value: value,
-    }
+    };
 }

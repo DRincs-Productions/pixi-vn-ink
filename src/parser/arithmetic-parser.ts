@@ -1,5 +1,5 @@
 import type { StorageElementType } from "@drincs/pixi-vn";
-import { PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
+import type { PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
 import { logger } from "../functions/log-utility";
 import { ArithmeticFunctions } from "../types/parserItems/NativeFunctions";
 import VariableReference from "../types/parserItems/VariableReference";

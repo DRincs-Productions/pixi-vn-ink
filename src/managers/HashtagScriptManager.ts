@@ -1,13 +1,13 @@
-import { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
-import {
+import type { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
+import type {
     PixiVNJsonCanvasAnimate,
     PixiVNJsonCanvasEffect,
+    PixiVNJsonCanvasShow,
     PixiVNJsonCanvasTicker,
     PixiVNJsonLabelStep,
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
-import { PixiVNJsonCanvasShow } from "@drincs/pixi-vn-json/dist/interface/PixiVNJsonCanvas";
 import { logger } from "../functions/log-utility";
 
 const SPACE_SEPARATOR = "§SPACE§";
