@@ -1,5 +1,5 @@
-import { translator } from "@drincs/pixi-vn-json"
-import { onInkTranslate } from "./translate"
+import { translator } from "@drincs/pixi-vn-json";
+import { onInkTranslate } from "./translate";
 
 /**
  * This function is called after the {@link onInkTranslate} function is called.
@@ -7,12 +7,12 @@ import { onInkTranslate } from "./translate"
  * It can be used for example to replace the character id with the character name:
  * If there are a character with a name "John" and id "john", and the text is "Hello, my name is [john]",
  * the following function will return "Hello, my name is John"
- * @param getTextToReplace The function to get the text to replace 
+ * @param getTextToReplace The function to get the text to replace
  * @example
  * ```ts
  * import { onReplaceTextAfterTranslation } from 'pixi-vn-ink'
  * import { getCharacterById } from "@drincs/pixi-vn";
- * 
+ *
  * onReplaceTextAfterTranslation((key) => {
  *     let character = getCharacterById(key)
  *     if (character) {
@@ -29,12 +29,12 @@ export function onReplaceTextAfterTranslation(
         /**
          * The key to be replaced
          */
-        key: string,
+        key: string
     ) => string | undefined
 ) {
     translator.afterToTranslate = (text) => {
-        return replaceText(text, getTextToReplace)
-    }
+        return replaceText(text, getTextToReplace);
+    };
 }
 
 /**
@@ -49,15 +49,15 @@ export function onReplaceTextAfterTranslation(
  * import { onReplaceTextBeforeTranslation, onInkTranslate } from 'pixi-vn-ink'
  * import { useTranslation } from "react-i18next";
  * import { john } from "../values/characters"
- * 
+ *
  * const { t } = useTranslation(["narration"]);
- * 
+ *
  * onInkTranslate((text) => {
- *     return t(text, { 
+ *     return t(text, {
  *         john: john.name
  *     })
  * })
- * 
+ *
  * onReplaceTextBeforeTranslation((key) => {
  *     return `{{${key}}}`
  * })
@@ -68,29 +68,29 @@ export function onReplaceTextBeforeTranslation(
         /**
          * The key to be replaced
          */
-        key: string,
+        key: string
     ) => string | undefined
 ) {
     translator.beforeToTranslate = (text) => {
-        return replaceText(text, getTextToReplace)
-    }
+        return replaceText(text, getTextToReplace);
+    };
 }
 
 /**
  * Function that replaces the text between curly braces with the { @link TextReplacesManager._getTextToReplace } function.
  * For example, if there are a character with a name "John" and id "john", and the text is "Hello, my name is [john]"
  * The function will return "Hello, my name is John"
- * @param text 
+ * @param text
  */
 function replaceText(text: string, getTextToReplace: (key: string) => string | undefined): string {
-    let matches = text.match(/\[([^\]]+)\]/)
+    let matches = text.match(/\[([^\]]+)\]/);
     if (matches) {
-        let characterId = matches[1]
-        let character = getTextToReplace(characterId)
+        let characterId = matches[1];
+        let character = getTextToReplace(characterId);
         if (character) {
-            text = text.replaceAll(matches[0], character)
+            text = text.replaceAll(matches[0], character);
         }
-        return replaceText(text, getTextToReplace)
+        return replaceText(text, getTextToReplace);
     }
-    return text
+    return text;
 }
