@@ -1,4 +1,5 @@
-import { PixiVNJson, PixiVNJsonLabelStep, translator } from "@drincs/pixi-vn-json";
+import type { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
+import { translator } from "@drincs/pixi-vn-json/translator";
 
 /**
  * This function set the function to translate the text

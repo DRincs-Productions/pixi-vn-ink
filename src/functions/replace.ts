@@ -1,4 +1,4 @@
-import { translator } from "@drincs/pixi-vn-json";
+import { translator } from "@drincs/pixi-vn-json/translator";
 import { onInkTranslate } from "./translate";
 
 /**
