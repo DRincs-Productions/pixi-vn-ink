@@ -15,7 +15,7 @@ export default defineConfig({
     minify: true,
     bundle: true,
     skipNodeModulesBundle: false, // Skip bundling of node_modules
-    external: [
+    noExternal: [
         "@drincs/pixi-vn-json",
         "@drincs/pixi-vn-json/translator",
         "@drincs/pixi-vn-json/unifier",
