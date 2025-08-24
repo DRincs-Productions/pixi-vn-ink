@@ -1,3 +1,4 @@
+import { init } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
 import HashtagScriptManager from "../managers/HashtagScriptManager";
 import { convertInkText } from "./ink-to-pixivn";
@@ -21,6 +22,7 @@ export async function importInkText(texts: string | string[]): Promise<void[]> {
     if (!Array.isArray(texts)) {
         texts = [texts];
     }
+    init();
     const promises = texts.map(async (text) => {
         let data = convertInkText(text);
         if (data) {
@@ -31,4 +33,15 @@ export async function importInkText(texts: string | string[]): Promise<void[]> {
         }
     });
     return await Promise.all(promises);
+}
+
+/**
+ * Setup listener for ink updates via HMR
+ */
+export function setupInkHmrListener() {
+    if (import.meta.hot) {
+        import.meta.hot.on("ink-updated", (inkText) => {
+            importInkText(inkText);
+        });
+    }
 }
