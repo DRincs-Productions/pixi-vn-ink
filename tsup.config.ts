@@ -5,7 +5,7 @@ export default defineConfig({
     target: "es2020",
     entry: {
         index: "src/index.ts",
-        "vite.js": "src/vite-js/index.ts",
+        vite: "src/vite/index.ts",
     },
     format: ["cjs", "esm"], // Build for commonJS and ESmodules
     dts: true, // Generate declaration file (.d.ts)
