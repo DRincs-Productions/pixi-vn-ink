@@ -671,7 +671,12 @@ test("effect image", async () => {
                     goNextStep: true,
                 },
                 {
-                    operations: [],
+                    operations: [
+                        {
+                            operationType: "clean",
+                            type: "dialogue",
+                        },
+                    ],
                 },
                 {
                     end: "label_end",
@@ -1185,7 +1190,12 @@ test("input", async () => {
                     goNextStep: true,
                 },
                 {
-                    operations: [],
+                    operations: [
+                        {
+                            operationType: "clean",
+                            type: "dialogue",
+                        },
+                    ],
                 },
                 {
                     operations: [
