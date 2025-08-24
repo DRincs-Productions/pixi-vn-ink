@@ -258,7 +258,10 @@ export default class HashtagScriptManager {
                                 if ("goNextStep" in step) {
                                     delete step.goNextStep;
                                 }
-                                break;
+                                return {
+                                    type: "dialogue",
+                                    operationType: "clean",
+                                };
                         }
                     }
             }
