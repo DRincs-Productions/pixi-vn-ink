@@ -216,3 +216,41 @@ test("Local diverts", async () => {
 `);
     expect(res).toEqual(expected);
 });
+
+test("Ignore Uknown Labels", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            back_in_london: [
+                {
+                    dialogue: "We arrived into London at 9.45pm exactly.",
+                },
+                {
+                    labelToOpen: {
+                        label: "uknown",
+                        type: "jump",
+                    },
+                },
+            ],
+            hurry_home: [
+                {
+                    dialogue: "We hurried home to Savile Row as fast as we could.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
+=== back_in_london ===
+
+We arrived into London at 9.45pm exactly.
+-> uknown
+
+=== hurry_home ===
+We hurried home to Savile Row as fast as we could.
+->DONE
+`);
+    expect(res).toEqual(expected);
+});

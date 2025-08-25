@@ -1,5 +1,6 @@
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { Compiler } from "inkjs/compiler/Compiler";
+import { ErrorType } from "inkjs/engine/Error";
 import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import InkStoryType from "../types/InkStoryType";
 import { getInkLabels } from "./labels-converter";
@@ -12,7 +13,7 @@ import { logger } from "./log-utility";
  */
 export function convertInkText(text: string): PixiVNJson | undefined {
     let result: PixiVNJson = {};
-    let json = convertorInkToJson(text);
+    let { json, labelToRemove } = convertorInkToJson(text);
     let obj: InkStoryType;
     try {
         obj = JSON.parse(json);
@@ -45,16 +46,52 @@ export function convertInkText(text: string): PixiVNJson | undefined {
         });
     }
 
+    labelToRemove.forEach((label) => {
+        if (result.labels && label in result.labels) {
+            delete result.labels[label];
+        }
+    });
+
     return result;
 }
 
-function convertorInkToJson(test: string): string {
+function convertorInkToJson(text: string, labelToRemove: string[] = []) {
+    const errorMessages: { message: string; type: ErrorType }[] = [];
     try {
-        const story = new Compiler(test).Compile();
-        let json = story.ToJson();
-        return json || "";
+        const compiler = new Compiler(text, {
+            errorHandler: (message: string, type: ErrorType) => {
+                if (type === ErrorType.Error) {
+                    logger.error("Ink compilation error: " + message);
+                } else if (type === ErrorType.Warning) {
+                    logger.warn("Ink compilation warning: " + message);
+                } else {
+                    logger.info("Ink compilation info: " + message);
+                }
+                errorMessages.push({ message, type });
+            },
+            countAllVisits: true,
+            fileHandler: null,
+            pluginNames: [],
+            sourceFilename: null,
+        });
+        const story = compiler.Compile();
+        let json = story.ToJson() || "";
+        return { json, errorMessages, labelToRemove };
     } catch (e) {
-        logger.error("Error compiling ink file", e);
-        return "";
+        const error = errorMessages.find((em) => em.type === ErrorType.Error);
+        if (error) {
+            if (error.message.includes("Divert target not found")) {
+                const match = error.message.match(/Divert target not found: '-> (\w+)'/);
+                if (match && match[1]) {
+                    const label = match[1];
+                    const textToAdd = `\n\n=== ${label} ===\n\n-> DONE`;
+                    text = text.concat(textToAdd);
+                    return convertorInkToJson(text, [...labelToRemove, label]);
+                }
+            }
+            throw new Error(error.message);
+        }
+        logger.error("Error compiling ink file");
+        throw e;
     }
 }
