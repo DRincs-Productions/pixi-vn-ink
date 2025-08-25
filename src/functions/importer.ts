@@ -34,14 +34,3 @@ export async function importInkText(texts: string | string[]): Promise<void[]> {
     });
     return await Promise.all(promises);
 }
-
-/**
- * Setup listener for ink updates via HMR
- */
-export function setupInkHmrListener() {
-    if (import.meta.hot) {
-        import.meta.hot.on("ink-updated", (inkText) => {
-            importInkText(inkText);
-        });
-    }
-}
