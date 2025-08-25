@@ -6,6 +6,7 @@ export default defineConfig({
     entry: {
         index: "src/index.ts",
         vite: "src/vite/index.ts",
+        "vite-listener": "src/vite-listener/index.ts",
     },
     format: ["cjs", "esm"], // Build for commonJS and ESmodules
     dts: true, // Generate declaration file (.d.ts)
