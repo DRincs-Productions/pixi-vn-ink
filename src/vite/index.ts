@@ -1,1 +1,7 @@
-export { noHmrInkPlugin } from "./plugins";
+export {
+    /**
+     * @deprecated use vitePluginInk instead
+     */
+    vitePluginInk as noHmrInkPlugin,
+    vitePluginInk,
+} from "./plugins";
