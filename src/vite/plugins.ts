@@ -9,15 +9,9 @@ import { convertorInkToJson } from "../functions/ink";
  * @returns A Vite plugin that prevents HMR for .ink files.
  */
 export function vitePluginInk(): Plugin {
-    let ws: any;
-
     return {
         name: "vite-plugin-ink",
         enforce: "pre",
-
-        configureServer(server) {
-            ws = server.ws; // salva riferimento a WebSocket del dev server
-        },
 
         async handleHotUpdate({ file, server, read }) {
             if (file.endsWith(".ink")) {
@@ -25,7 +19,7 @@ export function vitePluginInk(): Plugin {
                 const source = await read();
                 const { issues } = convertorInkToJson(source);
 
-                let error: Error | null = null;
+                let error: undefined | string = undefined;
 
                 // Logghiamo eventuali warning/errori al terminale
                 issues.forEach((issue) => {
@@ -34,13 +28,32 @@ export function vitePluginInk(): Plugin {
                     } else {
                         // Se è un errore, blocchiamo
                         server.config.logger.error(file + ": " + issue.message);
-                        error = new Error(issue.message);
+                        error = issue.message;
                     }
                 });
 
+                // Mostra overlay per errori
                 if (error) {
-                    // Invia messaggio di errore al client tramite WebSocket
-                    throw error;
+                    server.ws.send({
+                        type: "error",
+                        err: {
+                            message: error,
+                            stack: file,
+                            plugin: "vite-plugin-ink",
+                        },
+                    });
+                } else {
+                    // close server.hmr.overlay
+                    server.ws.send({
+                        type: "error",
+                        err: null as any,
+                    });
+
+                    server.ws.send({
+                        type: "custom",
+                        event: "ink-updated",
+                        data: source,
+                    });
                 }
 
                 // NON restituiamo nulla => Vite non fa reload automatico della pagina
