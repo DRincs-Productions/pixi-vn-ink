@@ -56,18 +56,19 @@ export function vitePluginInk(
                 });
             }
 
-            // return {
-            //     code: `import { importInkText } from "@drincs/pixi-vn-ink"; export default importInkText(${JSON.stringify(
-            //         source
-            //     )});`,
-            //     map: null,
-            // };
-
             // esporta source
             return {
                 code: `export default ${JSON.stringify(source)};`,
                 map: null,
             };
+
+            // * Convert ink to PixiVNJson during build (disabled for now because not used the browser environment, so don't know the pixi-vn character set, etc.)
+            // return {
+            //     code: `import { convertInkToJson } from "@drincs/pixi-vn-ink"; export default convertInkToJson(${JSON.stringify(
+            //         source
+            //     )});`,
+            //     map: null,
+            // };
         },
     };
 }

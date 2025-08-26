@@ -1,4 +1,4 @@
-import { init } from "@drincs/pixi-vn-json";
+import { init, PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
 import HashtagScriptManager from "../managers/HashtagScriptManager";
 import { convertInkToJson } from "./ink-to-pixivn";
@@ -34,4 +34,17 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
         return text;
     });
     return await Promise.all(promises);
+}
+
+/**
+ * This function imports data in PixiVNJson format into the Pixi’VN engine.
+ * @param data data in PixiVNJson format
+ * @returns the same data passed as parameter
+ */
+export async function importJson(data: PixiVNJson | PixiVNJson[]) {
+    init();
+    return await importPixiVNJson(data, {
+        operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
+        skipEmptyDialogs: true,
+    });
 }

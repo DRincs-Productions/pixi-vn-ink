@@ -1,5 +1,5 @@
 export { onInkHashtagScript } from "./hashtag-script";
-export { importInkText } from "./importer";
+export { importInkText, importJson } from "./importer";
 export {
     /**
      * @deprecated use convertInkToJson instead
