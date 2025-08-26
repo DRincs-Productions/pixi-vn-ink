@@ -1,7 +1,7 @@
 import { init } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
 import HashtagScriptManager from "../managers/HashtagScriptManager";
-import { convertInkText } from "./ink-to-pixivn";
+import { convertInkToJson } from "./ink-to-pixivn";
 
 /**
  * This function imports string or array of strings written in ink language into the Pixi’VN engine.
@@ -24,7 +24,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
     }
     init();
     const promises = texts.map(async (text) => {
-        let data = convertInkText(text);
+        let data = convertInkToJson(text);
         if (data) {
             await importPixiVNJson(data, {
                 operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,

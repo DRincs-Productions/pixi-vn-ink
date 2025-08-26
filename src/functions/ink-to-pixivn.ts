@@ -11,7 +11,7 @@ import { logger } from "./log-utility";
  * @param text string or array of strings written in ink language
  * @returns LabelJsonType or undefined
  */
-export function convertInkText(text: string): PixiVNJson | undefined {
+export function convertInkToJson(text: string): PixiVNJson | undefined {
     let result: PixiVNJson = {};
     let { json, labelToRemove, issues } = convertorInkToJson(text);
     let obj: InkStoryType;
