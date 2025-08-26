@@ -18,7 +18,7 @@ import { convertInkText } from "./ink-to-pixivn";
  * @param texts string or array of strings written in ink language
  * @returns
  */
-export async function importInkText(texts: string | string[]): Promise<void[]> {
+export async function importInkText(texts: string | string[]): Promise<string[]> {
     if (!Array.isArray(texts)) {
         texts = [texts];
     }
@@ -31,6 +31,7 @@ export async function importInkText(texts: string | string[]): Promise<void[]> {
                 skipEmptyDialogs: true,
             });
         }
+        return text;
     });
     return await Promise.all(promises);
 }

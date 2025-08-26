@@ -1,23 +1,26 @@
+import fs from "fs/promises";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
-import { Plugin } from "vite";
+import { createFilter, FilterPattern, Plugin } from "vite";
 import { convertorInkToJson } from "../functions/ink";
-import { logger } from "../functions/log-utility";
 
 /**
  * This function creates a Vite plugin that prevents Hot Module Replacement (HMR) for .ink files.
  * Instead of triggering HMR, it imports the .ink file using the `importInkText` function.
  * @returns A Vite plugin that prevents HMR for .ink files.
  */
-export function vitePluginInk(): Plugin {
-    // options: {
-    //     include?: FilterPattern;
-    //     exclude?: FilterPattern;
-    // } = {}
+export function vitePluginInk(
+    options: {
+        include?: FilterPattern;
+        exclude?: FilterPattern;
+    } = {}
+): Plugin {
     let ws: any;
-    // const filter = createFilter(options.include || ["**/*.ink"], options.exclude);
+    const filter = createFilter(options.include || ["**/*.ink"], options.exclude);
 
     return {
         name: "vite-plugin-ink",
+        enforce: "pre",
+
         configureServer(server) {
             ws = server.ws; // salva riferimento a WebSocket del dev server
         },
@@ -36,13 +39,10 @@ export function vitePluginInk(): Plugin {
             }
         },
         async transform(code, id) {
-            // only transform .ink files
-            if (!id.endsWith(".ink")) {
-                return null;
-            }
-            logger.info("Transforming .ink file: " + id);
+            if (!filter(id)) return null;
+            const source = await fs.readFile(id, "utf-8");
 
-            const { issues } = convertorInkToJson(code);
+            const { issues } = convertorInkToJson(source);
 
             // Se ci sono warning, li logghiamo ma NON blocchiamo la build
             if (issues && issues.length > 0) {
@@ -55,6 +55,19 @@ export function vitePluginInk(): Plugin {
                     }
                 });
             }
+
+            // return {
+            //     code: `import { importInkText } from "@drincs/pixi-vn-ink"; export default importInkText(${JSON.stringify(
+            //         source
+            //     )});`,
+            //     map: null,
+            // };
+
+            // esporta source
+            return {
+                code: `export default ${JSON.stringify(source)};`,
+                map: null,
+            };
         },
     };
 }

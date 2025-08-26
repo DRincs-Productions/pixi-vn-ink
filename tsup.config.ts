@@ -22,6 +22,7 @@ export default defineConfig({
         "@drincs/pixi-vn-json/unifier",
         "@drincs/pixi-vn-json/importer",
     ],
+    external: ["vite"],
     outExtension({ format }) {
         return {
             js: format === "esm" ? ".mjs" : ".cjs",
