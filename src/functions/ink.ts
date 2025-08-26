@@ -2,7 +2,7 @@ import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import { logger } from "./log-utility";
 
-export function convertorInkToJson(text: string, labelToRemove: string[] = []) {
+export function convertorInkToJson(text: string, labelToRemove: string[] = [], initialVarsToRemove: string[] = []) {
     const issues: { message: string; type: ErrorType }[] = [];
     try {
         const compiler = new Compiler(text, {
@@ -16,7 +16,7 @@ export function convertorInkToJson(text: string, labelToRemove: string[] = []) {
         });
         const story = compiler.Compile();
         let json = story.ToJson() || "";
-        return { json, issues, labelToRemove };
+        return { json, issues, labelToRemove, initialVarsToRemove };
     } catch (e) {
         const error = issues.find((em) => em.type === ErrorType.Error);
         if (error) {
@@ -26,10 +26,19 @@ export function convertorInkToJson(text: string, labelToRemove: string[] = []) {
                     const label = match[1];
                     const textToAdd = `\n\n=== ${label} ===\n\n-> DONE`;
                     text = text.concat(textToAdd);
-                    return convertorInkToJson(text, [...labelToRemove, label]);
+                    return convertorInkToJson(text, [...labelToRemove, label], initialVarsToRemove);
                 }
             }
-            return { issues, labelToRemove };
+            if (error.message.includes("Unresolved variable")) {
+                const match = error.message.match(/Unresolved variable: (\w+)/);
+                if (match && match[1]) {
+                    const varName = match[1];
+                    const textToAdd = `VAR ${varName} = ""\n\n`;
+                    text = textToAdd.concat(text);
+                    return convertorInkToJson(text, labelToRemove, [...initialVarsToRemove, varName]);
+                }
+            }
+            return { issues, labelToRemove, initialVarsToRemove };
         }
         logger.error("Error compiling ink file");
         throw e;

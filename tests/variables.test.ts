@@ -1,6 +1,6 @@
-import { PixiVNJson } from '@drincs/pixi-vn-json';
-import { expect, test } from 'vitest';
-import { convertInkText } from '../src/functions';
+import { PixiVNJson } from "@drincs/pixi-vn-json";
+import { expect, test } from "vitest";
+import { convertInkText } from "../src/functions";
 
 /**
  * 1) Global Variables
@@ -9,7 +9,7 @@ import { convertInkText } from '../src/functions';
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#defining-global-variables
  */
-test('Defining Global Variables', async () => {
+test("Defining Global Variables", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -101,8 +101,8 @@ test('Defining Global Variables', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR knowledge_of_the_cure = false
 VAR players_name = "Emilia"
@@ -120,7 +120,7 @@ VAR current_epilogue = -> they_all_die_of_the_plague
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-storing-diverts-as-variables
  */
-test('Advanced: storing diverts as variables', async () => {
+test("Advanced: storing diverts as variables", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -198,8 +198,8 @@ test('Advanced: storing diverts as variables', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR current_epilogue = -> everybody_dies
 
@@ -219,7 +219,7 @@ Give up now, or keep trying to save your Kingdom?
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#printing-variables
  */
-test('Printing variables', async () => {
+test("Printing variables", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -277,8 +277,8 @@ test('Printing variables', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR friendly_name_of_player = "Jackie"
 VAR age = 23
@@ -293,7 +293,7 @@ My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#evaluating-strings
  */
-test('Evaluating strings', async () => {
+test("Evaluating strings", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -307,12 +307,7 @@ test('Evaluating strings', async () => {
                 type: "value",
                 value: {
                     type: "stepswitch",
-                    elements: [
-                        "red",
-                        "blue",
-                        "green",
-                        "yellow",
-                    ],
+                    elements: ["red", "blue", "green", "yellow"],
                     choiceType: "random",
                 },
                 key: "a_colour",
@@ -349,8 +344,8 @@ test('Evaluating strings', async () => {
                     ],
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR a_colour = ""
 
@@ -371,7 +366,7 @@ VAR a_colour = ""
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#2-logic
  */
-test('Logic', async () => {
+test("Logic", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -521,8 +516,8 @@ test('Logic', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR y = 2
 VAR x = 3
@@ -541,7 +536,7 @@ VAR knows_about_wager = false
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#mathematics
  */
-test('Mathematics', async () => {
+test("Mathematics", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -586,8 +581,8 @@ test('Mathematics', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === start
 {POW(3, 2)} is 9.
@@ -600,7 +595,7 @@ test('Mathematics', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#randommin-max
  */
-test('RANDOM(min, max)', async () => {
+test("RANDOM(min, max)", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -713,8 +708,8 @@ test('RANDOM(min, max)', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start
 === start ===
@@ -733,7 +728,7 @@ test('RANDOM(min, max)', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-numerical-types-are-implicit
  */
-test('Advanced: numerical types are implicit', async () => {
+test("Advanced: numerical types are implicit", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -869,8 +864,8 @@ test('Advanced: numerical types are implicit', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR x = 0
 VAR y = 0
@@ -889,7 +884,7 @@ VAR z = 0
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-int-floor-and-float
  */
-test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
+test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -979,8 +974,8 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
                     dialogue: " is, um, still 4.",
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start
 === start ===
@@ -997,7 +992,7 @@ test('Advanced: INT(), FLOOR() and FLOAT()', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#string-queries
  */
-test('String queries', async () => {
+test("String queries", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -1058,7 +1053,7 @@ test('String queries', async () => {
                             leftValue: "Yes, please",
                         },
                         then: {
-                            dialogue: " \"then\" ",
+                            dialogue: ' "then" ',
                         },
                     },
                 },
@@ -1067,8 +1062,8 @@ test('String queries', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start
 === start ===
@@ -1088,7 +1083,7 @@ test('String queries', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#a-simple-if
  */
-test('A simple if', async () => {
+test("A simple if", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -1164,8 +1159,8 @@ test('A simple if', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR x = 1
 VAR y = 0
@@ -1183,7 +1178,7 @@ VAR y = 0
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#a-simple-if
  */
-test('A simple else', async () => {
+test("A simple else", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -1286,8 +1281,8 @@ test('A simple else', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR x = 0
 VAR y = 0
@@ -1307,7 +1302,7 @@ VAR y = 0
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#extended-ifelse-ifelse-blocks
  */
-test('Extended if/else if/else blocks', async () => {
+test("Extended if/else if/else blocks", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -1438,8 +1433,8 @@ test('Extended if/else if/else blocks', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR x = 0
 VAR y = 0
@@ -1462,7 +1457,7 @@ VAR y = 0
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#switch-blocks
  */
-test('Switch blocks', async () => {
+test("Switch blocks", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -1536,8 +1531,8 @@ test('Switch blocks', async () => {
                     },
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR x = 0
 -> start
@@ -1555,7 +1550,7 @@ VAR x = 0
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-context-relevant-content
  */
-test('Example: context-relevant content', async () => {
+test("Example: context-relevant content", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -1765,8 +1760,8 @@ test('Example: context-relevant content', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR fear = 0
 VAR visited_poland = true
@@ -1806,7 +1801,7 @@ dream_about_marmalade
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-blocks-are-not-limited-to-logic
  */
-test('Conditional blocks are not limited to logic', async () => {
+test("Conditional blocks are not limited to logic", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -1831,7 +1826,7 @@ test('Conditional blocks are not limited to logic', async () => {
                                     goNextStep: false,
                                 },
                                 {
-                                    dialogue: " \"But surely you are not serious?\" I demanded.",
+                                    dialogue: ' "But surely you are not serious?" I demanded.',
                                 },
                             ],
                         },
@@ -1844,14 +1839,15 @@ test('Conditional blocks are not limited to logic', async () => {
                                     goNextStep: false,
                                 },
                                 {
-                                    dialogue: " \"But there must be a reason for this trip,\" I observed.",
+                                    dialogue: ' "But there must be a reason for this trip," I observed.',
                                 },
                             ],
                         },
                     },
                 },
                 {
-                    dialogue: "He said nothing in reply, merely considering his newspaper with as much thoroughness as entomologist considering his latest pinned addition.",
+                    dialogue:
+                        "He said nothing in reply, merely considering his newspaper with as much thoroughness as entomologist considering his latest pinned addition.",
                 },
                 {
                     end: "label_end",
@@ -1867,8 +1863,8 @@ test('Conditional blocks are not limited to logic', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start
 == start ==
@@ -1890,7 +1886,7 @@ know_about_wager
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-blocks-are-not-limited-to-logic
  */
-test('Conditional blocks are not limited to logic 2', async () => {
+test("Conditional blocks are not limited to logic 2", async () => {
     let expected: PixiVNJson = {
         labels: {
             "start_|_then_|_c-0": [
@@ -2026,8 +2022,8 @@ test('Conditional blocks are not limited to logic 2', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start
 == start ==
@@ -2055,7 +2051,7 @@ open_door
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#multiline-blocks
  */
-test('Multiline blocks', async () => {
+test("Multiline blocks", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -2203,8 +2199,8 @@ test('Multiline blocks', async () => {
                     },
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR count = 0
 -> start
@@ -2251,7 +2247,7 @@ At the table, I drew a card. <>
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-modified-shuffles
  */
-test('Advanced: modified shuffles', async () => {
+test("Advanced: modified shuffles", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -2332,8 +2328,8 @@ test('Advanced: modified shuffles', async () => {
                     },
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR count = 0
 -> start
@@ -2356,7 +2352,7 @@ res:
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-modified-shuffles
  */
-test('Advanced: modified shuffles 2', async () => {
+test("Advanced: modified shuffles 2", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -2440,8 +2436,8 @@ test('Advanced: modified shuffles 2', async () => {
                     },
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 VAR count = 0
 -> start
@@ -2469,7 +2465,7 @@ res:
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#temporary-variables-are-for-scratch-calculations
  */
-test('Temporary variables are for scratch calculations', async () => {
+test("Temporary variables are for scratch calculations", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -2634,8 +2630,8 @@ test('Temporary variables are for scratch calculations', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> near_north_pole
 === near_north_pole ===
@@ -2665,7 +2661,7 @@ VAR gloves = 0
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#knots-and-stitches-can-take-parameters
  */
-test('Knots and stitches can take parameters', async () => {
+test("Knots and stitches can take parameters", async () => {
     let expected: PixiVNJson = {
         labels: {
             "start_|_c-0": [
@@ -2727,7 +2723,7 @@ test('Knots and stitches can take parameters', async () => {
             ],
             accuse: [
                 {
-                    dialogue: "\"I accuse ",
+                    dialogue: '"I accuse ',
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -2742,10 +2738,10 @@ test('Knots and stitches can take parameters', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: "!\" Poirot declared.",
+                    dialogue: '!" Poirot declared.',
                 },
                 {
-                    dialogue: "\"Really?\" Japp replied. \"",
+                    dialogue: '"Really?" Japp replied. "',
                     goNextStep: true,
                     glueEnabled: true,
                 },
@@ -2790,18 +2786,18 @@ test('Knots and stitches can take parameters', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: "\"",
+                    dialogue: '"',
                 },
                 {
-                    dialogue: "\"And why not?\" Poirot shot back.",
+                    dialogue: '"And why not?" Poirot shot back.',
                 },
                 {
                     end: "label_end",
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start
 == start ==
@@ -2824,7 +2820,7 @@ test('Knots and stitches can take parameters', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-a-recursive-knot-definition
  */
-test('Example: a recursive knot definition', async () => {
+test("Example: a recursive knot definition", async () => {
     let expected: PixiVNJson = {
         labels: {
             start: [
@@ -2832,7 +2828,7 @@ test('Example: a recursive knot definition', async () => {
                     labelToOpen: {
                         label: "add_one_to_one_hundred",
                         type: "jump",
-                        params: [0, 1,],
+                        params: [0, 1],
                     },
                 },
             ],
@@ -2927,7 +2923,7 @@ test('Example: a recursive knot definition', async () => {
             ],
             finished: [
                 {
-                    dialogue: "\"The result is ",
+                    dialogue: '"The result is ',
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -2942,7 +2938,7 @@ test('Example: a recursive knot definition', async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: "!\" you announce.",
+                    dialogue: '!" you announce.',
                 },
                 {
                     dialogue: "Gauss stares at you in horror.",
@@ -2951,8 +2947,8 @@ test('Example: a recursive knot definition', async () => {
                     end: "game_end",
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 -> start()
 
@@ -2978,7 +2974,7 @@ test('Example: a recursive knot definition', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-sending-divert-targets-as-parameters
  */
-test('Advanced: sending divert targets as parameters', async () => {
+test("Advanced: sending divert targets as parameters", async () => {
     let expected: PixiVNJson = {
         labels: {
             sleeping_in_hut: [
@@ -2989,9 +2985,7 @@ test('Advanced: sending divert targets as parameters', async () => {
                     labelToOpen: {
                         label: "generic_sleep",
                         type: "jump",
-                        params: [
-                            "waking_in_the_hut",
-                        ],
+                        params: ["waking_in_the_hut"],
                     },
                     glueEnabled: undefined,
                 },
@@ -3018,8 +3012,8 @@ test('Advanced: sending divert targets as parameters', async () => {
                     dialogue: "You get back to your feet, ready to continue your journey.",
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === sleeping_in_hut ===
 	You lie down and close your eyes.
@@ -3042,7 +3036,7 @@ test('Advanced: sending divert targets as parameters', async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#global-constants
  */
-test('Global Constants', async () => {
+test("Global Constants", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -3105,8 +3099,8 @@ test('Global Constants', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 CONST HASTINGS = "Hastings"
 CONST POIROT = "Poirot"
@@ -3131,7 +3125,7 @@ found_japps_bloodied_glove
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#global-constants
  */
-test('Global Constants 2', async () => {
+test("Global Constants 2", async () => {
     let expected: PixiVNJson = {
         initialOperations: [
             {
@@ -3229,8 +3223,8 @@ test('Global Constants 2', async () => {
                     goNextStep: true,
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 CONST LOBBY = 1
 CONST STAIRCASE = 2
@@ -3251,6 +3245,40 @@ VAR suitcase_location = HALLWAY
 	The secret agent moves forward.
 	~ secret_agent_location++
 }
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+test("Uknown variable in text", async () => {
+    let expected: PixiVNJson = {
+        initialOperations: [],
+        labels: {
+            start: [
+                {
+                    dialogue: "The value of _input_value_ is: ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageOperationType: "get",
+                        storageType: "storage",
+                        key: "_input_value_",
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
+-> start
+=== start ===
+The value of _input_value_ is: {_input_value_}
 -> DONE
 `);
     expect(res).toEqual(expected);

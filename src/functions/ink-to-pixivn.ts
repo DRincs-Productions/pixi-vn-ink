@@ -13,7 +13,7 @@ import { logger } from "./log-utility";
  */
 export function convertInkToJson(text: string): PixiVNJson | undefined {
     let result: PixiVNJson = {};
-    let { json, labelToRemove, issues } = convertorInkToJson(text);
+    let { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
     issues.forEach(({ message, type }) => {
         if (type === ErrorType.Error) {
             logger.error("Ink compilation error: " + message);
@@ -41,9 +41,7 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         delete result.labels[GLOBAL_DECL];
         global.forEach((item) => {
             if (item.operations) {
-                result.initialOperations = result.initialOperations
-                    ? [...result.initialOperations, ...item.operations]
-                    : [...item.operations];
+                result.initialOperations = result.initialOperations ? [...result.initialOperations] : [];
             }
         });
     }
@@ -52,9 +50,7 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         delete result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         global.forEach((item) => {
             if (item.operations) {
-                result.initialOperations = result.initialOperations
-                    ? [...result.initialOperations, ...item.operations]
-                    : [...item.operations];
+                result.initialOperations = result.initialOperations ? [...result.initialOperations] : [];
             }
         });
     }
@@ -62,6 +58,18 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
     labelToRemove.forEach((label) => {
         if (result.labels && label in result.labels) {
             delete result.labels[label];
+        }
+    });
+    initialVarsToRemove.forEach((v) => {
+        if (result.initialOperations) {
+            result.initialOperations = result.initialOperations.filter((op) => {
+                if (op.type === "value") {
+                    if (op.key === v) {
+                        return false;
+                    }
+                }
+                return true;
+            });
         }
     });
 
