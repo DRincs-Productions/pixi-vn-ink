@@ -1,165 +1,165 @@
-import { PixiVNJson } from '@drincs/pixi-vn-json';
-import { expect, test } from 'vitest';
-import { convertInkText } from '../src/functions';
+import { PixiVNJson } from "@drincs/pixi-vn-json";
+import { expect, test } from "vitest";
+import { convertInkText } from "../src/functions";
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#options-and-gathers-form-chains-of-content
  */
-test('Options and gathers form chains of content', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"start_|_c-0": [
-				{
-					dialogue: "I checked the jewels",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " were still in my pocket, and the feel of them brought a spring to my step. ",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_c-1": [
-				{
-					dialogue: "I did not pause for breath",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " but kept on running. ",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_c-2": [
-				{
-					dialogue: "I cheered with joy. ",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-3": [
-				{
-					dialogue: "I reached the road and looked about",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: ". And would you believe it?",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-4": [
-				{
-					dialogue: "I should interrupt to say Mackie is normally very reliable",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: ". He's never once let me down. Or rather, never once, previously to that night.",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0": [
-				{
-					dialogue: "The road could not be much further! Mackie would have the engine running, and then I'd be safe.",
-				},
-				{
-					choices: [
-						{
-							text: "I reached the road and looked about",
-							label: "start_|_g-0_|_c-3",
-							props: {
-							},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "I should interrupt to say Mackie is normally very reliable",
-							label: "start_|_g-0_|_c-4",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-1": [
-				{
-					dialogue: "The road was empty. Mackie was nowhere to be seen.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			start: [
-				{
-					dialogue: "I ran through the forest, the dogs snapping at my heels.",
-				},
-				{
-					choices: [
-						{
-							text: "I checked the jewels",
-							label: "start_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "I did not pause for breath",
-							label: "start_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "I cheered with joy. ",
-							label: "start_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Options and gathers form chains of content", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "start_|_c-0": [
+                {
+                    dialogue: "I checked the jewels",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " were still in my pocket, and the feel of them brought a spring to my step. ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-1": [
+                {
+                    dialogue: "I did not pause for breath",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " but kept on running. ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-2": [
+                {
+                    dialogue: "I cheered with joy. ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-3": [
+                {
+                    dialogue: "I reached the road and looked about",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ". And would you believe it?",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-4": [
+                {
+                    dialogue: "I should interrupt to say Mackie is normally very reliable",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ". He's never once let me down. Or rather, never once, previously to that night.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue:
+                        "The road could not be much further! Mackie would have the engine running, and then I'd be safe.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "I reached the road and looked about",
+                            label: "start_|_g-0_|_c-3",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "I should interrupt to say Mackie is normally very reliable",
+                            label: "start_|_g-0_|_c-4",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue: "The road was empty. Mackie was nowhere to be seen.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            start: [
+                {
+                    dialogue: "I ran through the forest, the dogs snapping at my heels.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "I checked the jewels",
+                            label: "start_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "I did not pause for breath",
+                            label: "start_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "I cheered with joy. ",
+                            label: "start_|_c-2",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> start
 === start ==
 I ran through the forest, the dogs snapping at my heels.
@@ -178,178 +178,179 @@ I ran through the forest, the dogs snapping at my heels.
 -	The road was empty. Mackie was nowhere to be seen.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#options-can-be-nested
  */
-test('Options can be nested', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"start_|_g-0_|_c-0_|_c-0": [
-				{
-					dialogue: "\"Detective-Inspector Japp!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-1": [
-				{
-					dialogue: "\"Captain Hastings!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-2": [
-				{
-					dialogue: "\"Myself!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0": [
-				{
-					dialogue: "\"Murder!\"",
-				},
-				{
-					dialogue: "\"And who did it?\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Detective-Inspector Japp!\"",
-							label: "start_|_g-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Captain Hastings!\"",
-							label: "start_|_g-0_|_c-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Myself!\"",
-							label: "start_|_g-0_|_c-0_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-1_|_c-0": [
-				{
-					dialogue: "\"Quite sure.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-1_|_c-1": [
-				{
-					dialogue: "\"It is perfectly obvious.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-1": [
-				{
-					dialogue: "\"Suicide!\"",
-				},
-				{
-					dialogue: "\"Really, Poirot? Are you quite sure?\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Quite sure.\"",
-							label: "start_|_g-0_|_c-1_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"It is perfectly obvious.\"",
-							label: "start_|_g-0_|_c-1_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0": [
-				{
-					dialogue: "\"Well, Poirot? Murder or suicide?\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Murder!\"",
-							label: "start_|_g-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Suicide!\"",
-							label: "start_|_g-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-1": [
-				{
-					dialogue: "Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			start: [
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Options can be nested", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "start_|_g-0_|_c-0_|_c-0": [
+                {
+                    dialogue: '"Detective-Inspector Japp!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-1": [
+                {
+                    dialogue: '"Captain Hastings!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-2": [
+                {
+                    dialogue: '"Myself!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0": [
+                {
+                    dialogue: '"Murder!"',
+                },
+                {
+                    dialogue: '"And who did it?"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Detective-Inspector Japp!"',
+                            label: "start_|_g-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"Captain Hastings!"',
+                            label: "start_|_g-0_|_c-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"Myself!"',
+                            label: "start_|_g-0_|_c-0_|_c-2",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-1_|_c-0": [
+                {
+                    dialogue: '"Quite sure."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-1_|_c-1": [
+                {
+                    dialogue: '"It is perfectly obvious."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-1": [
+                {
+                    dialogue: '"Suicide!"',
+                },
+                {
+                    dialogue: '"Really, Poirot? Are you quite sure?"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Quite sure."',
+                            label: "start_|_g-0_|_c-1_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"It is perfectly obvious."',
+                            label: "start_|_g-0_|_c-1_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: '"Well, Poirot? Murder or suicide?"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Murder!"',
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"Suicide!"',
+                            label: "start_|_g-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue:
+                        "Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            start: [
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> start
 === start ==
 - 	"Well, Poirot? Murder or suicide?"
@@ -365,225 +366,226 @@ test('Options can be nested', async () => {
 	-	Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#gather-points-can-be-nested-too
  */
-test('Gather points can be nested too', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"start_|_g-0_|_c-0_|_c-0": [
-				{
-					dialogue: "\"Detective-Inspector Japp!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-1": [
-				{
-					dialogue: "\"Captain Hastings!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-2": [
-				{
-					dialogue: "\"Myself!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_g-0_|_c-3": [
-				{
-					dialogue: "\"Mon ami, I am deadly serious.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_g-0_|_c-4": [
-				{
-					dialogue: "\"If only...\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_g-0": [
-				{
-					dialogue: "\"You must be joking!\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Mon ami, I am deadly serious.\"",
-							label: "start_|_g-0_|_c-0_|_g-0_|_c-3",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"If only...\"",
-							label: "start_|_g-0_|_c-0_|_g-0_|_c-4",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-0": [
-				{
-					dialogue: "\"Murder!\"",
-				},
-				{
-					dialogue: "\"And who did it?\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Detective-Inspector Japp!\"",
-							label: "start_|_g-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Captain Hastings!\"",
-							label: "start_|_g-0_|_c-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Myself!\"",
-							label: "start_|_g-0_|_c-0_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-1_|_c-0": [
-				{
-					dialogue: "\"Quite sure.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-1_|_c-1": [
-				{
-					dialogue: "\"It is perfectly obvious.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-1": [
-				{
-					dialogue: "\"Suicide!\"",
-				},
-				{
-					dialogue: "\"Really, Poirot? Are you quite sure?\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Quite sure.\"",
-							label: "start_|_g-0_|_c-1_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"It is perfectly obvious.\"",
-							label: "start_|_g-0_|_c-1_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0": [
-				{
-					dialogue: "\"Well, Poirot? Murder or suicide?\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Murder!\"",
-							label: "start_|_g-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"Suicide!\"",
-							label: "start_|_g-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-1": [
-				{
-					dialogue: "Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			start: [
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Gather points can be nested too", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "start_|_g-0_|_c-0_|_c-0": [
+                {
+                    dialogue: '"Detective-Inspector Japp!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-1": [
+                {
+                    dialogue: '"Captain Hastings!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-2": [
+                {
+                    dialogue: '"Myself!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_g-0_|_c-3": [
+                {
+                    dialogue: '"Mon ami, I am deadly serious."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_g-0_|_c-4": [
+                {
+                    dialogue: '"If only..."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_g-0": [
+                {
+                    dialogue: '"You must be joking!"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Mon ami, I am deadly serious."',
+                            label: "start_|_g-0_|_c-0_|_g-0_|_c-3",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"If only..."',
+                            label: "start_|_g-0_|_c-0_|_g-0_|_c-4",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-0": [
+                {
+                    dialogue: '"Murder!"',
+                },
+                {
+                    dialogue: '"And who did it?"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Detective-Inspector Japp!"',
+                            label: "start_|_g-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"Captain Hastings!"',
+                            label: "start_|_g-0_|_c-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"Myself!"',
+                            label: "start_|_g-0_|_c-0_|_c-2",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-1_|_c-0": [
+                {
+                    dialogue: '"Quite sure."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-1_|_c-1": [
+                {
+                    dialogue: '"It is perfectly obvious."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-1": [
+                {
+                    dialogue: '"Suicide!"',
+                },
+                {
+                    dialogue: '"Really, Poirot? Are you quite sure?"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Quite sure."',
+                            label: "start_|_g-0_|_c-1_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"It is perfectly obvious."',
+                            label: "start_|_g-0_|_c-1_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: '"Well, Poirot? Murder or suicide?"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Murder!"',
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"Suicide!"',
+                            label: "start_|_g-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue:
+                        "Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            start: [
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> start
 === start ==
 - 	"Well, Poirot? Murder or suicide?"
@@ -602,147 +604,147 @@ test('Gather points can be nested too', async () => {
 		-	Mrs. Christie lowered her manuscript a moment. The rest of the writing group sat, open-mouthed.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-what-gathers-do
  */
-test('Advanced: What gathers do', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
-				{
-					dialogue: "\"...Tell us a tale Captain!\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0": [
-				{
-					dialogue: "\"... and they said to their Captain...\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"...Tell us a tale Captain!\"",
-							label: "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_c-0": [
-				{
-					dialogue: "\"...and the crew were restless...\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"... and they said to their Captain...\"",
-							label: "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0": [
-				{
-					dialogue: "\"It was a dark and stormy night...\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"...and the crew were restless...\"",
-							label: "start_|_g-0_|_c-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-0": [
-				{
-					dialogue: "\"Very well, you sea-dogs. Here's a tale...\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"It was a dark and stormy night...\"",
-							label: "start_|_g-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-1": [
-				{
-					dialogue: "\"No, it's past your bed-time.\"",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0": [
-				{
-					dialogue: "\"Tell us a tale, Captain!\"",
-				},
-				{
-					choices: [
-						{
-							text: "\"Very well, you sea-dogs. Here's a tale...\"",
-							label: "start_|_g-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"No, it's past your bed-time.\"",
-							label: "start_|_g-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-1": [
-				{
-					dialogue: "To a man, the crew began to yawn.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			start: [
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Advanced: What gathers do", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
+                {
+                    dialogue: '"...Tell us a tale Captain!"',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0": [
+                {
+                    dialogue: '"... and they said to their Captain..."',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"...Tell us a tale Captain!"',
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_c-0": [
+                {
+                    dialogue: '"...and the crew were restless..."',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"... and they said to their Captain..."',
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0": [
+                {
+                    dialogue: '"It was a dark and stormy night..."',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"...and the crew were restless..."',
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-0": [
+                {
+                    dialogue: '"Very well, you sea-dogs. Here\'s a tale..."',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"It was a dark and stormy night..."',
+                            label: "start_|_g-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-1": [
+                {
+                    dialogue: '"No, it\'s past your bed-time."',
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: '"Tell us a tale, Captain!"',
+                },
+                {
+                    choices: [
+                        {
+                            text: '"Very well, you sea-dogs. Here\'s a tale..."',
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"No, it\'s past your bed-time."',
+                            label: "start_|_g-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue: "To a man, the crew began to yawn.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            start: [
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> start
 === start ==
 -	"Tell us a tale, Captain!"
@@ -755,280 +757,280 @@ test('Advanced: What gathers do', async () => {
 -	To a man, the crew began to yawn.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-a-conversation-with-nested-nodes
  */
-test('Example: a conversation with nested nodes', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"start_|_g-0_|_c-0_|_c-0_|_c-0": [
-				{
-					dialogue: "'But surely that is foolishness!'",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_c-1": [
-				{
-					dialogue: "'A most serious matter then!'",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2": [
-				{
-					dialogue: "'But can we win?'",
-				},
-				{
-					dialogue: "'That is what we will endeavour to find out,' he answered.",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3": [
-				{
-					dialogue: "'A modest wager, I trust?'",
-				},
-				{
-					dialogue: "'Twenty thousand pounds,' he replied, quite flatly.",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-4": [
-				{
-					dialogue: "I asked nothing further of him then",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: ", and after a final, polite cough, he offered nothing more to me. ",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0_|_g-0": [
-				{
-					dialogue: "He nodded again.",
-				},
-				{
-					choices: [
-						{
-							text: "'But can we win?'",
-							label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "'A modest wager, I trust?'",
-							label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: ["I asked nothing further of him then", ".",],
-							label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-4",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-0": [
-				{
-					dialogue: "'A wager!'",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " I returned.",
-				},
-				{
-					dialogue: "He nodded.",
-				},
-				{
-					choices: [
-						{
-							text: "'But surely that is foolishness!'",
-							label: "start_|_g-0_|_c-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "'A most serious matter then!'",
-							label: "start_|_g-0_|_c-0_|_c-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-0_|_c-1": [
-				{
-					dialogue: "'Ah",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: ",' I replied, uncertain what I thought.",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-0_|_c-0_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0_|_g-0": [
-				{
-					dialogue: "After that, ",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0_|_c-0": [
-				{
-					dialogue: "... and I could contain myself no longer.",
-				},
-				{
-					dialogue: "'What is the purpose of our journey, Monsieur?'",
-				},
-				{
-					dialogue: "'A wager,' he replied.",
-				},
-				{
-					choices: [
-						{
-							text: "'A wager!'",
-							label: "start_|_g-0_|_c-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: ["'Ah", ".'",],
-							label: "start_|_g-0_|_c-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-0_|_c-1": [
-				{
-					dialogue: "... but I said nothing",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " and ",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"start_|_g-0": [
-				{
-					dialogue: "I looked at Monsieur Fogg",
-				},
-				{
-					choices: [
-						{
-							text: "... and I could contain myself no longer.",
-							label: "start_|_g-0_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "... but I said nothing",
-							label: "start_|_g-0_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"start_|_g-1_|_g-2": [
-				{
-					end: "game_end",
-				},
-			],
-			"start_|_g-1": [
-				{
-					dialogue: "we passed the day in silence.",
-				},
-				{
-					labelToOpen: {
-						label: "start_|_g-1_|_g-2",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			start: [
-				{
-					labelToOpen: {
-						label: "start_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Example: a conversation with nested nodes", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "start_|_g-0_|_c-0_|_c-0_|_c-0": [
+                {
+                    dialogue: "'But surely that is foolishness!'",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_c-1": [
+                {
+                    dialogue: "'A most serious matter then!'",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2": [
+                {
+                    dialogue: "'But can we win?'",
+                },
+                {
+                    dialogue: "'That is what we will endeavour to find out,' he answered.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3": [
+                {
+                    dialogue: "'A modest wager, I trust?'",
+                },
+                {
+                    dialogue: "'Twenty thousand pounds,' he replied, quite flatly.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-4": [
+                {
+                    dialogue: "I asked nothing further of him then",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ", and after a final, polite cough, he offered nothing more to me. ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0_|_g-0": [
+                {
+                    dialogue: "He nodded again.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "'But can we win?'",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-2",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'A modest wager, I trust?'",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-3",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: ["I asked nothing further of him then", "."],
+                            label: "start_|_g-0_|_c-0_|_c-0_|_g-0_|_c-4",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-0": [
+                {
+                    dialogue: "'A wager!'",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I returned.",
+                },
+                {
+                    dialogue: "He nodded.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "'But surely that is foolishness!'",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'A most serious matter then!'",
+                            label: "start_|_g-0_|_c-0_|_c-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-0_|_c-1": [
+                {
+                    dialogue: "'Ah",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ",' I replied, uncertain what I thought.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0_|_c-0_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0_|_g-0": [
+                {
+                    dialogue: "After that, ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0_|_c-0": [
+                {
+                    dialogue: "... and I could contain myself no longer.",
+                },
+                {
+                    dialogue: "'What is the purpose of our journey, Monsieur?'",
+                },
+                {
+                    dialogue: "'A wager,' he replied.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "'A wager!'",
+                            label: "start_|_g-0_|_c-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: ["'Ah", ".'"],
+                            label: "start_|_g-0_|_c-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-0_|_c-1": [
+                {
+                    dialogue: "... but I said nothing",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " and ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: "I looked at Monsieur Fogg",
+                },
+                {
+                    choices: [
+                        {
+                            text: "... and I could contain myself no longer.",
+                            label: "start_|_g-0_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "... but I said nothing",
+                            label: "start_|_g-0_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_g-1_|_g-2": [
+                {
+                    end: "game_end",
+                },
+            ],
+            "start_|_g-1": [
+                {
+                    dialogue: "we passed the day in silence.",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-1_|_g-2",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            start: [
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> start
 === start ==
 - I looked at Monsieur Fogg
@@ -1051,187 +1053,187 @@ test('Example: a conversation with nested nodes', async () => {
 - we passed the day in silence.
 - -> END
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#gathers-and-options-can-be-labelled
  */
-test('Gathers and options can be labelled', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"meet_guard_|_c-0": [
-				{
-					dialogue: "'Greetings.'",
-				},
-				{
-					labelToOpen: {
-						label: "meet_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"meet_guard_|_c-1": [
-				{
-					dialogue: "'Get out of my way",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: ",' you tell the guard.",
-				},
-				{
-					labelToOpen: {
-						label: "meet_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"meet_guard_|_g-0_|_c-2": [
-				{
-					dialogue: "'Having a nice day?' ",
-				},
-				{
-					labelToOpen: {
-						label: "meet_guard_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"meet_guard_|_g-0_|_c-3": [
-				{
-					dialogue: "'Hmm?'",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " you reply.",
-				},
-				{
-					labelToOpen: {
-						label: "meet_guard_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"meet_guard_|_g-0_|_c-4": [
-				{
-					dialogue: "   ",
-				},
-				{
-					dialogue: "You shove him sharply. He stares in reply, and draws his sword!",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-				{
-					labelToOpen: {
-						label: "meet_guard_|_g-1",
-						type: "jump",
-					},
-					glueEnabled: true,
-				},
-			],
-			"meet_guard_|_g-0": [
-				{
-					dialogue: "'Hmm,' replies the guard.",
-				},
-				{
-					choices: [
-						{
-							type: "ifelse",
-							condition: {
-								type: "value",
-								storageType: "label",
-								storageOperationType: "get",
-								label: "meet_guard_|_c-0",
-							},
-							then: {
-								text: "'Having a nice day?' ",
-								label: "meet_guard_|_g-0_|_c-2",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-						},
-						{
-							text: "'Hmm?'",
-							label: "meet_guard_|_g-0_|_c-3",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							type: "ifelse",
-							condition: {
-								type: "value",
-								storageType: "label",
-								storageOperationType: "get",
-								label: "meet_guard_|_c-1",
-							},
-							then: {
-								text: "Shove him aside",
-								label: "meet_guard_|_g-0_|_c-4",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-						},
-					],
-				},
-			],
-			"meet_guard_|_g-1": [
-				{
-					dialogue: "'Mff,' the guard replies, and then offers you a paper bag. 'Toffee?'",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			meet_guard: [
-				{
-					dialogue: "The guard frowns at you.",
-				},
-				{
-					choices: [
-						{
-							text: "Greet him",
-							label: "meet_guard_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: ["'Get out of my way", ".'",],
-							label: "meet_guard_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			fight_guard: [
-				{
-					dialogue: "fight_guard",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Gathers and options can be labelled", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "meet_guard_|_c-0": [
+                {
+                    dialogue: "'Greetings.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_c-1": [
+                {
+                    dialogue: "'Get out of my way",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: ",' you tell the guard.",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_g-0_|_c-2": [
+                {
+                    dialogue: "'Having a nice day?' ",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_g-0_|_c-3": [
+                {
+                    dialogue: "'Hmm?'",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " you reply.",
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "meet_guard_|_g-0_|_c-4": [
+                {
+                    dialogue: "   ",
+                },
+                {
+                    dialogue: "You shove him sharply. He stares in reply, and draws his sword!",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    labelToOpen: {
+                        label: "meet_guard_|_g-1",
+                        type: "jump",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "meet_guard_|_g-0": [
+                {
+                    dialogue: "'Hmm,' replies the guard.",
+                },
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "meet_guard_|_c-0",
+                            },
+                            then: {
+                                text: "'Having a nice day?' ",
+                                label: "meet_guard_|_g-0_|_c-2",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                        },
+                        {
+                            text: "'Hmm?'",
+                            label: "meet_guard_|_g-0_|_c-3",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "meet_guard_|_c-1",
+                            },
+                            then: {
+                                text: "Shove him aside",
+                                label: "meet_guard_|_g-0_|_c-4",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+            "meet_guard_|_g-1": [
+                {
+                    dialogue: "'Mff,' the guard replies, and then offers you a paper bag. 'Toffee?'",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            meet_guard: [
+                {
+                    dialogue: "The guard frowns at you.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Greet him",
+                            label: "meet_guard_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: ["'Get out of my way", ".'"],
+                            label: "meet_guard_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            fight_guard: [
+                {
+                    dialogue: "fight_guard",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> meet_guard
 === meet_guard ===
 The guard frowns at you.
@@ -1256,85 +1258,85 @@ The guard frowns at you.
 fight_guard
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#scope
  */
-test('Scope', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"knot_|_stitch_one_|_gatherpoint": [
-				{
-					dialogue: "Some content.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			"knot_|_stitch_one": [
-				{
-					labelToOpen: {
-						label: "knot_|_stitch_one_|_gatherpoint",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"knot_|_stitch_two_|_c-0": [
-				{
-					dialogue: "Option",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			"knot_|_stitch_two": [
-				{
-					choices: [
-						{
-							type: "ifelse",
-							condition: {
-								type: "compare",
-								leftValue: {
-									type: "value",
-									storageType: "label",
-									storageOperationType: "get",
-									label: "knot_|_stitch_one",
-								},
-								operator: ">=",
-								rightValue: {
-									type: "value",
-									value: 0,
-								},
-							},
-							then: {
-								text: "Option",
-								label: "knot_|_stitch_two_|_c-0",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-							else: undefined,
-						},
-					],
-				},
-			],
-			knot: [
-				{
-					labelToOpen: {
-						label: "knot_|_stitch_one",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Scope", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "knot_|_stitch_one_|_gatherpoint": [
+                {
+                    dialogue: "Some content.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "knot_|_stitch_one": [
+                {
+                    labelToOpen: {
+                        label: "knot_|_stitch_one_|_gatherpoint",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "knot_|_stitch_two_|_c-0": [
+                {
+                    dialogue: "Option",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "knot_|_stitch_two": [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    label: "knot_|_stitch_one",
+                                },
+                                operator: ">=",
+                                rightValue: {
+                                    type: "value",
+                                    value: 0,
+                                },
+                            },
+                            then: {
+                                text: "Option",
+                                label: "knot_|_stitch_two_|_c-0",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            knot: [
+                {
+                    labelToOpen: {
+                        label: "knot_|_stitch_one",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> knot
 === knot ===
 = stitch_one
@@ -1344,121 +1346,121 @@ test('Scope', async () => {
 	*	{stitch_one.gatherpoint} Option
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#scope
  */
-test('Scope2', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"knot_one_|_gather_one_|_c-0": [
-				{
-					dialogue: "Option",
-				},
-			],
-			"knot_one_|_gather_one": [
-				{
-					choices: [
-						{
-							type: "ifelse",
-							condition: {
-								type: "compare",
-								leftValue: {
-									type: "value",
-									storageType: "label",
-									storageOperationType: "get",
-									label: "knot_two_|_stitch_two",
-								},
-								operator: ">=",
-								rightValue: {
-									type: "value",
-									value: 0,
-								},
-							},
-							then: {
-								text: "Option",
-								label: "knot_one_|_gather_one_|_c-0",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-							else: undefined,
-						},
-					],
-				},
-			],
-			knot_one: [
-				{
-					labelToOpen: {
-						label: "knot_one_|_gather_one",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"knot_two_|_stitch_two_|_gather_two_|_c-0": [
-				{
-					dialogue: "Option",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			"knot_two_|_stitch_two_|_gather_two": [
-				{
-					choices: [
-						{
-							type: "ifelse",
-							condition: {
-								type: "compare",
-								leftValue: {
-									type: "value",
-									storageType: "label",
-									storageOperationType: "get",
-									label: "knot_one",
-								},
-								operator: ">=",
-								rightValue: {
-									type: "value",
-									value: 0,
-								},
-							},
-							then: {
-								text: "Option",
-								label: "knot_two_|_stitch_two_|_gather_two_|_c-0",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-							else: undefined,
-						},
-					],
-				},
-			],
-			"knot_two_|_stitch_two": [
-				{
-					labelToOpen: {
-						label: "knot_two_|_stitch_two_|_gather_two",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			knot_two: [
-				{
-					labelToOpen: {
-						label: "knot_two_|_stitch_two",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Scope2", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "knot_one_|_gather_one_|_c-0": [
+                {
+                    dialogue: "Option",
+                },
+            ],
+            "knot_one_|_gather_one": [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    label: "knot_two_|_stitch_two",
+                                },
+                                operator: ">=",
+                                rightValue: {
+                                    type: "value",
+                                    value: 0,
+                                },
+                            },
+                            then: {
+                                text: "Option",
+                                label: "knot_one_|_gather_one_|_c-0",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            knot_one: [
+                {
+                    labelToOpen: {
+                        label: "knot_one_|_gather_one",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "knot_two_|_stitch_two_|_gather_two_|_c-0": [
+                {
+                    dialogue: "Option",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "knot_two_|_stitch_two_|_gather_two": [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    label: "knot_one",
+                                },
+                                operator: ">=",
+                                rightValue: {
+                                    type: "value",
+                                    value: 0,
+                                },
+                            },
+                            then: {
+                                text: "Option",
+                                label: "knot_two_|_stitch_two_|_gather_two_|_c-0",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            "knot_two_|_stitch_two": [
+                {
+                    labelToOpen: {
+                        label: "knot_two_|_stitch_two_|_gather_two",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            knot_two: [
+                {
+                    labelToOpen: {
+                        label: "knot_two_|_stitch_two",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> knot_one
 === knot_one ===
 -	(gather_one)
@@ -1470,102 +1472,102 @@ test('Scope2', async () => {
 		*	{knot_one.gather_one} Option
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-all-options-can-be-labelled
  */
-test('Advanced: all options can be labelled', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"fight_guard_|_throw_something_|_c-0": [
-				{
-					labelToOpen: {
-						label: "fight_guard_|_throw",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_throw_something_|_c-1": [
-				{
-					labelToOpen: {
-						label: "fight_guard_|_throw",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_throw_something": [
-				{
-					choices: [
-						{
-							text: "Throw rock at guard",
-							label: "fight_guard_|_throw_something_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "Throw sand at guard",
-							label: "fight_guard_|_throw_something_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-			"fight_guard_|_throw": [
-				{
-					dialogue: "You hurl ",
-					goNextStep: true,
-					glueEnabled: true,
-				},
-				{
-					conditionalStep: {
-						type: "ifelse",
-						condition: {
-							type: "compare",
-							leftValue: {
-								type: "value",
-								storageType: "label",
-								storageOperationType: "get",
-								label: "fight_guard_|_throw_something_|_c-0",
-							},
-							operator: ">=",
-							rightValue: {
-								type: "value",
-								value: 0,
-							},
-						},
-						then: {
-							dialogue: "a rock",
-						},
-						else: {
-							dialogue: "a handful of sand",
-						},
-					},
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " at the guard.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			fight_guard: [
-				{
-					dialogue: "...",
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Advanced: all options can be labelled", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "fight_guard_|_throw_something_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_throw",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_throw_something_|_c-1": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_throw",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_throw_something": [
+                {
+                    choices: [
+                        {
+                            text: "Throw rock at guard",
+                            label: "fight_guard_|_throw_something_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Throw sand at guard",
+                            label: "fight_guard_|_throw_something_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "fight_guard_|_throw": [
+                {
+                    dialogue: "You hurl ",
+                    goNextStep: true,
+                    glueEnabled: true,
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            leftValue: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "fight_guard_|_throw_something_|_c-0",
+                            },
+                            operator: ">=",
+                            rightValue: {
+                                type: "value",
+                                value: 0,
+                            },
+                        },
+                        then: {
+                            dialogue: "a rock",
+                        },
+                        else: {
+                            dialogue: "a handful of sand",
+                        },
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " at the guard.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            fight_guard: [
+                {
+                    dialogue: "...",
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 ...
@@ -1577,186 +1579,186 @@ test('Advanced: all options can be labelled', async () => {
 You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-loops-in-a-weave
  */
-test('Advanced: Loops in a weave', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"fight_guard_|_opts_|_c-0": [
-				{
-					dialogue: "'Can I get a uniform from somewhere?'",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " you ask the cheerful guard.",
-				},
-				{
-					dialogue: "'Sure. In the locker.' He grins. 'Don't think it'll fit you, though.'",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_loop",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_opts_|_c-1": [
-				{
-					dialogue: "'Tell me about the security system.'",
-				},
-				{
-					dialogue: "'It's ancient,' the guard assures you. 'Old as coal.'",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_loop",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_opts_|_c-2": [
-				{
-					dialogue: "'Are there dogs?'",
-				},
-				{
-					dialogue: "'Hundreds,' the guard answers, with a toothy grin. 'Hungry devils, too.'",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_loop",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_opts_|_c-3": [
-				{
-					labelToOpen: {
-						label: "fight_guard_|_loop_|_done",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_loop",
-						type: "jump",
-					},
-					glueEnabled: true,
-				},
-			],
-			"fight_guard_|_opts": [
-				{
-					choices: [
-						{
-							text: "'Can I get a uniform from somewhere?'",
-							label: "fight_guard_|_opts_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "'Tell me about the security system.'",
-							label: "fight_guard_|_opts_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "'Are there dogs?'",
-							label: "fight_guard_|_opts_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							type: "ifelse",
-							condition: {
-								type: "value",
-								storageType: "label",
-								storageOperationType: "get",
-								label: "fight_guard_|_loop",
-							},
-							then: {
-								text: "Enough talking",
-								label: "fight_guard_|_opts_|_c-3",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-						},
-					],
-				},
-			],
-			"fight_guard_|_loop_|_done": [
-				{
-					dialogue: "You thank the guard, and move away.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			"fight_guard_|_loop": [
-				{
-					conditionalStep: {
-						type: "stepswitch",
-						elements: [
-							{
-								labelToOpen: {
-									label: "fight_guard_|_opts",
-									type: "jump",
-								},
-								glueEnabled: undefined,
-							},
-							{
-								labelToOpen: {
-									label: "fight_guard_|_opts",
-									type: "jump",
-								},
-							},
-							{
-								dialogue: " ",
-							},
-						],
-						choiceType: "sequential",
-						end: "lastItem",
-						nestedId: undefined,
-					},
-				},
-				{
-					dialogue: "He scratches his head.",
-				},
-				{
-					dialogue: "'Well, can't stand around talking all day,' he declares.",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_loop_|_done",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			fight_guard: [
-				{
-					labelToOpen: {
-						label: "fight_guard_|_opts",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Advanced: Loops in a weave", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "fight_guard_|_opts_|_c-0": [
+                {
+                    dialogue: "'Can I get a uniform from somewhere?'",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " you ask the cheerful guard.",
+                },
+                {
+                    dialogue: "'Sure. In the locker.' He grins. 'Don't think it'll fit you, though.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-1": [
+                {
+                    dialogue: "'Tell me about the security system.'",
+                },
+                {
+                    dialogue: "'It's ancient,' the guard assures you. 'Old as coal.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-2": [
+                {
+                    dialogue: "'Are there dogs?'",
+                },
+                {
+                    dialogue: "'Hundreds,' the guard answers, with a toothy grin. 'Hungry devils, too.'",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-3": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop_|_done",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop",
+                        type: "jump",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "fight_guard_|_opts": [
+                {
+                    choices: [
+                        {
+                            text: "'Can I get a uniform from somewhere?'",
+                            label: "fight_guard_|_opts_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'Tell me about the security system.'",
+                            label: "fight_guard_|_opts_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "'Are there dogs?'",
+                            label: "fight_guard_|_opts_|_c-2",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "fight_guard_|_loop",
+                            },
+                            then: {
+                                text: "Enough talking",
+                                label: "fight_guard_|_opts_|_c-3",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+            "fight_guard_|_loop_|_done": [
+                {
+                    dialogue: "You thank the guard, and move away.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "fight_guard_|_loop": [
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        elements: [
+                            {
+                                labelToOpen: {
+                                    label: "fight_guard_|_opts",
+                                    type: "jump",
+                                },
+                                glueEnabled: undefined,
+                            },
+                            {
+                                labelToOpen: {
+                                    label: "fight_guard_|_opts",
+                                    type: "jump",
+                                },
+                            },
+                            {
+                                dialogue: " ",
+                            },
+                        ],
+                        choiceType: "sequential",
+                        end: "lastItem",
+                        nestedId: undefined,
+                    },
+                },
+                {
+                    dialogue: "He scratches his head.",
+                },
+                {
+                    dialogue: "'Well, can't stand around talking all day,' he declares.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_loop_|_done",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            fight_guard: [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_opts",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 - (opts)
@@ -1778,138 +1780,138 @@ test('Advanced: Loops in a weave', async () => {
 	You thank the guard, and move away.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-diverting-to-options
  */
-test('Advanced: diverting to options', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"fight_guard_|_opts_|_c-0": [
-				{
-					dialogue: "You pull a face, and the soldier comes at you! ",
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_opts_|_c-1",
-						type: "jump",
-					},
-					glueEnabled: true,
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_opts_|_c-1": [
-				{
-					dialogue: " You shove the guard to one side, but he comes back swinging.",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_opts_|_c-2": [
-				{
-					dialogue: " ",
-					goNextStep: true,
-				},
-				{
-					labelToOpen: {
-						label: "fight_the_guard",
-						type: "jump",
-					},
-					glueEnabled: true,
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_opts": [
-				{
-					choices: [
-						{
-							text: "Pull a face",
-							label: "fight_guard_|_opts_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "Shove the guard aside",
-							label: "fight_guard_|_opts_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							type: "ifelse",
-							condition: {
-								type: "value",
-								storageType: "label",
-								storageOperationType: "get",
-								label: "fight_guard_|_opts_|_c-1",
-							},
-							then: {
-								text: "Grapple and fight",
-								label: "fight_guard_|_opts_|_c-2",
-								props: {},
-								type: "jump",
-								oneTime: true,
-							},
-							else: undefined,
-						},
-					],
-				},
-			],
-			"fight_guard_|_g-0": [
-				{
-					labelToOpen: {
-						label: "fight_guard_|_opts",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			fight_guard: [
-				{
-					labelToOpen: {
-						label: "fight_guard_|_opts",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			fight_the_guard: [
-				{
-					dialogue: "fight_the_guard",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Advanced: diverting to options", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "fight_guard_|_opts_|_c-0": [
+                {
+                    dialogue: "You pull a face, and the soldier comes at you! ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_opts_|_c-1",
+                        type: "jump",
+                    },
+                    glueEnabled: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-1": [
+                {
+                    dialogue: " You shove the guard to one side, but he comes back swinging.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts_|_c-2": [
+                {
+                    dialogue: " ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_the_guard",
+                        type: "jump",
+                    },
+                    glueEnabled: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_opts": [
+                {
+                    choices: [
+                        {
+                            text: "Pull a face",
+                            label: "fight_guard_|_opts_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Shove the guard aside",
+                            label: "fight_guard_|_opts_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "value",
+                                storageType: "label",
+                                storageOperationType: "get",
+                                label: "fight_guard_|_opts_|_c-1",
+                            },
+                            then: {
+                                text: "Grapple and fight",
+                                label: "fight_guard_|_opts_|_c-2",
+                                props: {},
+                                type: "jump",
+                                oneTime: true,
+                            },
+                            else: undefined,
+                        },
+                    ],
+                },
+            ],
+            "fight_guard_|_g-0": [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_opts",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            fight_guard: [
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_opts",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            fight_the_guard: [
+                {
+                    dialogue: "fight_the_guard",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 - (opts)
@@ -1927,124 +1929,124 @@ test('Advanced: diverting to options', async () => {
 fight_the_guard
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-gathers-directly-after-an-option
  */
-test('Advanced: Gathers directly after an option', async () => {
-	let expected: PixiVNJson = {
-		labels: {
-			"fight_guard_|_c-0_|_quitewell": [
-				{
-					dialogue: "\"Quite well,\" he replied.",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_c-0": [
-				{
-					dialogue: "\"Are you quite well, Monsieur?\"",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " I asked.",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_c-0_|_quitewell",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_c-1": [
-				{
-					dialogue: "\"How did you do at the crossword, Monsieur?\"",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " I asked.",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_c-0_|_quitewell",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: true,
-				},
-			],
-			"fight_guard_|_c-2": [
-				{
-					dialogue: "I said nothing",
-					glueEnabled: true,
-					goNextStep: true,
-				},
-				{
-					dialogue: " and neither did my Master.",
-				},
-				{
-					labelToOpen: {
-						label: "fight_guard_|_g-0",
-						type: "jump",
-					},
-					glueEnabled: undefined,
-				},
-			],
-			"fight_guard_|_g-0": [
-				{
-					dialogue: "We fell into companionable silence once more.",
-				},
-				{
-					end: "label_end",
-					goNextStep: true,
-				},
-			],
-			fight_guard: [
-				{
-					choices: [
-						{
-							text: "\"Are you quite well, Monsieur?\"",
-							label: "fight_guard_|_c-0",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "\"How did you do at the crossword, Monsieur?\"",
-							label: "fight_guard_|_c-1",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-						{
-							text: "I said nothing",
-							label: "fight_guard_|_c-2",
-							props: {},
-							type: "jump",
-							oneTime: true,
-						},
-					],
-				},
-			],
-		}
-	}
-	let res = convertInkText(`
+test("Advanced: Gathers directly after an option", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "fight_guard_|_c-0_|_quitewell": [
+                {
+                    dialogue: '"Quite well," he replied.',
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_c-0": [
+                {
+                    dialogue: '"Are you quite well, Monsieur?"',
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I asked.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_c-0_|_quitewell",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_c-1": [
+                {
+                    dialogue: '"How did you do at the crossword, Monsieur?"',
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " I asked.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_c-0_|_quitewell",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "fight_guard_|_c-2": [
+                {
+                    dialogue: "I said nothing",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " and neither did my Master.",
+                },
+                {
+                    labelToOpen: {
+                        label: "fight_guard_|_g-0",
+                        type: "jump",
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "fight_guard_|_g-0": [
+                {
+                    dialogue: "We fell into companionable silence once more.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            fight_guard: [
+                {
+                    choices: [
+                        {
+                            text: '"Are you quite well, Monsieur?"',
+                            label: "fight_guard_|_c-0",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: '"How did you do at the crossword, Monsieur?"',
+                            label: "fight_guard_|_c-1",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                        {
+                            text: "I said nothing",
+                            label: "fight_guard_|_c-2",
+                            props: {},
+                            type: "jump",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 *	"Are you quite well, Monsieur?"[] I asked.
@@ -2055,5 +2057,5 @@ test('Advanced: Gathers directly after an option', async () => {
 -	We fell into companionable silence once more.
 -> DONE
 `);
-	expect(res).toEqual(expected);
+    expect(res).toEqual(expected);
 });
