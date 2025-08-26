@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
-import { createFilter, FilterPattern, Plugin } from "vite";
+import { Plugin } from "vite";
 import { convertorInkToJson } from "../functions/ink";
 
 /**
@@ -8,14 +8,8 @@ import { convertorInkToJson } from "../functions/ink";
  * Instead of triggering HMR, it imports the .ink file using the `importInkText` function.
  * @returns A Vite plugin that prevents HMR for .ink files.
  */
-export function vitePluginInk(
-    options: {
-        include?: FilterPattern;
-        exclude?: FilterPattern;
-    } = {}
-): Plugin {
+export function vitePluginInk(): Plugin {
     let ws: any;
-    const filter = createFilter(options.include || ["**/*.ink"], options.exclude);
 
     return {
         name: "vite-plugin-ink",
@@ -24,22 +18,38 @@ export function vitePluginInk(
         configureServer(server) {
             ws = server.ws; // salva riferimento a WebSocket del dev server
         },
-        async handleHotUpdate({ file, read }) {
-            if (file.endsWith(".ink")) {
-                const fileText = await read();
 
-                // invia evento custom al client
-                ws?.send({
-                    type: "custom",
-                    event: "ink-updated",
-                    data: fileText,
+        async handleHotUpdate({ file, server, read }) {
+            if (file.endsWith(".ink")) {
+                // Leggiamo il contenuto modificato
+                const source = await read();
+                const { issues } = convertorInkToJson(source);
+
+                let error: Error | null = null;
+
+                // Logghiamo eventuali warning/errori al terminale
+                issues.forEach((issue) => {
+                    if (issue.type === ErrorType.Warning) {
+                        server.config.logger.warn(file + ": " + issue.message);
+                    } else {
+                        // Se è un errore, blocchiamo
+                        server.config.logger.error(file + ": " + issue.message);
+                        error = new Error(issue.message);
+                    }
                 });
 
-                return []; // evita HMR
+                if (error) {
+                    // Invia messaggio di errore al client tramite WebSocket
+                    throw error;
+                }
+
+                // NON restituiamo nulla => Vite non fa reload automatico della pagina
+                return [];
             }
         },
         async transform(code, id) {
-            if (!filter(id)) return null;
+            if (!id.endsWith(".ink")) return null;
+
             const source = await fs.readFile(id, "utf-8");
 
             const { issues } = convertorInkToJson(source);

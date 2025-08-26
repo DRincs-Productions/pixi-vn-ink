@@ -29,7 +29,7 @@ export function convertorInkToJson(text: string, labelToRemove: string[] = []) {
                     return convertorInkToJson(text, [...labelToRemove, label]);
                 }
             }
-            throw new Error(error.message);
+            return { issues, labelToRemove };
         }
         logger.error("Error compiling ink file");
         throw e;
