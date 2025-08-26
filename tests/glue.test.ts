@@ -1,11 +1,11 @@
-import { PixiVNJson } from '@drincs/pixi-vn-json';
-import { expect, test } from 'vitest';
-import { convertInkText } from '../src/functions';
+import { PixiVNJson } from "@drincs/pixi-vn-json";
+import { expect, test } from "vitest";
+import { convertInkText } from "../src/functions";
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#diverts-are-invisible
  */
-test('Diverts are invisible', async () => {
+test("Diverts are invisible", async () => {
     let expected: PixiVNJson = {
         labels: {
             hurry_home: [
@@ -26,8 +26,8 @@ test('Diverts are invisible', async () => {
                     dialogue: "as fast as we could.",
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === hurry_home ===
 We hurried home to Savile Row -> as_fast_as_we_could
@@ -41,7 +41,7 @@ as fast as we could.
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#glue
  */
-test('Glue', async () => {
+test("Glue", async () => {
     let expected: PixiVNJson = {
         labels: {
             hurry_home: [
@@ -79,8 +79,8 @@ test('Glue', async () => {
                     dialogue: " as fast as we could.",
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === hurry_home ===
 We hurried home <>
@@ -99,12 +99,12 @@ to Savile Row
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#branching-and-joining
  */
-test('Branching and joining', async () => {
+test("Branching and joining", async () => {
     let expected: PixiVNJson = {
         labels: {
             "back_in_london_|_c-0": [
                 {
-                    dialogue: "\"There is not a moment to lose!\"",
+                    dialogue: '"There is not a moment to lose!"',
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -121,7 +121,7 @@ test('Branching and joining', async () => {
             ],
             "back_in_london_|_c-1": [
                 {
-                    dialogue: "\"Monsieur, let us savour this moment!\"",
+                    dialogue: '"Monsieur, let us savour this moment!"',
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -155,25 +155,25 @@ test('Branching and joining', async () => {
                 {
                     choices: [
                         {
-                            text: "\"There is not a moment to lose!\"",
+                            text: '"There is not a moment to lose!"',
                             label: "back_in_london_|_c-0",
                             oneTime: true,
                             props: {},
-                            type: "jump",
+                            type: "call",
                         },
                         {
-                            text: "\"Monsieur, let us savour this moment!\"",
+                            text: '"Monsieur, let us savour this moment!"',
                             label: "back_in_london_|_c-1",
                             oneTime: true,
                             props: {},
-                            type: "jump",
+                            type: "call",
                         },
                         {
                             text: "We hurried home",
                             label: "back_in_london_|_c-2",
                             oneTime: true,
                             props: {},
-                            type: "jump",
+                            type: "call",
                         },
                     ],
                 },
@@ -212,8 +212,8 @@ test('Branching and joining', async () => {
                     dialogue: " as fast as we could.",
                 },
             ],
-        }
-    }
+        },
+    };
     let res = convertInkText(`
 === back_in_london ===
 

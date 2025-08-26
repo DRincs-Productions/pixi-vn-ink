@@ -5,7 +5,7 @@ import type {
     PixiVNJsonLabelStep,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { addSwitchElemenText } from "../parser/adding-elements";
+import { addSwitchElemenText, callOrJump } from "../parser/adding-elements";
 import { parserConditionalStatements } from "../parser/conditional-statements-parser";
 import { ShareDataParserLabel } from "../parser/label-parser";
 import { ConditionalList, parserSwitch } from "../parser/switch-parser";
@@ -36,7 +36,7 @@ export function addChoiseIntoList<T>(
                 text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
-                type: "jump",
+                type: callOrJump(newKey),
                 oneTime: value.onetime,
             };
             if (value.text.length === 0) {

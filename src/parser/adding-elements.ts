@@ -5,11 +5,19 @@ import type {
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
+import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { StandardDivert } from "../types/parserItems/Divert";
 import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { getText } from "../utils/text-utility";
 import { getValue } from "../utils/value-utility";
+
+export function callOrJump(label: string): "call" | "jump" {
+    if (label.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
+        return "call";
+    }
+    return "jump";
+}
 
 export function addSwitchElemenText(
     list: PixiVNJsonStepSwitchElementType<string>[],
@@ -156,7 +164,7 @@ function addConditionalElementStep(
                 list.push({
                     labelToOpen: {
                         label: labelIdToOpen,
-                        type: "jump",
+                        type: callOrJump(labelIdToOpen),
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,
