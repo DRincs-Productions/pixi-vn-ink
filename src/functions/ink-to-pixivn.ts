@@ -41,7 +41,9 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         delete result.labels[GLOBAL_DECL];
         global.forEach((item) => {
             if (item.operations) {
-                result.initialOperations = result.initialOperations ? [...result.initialOperations] : [];
+                result.initialOperations = result.initialOperations
+                    ? [...result.initialOperations, ...(item.operations as any)]
+                    : [...item.operations];
             }
         });
     }
@@ -50,7 +52,9 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         delete result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         global.forEach((item) => {
             if (item.operations) {
-                result.initialOperations = result.initialOperations ? [...result.initialOperations] : [];
+                result.initialOperations = result.initialOperations
+                    ? [...result.initialOperations, ...(item.operations as any)]
+                    : [...item.operations];
             }
         });
     }
