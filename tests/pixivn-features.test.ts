@@ -1590,3 +1590,53 @@ After End
     await convertOperation(res);
     expect(res).toEqual(expected2);
 });
+
+test("continue", async () => {
+    let expected2: PixiVNJson = {
+        labels: {
+            "hurry_home_|_c-1": [
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            hurry_home: [
+                {
+                    dialogue: "We hurried home ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    operations: [],
+                    goNextStep: true,
+                    glueEnabled: false,
+                },
+                {
+                    choices: [
+                        {
+                            text: "1",
+                            label: "hurry_home_|_c-0",
+                            props: {},
+                            type: "call",
+                        },
+                        {
+                            text: "2",
+                            label: "hurry_home_|_c-1",
+                            props: {},
+                            type: "call",
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
+=== hurry_home ===
+We hurried home <># continue
++ [1]
++ [2]
+-> DONE
+`);
+    await convertOperation(res);
+    expect(res).toEqual(expected2);
+});

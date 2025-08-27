@@ -262,6 +262,10 @@ export default class HashtagScriptManager {
                                     type: "dialogue",
                                     operationType: "clean",
                                 };
+                            case "continue":
+                                step.goNextStep = true;
+                                step.glueEnabled = false;
+                                return undefined;
                         }
                     }
             }
