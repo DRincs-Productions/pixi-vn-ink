@@ -31,15 +31,21 @@ export function parseLabel<T>(
         item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
-        isNewLine: boolean,
-        isHashtagScript: boolean
+        options: {
+            isNewLine: boolean;
+            isHashtagScript: boolean;
+            isThreads: boolean;
+        }
     ) => void,
     addSwitchElemen: (
         list: PixiVNJsonStepSwitchElementType<T>[],
         item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
-        isNewLine?: boolean
+        options?: {
+            isNewLine?: boolean;
+            isThreads: boolean;
+        }
     ) => void,
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
@@ -61,21 +67,19 @@ export function parseLabel<T>(
     let envList: RootParserItemType[] = [];
     let isConditionalText = false;
     let isHashtagScript = false;
+    let isThreads = false;
     let conditionalList: RootParserItemType[] = [];
     let commentList: any[] = [];
     if (shareData.preDialog[labelKey]) {
         // *	Hello [back!] right back to you!
         isNewLine = false;
-        addElement(
-            itemList,
-            "^" + shareData.preDialog[labelKey].text,
-            labelKey,
-            paramNames,
+        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, paramNames, {
             isNewLine,
-            isHashtagScript
-        );
+            isHashtagScript,
+            isThreads,
+        });
         if (shareData.preDialog[labelKey].glue) {
-            addElement(itemList, "<>", labelKey, paramNames, isNewLine, isHashtagScript);
+            addElement(itemList, "<>", labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
         }
         delete shareData.preDialog[labelKey];
     }
@@ -91,9 +95,9 @@ export function parseLabel<T>(
         );
         if (item) {
             if (!isNewLine && itemList.length > 0) {
-                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isHashtagScript);
+                addElement(itemList, "<>", labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
             }
-            addElement(itemList, item, labelKey, paramNames, isNewLine, isHashtagScript);
+            addElement(itemList, item, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
         }
         return;
     }
@@ -121,7 +125,11 @@ export function parseLabel<T>(
                     nestedId,
                     isNewLine
                 );
-                addElement(itemList, myList as any, labelKey, paramNames, isNewLine, isHashtagScript);
+                addElement(itemList, myList as any, labelKey, paramNames, {
+                    isNewLine: isNewLine,
+                    isHashtagScript: isHashtagScript,
+                    isThreads: isThreads,
+                });
                 isHashtagScript = false;
                 commentList = [];
             } else {
@@ -170,7 +178,7 @@ export function parseLabel<T>(
                         }
                     }
                     if (typeof obj.key !== "string" || !obj.key.includes("$r")) {
-                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isHashtagScript);
+                        addElement(itemList, obj, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                         isNewLine = true;
                     }
                 } else if ("VAR?" in rootItem) {
@@ -194,7 +202,7 @@ export function parseLabel<T>(
                         if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
                             envList.pop();
                             let obj = getValue(lastValue["VAR?"], paramNames, "storage");
-                            addElement(itemList, obj, labelKey, paramNames, isNewLine, isHashtagScript);
+                            addElement(itemList, obj, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                         } else {
                             let varList = [];
                             while (envList.length > 0 && envList[envList.length - 1] != "/ev") {
@@ -221,13 +229,20 @@ export function parseLabel<T>(
                                     },
                                     labelKey,
                                     paramNames,
-                                    isNewLine,
-                                    isHashtagScript
+                                    { isNewLine, isHashtagScript, isThreads }
                                 );
                             } else {
-                                addElement(itemList, "<>", labelKey, paramNames, isNewLine, isHashtagScript);
+                                addElement(itemList, "<>", labelKey, paramNames, {
+                                    isNewLine,
+                                    isHashtagScript,
+                                    isThreads,
+                                });
                                 value = `^${value}`;
-                                addElement(itemList, value, labelKey, paramNames, isNewLine, isHashtagScript);
+                                addElement(itemList, value, labelKey, paramNames, {
+                                    isNewLine,
+                                    isHashtagScript,
+                                    isThreads,
+                                });
                             }
                         }
                         isNewLine = false;
@@ -239,17 +254,17 @@ export function parseLabel<T>(
         } else if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript);
+                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                 isNewLine = false;
             } else if (rootItem == "ev") {
                 isInEnv = true;
             } else if (rootItem == "\n") {
                 isNewLine = true;
             } else if (rootItem == "done" || rootItem == "end") {
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript);
+                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                 isNewLine = false;
             } else if (rootItem == "<>") {
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript);
+                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                 isNewLine = false;
             } else if (rootItem == "nop" && isConditionalText) {
                 let res = getConditionalValue<T>(
@@ -262,12 +277,14 @@ export function parseLabel<T>(
                     nestedId
                 );
                 if (res) {
-                    addElement(itemList, res, labelKey, paramNames, isNewLine, isHashtagScript);
+                    addElement(itemList, res, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                 }
                 isConditionalText = false;
                 conditionalList = [];
             } else if (rootItem == "#") {
                 isHashtagScript = true;
+            } else if (rootItem == "thread") {
+                isThreads = true;
             }
         } else if (rootItem instanceof Array) {
             if (isConditionalText) {
@@ -312,8 +329,7 @@ export function parseLabel<T>(
                     { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey },
                     labelKey,
                     paramNames,
-                    isNewLine,
-                    isHashtagScript
+                    { isNewLine, isHashtagScript, isThreads }
                 );
                 addLabels(
                     {
@@ -348,7 +364,7 @@ export function parseLabel<T>(
                     params = getParam(["ev", ...envList], labelKey, paramNames);
                 }
                 rootItem["params"] = params;
-                addElement(itemList, rootItem, labelKey, paramNames, isNewLine, isHashtagScript);
+                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                 isNewLine = false;
             } else if ("*" in rootItem && typeof rootItem["*"] === "string") {
                 if (rootItem["*"].includes("c")) {
@@ -383,7 +399,7 @@ export function parseLabel<T>(
                     obj.value = arithmeticParser(varList as any, labelKey, paramNames);
                     envList = [];
                     if (obj.value !== undefined || obj.value !== null) {
-                        addElement(itemList, obj, labelKey, paramNames, isNewLine, isHashtagScript);
+                        addElement(itemList, obj, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
                     }
                     isNewLine = false;
                 }
