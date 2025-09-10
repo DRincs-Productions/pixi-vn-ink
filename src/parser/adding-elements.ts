@@ -12,7 +12,10 @@ import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { getText } from "../utils/text-utility";
 import { getValue } from "../utils/value-utility";
 
-export function callOrJump(label: string): "call" | "jump" {
+export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
+    if (isThreads) {
+        return "call";
+    }
     if (label.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
         return "call";
     }
@@ -45,10 +48,18 @@ export function addSwitchElemenStep(
         | MyVariableAssignment,
     labelKey: string,
     paramNames: string[],
-    isNewLine: boolean = true,
-    isHashtagScript: boolean = false
+    options: {
+        isNewLine?: boolean;
+        isHashtagScript?: boolean;
+        isThreads?: boolean;
+    } = {}
 ) {
-    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, isNewLine, isHashtagScript);
+    const { isNewLine = true, isHashtagScript = false, isThreads = false } = options;
+    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, {
+        isNewLine,
+        isHashtagScript,
+        isThreads,
+    });
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
@@ -60,12 +71,16 @@ function addConditionalElementStep(
         | MyVariableAssignment,
     labelKey: string,
     paramNames: string[],
-    isNewLine: boolean,
-    isHashtagScript: boolean = false
+    options: {
+        isNewLine: boolean;
+        isHashtagScript?: boolean;
+        isThreads: boolean;
+    }
 ) {
     if (!item) {
         return;
     }
+    const { isNewLine, isHashtagScript = false, isThreads } = options;
     if (isHashtagScript) {
         if (Array.isArray(item)) {
             if (item.length > 0) {
@@ -151,7 +166,7 @@ function addConditionalElementStep(
                 list.push({
                     labelToOpen: {
                         label: getValue(item["->"], paramNames),
-                        type: "jump",
+                        type: isThreads ? "call" : "jump",
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,
@@ -164,7 +179,7 @@ function addConditionalElementStep(
                 list.push({
                     labelToOpen: {
                         label: labelIdToOpen,
-                        type: callOrJump(labelIdToOpen),
+                        type: callOrJump(labelIdToOpen, isThreads),
                         params: item.params,
                     },
                     glueEnabled: glueEnabled,

@@ -36,7 +36,7 @@ export function addChoiseIntoList<T>(
                 text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
-                type: callOrJump(newKey),
+                type: callOrJump(newKey, false),
                 oneTime: value.onetime,
             };
             if (value.text.length === 0) {
