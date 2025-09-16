@@ -12,7 +12,6 @@ import { logger } from "./log-utility";
  * @returns LabelJsonType or undefined
  */
 export function convertInkToJson(text: string): PixiVNJson | undefined {
-    let result: PixiVNJson = {};
     let { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
     issues.forEach(({ message, type }) => {
         if (type === ErrorType.Error) {
@@ -34,7 +33,18 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         logger.error("Error parsing ink file");
         return;
     }
+    return convertInkStoryToJson(obj, { labelToRemove, initialVarsToRemove });
+}
 
+export function convertInkStoryToJson(
+    obj: InkStoryType,
+    options: {
+        labelToRemove?: string[];
+        initialVarsToRemove?: string[];
+    } = {}
+): PixiVNJson | undefined {
+    const { labelToRemove = [], initialVarsToRemove = [] } = options;
+    let result: PixiVNJson = {};
     result.labels = getInkLabels(obj.root);
     if (result.labels && GLOBAL_DECL in result.labels) {
         let global = result.labels[GLOBAL_DECL];
