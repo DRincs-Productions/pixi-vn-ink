@@ -10,7 +10,12 @@ export function convertorInkToJson(text: string, labelToRemove: string[] = [], i
                 issues.push({ message, type });
             },
             countAllVisits: true,
-            fileHandler: null,
+            fileHandler: {
+                ResolveInkFilename: (filename: string) => filename,
+                LoadInkFileContents: () => {
+                    return "";
+                },
+            },
             pluginNames: [],
             sourceFilename: null,
         });
