@@ -114,6 +114,7 @@ export default class HashtagScriptManager {
                 case "imagecontainer":
                 case "canvaselement":
                 case "video":
+                case "text":
                     if (operationType === "video" && (type === "pause" || type === "resume")) {
                         return {
                             type: "video",
@@ -279,7 +280,7 @@ export default class HashtagScriptManager {
 
     private static getCanvasOperationFromComment(
         list: string[],
-        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement"
+        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement" | "text"
     ): PixiVNJsonOperation | undefined {
         let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
         let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
@@ -296,6 +297,8 @@ export default class HashtagScriptManager {
                             imageId,
                             propsList
                         );
+                    case "text":
+                        return HashtagScriptManager.getTextOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "canvaselement":
                     default:
                         logger.error("This show operation is not valid for this type of element", typeCanvasElement);
@@ -347,6 +350,28 @@ export default class HashtagScriptManager {
             operationType: "show",
             alias: imageId,
             url: url,
+        };
+        return HashtagScriptManager.setShowProps(op, propList);
+    }
+    private static getTextOperationFromComment(
+        typeCanvasElement: "text",
+        imageId: string,
+        list: string[]
+    ): PixiVNJsonOperation | undefined {
+        let text: string;
+        let propList: string[];
+        if (list.length % 2 === 0) {
+            text = imageId;
+            propList = list;
+        } else {
+            text = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+            propList = HashtagScriptManager.convertListStringToPropList(list.slice(1));
+        }
+        let op: PixiVNJsonOperation = {
+            type: typeCanvasElement,
+            operationType: "show",
+            alias: imageId,
+            text: text,
         };
         return HashtagScriptManager.setShowProps(op, propList);
     }

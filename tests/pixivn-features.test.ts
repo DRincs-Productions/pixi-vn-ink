@@ -910,6 +910,105 @@ hello
 });
 
 /**
+ * ImageContainer
+ */
+test("text", async () => {
+    let expected1: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ['show text myText "Hello world" x 10 y 20 with dissolve'],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ["remove text myText"],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ["pause"],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let expected2: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "show",
+                            alias: "myText",
+                            text: "Hello world",
+                            transition: {
+                                type: "dissolve",
+                            },
+                            props: {
+                                x: 10,
+                                y: 20,
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "remove",
+                            alias: "myText",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "dialogue",
+                            operationType: "clean",
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
+=== start
+# show text myText "Hello world" x 10 y 20 with dissolve
+# remove text myText
+# pause
+-> DONE
+`);
+    expect(res).toEqual(expected1);
+    await convertOperation(res);
+    expect(res).toEqual(expected2);
+});
+
+/**
  * Sound
  */
 test("sound", async () => {
