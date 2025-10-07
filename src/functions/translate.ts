@@ -1,5 +1,6 @@
-import type { PixiVNJson, PixiVNJsonLabelStep, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import type { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
 import { translator } from "@drincs/pixi-vn-json/translator";
+import HashtagScriptManager from "../managers/HashtagScriptManager";
 
 /**
  * This function set the function to translate the text
@@ -43,7 +44,6 @@ export async function generateJsonInkTranslation(
          * @default "copy_key"
          */
         defaultValue?: "empty_string" | "copy_key";
-        operationStringConvert?: (value: string) => Promise<PixiVNJsonOperation | undefined>;
     } = {}
 ) {
     let tempLabels: PixiVNJsonLabelStep[] = [];
@@ -52,5 +52,8 @@ export async function generateJsonInkTranslation(
             tempLabels = tempLabels.concat(label);
         });
     }
-    return await translator.generateJsonTranslation(tempLabels, json, options);
+    return await translator.generateJsonTranslation(tempLabels, json, {
+        ...options,
+        operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
+    });
 }
