@@ -1,5 +1,6 @@
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
+import JSON5 from "json5";
 import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import InkStoryType from "../types/InkStoryType";
 import { convertorInkToJson } from "./ink";
@@ -28,7 +29,7 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
     }
     let obj: InkStoryType;
     try {
-        obj = JSON.parse(json);
+        obj = JSON5.parse(json);
     } catch (e) {
         logger.error("Error parsing ink file");
         return;

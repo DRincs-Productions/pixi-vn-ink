@@ -8,6 +8,7 @@ import type {
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
+import JSON5 from "json5";
 import { logger } from "../functions/log-utility";
 
 const SPACE_SEPARATOR = "§SPACE§";
@@ -343,7 +344,7 @@ export default class HashtagScriptManager {
             propList = list;
         } else {
             url = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-            propList = HashtagScriptManager.convertListStringToPropList(list.slice(1));
+            propList = list.slice(1);
         }
         let op: PixiVNJsonOperation = {
             type: typeCanvasElement,
@@ -365,7 +366,7 @@ export default class HashtagScriptManager {
             propList = list;
         } else {
             text = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-            propList = HashtagScriptManager.convertListStringToPropList(list.slice(1));
+            propList = list.slice(1);
         }
         let op: PixiVNJsonOperation = {
             type: typeCanvasElement,
@@ -409,7 +410,7 @@ export default class HashtagScriptManager {
             alias: imageId,
             urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
         };
-        let propList = HashtagScriptManager.convertListStringToPropList(list.slice(endIndex + 1));
+        let propList = list.slice(endIndex + 1);
         return HashtagScriptManager.setShowProps(op, propList);
     }
 
@@ -475,7 +476,7 @@ export default class HashtagScriptManager {
                 }
             }
             if (propList.length > 0) {
-                let props = HashtagScriptManager.convertListStringToObj(propList);
+                let props = HashtagScriptManager.convertPropListStringToObj(propList);
                 op.props = props as any;
             }
         }
@@ -600,7 +601,7 @@ export default class HashtagScriptManager {
         });
         objJson += "}";
         try {
-            return JSON.parse(objJson);
+            return JSON5.parse(objJson);
         } catch (e) {
             logger.error("Error parsing ink json", objJson);
             throw e;

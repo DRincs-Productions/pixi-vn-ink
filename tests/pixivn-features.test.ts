@@ -920,7 +920,9 @@ test("text", async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: ['show text myText "Hello world" x 10 y 20 with dissolve'],
+                            values: [
+                                'show text myText "Hello world" x 10 y 20 style { fontFamily: "Arial", dropShadow: { alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, }, fill: "#ffffff", stroke: { color: "#004620", width: 12, join: "round" }, fontSize: 60, fontWeight: "lighter" } with dissolve',
+                            ],
                         },
                     ],
                     goNextStep: true,
@@ -966,6 +968,24 @@ test("text", async () => {
                             props: {
                                 x: 10,
                                 y: 20,
+                                style: {
+                                    fontFamily: "Arial",
+                                    dropShadow: {
+                                        alpha: 0.8,
+                                        angle: 2.1,
+                                        blur: 4,
+                                        color: "0x111111",
+                                        distance: 10,
+                                    },
+                                    fill: "#ffffff",
+                                    stroke: {
+                                        color: "#004620",
+                                        width: 12,
+                                        join: "round",
+                                    },
+                                    fontSize: 60,
+                                    fontWeight: "lighter",
+                                },
                             },
                         },
                     ],
@@ -998,7 +1018,7 @@ test("text", async () => {
     };
     let res = convertInkText(`
 === start
-# show text myText "Hello world" x 10 y 20 with dissolve
+# show text myText "Hello world" x 10 y 20 style \\{ fontFamily: "Arial", dropShadow: \\{ alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, \\}, fill: "\\#ffffff", stroke: \\{ color: "\\#004620", width: 12, join: "round" \\}, fontSize: 60, fontWeight: "lighter" \\} with dissolve
 # remove text myText
 # pause
 -> DONE
