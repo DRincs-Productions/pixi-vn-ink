@@ -4,7 +4,7 @@ import { expect, test } from "vitest";
 import { convertInkText, onReplaceTextAfterTranslation } from "../src/functions";
 import HashtagScriptManager from "../src/managers/HashtagScriptManager";
 
-async function convertOperation(res?: PixiVNJson) {
+export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
         for (let label in res.labels) {
             let tempSteps = [];

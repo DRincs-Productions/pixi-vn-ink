@@ -349,7 +349,8 @@ export function parseLabel<T>(
                     addLabels,
                     addChoiseList,
                     nestedId,
-                    isNewLine
+                    isNewLine,
+                    paramNames
                 );
             }
         } else if (rootItem && typeof rootItem === "object") {

@@ -1,6 +1,7 @@
 import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkText } from "../src/functions";
+import { convertInkToJson } from "../src/functions";
+import { convertOperation } from "./pixivn-features.test";
 
 /**
  * 1) Global Variables
@@ -103,7 +104,7 @@ test("Defining Global Variables", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR knowledge_of_the_cure = false
 VAR players_name = "Emilia"
 VAR number_of_infected_people = 521
@@ -200,7 +201,7 @@ test("Advanced: storing diverts as variables", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR current_epilogue = -> everybody_dies
 
 === continue_or_quit ===
@@ -279,7 +280,7 @@ test("Printing variables", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR friendly_name_of_player = "Jackie"
 VAR age = 23
 
@@ -346,7 +347,7 @@ test("Evaluating strings", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR a_colour = ""
 
 ~ a_colour = "{~red|blue|green|yellow}"
@@ -518,7 +519,7 @@ test("Logic", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR y = 2
 VAR x = 3
 VAR c = 1
@@ -583,7 +584,7 @@ test("Mathematics", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 === start
 {POW(3, 2)} is 9.
 {POW(16, 0.5)} is 4.
@@ -710,7 +711,7 @@ test("RANDOM(min, max)", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 === start ===
 ~ temp dice_roll = RANDOM(1, 6)
@@ -866,7 +867,7 @@ test("Advanced: numerical types are implicit", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR x = 0
 VAR y = 0
 VAR z = 0
@@ -976,7 +977,7 @@ test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 === start ===
 {INT(3.2)} is 3.
@@ -1064,7 +1065,7 @@ test("String queries", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 === start ===
 { "Yes, please." == "Yes, please." }
@@ -1161,7 +1162,7 @@ test("A simple if", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR x = 1
 VAR y = 0
 -> start
@@ -1283,7 +1284,7 @@ test("A simple else", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR x = 0
 VAR y = 0
 -> start
@@ -1435,7 +1436,7 @@ test("Extended if/else if/else blocks", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR x = 0
 VAR y = 0
 -> start
@@ -1533,7 +1534,7 @@ test("Switch blocks", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR x = 0
 -> start
 === start
@@ -1762,7 +1763,7 @@ test("Example: context-relevant content", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR fear = 0
 VAR visited_poland = true
 VAR visited_snakes = true
@@ -1865,7 +1866,7 @@ test("Conditional blocks are not limited to logic", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 == start ==
 I stared at Monsieur Fogg.
@@ -2024,7 +2025,7 @@ test("Conditional blocks are not limited to logic 2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 == start ==
 { door_open:
@@ -2201,7 +2202,7 @@ test("Multiline blocks", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR count = 0
 -> start
 == start ==
@@ -2330,7 +2331,7 @@ test("Advanced: modified shuffles", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR count = 0
 -> start
 == start ==
@@ -2438,7 +2439,7 @@ test("Advanced: modified shuffles 2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 VAR count = 0
 -> start
 == start ==
@@ -2632,7 +2633,7 @@ test("Temporary variables are for scratch calculations", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> near_north_pole
 === near_north_pole ===
 	~ temp number_of_warm_things = 0
@@ -2798,7 +2799,7 @@ test("Knots and stitches can take parameters", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 == start ==
 *	[Accuse Hasting]
@@ -2949,7 +2950,7 @@ test("Example: a recursive knot definition", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start()
 
 === start
@@ -3014,7 +3015,7 @@ test("Advanced: sending divert targets as parameters", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 === sleeping_in_hut ===
 	You lie down and close your eyes.
 	-> generic_sleep (-> waking_in_the_hut)
@@ -3101,7 +3102,7 @@ test("Global Constants", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 CONST HASTINGS = "Hastings"
 CONST POIROT = "Poirot"
 CONST JAPP = "Japp"
@@ -3225,7 +3226,7 @@ test("Global Constants 2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 CONST LOBBY = 1
 CONST STAIRCASE = 2
 CONST HALLWAY = 3
@@ -3275,11 +3276,165 @@ test("Uknown variable in text", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> start
 === start ===
 The value of _input_value_ is: {_input_value_}
 -> DONE
 `);
+    expect(res).toEqual(expected);
+});
+
+test("Params", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "Flashlight",
+                        type: "jump",
+                        params: [false],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-1": [
+                {
+                    labelToOpen: {
+                        label: "Flashlight",
+                        type: "jump",
+                        params: [true],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            text: "false",
+                            label: "start_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "true",
+                            label: "start_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "Flashlight_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "Direction",
+                        type: "jump",
+                        params: [
+                            {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "Head",
+                            },
+                        ],
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            Flashlight: [
+                {
+                    dialogue: "Variable: ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: {
+                        type: "value",
+                        storageType: "params",
+                        storageOperationType: "get",
+                        key: 0,
+                    },
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    operations: [],
+                    goNextStep: true,
+                    glueEnabled: false,
+                },
+                {
+                    choices: [
+                        {
+                            text: "Continue",
+                            label: "Flashlight_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            Direction: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: true,
+                            leftValue: {
+                                type: "value",
+                                storageType: "params",
+                                storageOperationType: "get",
+                                key: 0,
+                            },
+                        },
+                        then: {
+                            dialogue: "true",
+                        },
+                        else: {
+                            dialogue: "false",
+                        },
+                    },
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+        },
+    };
+    let res = convertInkToJson(`
+-> start
+=== start ===
+
+* [false]
+    -> Flashlight(false)
+* [true]
+    -> Flashlight(true)
+
+=== Flashlight (Head) ===
+
+Variable: {Head} <># continue
+* [Continue]
+    -> Direction(Head)
+
+=== Direction(Head) ===
+{ Head == true:
+    true
+  - else:
+    false
+}
+-> END
+`);
+    await convertOperation(res);
     expect(res).toEqual(expected);
 });
