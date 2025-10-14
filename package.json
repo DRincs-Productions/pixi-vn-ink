@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "type": "module",
   "description": "Pixi'VN gives you the ability to write your own narrative using Ink",
   "main": "./dist/index.cjs",
@@ -55,7 +55,7 @@
   "homepage": "https://pixi-vn.web.app/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "^1.8.5"
+    "@drincs/pixi-vn-json": "^1.8.7"
   },
   "devDependencies": {
     "inkjs": "^2.3.2",
