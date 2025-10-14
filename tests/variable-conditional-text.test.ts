@@ -1,6 +1,6 @@
 import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkText } from "../src/functions";
+import { convertInkToJson } from "../src/functions";
 
 // Variable Text
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#8-variable-text
@@ -93,7 +93,7 @@ test("Sequences (the default)", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> loop
 === loop ===
 The radio hissed into life. {"Three!"|"Two!"|"One!"|There was the white noise racket of an explosion.|But it was just static.}
@@ -184,7 +184,7 @@ test("Cycles (marked with a &)", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> loop
 === loop ===
 It was {&Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday} today.
@@ -261,7 +261,7 @@ test("Once-only (marked with a !)", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> loop
 === loop ===
 He told me a joke. {!I laughed politely.|I smiled.|I grimaced.|I promised myself to not react again.}
@@ -335,7 +335,7 @@ test("Shuffles (marked with a ~)", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> loop
 === loop ===
 I tossed the coin. {~Heads|Tails}.
@@ -347,7 +347,7 @@ I tossed the coin. {~Heads|Tails}.
 
 // TODO: in Inky this code works, but in inkjs parser it doesn't work
 test("Features of Alternatives", async () => {
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> loop
 === loop ===
 I took a step forward. {!||||Then the lights went out. -> eek}
@@ -684,7 +684,7 @@ test("Examples", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> whack_a_mole
 === whack_a_mole ===
 	{I heft the hammer.|{~Missed!|Nothing!|No good. Where is he?|Ah-ha! Got him! -> END}}
@@ -819,7 +819,7 @@ test("Examples 2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> turn_on_television
 === turn_on_television ===
 I turned on the television {for the first time|for the second time|again|once more}, but there was {nothing good on, so I turned it off again|still nothing worth watching|even less to hold my interest than before|nothing but rubbish|a program about sharks and I don't like sharks|nothing on}.
@@ -1141,7 +1141,7 @@ test("Conditional Text", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    let res = convertInkToJson(`
 -> met_blofeld
 === met_blofeld ===
 {met_blofeld && met_blofeld: "I saw him. Only for a moment." }
@@ -1157,6 +1157,78 @@ test("Conditional Text", async () => {
 = learned_his_name
 learned_his_name
 -> met_blofeld
+`);
+    expect(res).toEqual(expected);
+});
+
+test("Conditional Text 2", async () => {
+    let expected: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "smth",
+                        },
+                        then: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    operations: [
+                                        {
+                                            type: "operationtoconvert",
+                                            values: ["show image"],
+                                        },
+                                    ],
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: "text 1",
+                                },
+                            ],
+                        },
+                        else: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    operations: [
+                                        {
+                                            type: "operationtoconvert",
+                                            values: ["show image"],
+                                        },
+                                    ],
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: "text 2",
+                                },
+                            ],
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    let res = convertInkToJson(`
+=== start ===
+{ smth:
+    # show image 
+    text 1
+ - else:
+    # show image 
+    text 2
+}
+-> DONE
 `);
     expect(res).toEqual(expected);
 });
