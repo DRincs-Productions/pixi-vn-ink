@@ -1163,6 +1163,7 @@ learned_his_name
 
 test("Conditional Text 2", async () => {
     let expected: PixiVNJson = {
+        initialOperations: [],
         labels: {
             start: [
                 {
