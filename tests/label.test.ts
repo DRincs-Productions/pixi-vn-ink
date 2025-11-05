@@ -85,18 +85,16 @@ test("The first stitch is the default", async () => {
                 {
                     labelToOpen: {
                         label: "the_orient_express_|_in_first_class",
-                        type: "call",
+                        type: "jump",
                     },
-                    glueEnabled: undefined,
                 },
             ],
             "the_orient_express_|_c-1": [
                 {
                     labelToOpen: {
                         label: "the_orient_express_|_in_second_class",
-                        type: "call",
+                        type: "jump",
                     },
-                    glueEnabled: undefined,
                 },
             ],
             "the_orient_express_|_in_first_class": [
@@ -118,16 +116,16 @@ test("The first stitch is the default", async () => {
                         {
                             text: "First class",
                             label: "the_orient_express_|_c-0",
-                            oneTime: true,
                             props: {},
                             type: "call",
+                            oneTime: true,
                         },
                         {
                             text: "Second class",
                             label: "the_orient_express_|_c-1",
-                            oneTime: true,
                             props: {},
                             type: "call",
+                            oneTime: true,
                         },
                     ],
                 },
@@ -159,10 +157,9 @@ test("Local diverts", async () => {
                 {
                     labelToOpen: {
                         label: "the_orient_express_|_in_third_class",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
             "the_orient_express_|_in_first_class": [
@@ -174,9 +171,9 @@ test("Local diverts", async () => {
                         {
                             text: "Move to third class",
                             label: "the_orient_express_|_in_first_class_|_c-0",
-                            oneTime: true,
                             props: {},
                             type: "call",
+                            oneTime: true,
                         },
                     ],
                 },
@@ -194,10 +191,9 @@ test("Local diverts", async () => {
                 {
                     labelToOpen: {
                         label: "the_orient_express_|_in_first_class",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
-                    goNextStep: undefined,
                 },
             ],
         },

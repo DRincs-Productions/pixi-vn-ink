@@ -16,7 +16,8 @@ export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
     if (isThreads) {
         return "call";
     }
-    if (label.includes(CHOISE_LABEL_KEY_SEPARATOR)) {
+    // regex per controllare se finisce con CHOISE_LABEL_KEY_SEPARATOR + c- + numero
+    if (new RegExp(`${CHOISE_LABEL_KEY_SEPARATOR.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}c-\\d+$`).test(label)) {
         return "call";
     }
     return "jump";
@@ -168,7 +169,7 @@ function addConditionalElementStep(
                 list[list.length - 1] = prevItem;
             }
             if (item.params && item.params.length === 0) {
-                item.params = undefined;
+                delete item.params;
             }
             if (item.var) {
                 list.push({

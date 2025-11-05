@@ -850,7 +850,7 @@ test("Conditional Text", async () => {
                 {
                     labelToOpen: {
                         label: "met_blofeld_|_learned_his_name",
-                        type: "call",
+                        type: "jump",
                     },
                 },
             ],
@@ -1085,7 +1085,7 @@ test("Conditional Text", async () => {
                         else: {
                             labelToOpen: {
                                 label: "met_blofeld_|_learned_his_name",
-                                type: "call",
+                                type: "jump",
                             },
                         },
                     },
