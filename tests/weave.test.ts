@@ -1651,7 +1651,7 @@ test("Advanced: Loops in a weave", async () => {
                         label: "fight_guard_|_loop",
                         type: "call",
                     },
-                    glueEnabled: true,
+                    glueEnabled: undefined,
                 },
             ],
             "fight_guard_|_opts": [
