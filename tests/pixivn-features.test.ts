@@ -1,42 +1,8 @@
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
-import { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation, translator } from "@drincs/pixi-vn-json";
+import { PixiVNJson, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText, onReplaceTextAfterTranslation } from "../src/functions";
-import HashtagScriptManager from "../src/managers/HashtagScriptManager";
-
-export async function convertOperation(res?: PixiVNJson) {
-    if (res?.labels) {
-        for (let label in res.labels) {
-            let tempSteps = [];
-            for (let step of res.labels[label]) {
-                if (step.operations) {
-                    let ops: (PixiVNJsonOperation | PixiVNJsonIfElse<PixiVNJsonOperation>)[] = [];
-                    for (let operation of step.operations) {
-                        if (operation.type === "operationtoconvert") {
-                            let v: string = operation.values
-                                .map((v) => {
-                                    if (typeof v === "string") {
-                                        return v;
-                                    }
-                                    return `"${v.type}"`;
-                                })
-                                .join("");
-                            let resOp = await HashtagScriptManager.generateOrRunOperationFromHashtagScript(v, step, {});
-                            if (resOp) {
-                                ops.push(resOp);
-                            }
-                        } else {
-                            ops.push(operation);
-                        }
-                    }
-                    step.operations = ops;
-                }
-                tempSteps.push(step);
-            }
-            res.labels[label] = tempSteps;
-        }
-    }
-}
+import { convertOperation } from "./convertOperation";
 
 test("Assign dialogue to a character", async () => {
     let alice = new CharacterBaseModel("alice", {

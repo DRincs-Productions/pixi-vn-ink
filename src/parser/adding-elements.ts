@@ -154,6 +154,14 @@ function addConditionalElementStep(
             list.push({ conditionalStep: item });
         } else if ("->" in item) {
             let glueEnabled = isNewLine ? undefined : true;
+            if (
+                glueEnabled &&
+                labelKey.includes("c-") &&
+                list.length > 0 &&
+                list[list.length - 1]?.dialogue === undefined
+            ) {
+                glueEnabled = undefined;
+            }
             if (!isNewLine && list.length > 0) {
                 let prevItem = list[list.length - 1];
                 if (!prevItem.labelToOpen) prevItem.goNextStep = true;

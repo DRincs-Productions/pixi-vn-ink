@@ -1,7 +1,7 @@
 import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkToJson } from "../src/functions";
-import { convertOperation } from "./pixivn-features.test";
+import { convertOperation } from "./convertOperation";
 
 /**
  * 1) Global Variables

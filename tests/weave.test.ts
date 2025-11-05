@@ -1139,7 +1139,7 @@ test("Gathers and options can be labelled", async () => {
                         label: "meet_guard_|_g-1",
                         type: "call",
                     },
-                    glueEnabled: true,
+                    glueEnabled: undefined,
                 },
             ],
             "meet_guard_|_g-0": [
@@ -1651,7 +1651,7 @@ test("Advanced: Loops in a weave", async () => {
                         label: "fight_guard_|_loop",
                         type: "call",
                     },
-                    glueEnabled: true,
+                    glueEnabled: undefined,
                 },
             ],
             "fight_guard_|_opts": [
@@ -1981,14 +1981,12 @@ test("Advanced: Gathers directly after an option", async () => {
                         label: "fight_guard_|_c-0_|_quitewell",
                         type: "call",
                     },
-                    glueEnabled: undefined,
                 },
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
                         type: "call",
                     },
-                    glueEnabled: true,
                 },
             ],
             "fight_guard_|_c-2": [

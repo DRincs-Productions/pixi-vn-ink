@@ -1,6 +1,7 @@
 import { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText } from "../src/functions";
+import { convertOperation } from "./convertOperation";
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#diverts-are-invisible
@@ -29,6 +30,7 @@ test("Diverts are invisible", async () => {
         },
     };
     let res = convertInkText(`
+-> hurry_home
 === hurry_home ===
 We hurried home to Savile Row -> as_fast_as_we_could
 
@@ -241,5 +243,109 @@ He insisted that we hurried home to Savile Row
 === as_fast_as_we_could ===
 <> as fast as we could.
 `);
+    expect(res).toEqual(expected);
+});
+
+test("Fix glue error", async () => {
+    let expected: PixiVNJson = {
+        initialOperations: [
+            {
+                key: "some_var",
+                storageOperationType: "set",
+                storageType: "storage",
+                type: "value",
+                value: false,
+            },
+        ],
+        labels: {
+            "start_|_c-0": [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "some_var",
+                            value: true,
+                        },
+                    ],
+                },
+                {
+                    labelToOpen: {
+                        label: "finish",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "start_|_c-1": [
+                {
+                    labelToOpen: {
+                        label: "finish",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            start: [
+                {
+                    dialogue: "some text",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    operations: [],
+                    goNextStep: true,
+                    glueEnabled: false,
+                },
+                {
+                    choices: [
+                        {
+                            text: "1_5_card1",
+                            label: "start_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "1_5_card2",
+                            label: "start_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            finish: [
+                {
+                    dialogue: "finish text",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+        },
+    };
+    let res = convertInkText(`
+VAR some_var = false
+
+=== start ===
+some text<># continue
+    * [1_5_card1]
+        ~ some_var = true
+        -> finish
+
+    * [1_5_card2]
+        -> finish
+
+=== finish ===
+finish text
+-> END
+`);
+    await convertOperation(res);
     expect(res).toEqual(expected);
 });
