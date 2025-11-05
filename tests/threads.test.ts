@@ -41,7 +41,7 @@ test("Threads 1", async () => {
                 {
                     labelToOpen: {
                         label: "conversation_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,
@@ -62,7 +62,7 @@ test("Threads 1", async () => {
                 {
                     labelToOpen: {
                         label: "conversation_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,
@@ -224,7 +224,7 @@ test("Threads 2", async () => {
                 {
                     labelToOpen: {
                         label: "hallway_|_examine_drawers",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: true,
@@ -232,7 +232,7 @@ test("Threads 2", async () => {
                 {
                     labelToOpen: {
                         label: "hallway_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,
@@ -254,7 +254,7 @@ test("Threads 2", async () => {
                 {
                     labelToOpen: {
                         label: "hallway_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,
@@ -276,7 +276,7 @@ test("Threads 2", async () => {
                 {
                     labelToOpen: {
                         label: "hallway_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,
@@ -408,7 +408,7 @@ test("Threads 2", async () => {
                 {
                     labelToOpen: {
                         label: "general_conversation_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,
@@ -444,7 +444,7 @@ test("Threads 2", async () => {
                 {
                     labelToOpen: {
                         label: "doctor_conversation_|_g-0",
-                        type: "call",
+                        type: "jump",
                         params: undefined,
                     },
                     glueEnabled: undefined,

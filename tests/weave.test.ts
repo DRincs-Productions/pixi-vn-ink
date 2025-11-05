@@ -22,7 +22,7 @@ test("Options and gathers form chains of content", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -41,7 +41,7 @@ test("Options and gathers form chains of content", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -55,7 +55,7 @@ test("Options and gathers form chains of content", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -72,7 +72,7 @@ test("Options and gathers form chains of content", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -89,7 +89,7 @@ test("Options and gathers form chains of content", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -194,7 +194,7 @@ test("Options can be nested", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -206,7 +206,7 @@ test("Options can be nested", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -218,7 +218,7 @@ test("Options can be nested", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -263,7 +263,7 @@ test("Options can be nested", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -275,7 +275,7 @@ test("Options can be nested", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -343,7 +343,7 @@ test("Options can be nested", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -382,7 +382,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -394,7 +394,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -406,7 +406,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -418,7 +418,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -430,7 +430,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -498,7 +498,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -510,7 +510,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -578,7 +578,7 @@ test("Gather points can be nested too", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -620,7 +620,7 @@ test("Advanced: What gathers do", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -696,7 +696,7 @@ test("Advanced: What gathers do", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -737,7 +737,7 @@ test("Advanced: What gathers do", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -773,7 +773,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -785,7 +785,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -800,7 +800,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -815,7 +815,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -834,7 +834,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -912,7 +912,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0_|_c-0_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -926,7 +926,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -974,7 +974,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1014,7 +1014,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-1_|_g-2",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1023,7 +1023,7 @@ test("Example: a conversation with nested nodes", async () => {
                 {
                     labelToOpen: {
                         label: "start_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1069,7 +1069,7 @@ test("Gathers and options can be labelled", async () => {
                 {
                     labelToOpen: {
                         label: "meet_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1086,7 +1086,7 @@ test("Gathers and options can be labelled", async () => {
                 {
                     labelToOpen: {
                         label: "meet_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1098,7 +1098,7 @@ test("Gathers and options can be labelled", async () => {
                 {
                     labelToOpen: {
                         label: "meet_guard_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1115,7 +1115,7 @@ test("Gathers and options can be labelled", async () => {
                 {
                     labelToOpen: {
                         label: "meet_guard_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1137,7 +1137,7 @@ test("Gathers and options can be labelled", async () => {
                 {
                     labelToOpen: {
                         label: "meet_guard_|_g-1",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1280,7 +1280,7 @@ test("Scope", async () => {
                 {
                     labelToOpen: {
                         label: "knot_|_stitch_one_|_gatherpoint",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1320,7 +1320,6 @@ test("Scope", async () => {
                                 type: "call",
                                 oneTime: true,
                             },
-                            else: undefined,
                         },
                     ],
                 },
@@ -1329,7 +1328,7 @@ test("Scope", async () => {
                 {
                     labelToOpen: {
                         label: "knot_|_stitch_one",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1386,7 +1385,6 @@ test("Scope2", async () => {
                                 type: "call",
                                 oneTime: true,
                             },
-                            else: undefined,
                         },
                     ],
                 },
@@ -1395,7 +1393,7 @@ test("Scope2", async () => {
                 {
                     labelToOpen: {
                         label: "knot_one_|_gather_one",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1435,7 +1433,6 @@ test("Scope2", async () => {
                                 type: "call",
                                 oneTime: true,
                             },
-                            else: undefined,
                         },
                     ],
                 },
@@ -1444,7 +1441,7 @@ test("Scope2", async () => {
                 {
                     labelToOpen: {
                         label: "knot_two_|_stitch_two_|_gather_two",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1453,7 +1450,7 @@ test("Scope2", async () => {
                 {
                     labelToOpen: {
                         label: "knot_two_|_stitch_two",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1485,18 +1482,16 @@ test("Advanced: all options can be labelled", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_throw",
-                        type: "call",
+                        type: "jump",
                     },
-                    glueEnabled: undefined,
                 },
             ],
             "fight_guard_|_throw_something_|_c-1": [
                 {
                     labelToOpen: {
                         label: "fight_guard_|_throw",
-                        type: "call",
+                        type: "jump",
                     },
-                    glueEnabled: undefined,
                 },
             ],
             "fight_guard_|_throw_something": [
@@ -1522,8 +1517,8 @@ test("Advanced: all options can be labelled", async () => {
             "fight_guard_|_throw": [
                 {
                     dialogue: "You hurl ",
-                    goNextStep: true,
                     glueEnabled: true,
+                    goNextStep: true,
                 },
                 {
                     conditionalStep: {
@@ -1603,7 +1598,7 @@ test("Advanced: Loops in a weave", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_loop",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1618,7 +1613,7 @@ test("Advanced: Loops in a weave", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_loop",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1633,7 +1628,7 @@ test("Advanced: Loops in a weave", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_loop",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1642,14 +1637,14 @@ test("Advanced: Loops in a weave", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_loop_|_done",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
                 {
                     labelToOpen: {
                         label: "fight_guard_|_loop",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1714,14 +1709,14 @@ test("Advanced: Loops in a weave", async () => {
                             {
                                 labelToOpen: {
                                     label: "fight_guard_|_opts",
-                                    type: "call",
+                                    type: "jump",
                                 },
                                 glueEnabled: undefined,
                             },
                             {
                                 labelToOpen: {
                                     label: "fight_guard_|_opts",
-                                    type: "call",
+                                    type: "jump",
                                 },
                             },
                             {
@@ -1742,7 +1737,7 @@ test("Advanced: Loops in a weave", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_loop_|_done",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1751,7 +1746,7 @@ test("Advanced: Loops in a weave", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_opts",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1804,7 +1799,7 @@ test("Advanced: diverting to options", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1816,7 +1811,7 @@ test("Advanced: diverting to options", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1836,7 +1831,7 @@ test("Advanced: diverting to options", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1873,7 +1868,6 @@ test("Advanced: diverting to options", async () => {
                                 type: "call",
                                 oneTime: true,
                             },
-                            else: undefined,
                         },
                     ],
                 },
@@ -1882,7 +1876,7 @@ test("Advanced: diverting to options", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_opts",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1895,7 +1889,7 @@ test("Advanced: diverting to options", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_opts",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1945,7 +1939,7 @@ test("Advanced: Gathers directly after an option", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1962,7 +1956,7 @@ test("Advanced: Gathers directly after an option", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_c-0_|_quitewell",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
@@ -1979,13 +1973,13 @@ test("Advanced: Gathers directly after an option", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_c-0_|_quitewell",
-                        type: "call",
+                        type: "jump",
                     },
                 },
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                 },
             ],
@@ -2001,7 +1995,7 @@ test("Advanced: Gathers directly after an option", async () => {
                 {
                     labelToOpen: {
                         label: "fight_guard_|_g-0",
-                        type: "call",
+                        type: "jump",
                     },
                     glueEnabled: undefined,
                 },
