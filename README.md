@@ -4,7 +4,7 @@
 
 Pixi’VN gives you the ability to write your own narrative using ***ink***, a scripting language for writing interactive narrative.
 
-The ***ink* + Pixi’VN integration**, exploits the [inkjs](https://github.com/inkle/inkjs) and [PixiVNJson](https://pixi-vn.web.app/advanced/pixi-vn-json.html) libraries, to parse ***ink* code** and generate a Json that can be interpreted by Pixi’VN. So Javascript/Typescript and ***ink*** share the same storage and canvas, and it is also possible to launch ***ink*** labels (or knots) from Javascript/Typescript and vice versa. This allows you to use the best of both languages. You can use ***ink*** to write the narration, while using Javascript/Typescript to create minigames or complex animations.
+The ***ink* + Pixi’VN integration**, exploits the [inkjs](https://github.com/inkle/inkjs) and [PixiVNJson](https://pixi-vn.web.app/advanced/pixi-vn-json) libraries, to parse ***ink* code** and generate a Json that can be interpreted by Pixi’VN. So Javascript/Typescript and ***ink*** share the same storage and canvas, and it is also possible to launch ***ink*** labels (or knots) from Javascript/Typescript and vice versa. This allows you to use the best of both languages. You can use ***ink*** to write the narration, while using Javascript/Typescript to create minigames or complex animations.
 
 **What is *ink*?**
 
@@ -109,7 +109,6 @@ The following features are in development and will be added in the future:
   * `SEED_RANDOM()`
 * [`LIST`](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#1-basic-lists) (issue [#15](https://github.com/DRincs-Productions/pixi-vn-ink/issues/15))
 * [`Tunnels`](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#1-tunnels) (issue [#38](https://github.com/DRincs-Productions/pixi-vn-ink/issues/38))
-* [`Threads`](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#2-threads) (issue [#39](https://github.com/DRincs-Productions/pixi-vn-ink/issues/39))
 
 ## *ink* syntax that will be ignored by Pixi’VN
 
@@ -188,13 +187,13 @@ My name is John // ✅ This will be handled
 
 ## Using Pixi’VN Features from *ink*
 
-* [Use Character in *ink*](https://pixi-vn.web.app/ink/ink-character.html)
-* [*ink* knot (or label)](https://pixi-vn.web.app/ink/ink-label.html)
-* [*ink* variables](https://pixi-vn.web.app/ink/ink-variables.html)
-* [*ink* text style](https://pixi-vn.web.app/ink/ink-markdown.html)
-* [Use canvas in *ink*](https://pixi-vn.web.app/ink/ink-canvas.html)
-* [Using sounds and music in *ink*](https://pixi-vn.web.app/ink/ink-sound.html)
-* [Using pause in *ink*](https://pixi-vn.web.app/ink/ink-pause.html)
-* [Use input in *ink*](https://pixi-vn.web.app/ink/ink-input.html)
-* [How translate *ink* text](https://pixi-vn.web.app/ink/ink-translate.html)
-* [Custome Hashtag Script](https://pixi-vn.web.app/ink/ink-hashtag.html)
+* [Use Character in *ink*](https://pixi-vn.web.app/ink/ink-character)
+* [*ink* knot (or label)](https://pixi-vn.web.app/ink/ink-label)
+* [*ink* variables](https://pixi-vn.web.app/ink/ink-variables)
+* [*ink* text style](https://pixi-vn.web.app/ink/ink-markdown)
+* [Use canvas in *ink*](https://pixi-vn.web.app/ink/ink-canvas)
+* [Using sounds and music in *ink*](https://pixi-vn.web.app/ink/ink-sound)
+* [Using pause in *ink*](https://pixi-vn.web.app/ink/ink-pause)
+* [Use input in *ink*](https://pixi-vn.web.app/ink/ink-input)
+* [How translate *ink* text](https://pixi-vn.web.app/ink/ink-translate)
+* [Custome Hashtag Script](https://pixi-vn.web.app/ink/ink-hashtag)
