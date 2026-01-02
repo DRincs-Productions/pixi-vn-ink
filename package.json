@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "0.10.9",
+  "version": "0.11.0",
   "type": "module",
   "description": "Pixi'VN gives you the ability to write your own narrative using Ink",
   "main": "./dist/index.cjs",
@@ -48,27 +48,27 @@
     "url": "git+https://github.com/DRincs-Productions/pixi-vn-ink.git"
   },
   "author": "DRincs-Productions",
-  "license": "GPL-3.0",
+  "license": "LGPL-2.1",
   "bugs": {
     "url": "https://github.com/DRincs-Productions/pixi-vn-ink/issues"
   },
   "homepage": "https://pixi-vn.web.app/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "^1.8.8"
+    "@drincs/pixi-vn-json": "1.9.0"
   },
   "devDependencies": {
-    "inkjs": "^2.3.2",
-    "jsdom": "^27.0.0",
+    "inkjs": "2.3.2",
+    "jsdom": "^27.4.0",
     "json5": "^2.2.3",
     "ts-node": "^10.9.2",
-    "tsup": "^8.5.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vite.js": "^1.0.1",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.3.31"
+    "@drincs/pixi-vn": ">=1.4.0"
   },
   "keywords": [
     "game",
