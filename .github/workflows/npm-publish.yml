@@ -64,6 +64,6 @@ jobs:
             Release ${{ github.ref }}
 
             ## Dependencies
-            - **pixi-vn**: ${{ steps.versions.outputs.pixi_vn }}
-            - **pixi-vn-json**: ${{ steps.versions.outputs.pixi_vn_json }}
-            - **inkjs**: ${{ steps.versions.outputs.inkjs }}
+            - **Pixi’VN**: ${{ steps.versions.outputs.pixi_vn }}
+            - **Pixi’VN JSON**: ${{ steps.versions.outputs.pixi_vn_json }}
+            - **ink js**: ${{ steps.versions.outputs.inkjs }}
