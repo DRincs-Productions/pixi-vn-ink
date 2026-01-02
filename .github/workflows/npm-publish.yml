@@ -48,7 +48,22 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v3
-    - uses: ncipollo/release-action@v1
-      with:
-        body: "Release ${{ github.ref }}"
+      - uses: actions/checkout@v3
+      - name: Extract dependency versions
+        id: versions
+        run: |
+          PIXI_VN_JSON_VERSION=$(node -p "require('./package.json').dependencies['@drincs/pixi-vn-json']")
+          INKJS_VERSION=$(node -p "require('./package.json').devDependencies['inkjs']")
+          PIXI_VN_VERSION=$(node -p "require('./package.json').peerDependencies['@drincs/pixi-vn']")
+          echo "pixi_vn_json=$PIXI_VN_JSON_VERSION" >> $GITHUB_OUTPUT
+          echo "inkjs=$INKJS_VERSION" >> $GITHUB_OUTPUT
+          echo "pixi_vn=$PIXI_VN_VERSION" >> $GITHUB_OUTPUT
+      - uses: ncipollo/release-action@v1
+        with:
+          body: |
+            Release ${{ github.ref }}
+
+            ## Dependencies
+            - **pixi-vn**: ${{ steps.versions.outputs.pixi_vn }}
+            - **pixi-vn-json**: ${{ steps.versions.outputs.pixi_vn_json }}
+            - **inkjs**: ${{ steps.versions.outputs.inkjs }}
