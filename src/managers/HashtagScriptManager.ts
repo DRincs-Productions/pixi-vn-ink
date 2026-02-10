@@ -19,50 +19,18 @@ const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"];
 
 class HashtagScriptStorage {
-    private static _customHashtagScript: Array<
+    static handlers: Array<
         (
             script: string[],
             props: StepLabelPropsType,
             convertListStringToObj: (listParm: string[]) => object,
         ) => boolean | string
     > = [(_script: string[]) => false];
-
-    static addCustomHashtagScript(
-        handler: (
-            script: string[],
-            props: StepLabelPropsType,
-            convertListStringToObj: (listParm: string[]) => object,
-        ) => boolean | string,
-    ) {
-        HashtagScriptStorage._customHashtagScript.push(handler);
-    }
-
-    static clearCustomHashtagScript() {
-        HashtagScriptStorage._customHashtagScript = [];
-    }
-
-    static set customHashtagScript(
-        value: (
-            script: string[],
-            props: StepLabelPropsType,
-            convertListStringToObj: (listParm: string[]) => object,
-        ) => boolean | string,
-    ) {
-        HashtagScriptStorage._customHashtagScript = [value];
-    }
-
-    static get customHashtagScript() {
-        return HashtagScriptStorage._customHashtagScript[0];
-    }
-
-    static get customHashtagScripts() {
-        return HashtagScriptStorage._customHashtagScript;
-    }
 }
 
 namespace HashtagScriptManager {
     function runCustomHashtagScript(script: string[], props: StepLabelPropsType): boolean | string {
-        const handlers = HashtagScriptStorage.customHashtagScripts;
+        const handlers = HashtagScriptStorage.handlers;
         for (let i = 0; i < handlers.length; i++) {
             try {
                 const res = handlers[i](script, props, convertListStringToObj);
@@ -83,11 +51,11 @@ namespace HashtagScriptManager {
             convertListStringToObj: (listParm: string[]) => object,
         ) => boolean | string,
     ) {
-        HashtagScriptStorage.addCustomHashtagScript(handler);
+        HashtagScriptStorage.handlers.push(handler);
     }
 
     export function clearHashtagScriptHandlers() {
-        HashtagScriptStorage.clearCustomHashtagScript();
+        HashtagScriptStorage.handlers = [];
     }
 
     export async function generateOrRunOperationFromHashtagScript(
