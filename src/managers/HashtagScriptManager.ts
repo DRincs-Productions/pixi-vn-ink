@@ -29,7 +29,7 @@ class HashtagScriptStorage {
 }
 
 namespace HashtagScriptManager {
-    function runCustomHashtagScript(script: string[], props: StepLabelPropsType): boolean | string {
+    function runCustomCommand(script: string[], props: StepLabelPropsType): boolean | string {
         const handlers = HashtagScriptStorage.handlers;
         for (let i = 0; i < handlers.length; i++) {
             try {
@@ -44,7 +44,7 @@ namespace HashtagScriptManager {
         return false;
     }
 
-    export function addHashtagScriptHandler(
+    export function add(
         handler: (
             script: string[],
             props: StepLabelPropsType,
@@ -54,11 +54,11 @@ namespace HashtagScriptManager {
         HashtagScriptStorage.handlers.push(handler);
     }
 
-    export function clearHashtagScriptHandlers() {
+    export function clear() {
         HashtagScriptStorage.handlers = [];
     }
 
-    export async function generateOrRunOperationFromHashtagScript(
+    export async function run(
         comment: string,
         step: PixiVNJsonLabelStep,
         props: StepLabelPropsType,
@@ -118,14 +118,14 @@ namespace HashtagScriptManager {
             );
 
             // If is a custom command, it will run the custom operation
-            let customCommand = runCustomHashtagScript(list, props);
+            let customCommand = runCustomCommand(list, props);
             if (customCommand === true) {
                 return undefined;
             } else if (typeof customCommand === "string") {
                 if (customCommand.startsWith("#")) {
                     customCommand = customCommand.substring(1);
                 }
-                return HashtagScriptManager.generateOrRunOperationFromHashtagScript(customCommand, step, props);
+                return HashtagScriptManager.run(customCommand, step, props);
             }
 
             let operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";

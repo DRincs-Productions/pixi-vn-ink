@@ -18,7 +18,7 @@ export async function convertOperation(res?: PixiVNJson) {
                                     return `"${v.type}"`;
                                 })
                                 .join("");
-                            let resOp = await HashtagScriptManager.generateOrRunOperationFromHashtagScript(v, step, {});
+                            let resOp = await HashtagScriptManager.run(v, step, {});
                             if (resOp) {
                                 ops.push(resOp);
                             }

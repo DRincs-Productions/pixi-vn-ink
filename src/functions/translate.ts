@@ -44,7 +44,7 @@ export async function generateJsonInkTranslation(
          * @default "copy_key"
          */
         defaultValue?: "empty_string" | "copy_key";
-    } = {}
+    } = {},
 ) {
     let tempLabels: PixiVNJsonLabelStep[] = [];
     if (pixivnJson.labels) {
@@ -54,6 +54,6 @@ export async function generateJsonInkTranslation(
     }
     return await translator.generateJsonTranslation(tempLabels, json, {
         ...options,
-        operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
+        operationStringConvert: HashtagScriptManager.run,
     });
 }

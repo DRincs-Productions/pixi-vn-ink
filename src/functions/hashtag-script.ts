@@ -45,5 +45,5 @@ export function onInkHashtagScript(
         convertListStringToObj: (listParm: string[]) => object,
     ) => boolean | string,
 ) {
-    HashtagScriptManager.addHashtagScriptHandler(runCustomHashtagScript);
+    HashtagScriptManager.add(runCustomHashtagScript);
 }

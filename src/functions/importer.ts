@@ -27,7 +27,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
         let data = convertInkToJson(text);
         if (data) {
             await importPixiVNJson(data, {
-                operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
+                operationStringConvert: HashtagScriptManager.run,
                 skipEmptyDialogs: true,
             });
         }
@@ -44,7 +44,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
 export async function importJson(data: PixiVNJson | PixiVNJson[]) {
     init();
     return await importPixiVNJson(data, {
-        operationStringConvert: HashtagScriptManager.generateOrRunOperationFromHashtagScript,
+        operationStringConvert: HashtagScriptManager.run,
         skipEmptyDialogs: true,
     });
 }
