@@ -1,5 +1,5 @@
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
-import HashtagScriptManager from "../managers/HashtagScriptManager";
+import { HashtagScriptStorage } from "../managers/HashtagScriptManager";
 
 /**
  * This function is called before the system interprets a possible Hashtag-Script that starts with `#`.
@@ -42,8 +42,8 @@ export function onInkHashtagScript(
          * This function is used to convert an array that has the following logic into a json. Here is an example:
          * This is the array: `["name", "John", "age", "20", "position", "{ x: 2, y 3 }"]` and this is the json: `{name: "John", age: 20, position: { x: 2, y: 3 }}`.
          */
-        convertListStringToObj: (listParm: string[]) => object
-    ) => boolean | string
+        convertListStringToObj: (listParm: string[]) => object,
+    ) => boolean | string,
 ) {
-    HashtagScriptManager.customHashtagScript = runCustomHashtagScript;
+    HashtagScriptStorage.customHashtagScript = runCustomHashtagScript;
 }
