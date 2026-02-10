@@ -1,5 +1,5 @@
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
-import { HashtagScriptStorage } from "../managers/HashtagScriptManager";
+import HashtagScriptManager from "../managers/HashtagScriptManager";
 
 /**
  * This function is called before the system interprets a possible Hashtag-Script that starts with `#`.
@@ -45,5 +45,5 @@ export function onInkHashtagScript(
         convertListStringToObj: (listParm: string[]) => object,
     ) => boolean | string,
 ) {
-    HashtagScriptStorage.customHashtagScript = runCustomHashtagScript;
+    HashtagScriptManager.addHashtagScriptHandler(runCustomHashtagScript);
 }
