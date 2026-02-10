@@ -1,5 +1,5 @@
 import { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
-import HashtagScriptManager from "../src/managers/HashtagScriptManager";
+import HashtagScript from "../src/managers/HashtagScriptManager";
 
 export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
@@ -18,7 +18,7 @@ export async function convertOperation(res?: PixiVNJson) {
                                     return `"${v.type}"`;
                                 })
                                 .join("");
-                            let resOp = await HashtagScriptManager.run(v, step, {});
+                            let resOp = await HashtagScript.run(v, step, {});
                             if (resOp) {
                                 ops.push(resOp);
                             }

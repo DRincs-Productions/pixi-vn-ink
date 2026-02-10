@@ -1,6 +1,6 @@
 import { init, PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
-import HashtagScriptManager from "../managers/HashtagScriptManager";
+import HashtagScript from "../managers/HashtagScriptManager";
 import { convertInkToJson } from "./ink-to-pixivn";
 
 /**
@@ -27,7 +27,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
         let data = convertInkToJson(text);
         if (data) {
             await importPixiVNJson(data, {
-                operationStringConvert: HashtagScriptManager.run,
+                operationStringConvert: HashtagScript.run,
                 skipEmptyDialogs: true,
             });
         }
@@ -44,7 +44,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
 export async function importJson(data: PixiVNJson | PixiVNJson[]) {
     init();
     return await importPixiVNJson(data, {
-        operationStringConvert: HashtagScriptManager.run,
+        operationStringConvert: HashtagScript.run,
         skipEmptyDialogs: true,
     });
 }

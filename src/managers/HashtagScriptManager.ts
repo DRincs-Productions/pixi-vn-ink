@@ -28,7 +28,7 @@ class HashtagScriptStorage {
     > = [(_script: string[]) => false];
 }
 
-namespace HashtagScriptManager {
+namespace HashtagScript {
     function runCustomCommand(script: string[], props: StepLabelPropsType): boolean | string {
         const handlers = HashtagScriptStorage.handlers;
         for (let i = 0; i < handlers.length; i++) {
@@ -125,7 +125,7 @@ namespace HashtagScriptManager {
                 if (customCommand.startsWith("#")) {
                     customCommand = customCommand.substring(1);
                 }
-                return HashtagScriptManager.run(customCommand, step, props);
+                return HashtagScript.run(customCommand, step, props);
             }
 
             let operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
@@ -611,4 +611,4 @@ namespace HashtagScriptManager {
         return false;
     }
 }
-export default HashtagScriptManager;
+export default HashtagScript;
