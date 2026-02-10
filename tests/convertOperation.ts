@@ -1,5 +1,5 @@
 import { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
-import HashtagScript from "../src/managers/HashtagScriptManager";
+import HashtagScript from "../src/managers/HashtagScript";
 
 export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {

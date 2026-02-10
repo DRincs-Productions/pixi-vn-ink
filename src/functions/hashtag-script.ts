@@ -1,5 +1,5 @@
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
-import HashtagScript from "../managers/HashtagScriptManager";
+import HashtagScript from "../managers/HashtagScript";
 
 /**
  * This function is called before the system interprets a possible Hashtag-Script that starts with `#`.
