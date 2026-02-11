@@ -8,7 +8,7 @@ import type {
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
-import { logger } from "../functions/log-utility";
+import { logger } from "../utils/log-utility";
 import HashtagScriptHandler from "./interfaces/HashtagScriptHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";

@@ -5,8 +5,8 @@ import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
 import { addSwitchElemenStep, addSwitchElemenText } from "../parser/adding-elements";
 import { parseLabel, ShareDataParserLabel } from "../parser/label-parser";
 import { ConditionalList, parserSwitch } from "../parser/switch-parser";
+import { logger } from "../utils/log-utility";
 import { addChoiseIntoList } from "./choice-info-converter";
-import { logger } from "./log-utility";
 
 export function getInkLabels(
     story: (InkRootType | RootParserItemType | RootParserItemType[])[],

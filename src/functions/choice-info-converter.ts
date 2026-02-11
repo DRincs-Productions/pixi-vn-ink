@@ -16,8 +16,8 @@ import { parserConditionalStatements } from "../parser/conditional-statements-pa
 import { ShareDataParserLabel } from "../parser/label-parser";
 import { ConditionalList, parserSwitch } from "../parser/switch-parser";
 import { unionStringOrArray } from "../utils/array-utility";
+import { logger } from "../utils/log-utility";
 import { getText } from "../utils/text-utility";
-import { logger } from "./log-utility";
 
 export function addChoiseIntoList<T>(
     choiseList: RootParserItemType[],

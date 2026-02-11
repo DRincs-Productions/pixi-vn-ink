@@ -4,12 +4,12 @@ import type {
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { logger } from "../functions/log-utility";
 import InkRootType from "../interfaces/InkRootType";
 import { ContainerTypeN } from "../interfaces/parserItems/ContainerType";
 import { StandardDivert } from "../interfaces/parserItems/Divert";
 import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
 import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
+import { logger } from "../utils/log-utility";
 import { getParam, getSetValue, getValue } from "../utils/value-utility";
 import { addSwitchComment } from "./adding-elements";
 import { arithmeticParser } from "./arithmetic-parser";

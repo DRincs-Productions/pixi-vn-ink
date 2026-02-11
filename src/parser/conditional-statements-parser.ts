@@ -5,7 +5,6 @@ import type {
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { addChoiseIntoList } from "../functions/choice-info-converter";
-import { logger } from "../functions/log-utility";
 import InkRootType from "../interfaces/InkRootType";
 import Cond from "../interfaces/parserItems/Cond";
 import { StandardDivert } from "../interfaces/parserItems/Divert";
@@ -13,6 +12,7 @@ import NativeFunctions from "../interfaces/parserItems/NativeFunctions";
 import ReadCount from "../interfaces/parserItems/ReadCount";
 import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
 import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
+import { logger } from "../utils/log-utility";
 import { conditionaAritmeticParser } from "./conditiona-aritmetic-parser";
 import { parseLabel, ShareDataParserLabel } from "./label-parser";
 
