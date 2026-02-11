@@ -1,6 +1,6 @@
 import type { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
 import { translator } from "@drincs/pixi-vn-json/translator";
-import HashtagScript from "../tags/hashtag-script";
+import HashtagCommands from "../tags/hashtag-commands";
 
 /**
  * This function set the function to translate the text
@@ -54,6 +54,6 @@ export async function generateJsonInkTranslation(
     }
     return await translator.generateJsonTranslation(tempLabels, json, {
         ...options,
-        operationStringConvert: HashtagScript.run,
+        operationStringConvert: HashtagCommands.run,
     });
 }

@@ -9,7 +9,7 @@ import type {
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
 import { logger } from "../utils/log-utility";
-import HashtagScriptHandler from "./interfaces/HashtagScriptHandler";
+import HashtagHandler from "./interfaces/HashtagHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -19,13 +19,16 @@ const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"];
 
-class HashtagScriptStorage {
-    static handlers: Array<HashtagScriptHandler> = [(_script: string[]) => false];
+class Storage {
+    static handlers: Array<HashtagHandler> = [(_script: string[]) => false];
 }
 
-namespace HashtagScript {
+/**
+ * Thisis a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
+ */
+namespace HashtagCommands {
     function runCustomCommand(script: string[], props: StepLabelPropsType): boolean | string {
-        const handlers = HashtagScriptStorage.handlers;
+        const handlers = Storage.handlers;
         for (let i = 0; i < handlers.length; i++) {
             try {
                 const res = handlers[i](script, props, convertListStringToObj);
@@ -40,10 +43,10 @@ namespace HashtagScript {
     }
 
     /**
-     * This function add a new handler (middleware) that will be called before the system interprets a possible Hashtag-Script that starts with `#`.
-     * The developer can use this function to run a custom Hashtag-Script. If the function returns `true`, the system will not interpret the Hashtag-Script.
-     * If returns a array of strings, the system will interpret the array as a new Hashtag-Script.
-     * @param handler The handler to run a custom Hashtag-Script
+     * This function add a new handler (middleware) that will be called before the system interprets a possible Hashtag-Command that starts with `#`.
+     * The developer can use this function to run a custom Hashtag-Command. If the function returns `true`, the system will not interpret the Hashtag-Command.
+     * If returns a array of strings, the system will interpret the array as a new Hashtag-Command.
+     * @param handler The handler to run a custom Hashtag-Command
      * @example
      * ```ts
      * import { HashtagScript } from 'pixi-vn-ink'
@@ -62,35 +65,45 @@ namespace HashtagScript {
      * })
      * ```
      */
-    export function add(handler: HashtagScriptHandler) {
-        HashtagScriptStorage.handlers.push(handler);
+    export function add(handler: HashtagHandler) {
+        Storage.handlers.push(handler);
     }
 
+    /**
+     * This function clear all the handlers added with the {@link add} function.
+     */
     export function clear() {
-        HashtagScriptStorage.handlers = [];
+        Storage.handlers = [];
     }
 
+    /**
+     * This function run the Hashtag-Command, it will be called before running the step. It will interpret the Hashtag-Command and return the corresponding operation to run before the step. If the Hashtag-Command is not valid, it will return undefined and the system will run the step normally.
+     * @param tag The Hashtag-Command to interpret, it is the string that starts with `#` and is followed by the operation type and its parameters.
+     * @param step The step that will be run after the Hashtag-Command, the system will run the Hashtag-Command before running the step, so the operation returned by this function will be executed before the step. The step can be modified by the Hashtag-Command, for example, it can change the dialogue or the goNextStep properties of the step.
+     * @param props The properties of the step label, it can be used to get information about the step and the label, for example, the label name or the step index. It can also be used to store custom properties that can be accessed by the handlers of the Hashtag-Command.
+     * @returns The operation to run before the step, if the Hashtag-Command is not valid, it will return undefined and the system will run the step normally.
+     */
     export async function run(
-        comment: string,
+        tag: string,
         step: PixiVNJsonLabelStep,
         props: StepLabelPropsType,
     ): Promise<PixiVNJsonOperation | undefined> {
         try {
-            comment = comment.replaceAll('\\"', DOUBLE_QUOTES_CONVERTER);
-            comment = comment.replaceAll("\\'", QUOTES_CONVERTER);
-            comment = comment.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
-            comment = comment.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
-            comment = comment.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
-            comment = comment.replaceAll("{", " { ");
-            comment = comment.replaceAll("}", " } ");
-            comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
-            comment = comment.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
+            tag = tag.replaceAll('\\"', DOUBLE_QUOTES_CONVERTER);
+            tag = tag.replaceAll("\\'", QUOTES_CONVERTER);
+            tag = tag.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
+            tag = tag.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
+            tag = tag.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
+            tag = tag.replaceAll("{", " { ");
+            tag = tag.replaceAll("}", " } ");
+            tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
+            tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
             let list: string[] = [];
             // for string characters
             let startComment: '"' | "'" | "`" | undefined = undefined;
             let temp = "";
-            for (let i = 0; i < comment.length; i++) {
-                let char = comment[i];
+            for (let i = 0; i < tag.length; i++) {
+                let char = tag[i];
                 if (char === '"' || char === "'" || char === "`") {
                     if (startComment === undefined) {
                         list.push(temp);
@@ -119,8 +132,8 @@ namespace HashtagScript {
                     list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
                 }
             });
-            comment = list.join("");
-            list = comment.split(" ").filter((item) => item !== "");
+            tag = list.join("");
+            list = tag.split(" ").filter((item) => item !== "");
             list = list.map((item) =>
                 item
                     .replaceAll(SPACE_SEPARATOR, " ")
@@ -137,7 +150,7 @@ namespace HashtagScript {
                 if (customCommand.startsWith("#")) {
                     customCommand = customCommand.substring(1);
                 }
-                return HashtagScript.run(customCommand, step, props);
+                return HashtagCommands.run(customCommand, step, props);
             }
 
             let operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
@@ -266,10 +279,10 @@ namespace HashtagScript {
                     }
             }
         } catch (e) {
-            logger.error("Error parsing ink hashtag-script", comment);
+            logger.error("Error parsing ink hashtag-command", tag);
             throw e;
         }
-        logger.error("The operation is not valid", comment);
+        logger.error("The operation is not valid", tag);
         return undefined;
     }
 
@@ -623,11 +636,11 @@ namespace HashtagScript {
         return false;
     }
 }
-export default HashtagScript;
+export default HashtagCommands;
 
 /**
- * @deprecated This function is deprecated, use {@link HashtagScript.add} instead
+ * @deprecated This function is deprecated, use {@link HashtagCommands.add} instead
  */
-export function onInkHashtagScript(runCustomHashtagScript: HashtagScriptHandler) {
-    HashtagScript.add(runCustomHashtagScript);
+export function onInkHashtagScript(runCustomHashtagScript: HashtagHandler) {
+    HashtagCommands.add(runCustomHashtagScript);
 }

@@ -1,5 +1,5 @@
 import { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
-import HashtagScript from "../src/tags/hashtag-script";
+import HashtagCommands from "../src/tags/hashtag-commands";
 
 export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
@@ -18,7 +18,7 @@ export async function convertOperation(res?: PixiVNJson) {
                                     return `"${v.type}"`;
                                 })
                                 .join("");
-                            let resOp = await HashtagScript.run(v, step, {});
+                            let resOp = await HashtagCommands.run(v, step, {});
                             if (resOp) {
                                 ops.push(resOp);
                             }
