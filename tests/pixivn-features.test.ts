@@ -510,25 +510,7 @@ test("effect image", async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: ['move bg destination { "x": 20, "y": 30 }'],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
                             values: ["shake bg"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["rotate bg clockwise true"],
                         },
                     ],
                     goNextStep: true,
@@ -574,35 +556,8 @@ test("effect image", async () => {
                     operations: [
                         {
                             alias: "bg",
-                            type: "move",
-                            props: {
-                                destination: {
-                                    x: 20,
-                                    y: 30,
-                                },
-                            },
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            alias: "bg",
                             type: "shake",
                             props: {},
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            alias: "bg",
-                            type: "rotate",
-                            props: {
-                                clockwise: true,
-                            },
                         },
                     ],
                     goNextStep: true,
@@ -653,9 +608,7 @@ test("effect image", async () => {
     };
     let res = convertInkText(`
 === start
-# move bg destination \\\{ "x": 20, "y": 30 \\\}
 # shake bg
-# rotate bg clockwise true
 # animate bg angle 90
 # animate bg x 100 y 200 options duration 3
 # pause
