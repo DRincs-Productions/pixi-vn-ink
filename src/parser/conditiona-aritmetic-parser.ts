@@ -16,7 +16,7 @@ import {
     ArithmeticFunctionsSingle,
     conditionFunctions,
     ConditionFunctions,
-} from "../types/parserItems/NativeFunctions";
+} from "../interfaces/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { getText } from "../utils/text-utility";
 import { getValue } from "../utils/value-utility";

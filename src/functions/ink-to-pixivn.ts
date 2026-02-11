@@ -2,7 +2,7 @@ import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
 import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
-import InkStoryType from "../types/InkStoryType";
+import InkStoryType from "../interfaces/InkStoryType";
 import { convertorInkToJson } from "./ink";
 import { getInkLabels } from "./labels-converter";
 import { logger } from "./log-utility";
@@ -42,7 +42,7 @@ export function convertInkStoryToJson(
     options: {
         labelToRemove?: string[];
         initialVarsToRemove?: string[];
-    } = {}
+    } = {},
 ): PixiVNJson | undefined {
     const { labelToRemove = [], initialVarsToRemove = [] } = options;
     let result: PixiVNJson = {};

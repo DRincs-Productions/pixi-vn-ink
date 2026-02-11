@@ -5,16 +5,16 @@ import type {
     PixiVNJsonLabelStep,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
+import LabelChoiceRes from "../interfaces/LabelChoiceRes";
+import ChoicePoint, { ChoiceInfo } from "../interfaces/parserItems/ChoicePoint";
+import NativeFunctions, { nativeFunctions } from "../interfaces/parserItems/NativeFunctions";
+import ReadCount from "../interfaces/parserItems/ReadCount";
+import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import TextType from "../interfaces/parserItems/TextType";
 import { addSwitchElemenText, callOrJump } from "../parser/adding-elements";
 import { parserConditionalStatements } from "../parser/conditional-statements-parser";
 import { ShareDataParserLabel } from "../parser/label-parser";
 import { ConditionalList, parserSwitch } from "../parser/switch-parser";
-import LabelChoiceRes from "../types/LabelChoiceRes";
-import ChoicePoint, { ChoiceInfo } from "../types/parserItems/ChoicePoint";
-import NativeFunctions, { nativeFunctions } from "../types/parserItems/NativeFunctions";
-import ReadCount from "../types/parserItems/ReadCount";
-import RootParserItemType from "../types/parserItems/RootParserItemType";
-import TextType from "../types/parserItems/TextType";
 import { unionStringOrArray } from "../utils/array-utility";
 import { getText } from "../utils/text-utility";
 import { logger } from "./log-utility";
@@ -24,7 +24,7 @@ export function addChoiseIntoList<T>(
     itemList: (T | PixiVNJsonConditionalStatements<T>)[],
     labelKey: string,
     shareData: ShareDataParserLabel,
-    paramNames: string[]
+    paramNames: string[],
 ) {
     if (choiseList.length > 0) {
         let choices: LabelChoiceRes = {};
@@ -67,7 +67,7 @@ export function addChoiseIntoList<T>(
                     logger.error(
                         "Unhandled case: choices is PixiVNJsonConditionalStatements<PixiVNJsonChoices> | undefined",
                         value,
-                        choices
+                        choices,
                     );
                 }
                 prevItem.choices = choices.sort((a, b) => {
@@ -104,7 +104,7 @@ export function getLabelChoice(
     items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[],
     result: LabelChoiceRes,
     paramNames: string[],
-    lastLabel?: string
+    lastLabel?: string,
 ) {
     let text: (string | PixiVNJsonConditionalStatements<string>)[] = [];
     let label: string = "";
@@ -127,7 +127,7 @@ export function getLabelChoice(
                 (_storyItem, _dadLabelKey, _shareData) => {},
                 lastLabel,
                 { preDialog: {} },
-                paramNames
+                paramNames,
             );
             text.push(secondConditionalItem);
         } else if (rootItem && typeof rootItem === "object") {
@@ -164,7 +164,7 @@ export function getLabelChoice(
             if (result[label]) {
                 result[label].text = unionStringOrArray<string | (string | PixiVNJsonConditionalStatements<string>)>(
                     text,
-                    result[label].text
+                    result[label].text,
                 );
             } else {
                 result[label] = {

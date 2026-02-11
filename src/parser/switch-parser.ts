@@ -4,14 +4,14 @@ import type {
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
 import { addChoiseIntoList } from "../functions/choice-info-converter";
-import InkRootType from "../types/InkRootType";
-import { ContainerTypeF } from "../types/parserItems/ContainerType";
-import ControlCommands from "../types/parserItems/ControlCommands";
-import { StandardDivert } from "../types/parserItems/Divert";
-import NativeFunctions from "../types/parserItems/NativeFunctions";
-import RootParserItemType from "../types/parserItems/RootParserItemType";
-import TextType from "../types/parserItems/TextType";
-import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
+import InkRootType from "../interfaces/InkRootType";
+import { ContainerTypeF } from "../interfaces/parserItems/ContainerType";
+import ControlCommands from "../interfaces/parserItems/ControlCommands";
+import { StandardDivert } from "../interfaces/parserItems/Divert";
+import NativeFunctions from "../interfaces/parserItems/NativeFunctions";
+import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import TextType from "../interfaces/parserItems/TextType";
+import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { parseLabel, ShareDataParserLabel } from "./label-parser";
 
 export type ConditionalList = (
@@ -29,17 +29,17 @@ export function parserSwitch<T>(
         list: PixiVNJsonStepSwitchElementType<T>[],
         item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
         labelKey: string,
-        paramNames: string[]
+        paramNames: string[],
     ) => void,
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
         dadLabelKey: string,
-        shareData: ShareDataParserLabel
+        shareData: ShareDataParserLabel,
     ) => void,
     labelKey: string = "",
     shareData: ShareDataParserLabel,
     paramNames: string[],
-    nestedId: string | undefined = undefined
+    nestedId: string | undefined = undefined,
 ): PixiVNJsonStepSwitch<T> {
     let elements: PixiVNJsonStepSwitchElementsType<T> = [];
     let type: "random" | "sequential" | "loop" | "sequentialrandom" = "sequential";
@@ -79,7 +79,7 @@ export function parserSwitch<T>(
                 addChoiseIntoList,
                 nestedId,
                 true,
-                paramNames
+                paramNames,
             );
             if (itemList.length === 1) {
                 elements.push(itemList[0]);

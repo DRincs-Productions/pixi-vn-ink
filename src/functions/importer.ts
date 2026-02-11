@@ -1,6 +1,6 @@
 import { init, PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
-import HashtagScript from "../managers/HashtagScript";
+import HashtagScript from "../tags/hashtag-script";
 import { convertInkToJson } from "./ink-to-pixivn";
 
 /**

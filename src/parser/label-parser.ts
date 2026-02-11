@@ -5,11 +5,11 @@ import type {
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import { logger } from "../functions/log-utility";
-import InkRootType from "../types/InkRootType";
-import { ContainerTypeN } from "../types/parserItems/ContainerType";
-import { StandardDivert } from "../types/parserItems/Divert";
-import RootParserItemType from "../types/parserItems/RootParserItemType";
-import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
+import InkRootType from "../interfaces/InkRootType";
+import { ContainerTypeN } from "../interfaces/parserItems/ContainerType";
+import { StandardDivert } from "../interfaces/parserItems/Divert";
+import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { getParam, getSetValue, getValue } from "../utils/value-utility";
 import { addSwitchComment } from "./adding-elements";
 import { arithmeticParser } from "./arithmetic-parser";
@@ -35,7 +35,7 @@ export function parseLabel<T>(
             isNewLine: boolean;
             isHashtagScript: boolean;
             isThreads: boolean;
-        }
+        },
     ) => void,
     addSwitchElemen: (
         list: PixiVNJsonStepSwitchElementType<T>[],
@@ -45,23 +45,23 @@ export function parseLabel<T>(
         options?: {
             isNewLine?: boolean;
             isThreads: boolean;
-        }
+        },
     ) => void,
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
         dadLabelKey: string,
-        shareData: ShareDataParserLabel
+        shareData: ShareDataParserLabel,
     ) => void,
     addChoiseList: (
         choiseList: RootParserItemType[],
         itemList: (T | PixiVNJsonConditionalStatements<T>)[],
         labelKey: string,
         shareData: ShareDataParserLabel,
-        paramNames: string[]
+        paramNames: string[],
     ) => void,
     nestedId: string | undefined = undefined,
     isNewLine: boolean = true,
-    paramNames: string[] = []
+    paramNames: string[] = [],
 ) {
     let isInEnv = false;
     let envList: RootParserItemType[] = [];
@@ -91,7 +91,7 @@ export function parseLabel<T>(
             labelKey,
             shareData,
             paramNames,
-            nestedId
+            nestedId,
         );
         if (item) {
             if (!isNewLine && itemList.length > 0) {
@@ -123,7 +123,7 @@ export function parseLabel<T>(
                     addLabels,
                     addChoiseList,
                     nestedId,
-                    isNewLine
+                    isNewLine,
                 );
                 addElement(itemList, myList as any, labelKey, paramNames, {
                     isNewLine: isNewLine,
@@ -155,7 +155,7 @@ export function parseLabel<T>(
                         "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
                         paramNames,
                         rootList[index - 1],
-                        "VAR=" in rootItem ? "storage" : "tempstorage"
+                        "VAR=" in rootItem ? "storage" : "tempstorage",
                     );
                     if (obj.value && typeof obj.value === "string" && obj.value == "/str") {
                         obj.value = rootList[index - 2];
@@ -229,7 +229,7 @@ export function parseLabel<T>(
                                     },
                                     labelKey,
                                     paramNames,
-                                    { isNewLine, isHashtagScript, isThreads }
+                                    { isNewLine, isHashtagScript, isThreads },
                                 );
                             } else {
                                 addElement(itemList, "<>", labelKey, paramNames, {
@@ -274,7 +274,7 @@ export function parseLabel<T>(
                     labelKey,
                     shareData,
                     paramNames,
-                    nestedId
+                    nestedId,
                 );
                 if (res) {
                     addElement(itemList, res, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
@@ -329,14 +329,14 @@ export function parseLabel<T>(
                     { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey },
                     labelKey,
                     paramNames,
-                    { isNewLine, isHashtagScript, isThreads }
+                    { isNewLine, isHashtagScript, isThreads },
                 );
                 addLabels(
                     {
                         [newLabelKey]: rootItem,
                     },
                     labelKey,
-                    shareData
+                    shareData,
                 );
             } else {
                 parseLabel(
@@ -350,7 +350,7 @@ export function parseLabel<T>(
                     addChoiseList,
                     nestedId,
                     isNewLine,
-                    paramNames
+                    paramNames,
                 );
             }
         } else if (rootItem && typeof rootItem === "object") {
@@ -386,7 +386,7 @@ export function parseLabel<T>(
                     "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
                     paramNames,
                     undefined,
-                    "VAR=" in rootItem ? "storage" : "tempstorage"
+                    "VAR=" in rootItem ? "storage" : "tempstorage",
                 );
                 if (obj.key !== "$r") {
                     envList.pop();
