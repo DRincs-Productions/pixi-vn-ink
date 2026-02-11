@@ -6,8 +6,8 @@ import type {
 } from "@drincs/pixi-vn-json";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { StandardDivert } from "../types/parserItems/Divert";
-import { MyVariableAssignment } from "../types/parserItems/VariableAssignment";
+import { StandardDivert } from "../interfaces/parserItems/Divert";
+import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { getText } from "../utils/text-utility";
 import { getValue } from "../utils/value-utility";
@@ -25,7 +25,7 @@ export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
 
 export function addSwitchElemenText(
     list: PixiVNJsonStepSwitchElementType<string>[],
-    item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment
+    item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment,
 ) {
     if (!item) {
         return;
@@ -53,7 +53,7 @@ export function addSwitchElemenStep(
         isNewLine?: boolean;
         isHashtagScript?: boolean;
         isThreads?: boolean;
-    } = {}
+    } = {},
 ) {
     const { isNewLine = true, isHashtagScript = false, isThreads = false } = options;
     return addConditionalElementStep(list as any, item as any, labelKey, paramNames, {
@@ -76,7 +76,7 @@ function addConditionalElementStep(
         isNewLine: boolean;
         isHashtagScript?: boolean;
         isThreads: boolean;
-    }
+    },
 ) {
     if (!item) {
         return;
@@ -237,7 +237,7 @@ export function addSwitchComment(
     item: string | TComment | StandardDivert | PixiVNJsonStepSwitchElementType<TComment> | MyVariableAssignment,
     labelKey: string,
     isNewLine: boolean = true,
-    isHashtagScript: boolean = false
+    isHashtagScript: boolean = false,
 ) {
     return addConditionalComment(list as any, item as any, labelKey, isNewLine, isHashtagScript);
 }
@@ -246,7 +246,7 @@ function addConditionalComment(
     item: string | TComment | StandardDivert | PixiVNJsonConditionalStatements<TComment> | MyVariableAssignment,
     _labelKey: string,
     _isNewLine: boolean,
-    _isHashtagScript: boolean = false
+    _isHashtagScript: boolean = false,
 ) {
     if (!item) {
         return;

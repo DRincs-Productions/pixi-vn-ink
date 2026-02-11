@@ -3,13 +3,13 @@ import type {
     PixiVNJsonCanvasAnimate,
     PixiVNJsonCanvasEffect,
     PixiVNJsonCanvasShow,
-    PixiVNJsonCanvasTicker,
     PixiVNJsonLabelStep,
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
-import { logger } from "../functions/log-utility";
+import { logger } from "../utils/log-utility";
+import HashtagScriptHandler from "./interfaces/HashtagScriptHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -19,29 +19,61 @@ const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"];
 
-export default class HashtagScriptManager {
-    private static _customHashtagScript: (
-        script: string[],
-        props: StepLabelPropsType,
-        convertListStringToObj: (listParm: string[]) => object
-    ) => boolean | string = (_script: string[]) => false;
-    private static runCustomHashtagScript(script: string[], props: StepLabelPropsType): boolean | string {
-        return HashtagScriptManager._customHashtagScript(script, props, HashtagScriptManager.convertListStringToObj);
-    }
-    static set customHashtagScript(
-        value: (
-            script: string[],
-            props: StepLabelPropsType,
-            convertListStringToObj: (listParm: string[]) => object
-        ) => boolean | string
-    ) {
-        HashtagScriptManager._customHashtagScript = value;
+class HashtagScriptStorage {
+    static handlers: Array<HashtagScriptHandler> = [(_script: string[]) => false];
+}
+
+namespace HashtagScript {
+    function runCustomCommand(script: string[], props: StepLabelPropsType): boolean | string {
+        const handlers = HashtagScriptStorage.handlers;
+        for (let i = 0; i < handlers.length; i++) {
+            try {
+                const res = handlers[i](script, props, convertListStringToObj);
+                if (res === true || typeof res === "string") {
+                    return res;
+                }
+            } catch (e) {
+                // ignore handler errors and continue to next
+            }
+        }
+        return false;
     }
 
-    static async generateOrRunOperationFromHashtagScript(
+    /**
+     * This function add a new handler (middleware) that will be called before the system interprets a possible Hashtag-Script that starts with `#`.
+     * The developer can use this function to run a custom Hashtag-Script. If the function returns `true`, the system will not interpret the Hashtag-Script.
+     * If returns a array of strings, the system will interpret the array as a new Hashtag-Script.
+     * @param handler The handler to run a custom Hashtag-Script
+     * @example
+     * ```ts
+     * import { HashtagScript } from 'pixi-vn-ink'
+     *
+     * HashtagScript.add((script, props, convertListStringToObj) => {
+     *    // script: # navigate scene_name prop1 "value 1" prop2 "value 2"
+     *    if (script[0] === "navigate" && script.length > 1) {
+     *        let prop = undefined
+     *        if (script.length > 2) {
+     *            prop = convertListStringToObj(script.slice(2))
+     *        }
+     *        navigateTo(script[1], prop)
+     *        return true
+     *    }
+     *    return false
+     * })
+     * ```
+     */
+    export function add(handler: HashtagScriptHandler) {
+        HashtagScriptStorage.handlers.push(handler);
+    }
+
+    export function clear() {
+        HashtagScriptStorage.handlers = [];
+    }
+
+    export async function run(
         comment: string,
         step: PixiVNJsonLabelStep,
-        props: StepLabelPropsType
+        props: StepLabelPropsType,
     ): Promise<PixiVNJsonOperation | undefined> {
         try {
             comment = comment.replaceAll('\\"', DOUBLE_QUOTES_CONVERTER);
@@ -94,22 +126,22 @@ export default class HashtagScriptManager {
                     .replaceAll(SPACE_SEPARATOR, " ")
                     .replaceAll(DOUBLE_QUOTES_CONVERTER, '"')
                     .replaceAll(QUOTES_CONVERTER, "'")
-                    .replaceAll(SPECIAL_QUOTES_CONVERTER, "`")
+                    .replaceAll(SPECIAL_QUOTES_CONVERTER, "`"),
             );
 
             // If is a custom command, it will run the custom operation
-            let customCommand = HashtagScriptManager.runCustomHashtagScript(list, props);
+            let customCommand = runCustomCommand(list, props);
             if (customCommand === true) {
                 return undefined;
             } else if (typeof customCommand === "string") {
                 if (customCommand.startsWith("#")) {
                     customCommand = customCommand.substring(1);
                 }
-                return HashtagScriptManager.generateOrRunOperationFromHashtagScript(customCommand, step, props);
+                return HashtagScript.run(customCommand, step, props);
             }
 
-            let operationType = list.length > 1 ? HashtagScriptManager.removeExtraDoubleQuotes(list[1]) : "";
-            let type = list.length > 0 ? HashtagScriptManager.removeExtraDoubleQuotes(list[0]) : "";
+            let operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
+            let type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
             switch (operationType) {
                 case "image":
                 case "imagecontainer":
@@ -120,13 +152,13 @@ export default class HashtagScriptManager {
                         return {
                             type: "video",
                             operationType: type as any,
-                            alias: HashtagScriptManager.removeExtraDoubleQuotes(list[2]),
+                            alias: removeExtraDoubleQuotes(list[2]),
                         };
                     } else {
-                        return HashtagScriptManager.getCanvasOperationFromComment(list, operationType);
+                        return getCanvasOperationFromComment(list, operationType);
                     }
                 case "sound":
-                    return HashtagScriptManager.getSoundOperationFromComment(list);
+                    return getSoundOperationFromComment(list);
                 case "input":
                     if (type === "request") {
                         let op: PixiVNJsonOperation = {
@@ -136,7 +168,7 @@ export default class HashtagScriptManager {
                         if (list.length > 2) {
                             try {
                                 let propList = list.slice(2);
-                                let props = HashtagScriptManager.convertListStringToObj(propList);
+                                let props = convertListStringToObj(propList);
                                 if ("type" in props && typeof props.type === "string") {
                                     op.valueType = props.type;
                                 }
@@ -172,52 +204,14 @@ export default class HashtagScriptManager {
                                 };
                                 step.goNextStep = undefined;
                                 return;
-                            case "fade":
-                            case "move":
-                            case "rotate":
-                            case "zoom":
                             case "shake":
                                 let propsEffect = {};
                                 if (list.length > 2) {
                                     try {
-                                        propsEffect = HashtagScriptManager.convertListStringToObj(list.slice(2));
+                                        propsEffect = convertListStringToObj(list.slice(2));
                                     } catch (_) {}
                                 }
-                                if (type == "move" && "x" in propsEffect && "y" in propsEffect) {
-                                    (propsEffect as any)["destination"] = {
-                                        x: propsEffect.x,
-                                        y: propsEffect.y,
-                                        type: "pixel",
-                                    };
-                                    delete propsEffect.x;
-                                    delete propsEffect.y;
-                                }
-                                if (type == "move" && "xAlign" in propsEffect && "yAlign" in propsEffect) {
-                                    (propsEffect as any)["destination"] = {
-                                        x: propsEffect.xAlign,
-                                        y: propsEffect.yAlign,
-                                        type: "align",
-                                    };
-                                    delete propsEffect.xAlign;
-                                    delete propsEffect.yAlign;
-                                }
-                                if (type == "move" && "xPercentage" in propsEffect && "yPercentage" in propsEffect) {
-                                    (propsEffect as any)["destination"] = {
-                                        x: propsEffect.xPercentage,
-                                        y: propsEffect.yPercentage,
-                                        type: "percentage",
-                                    };
-                                    delete propsEffect.xPercentage;
-                                    delete propsEffect.yPercentage;
-                                }
-                                if (type == "move" && !("destination" in propsEffect)) {
-                                    logger.error(
-                                        "The move operation don't have a destination or destination is not valid",
-                                        propsEffect
-                                    );
-                                    return undefined;
-                                }
-                                let effect: PixiVNJsonCanvasEffect | PixiVNJsonCanvasTicker = {
+                                let effect: PixiVNJsonCanvasEffect = {
                                     alias: operationType,
                                     type: type,
                                     props: propsEffect as any,
@@ -235,11 +229,11 @@ export default class HashtagScriptManager {
                                         keyframesList = keyframesList.slice(0, optionsIndex);
                                     }
                                     try {
-                                        keyframes = HashtagScriptManager.convertListStringToObj(keyframesList);
+                                        keyframes = convertListStringToObj(keyframesList);
                                     } catch (_) {}
                                     if (optionsList.length > 0) {
                                         try {
-                                            options = HashtagScriptManager.convertListStringToObj(optionsList);
+                                            options = convertListStringToObj(optionsList);
                                         } catch (_) {}
                                     }
                                 }
@@ -279,27 +273,23 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
-    private static getCanvasOperationFromComment(
+    function getCanvasOperationFromComment(
         list: string[],
-        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement" | "text"
+        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement" | "text",
     ): PixiVNJsonOperation | undefined {
-        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
-        let imageId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
-        let propsList = HashtagScriptManager.convertListStringToPropList(list.slice(3));
+        let type = removeExtraDoubleQuotes(list[0]);
+        let imageId = removeExtraDoubleQuotes(list[2]);
+        let propsList = convertListStringToPropList(list.slice(3));
         switch (type) {
             case "show":
                 switch (typeCanvasElement) {
                     case "image":
                     case "video":
-                        return HashtagScriptManager.getImageOperationFromComment(typeCanvasElement, imageId, propsList);
+                        return getImageOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "imagecontainer":
-                        return HashtagScriptManager.getContainerOperationFromComment(
-                            typeCanvasElement,
-                            imageId,
-                            propsList
-                        );
+                        return getContainerOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "text":
-                        return HashtagScriptManager.getTextOperationFromComment(typeCanvasElement, imageId, propsList);
+                        return getTextOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "canvaselement":
                     default:
                         logger.error("This show operation is not valid for this type of element", typeCanvasElement);
@@ -309,7 +299,7 @@ export default class HashtagScriptManager {
                     type: typeCanvasElement,
                     operationType: "edit",
                     alias: imageId,
-                    props: HashtagScriptManager.convertPropListStringToObj(propsList) as any,
+                    props: convertPropListStringToObj(propsList) as any,
                 };
                 return editOp;
             case "remove":
@@ -321,7 +311,7 @@ export default class HashtagScriptManager {
                 if (propsList.length > 1 && propsList[0] === "with") {
                     let transitionType = list[list.indexOf("with") + 1];
                     let transitionList = list.slice(list.indexOf("with") + 2);
-                    let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
+                    let transition = getTransition(transitionType, transitionList);
                     if (transition !== undefined) {
                         removeOp.transition = transition;
                     }
@@ -332,10 +322,10 @@ export default class HashtagScriptManager {
         }
         return undefined;
     }
-    private static getImageOperationFromComment(
+    function getImageOperationFromComment(
         typeCanvasElement: "image" | "video",
         imageId: string,
-        list: string[]
+        list: string[],
     ): PixiVNJsonOperation | undefined {
         let url: string;
         let propList: string[];
@@ -343,7 +333,7 @@ export default class HashtagScriptManager {
             url = imageId;
             propList = list;
         } else {
-            url = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+            url = removeExtraDoubleQuotes(list[0]);
             propList = list.slice(1);
         }
         let op: PixiVNJsonOperation = {
@@ -352,12 +342,12 @@ export default class HashtagScriptManager {
             alias: imageId,
             url: url,
         };
-        return HashtagScriptManager.setShowProps(op, propList);
+        return setShowProps(op, propList);
     }
-    private static getTextOperationFromComment(
+    function getTextOperationFromComment(
         typeCanvasElement: "text",
         imageId: string,
-        list: string[]
+        list: string[],
     ): PixiVNJsonOperation | undefined {
         let text: string;
         let propList: string[];
@@ -365,7 +355,7 @@ export default class HashtagScriptManager {
             text = imageId;
             propList = list;
         } else {
-            text = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+            text = removeExtraDoubleQuotes(list[0]);
             propList = list.slice(1);
         }
         let op: PixiVNJsonOperation = {
@@ -374,12 +364,12 @@ export default class HashtagScriptManager {
             alias: imageId,
             text: text,
         };
-        return HashtagScriptManager.setShowProps(op, propList);
+        return setShowProps(op, propList);
     }
-    private static getContainerOperationFromComment(
+    function getContainerOperationFromComment(
         typeCanvasElement: "imagecontainer",
         imageId: string,
-        list: string[]
+        list: string[],
     ): PixiVNJsonOperation | undefined {
         // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
         let urls = [];
@@ -408,18 +398,18 @@ export default class HashtagScriptManager {
             type: typeCanvasElement,
             operationType: "show",
             alias: imageId,
-            urls: urls.map((item) => HashtagScriptManager.removeExtraDoubleQuotes(item)),
+            urls: urls.map((item) => removeExtraDoubleQuotes(item)),
         };
         let propList = list.slice(endIndex + 1);
-        return HashtagScriptManager.setShowProps(op, propList);
+        return setShowProps(op, propList);
     }
 
-    private static getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
-        let type = HashtagScriptManager.removeExtraDoubleQuotes(list[0]);
+    function getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
+        let type = removeExtraDoubleQuotes(list[0]);
         if (!SOUND_TYPES.includes(type)) {
             return undefined;
         }
-        let soundId = HashtagScriptManager.removeExtraDoubleQuotes(list[2]);
+        let soundId = removeExtraDoubleQuotes(list[2]);
         switch (type) {
             case "play":
                 let opplay: PixiVNJsonOperation = {
@@ -428,7 +418,7 @@ export default class HashtagScriptManager {
                     alias: soundId,
                 };
                 if (list.length > 3) {
-                    let props = HashtagScriptManager.getSoundPlayOptions(list.slice(3));
+                    let props = getSoundPlayOptions(list.slice(3));
                     if (props !== undefined) {
                         opplay.props = props;
                     }
@@ -464,25 +454,25 @@ export default class HashtagScriptManager {
         return undefined;
     }
 
-    private static setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
+    function setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
         if (propList.length > 0) {
             if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
                 let transitionType = propList[propList.indexOf("with") + 1];
                 let transitionList = propList.slice(propList.indexOf("with") + 2);
                 propList = propList.slice(0, propList.indexOf("with"));
-                let transition = HashtagScriptManager.getTransition(transitionType, transitionList);
+                let transition = getTransition(transitionType, transitionList);
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
             }
             if (propList.length > 0) {
-                let props = HashtagScriptManager.convertPropListStringToObj(propList);
+                let props = convertPropListStringToObj(propList);
                 op.props = props as any;
             }
         }
         return op;
     }
-    private static getTransition(transitionType: string, propsList: string[]): PixiVNJsonMediaTransiotions | undefined {
+    function getTransition(transitionType: string, propsList: string[]): PixiVNJsonMediaTransiotions | undefined {
         switch (transitionType) {
             case "dissolve":
             case "fade":
@@ -501,23 +491,23 @@ export default class HashtagScriptManager {
         };
         if (propsList.length > 0) {
             try {
-                let props = HashtagScriptManager.convertPropListStringToObj(propsList);
+                let props = convertPropListStringToObj(propsList);
                 transition.props = props;
             } catch (_) {}
         }
         return transition;
     }
 
-    private static getSoundOption(list: string[]): SoundOptions | undefined {
+    function getSoundOption(list: string[]): SoundOptions | undefined {
         try {
-            return HashtagScriptManager.convertListStringToObj(list);
+            return convertListStringToObj(list);
         } catch (_) {
             return undefined;
         }
     }
-    private static getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
+    function getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
         try {
-            return HashtagScriptManager.convertListStringToObj(list);
+            return convertListStringToObj(list);
         } catch (_) {
             return undefined;
         }
@@ -532,11 +522,11 @@ export default class HashtagScriptManager {
      * into object:
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
-    private static convertListStringToObj(listParm: string[]): object {
-        let list: string[] = HashtagScriptManager.convertListStringToPropList(listParm);
-        return HashtagScriptManager.convertPropListStringToObj(list);
+    function convertListStringToObj(listParm: string[]): object {
+        let list: string[] = convertListStringToPropList(listParm);
+        return convertPropListStringToObj(list);
     }
-    private static convertListStringToPropList(listParm: string[]): string[] {
+    function convertListStringToPropList(listParm: string[]): string[] {
         let list: string[] = [];
         let curly_brackets = 0;
         let temp = "";
@@ -560,7 +550,7 @@ export default class HashtagScriptManager {
         }
         return list;
     }
-    private static convertPropListStringToObj(list: string[]): object {
+    function convertPropListStringToObj(list: string[]): object {
         if (list.length === 0) {
             return {};
         }
@@ -581,8 +571,8 @@ export default class HashtagScriptManager {
                         objJson += `${item}`;
                         break;
                     default:
-                        if (HashtagScriptManager.containExtraDoubleQuotes(item)) {
-                            item = HashtagScriptManager.removeExtraDoubleQuotes(item);
+                        if (containExtraDoubleQuotes(item)) {
+                            item = removeExtraDoubleQuotes(item);
                             objJson += `"${item}"`;
                         } else if (item.startsWith("{") && item.endsWith("}")) {
                             objJson += `${item}`;
@@ -608,7 +598,7 @@ export default class HashtagScriptManager {
         }
     }
 
-    private static removeExtraDoubleQuotes(value: string): string {
+    function removeExtraDoubleQuotes(value: string): string {
         if (value.startsWith('"') && value.endsWith('"')) {
             return value.substring(1, value.length - 1);
         }
@@ -620,7 +610,7 @@ export default class HashtagScriptManager {
         }
         return value;
     }
-    private static containExtraDoubleQuotes(value: string): boolean {
+    function containExtraDoubleQuotes(value: string): boolean {
         if (value.startsWith('"') && value.endsWith('"')) {
             return true;
         }
@@ -632,4 +622,12 @@ export default class HashtagScriptManager {
         }
         return false;
     }
+}
+export default HashtagScript;
+
+/**
+ * @deprecated This function is deprecated, use {@link HashtagScript.add} instead
+ */
+export function onInkHashtagScript(runCustomHashtagScript: HashtagScriptHandler) {
+    HashtagScript.add(runCustomHashtagScript);
 }

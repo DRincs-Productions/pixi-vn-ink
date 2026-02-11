@@ -8,7 +8,6 @@ import type {
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { logger } from "../functions/log-utility";
 import {
     arithmeticFunctions,
     ArithmeticFunctions,
@@ -16,8 +15,9 @@ import {
     ArithmeticFunctionsSingle,
     conditionFunctions,
     ConditionFunctions,
-} from "../types/parserItems/NativeFunctions";
+} from "../interfaces/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
+import { logger } from "../utils/log-utility";
 import { getText } from "../utils/text-utility";
 import { getValue } from "../utils/value-utility";
 

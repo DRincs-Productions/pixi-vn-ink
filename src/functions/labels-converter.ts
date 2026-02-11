@@ -1,15 +1,15 @@
 import type { PixiVNJsonLabels, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
+import InkRootType from "../interfaces/InkRootType";
+import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
 import { addSwitchElemenStep, addSwitchElemenText } from "../parser/adding-elements";
 import { parseLabel, ShareDataParserLabel } from "../parser/label-parser";
 import { ConditionalList, parserSwitch } from "../parser/switch-parser";
-import InkRootType from "../types/InkRootType";
-import RootParserItemType from "../types/parserItems/RootParserItemType";
+import { logger } from "../utils/log-utility";
 import { addChoiseIntoList } from "./choice-info-converter";
-import { logger } from "./log-utility";
 
 export function getInkLabels(
-    story: (InkRootType | RootParserItemType | RootParserItemType[])[]
+    story: (InkRootType | RootParserItemType | RootParserItemType[])[],
 ): PixiVNJsonLabels | undefined {
     try {
         let label: PixiVNJsonLabels = {};
@@ -25,7 +25,7 @@ export function getInkLabels(
 function findLabel(
     story: (InkRootType | RootParserItemType | RootParserItemType[])[],
     labels: PixiVNJsonLabels,
-    sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = { externalSwitch: undefined }
+    sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = { externalSwitch: undefined },
 ) {
     for (const storyItem of story) {
         if (storyItem) {
@@ -37,7 +37,7 @@ function findLabel(
                         (_storyItem, _dadLabelKey, _shareData) => {},
                         "",
                         { preDialog: {} },
-                        []
+                        [],
                     );
                     if (item) {
                         sharedVariables.externalSwitch = item;
@@ -72,7 +72,7 @@ export function addLabels(
     storyItem: InkRootType | RootParserItemType,
     result: PixiVNJsonLabels,
     dadLabelKey: string = "",
-    shareData: ShareDataParserLabel = { preDialog: {} }
+    shareData: ShareDataParserLabel = { preDialog: {} },
 ) {
     if (storyItem === null) {
         return;
@@ -97,7 +97,7 @@ export function addLabels(
                 (storyItem, dadLabelKey, shareData) => {
                     addLabels(storyItem, subLabels, dadLabelKey, shareData);
                 },
-                addChoiseIntoList
+                addChoiseIntoList,
             );
             for (const [subKey, subValue] of Object.entries(subLabels)) {
                 result[subKey] = subValue;

@@ -1,6 +1,6 @@
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
-import { logger } from "./log-utility";
+import { logger } from "../utils/log-utility";
 
 export function convertorInkToJson(text: string, labelToRemove: string[] = [], initialVarsToRemove: string[] = []) {
     const issues: { message: string; type: ErrorType }[] = [];

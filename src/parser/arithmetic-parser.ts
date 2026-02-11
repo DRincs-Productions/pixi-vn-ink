@@ -1,14 +1,14 @@
 import type { StorageElementType } from "@drincs/pixi-vn";
 import type { PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
-import { logger } from "../functions/log-utility";
-import { ArithmeticFunctions } from "../types/parserItems/NativeFunctions";
-import VariableReference from "../types/parserItems/VariableReference";
+import { ArithmeticFunctions } from "../interfaces/parserItems/NativeFunctions";
+import VariableReference from "../interfaces/parserItems/VariableReference";
+import { logger } from "../utils/log-utility";
 import { conditionaAritmeticParser } from "./conditiona-aritmetic-parser";
 
 export function arithmeticParser(
     data: (ArithmeticFunctions | VariableReference)[],
     labelKey: string,
-    paramNames: string[]
+    paramNames: string[],
 ): PixiVNJsonValueGet | StorageElementType | undefined {
     if (data.length === 0) {
         logger.error("Error parsing ink file: Arithmetic statement is not valid", data);
