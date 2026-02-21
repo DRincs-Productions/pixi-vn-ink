@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-ink" alt="npm package"></a>
   <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-ink" alt="npm downloads"></a>
-  <img alt="Discord" src="https://img.shields.io/discord/1263071210011496501">
+  <a href="https://discord.gg/E95FZWakzp"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501"></a>
 </p>
 
 Pixi’VN gives you the ability to write your own narrative using ***ink***, a scripting language for writing interactive narrative.
