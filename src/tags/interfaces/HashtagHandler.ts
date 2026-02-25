@@ -18,5 +18,5 @@ type HashtagHandler = (
      * This is the array: `["name", "John", "age", "20", "position", "{ x: 2, y 3 }"]` and this is the json: `{name: "John", age: 20, position: { x: 2, y: 3 }}`.
      */
     convertListStringToObj: (listParm: string[]) => object,
-) => boolean | string;
+) => boolean | string | Promise<boolean | string>;
 export default HashtagHandler;
