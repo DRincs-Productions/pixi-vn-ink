@@ -537,6 +537,15 @@ test("effect image", async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
+                            values: ["animate bg x [100 200] y [300 400] options duration 3"],
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "operationtoconvert",
                             values: ["pause"],
                         },
                     ],
@@ -611,6 +620,7 @@ test("effect image", async () => {
 # shake bg
 # animate bg angle 90
 # animate bg x 100 y 200 options duration 3
+# animate bg x [100 200] y [300 400] options duration 3
 # pause
 -> DONE
 `);
