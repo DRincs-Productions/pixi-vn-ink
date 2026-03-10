@@ -19,7 +19,7 @@ export default defineConfig({
     noExternal: [
         "@drincs/pixi-vn-json",
         "@drincs/pixi-vn-json/translator",
-        "@drincs/pixi-vn-json/unifier",
+        "@drincs/pixi-vn-json/core",
         "@drincs/pixi-vn-json/importer",
     ],
     external: ["vite"],
