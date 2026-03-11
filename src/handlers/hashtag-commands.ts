@@ -24,7 +24,7 @@ class Storage {
 }
 
 /**
- * Thisis a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
+ * This is a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
  */
 namespace HashtagCommands {
     async function runCustomCommand(script: string[], props: StepLabelPropsType): Promise<boolean | string> {
