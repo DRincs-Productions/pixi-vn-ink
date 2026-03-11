@@ -24,7 +24,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
         texts = [texts];
     }
     init({
-        _getLogichValue: VariableGetter.getLogichValue,
+        getLogichValue: (value, next) => VariableGetter.getLogichValue(value, next),
     });
     const promises = texts.map(async (text) => {
         let data = convertInkToJson(text);
@@ -46,7 +46,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
  */
 export async function importJson(data: PixiVNJson | PixiVNJson[]) {
     init({
-        _getLogichValue: VariableGetter.getLogichValue,
+        getLogichValue: (value, next) => VariableGetter.getLogichValue(value, next),
     });
     return await importPixiVNJson(data, {
         operationStringConvert: HashtagCommands.run,
