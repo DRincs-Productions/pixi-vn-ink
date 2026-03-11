@@ -24,7 +24,7 @@ namespace VariableGetter {
         }
         const handler = Storage.handlers[index];
         return handler(value, (newValue) => {
-            return getLogichValue(value, next, index + 1);
+            return getLogichValue(newValue, next, index + 1);
         });
     }
 }
