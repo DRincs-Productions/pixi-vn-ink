@@ -3,9 +3,11 @@
 ![pixi-vn-cover-ink](https://github.com/user-attachments/assets/cc96d260-d909-4fa4-834e-85e4405b6dd1)
 
 <p align="center">
-  <a href="https://npmjs.com/package/@drincs/pixi-vn-ink"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-ink" alt="npm package"></a>
-  <a href="https://npmjs.com/package/@drincs/pixi-vn-ink"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-ink" alt="npm downloads"></a>
-  <a href="https://discord.gg/E95FZWakzp"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501"></a>
+  <a href="https://www.npmjs.com/package/@drincs/pixi-vn-ink" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-ink?label=version" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@drincs/pixi-vn-ink" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-ink" alt="npm downloads per month"></a>
+  <a target="_blank" href="https://www.jsdelivr.com/package/npm/@drincs/pixi-vn-ink" rel="noopener noreferrer nofollow"><img alt="jsDelivr hits (npm)" src="https://img.shields.io/jsdelivr/npm/hm/@drincs/pixi-vn-ink?logo=jsdeliver"></a>
+  <a href="https://www.npmjs.com/package/@drincs/pixi-vn-ink" rel="noopener noreferrer nofollow"><img alt="NPM License" src="https://img.shields.io/npm/l/@drincs/pixi-vn-ink"></a>
+  <a target="_blank" href="https://discord.gg/E95FZWakzp" rel="noopener noreferrer nofollow"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501?color=7289da&label=discord"></a>
 </p>
 
 Pixi’VN gives you the ability to write your own narrative using ***ink***, a scripting language for writing interactive narrative.
