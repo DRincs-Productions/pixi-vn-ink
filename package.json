@@ -55,20 +55,20 @@
   "homepage": "https://pixi-vn.web.app/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "1.10.3"
+    "@drincs/pixi-vn-json": "1.11.1"
   },
   "devDependencies": {
     "inkjs": "2.4.0",
-    "jsdom": "^28.0.0",
+    "jsdom": "^29.0.1",
     "json5": "^2.2.3",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vite.js": "^1.0.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.2"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.5.17"
+    "@drincs/pixi-vn": ">=1.6.0"
   },
   "keywords": [
     "game",

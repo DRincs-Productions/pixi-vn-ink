@@ -1,4 +1,4 @@
-import type { SoundOptions, SoundPlayOptions, StepLabelPropsType } from "@drincs/pixi-vn";
+import type { StepLabelPropsType } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
     PixiVNJsonCanvasEffect,
@@ -17,7 +17,6 @@ const QUOTES_CONVERTER = "§QUOTES§";
 const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
-const SOUND_TYPES = ["add", "play", "pause", "resume", "remove", "volume"];
 
 class Storage {
     static handlers: Array<HashtagHandler> = [(_script: string[]) => false];
@@ -171,7 +170,9 @@ namespace HashtagCommands {
                         return getCanvasOperationFromComment(list, operationType);
                     }
                 case "sound":
-                    return getSoundOperationFromComment(list);
+                case "allsound":
+                case "channel":
+                    return getSoundOperationFromComment(list, operationType);
                 case "input":
                     if (type === "request") {
                         let op: PixiVNJsonOperation = {
@@ -417,21 +418,36 @@ namespace HashtagCommands {
         return setShowProps(op, propList);
     }
 
-    function getSoundOperationFromComment(list: string[]): PixiVNJsonOperation | undefined {
+    function getSoundOperationFromComment(
+        list: string[],
+        operationType: "sound" | "channel" | "allsound",
+    ): PixiVNJsonOperation | undefined {
         let type = removeExtraDoubleQuotes(list[0]);
-        if (!SOUND_TYPES.includes(type)) {
-            return undefined;
-        }
         let soundId = removeExtraDoubleQuotes(list[2]);
         switch (type) {
             case "play":
+                const tempList = convertListStringToPropList(list.slice(3));
+                let url: string;
+                let propList: string[];
+                if (tempList.length % 2 === 0) {
+                    url = soundId;
+                    // # sound play soundId prop1 "value 1" prop2 "value 2"
+                    propList = tempList;
+                } else {
+                    url = removeExtraDoubleQuotes(tempList[0]);
+                    propList = tempList.slice(1);
+                }
+
                 let opplay: PixiVNJsonOperation = {
                     type: "sound",
                     operationType: "play",
                     alias: soundId,
                 };
+                if (url) {
+                    opplay.url = url;
+                }
                 if (list.length > 3) {
-                    let props = getSoundPlayOptions(list.slice(3));
+                    let props = convertListStringToObj(propList);
                     if (props !== undefined) {
                         opplay.props = props;
                     }
@@ -440,7 +456,7 @@ namespace HashtagCommands {
             case "pause":
             case "resume":
                 let oppause: PixiVNJsonOperation = {
-                    type: "sound",
+                    type: operationType === "allsound" ? "all" : operationType,
                     operationType: type as any,
                     alias: soundId,
                 };
@@ -453,14 +469,25 @@ namespace HashtagCommands {
                     alias: soundId,
                 };
                 return opremove;
+            case "edit":
+                let opedit: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: "edit",
+                    alias: soundId,
+                    props: convertListStringToObj(list.slice(3)),
+                };
+                return opedit;
+            // TODO: deprecated
             case "volume":
                 // varse Float or Int
                 let number = parseFloat(list[3]);
                 let opvolume: PixiVNJsonOperation = {
                     type: "sound",
-                    operationType: "volume",
+                    operationType: "edit",
                     alias: soundId,
-                    value: number,
+                    props: {
+                        volume: number,
+                    },
                 };
                 return opvolume;
         }
@@ -509,21 +536,6 @@ namespace HashtagCommands {
             } catch (_) {}
         }
         return transition;
-    }
-
-    function getSoundOption(list: string[]): SoundOptions | undefined {
-        try {
-            return convertListStringToObj(list);
-        } catch (_) {
-            return undefined;
-        }
-    }
-    function getSoundPlayOptions(list: string[]): SoundPlayOptions | undefined {
-        try {
-            return convertListStringToObj(list);
-        } catch (_) {
-            return undefined;
-        }
     }
 
     /**

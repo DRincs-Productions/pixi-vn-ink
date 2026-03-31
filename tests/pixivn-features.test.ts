@@ -955,49 +955,76 @@ test("sound", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
                             values: ["play sound bird volume 100"],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ['play sound bird "bird 2" volume 100'],
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
                             values: ["pause sound bird"],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
                             values: ["resume sound bird"],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
                             values: ["remove sound bird"],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
                             values: ["volume sound bird 100"],
                         },
                     ],
+                },
+                {
                     goNextStep: true,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ["edit sound bird volume 100"],
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ["edit sound bird muted true"],
+                        },
+                    ],
                 },
                 {
                     dialogue: "Hello",
@@ -1013,58 +1040,101 @@ test("sound", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
-                            type: "sound",
-                            operationType: "play",
                             alias: "bird",
+                            operationType: "play",
                             props: {
                                 volume: 100,
                             },
+                            type: "sound",
+                            url: "bird",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
+                            alias: "bird",
+                            operationType: "play",
+                            props: {
+                                volume: 100,
+                            },
                             type: "sound",
+                            url: "bird 2",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bird",
                             operationType: "pause",
-                            alias: "bird",
+                            type: "sound",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
-                            type: "sound",
+                            alias: "bird",
                             operationType: "resume",
-                            alias: "bird",
+                            type: "sound",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
-                            type: "sound",
+                            alias: "bird",
                             operationType: "stop",
-                            alias: "bird",
+                            type: "sound",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
-                            type: "sound",
-                            operationType: "volume",
                             alias: "bird",
-                            value: 100,
+                            operationType: "edit",
+                            props: {
+                                volume: 100,
+                            },
+                            type: "sound",
                         },
                     ],
+                },
+                {
                     goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bird",
+                            operationType: "edit",
+                            props: {
+                                volume: 100,
+                            },
+                            type: "sound",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bird",
+                            operationType: "edit",
+                            props: {
+                                muted: true,
+                            },
+                            type: "sound",
+                        },
+                    ],
                 },
                 {
                     dialogue: "Hello",
@@ -1079,10 +1149,13 @@ test("sound", async () => {
     let res = convertInkText(`
 === start
 # play sound bird volume 100
+# play sound bird "bird 2" volume 100
 # pause sound bird
 # resume sound bird
 # remove sound bird
 # volume sound bird 100
+# edit sound bird volume 100
+# edit sound bird muted true
 Hello
 -> DONE
 `);
