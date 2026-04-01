@@ -170,7 +170,7 @@ namespace HashtagCommands {
                         return getCanvasOperationFromComment(list, operationType);
                     }
                 case "sound":
-                case "allsound":
+                case "allsounds":
                 case "channel":
                     return getSoundOperationFromComment(list, operationType);
                 case "input":
@@ -420,7 +420,7 @@ namespace HashtagCommands {
 
     function getSoundOperationFromComment(
         list: string[],
-        operationType: "sound" | "channel" | "allsound",
+        operationType: "sound" | "channel" | "allsounds",
     ): PixiVNJsonOperation | undefined {
         let type = removeExtraDoubleQuotes(list[0]);
         let soundId = removeExtraDoubleQuotes(list[2]);
@@ -456,7 +456,7 @@ namespace HashtagCommands {
             case "pause":
             case "resume":
                 let oppause: PixiVNJsonOperation = {
-                    type: operationType === "allsound" ? "all" : operationType,
+                    type: operationType === "allsounds" ? "all" : operationType,
                     operationType: type as any,
                     alias: soundId,
                 };
