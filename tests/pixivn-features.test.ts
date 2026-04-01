@@ -1027,6 +1027,24 @@ test("sound", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ["pause all sounds"],
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "operationtoconvert",
+                            values: ["resume all sounds"],
+                        },
+                    ],
+                },
+                {
                     dialogue: "Hello",
                 },
                 {
@@ -1137,6 +1155,24 @@ test("sound", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            operationType: "pause",
+                            type: "all",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            operationType: "resume",
+                            type: "all",
+                        },
+                    ],
+                },
+                {
                     dialogue: "Hello",
                 },
                 {
@@ -1156,6 +1192,8 @@ test("sound", async () => {
 # volume sound bird 100
 # edit sound bird volume 100
 # edit sound bird muted true
+# pause all sounds
+# resume all sounds
 Hello
 -> DONE
 `);

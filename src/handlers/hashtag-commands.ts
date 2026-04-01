@@ -170,7 +170,6 @@ namespace HashtagCommands {
                         return getCanvasOperationFromComment(list, operationType);
                     }
                 case "sound":
-                case "allsounds":
                 case "channel":
                     return getSoundOperationFromComment(list, operationType);
                 case "input":
@@ -207,6 +206,19 @@ namespace HashtagCommands {
                             return op;
                     }
                     break;
+                case "all":
+                    if (list.length > 2) {
+                        switch (list[2]) {
+                            case "sounds":
+                            case "sound":
+                                if (type === "pause" || type === "resume") {
+                                    return {
+                                        type: "all",
+                                        operationType: type,
+                                    };
+                                }
+                        }
+                    }
                 default:
                     if (operationType) {
                         switch (type) {
@@ -420,7 +432,7 @@ namespace HashtagCommands {
 
     function getSoundOperationFromComment(
         list: string[],
-        operationType: "sound" | "channel" | "allsounds",
+        operationType: "sound" | "channel",
     ): PixiVNJsonOperation | undefined {
         let type = removeExtraDoubleQuotes(list[0]);
         let soundId = removeExtraDoubleQuotes(list[2]);
@@ -456,7 +468,7 @@ namespace HashtagCommands {
             case "pause":
             case "resume":
                 let oppause: PixiVNJsonOperation = {
-                    type: operationType === "allsounds" ? "all" : operationType,
+                    type: operationType,
                     operationType: type as any,
                     alias: soundId,
                 };
