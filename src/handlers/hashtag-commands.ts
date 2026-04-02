@@ -211,11 +211,14 @@ namespace HashtagCommands {
                         switch (list[2]) {
                             case "sounds":
                             case "sound":
-                                if (type === "pause" || type === "resume") {
-                                    return {
-                                        type: "all",
-                                        operationType: type,
-                                    };
+                                switch (type) {
+                                    case "pause":
+                                    case "resume":
+                                    case "stop":
+                                        return {
+                                            type: "all",
+                                            operationType: type,
+                                        };
                                 }
                         }
                     }
