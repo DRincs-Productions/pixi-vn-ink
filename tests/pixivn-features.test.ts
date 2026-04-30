@@ -1004,15 +1004,6 @@ test("sound", async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: ["volume sound bird 100"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
                             values: ["edit sound bird volume 100"],
                         },
                     ],
@@ -1135,19 +1126,6 @@ test("sound", async () => {
                             alias: "bird",
                             operationType: "edit",
                             props: {
-                                volume: 100,
-                            },
-                            type: "sound",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            alias: "bird",
-                            operationType: "edit",
-                            props: {
                                 muted: true,
                             },
                             type: "sound",
@@ -1189,7 +1167,6 @@ test("sound", async () => {
 # pause sound bird
 # resume sound bird
 # remove sound bird
-# volume sound bird 100
 # edit sound bird volume 100
 # edit sound bird muted true
 # pause all sounds

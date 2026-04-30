@@ -9,7 +9,7 @@ import type {
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
 import { logger } from "../utils/log-utility";
-import HashtagHandler from "./interfaces/HashtagHandler";
+import type HashtagHandler from "./interfaces/HashtagHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -102,10 +102,10 @@ namespace HashtagCommands {
             tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
             let list: string[] = [];
             // for string characters
-            let startComment: '"' | "'" | "`" | undefined = undefined;
+            let startComment: '"' | "'" | "`" | undefined;
             let temp = "";
             for (let i = 0; i < tag.length; i++) {
-                let char = tag[i];
+                const char = tag[i];
                 if (char === '"' || char === "'" || char === "`") {
                     if (startComment === undefined) {
                         list.push(temp);
@@ -155,8 +155,8 @@ namespace HashtagCommands {
                 return HashtagCommands.run(customCommand, step, props);
             }
 
-            let operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
-            let type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
+            const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
+            const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
             switch (operationType) {
                 case "image":
                 case "imagecontainer":
@@ -177,14 +177,14 @@ namespace HashtagCommands {
                     return getSoundOperationFromComment(list, operationType);
                 case "input":
                     if (type === "request") {
-                        let op: PixiVNJsonOperation = {
+                        const op: PixiVNJsonOperation = {
                             type: "input",
                             operationType: "request",
                         };
                         if (list.length > 2) {
                             try {
-                                let propList = list.slice(2);
-                                let props = convertListStringToObj(propList);
+                                const propList = list.slice(2);
+                                const props = convertListStringToObj(propList);
                                 if ("type" in props && typeof props.type === "string") {
                                     op.valueType = props.type;
                                 }
@@ -200,13 +200,14 @@ namespace HashtagCommands {
                 case "bundle":
                     switch (type) {
                         case "load":
-                        case "lazyload":
-                            let op: PixiVNJsonOperation = {
+                        case "lazyload": {
+                            const op: PixiVNJsonOperation = {
                                 type: operationType,
                                 operationType: type,
                                 aliases: list.slice(2),
                             };
                             return op;
+                        }
                     }
                     break;
                 case "all":
@@ -236,27 +237,28 @@ namespace HashtagCommands {
                                 };
                                 step.goNextStep = undefined;
                                 return;
-                            case "shake":
+                            case "shake": {
                                 let propsEffect = {};
                                 if (list.length > 2) {
                                     try {
                                         propsEffect = convertListStringToObj(list.slice(2));
                                     } catch (_) {}
                                 }
-                                let effect: PixiVNJsonCanvasEffect = {
+                                const effect: PixiVNJsonCanvasEffect = {
                                     alias: operationType,
                                     type: type,
                                     props: propsEffect as any,
                                 };
                                 return effect;
-                            case "animate":
+                            }
+                            case "animate": {
                                 let keyframes = {};
                                 let options = {};
                                 if (list.length > 2) {
                                     let keyframesList = list.slice(2);
                                     let optionsList: string[] = [];
                                     if (keyframesList.includes("options")) {
-                                        let optionsIndex = keyframesList.indexOf("options");
+                                        const optionsIndex = keyframesList.indexOf("options");
                                         optionsList = keyframesList.slice(optionsIndex + 1);
                                         keyframesList = keyframesList.slice(0, optionsIndex);
                                     }
@@ -269,13 +271,14 @@ namespace HashtagCommands {
                                         } catch (_) {}
                                     }
                                 }
-                                let animate: PixiVNJsonCanvasAnimate = {
+                                const animate: PixiVNJsonCanvasAnimate = {
                                     alias: operationType,
                                     type: type,
                                     keyframes: keyframes,
                                     options: options,
                                 };
                                 return animate;
+                            }
                         }
                     } else {
                         switch (type) {
@@ -309,9 +312,9 @@ namespace HashtagCommands {
         list: string[],
         typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement" | "text",
     ): PixiVNJsonOperation | undefined {
-        let type = removeExtraDoubleQuotes(list[0]);
-        let imageId = removeExtraDoubleQuotes(list[2]);
-        let propsList = convertListStringToPropList(list.slice(3));
+        const type = removeExtraDoubleQuotes(list[0]);
+        const imageId = removeExtraDoubleQuotes(list[2]);
+        const propsList = convertListStringToPropList(list.slice(3));
         switch (type) {
             case "show":
                 switch (typeCanvasElement) {
@@ -333,29 +336,31 @@ namespace HashtagCommands {
                             typeCanvasElement,
                         );
                 }
-            case "edit":
-                let editOp: PixiVNJsonOperation = {
+            case "edit": {
+                const editOp: PixiVNJsonOperation = {
                     type: typeCanvasElement,
                     operationType: "edit",
                     alias: imageId,
                     props: convertPropListStringToObj(propsList) as any,
                 };
                 return editOp;
-            case "remove":
-                let removeOp: PixiVNJsonOperation = {
+            }
+            case "remove": {
+                const removeOp: PixiVNJsonOperation = {
                     type: typeCanvasElement,
                     operationType: "remove",
                     alias: imageId,
                 };
                 if (propsList.length > 1 && propsList[0] === "with") {
-                    let transitionType = list[list.indexOf("with") + 1];
-                    let transitionList = list.slice(list.indexOf("with") + 2);
-                    let transition = getTransition(transitionType, transitionList);
+                    const transitionType = list[list.indexOf("with") + 1];
+                    const transitionList = list.slice(list.indexOf("with") + 2);
+                    const transition = getTransition(transitionType, transitionList);
                     if (transition !== undefined) {
                         removeOp.transition = transition;
                     }
                 }
                 return removeOp;
+            }
             default:
                 logger.error("The operation type is not valid", type);
         }
@@ -375,7 +380,7 @@ namespace HashtagCommands {
             url = removeExtraDoubleQuotes(list[0]);
             propList = list.slice(1);
         }
-        let op: PixiVNJsonOperation = {
+        const op: PixiVNJsonOperation = {
             type: typeCanvasElement,
             operationType: "show",
             alias: imageId,
@@ -397,7 +402,7 @@ namespace HashtagCommands {
             text = removeExtraDoubleQuotes(list[0]);
             propList = list.slice(1);
         }
-        let op: PixiVNJsonOperation = {
+        const op: PixiVNJsonOperation = {
             type: typeCanvasElement,
             operationType: "show",
             alias: imageId,
@@ -412,8 +417,8 @@ namespace HashtagCommands {
     ): PixiVNJsonOperation | undefined {
         // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
         let urls = [];
-        let startIndex = list.findIndex((item) => item.startsWith("["));
-        let endIndex = list.findIndex((item) => item.endsWith("]"));
+        const startIndex = list.findIndex((item) => item.startsWith("["));
+        const endIndex = list.findIndex((item) => item.endsWith("]"));
         if (startIndex === -1 || endIndex === -1) {
             logger.error("Show imagecontainer must have a list of image ulrs", list);
             return undefined;
@@ -436,13 +441,13 @@ namespace HashtagCommands {
                 urls[urls.length - 1].length - 1,
             );
         }
-        let op: PixiVNJsonOperation = {
+        const op: PixiVNJsonOperation = {
             type: typeCanvasElement,
             operationType: "show",
             alias: imageId,
             urls: urls.map((item) => removeExtraDoubleQuotes(item)),
         };
-        let propList = list.slice(endIndex + 1);
+        const propList = list.slice(endIndex + 1);
         return setShowProps(op, propList);
     }
 
@@ -450,10 +455,10 @@ namespace HashtagCommands {
         list: string[],
         operationType: "sound" | "channel",
     ): PixiVNJsonOperation | undefined {
-        let type = removeExtraDoubleQuotes(list[0]);
-        let soundId = removeExtraDoubleQuotes(list[2]);
+        const type = removeExtraDoubleQuotes(list[0]);
+        const soundId = removeExtraDoubleQuotes(list[2]);
         switch (type) {
-            case "play":
+            case "play": {
                 const tempList = convertListStringToPropList(list.slice(3));
                 let url: string;
                 let propList: string[];
@@ -466,7 +471,7 @@ namespace HashtagCommands {
                     propList = tempList.slice(1);
                 }
 
-                let opplay: PixiVNJsonOperation = {
+                const opplay: PixiVNJsonOperation = {
                     type: "sound",
                     operationType: "play",
                     alias: soundId,
@@ -475,36 +480,40 @@ namespace HashtagCommands {
                     opplay.url = url;
                 }
                 if (list.length > 3) {
-                    let props = convertListStringToObj(propList);
+                    const props = convertListStringToObj(propList);
                     if (props !== undefined) {
                         opplay.props = props;
                     }
                 }
                 return opplay;
+            }
             case "pause":
-            case "resume":
-                let oppause: PixiVNJsonOperation = {
+            case "resume": {
+                const oppause: PixiVNJsonOperation = {
                     type: operationType,
                     operationType: type as any,
                     alias: soundId,
                 };
                 return oppause;
+            }
             case "stop":
-            case "remove":
-                let opremove: PixiVNJsonOperation = {
+            case "remove": {
+                const opremove: PixiVNJsonOperation = {
                     type: "sound",
                     operationType: "stop",
                     alias: soundId,
                 };
                 return opremove;
-            case "edit":
-                let opedit: PixiVNJsonOperation = {
+            }
+            case "edit": {
+                const opedit: PixiVNJsonOperation = {
                     type: "sound",
                     operationType: "edit",
                     alias: soundId,
                     props: convertListStringToObj(list.slice(3)),
                 };
                 return opedit;
+            }
         }
         return undefined;
     }
@@ -512,16 +521,16 @@ namespace HashtagCommands {
     function setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
         if (propList.length > 0) {
             if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                let transitionType = propList[propList.indexOf("with") + 1];
-                let transitionList = propList.slice(propList.indexOf("with") + 2);
+                const transitionType = propList[propList.indexOf("with") + 1];
+                const transitionList = propList.slice(propList.indexOf("with") + 2);
                 propList = propList.slice(0, propList.indexOf("with"));
-                let transition = getTransition(transitionType, transitionList);
+                const transition = getTransition(transitionType, transitionList);
                 if (transition !== undefined) {
                     op.transition = transition;
                 }
             }
             if (propList.length > 0) {
-                let props = convertPropListStringToObj(propList);
+                const props = convertPropListStringToObj(propList);
                 op.props = props as any;
             }
         }
@@ -544,12 +553,12 @@ namespace HashtagCommands {
             default:
                 return undefined;
         }
-        let transition: PixiVNJsonMediaTransiotions = {
+        const transition: PixiVNJsonMediaTransiotions = {
             type: transitionType,
         };
         if (propsList.length > 0) {
             try {
-                let props = convertPropListStringToObj(propsList);
+                const props = convertPropListStringToObj(propsList);
                 transition.props = props;
             } catch (_) {}
         }
@@ -566,15 +575,15 @@ namespace HashtagCommands {
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
     function convertListStringToObj(listParm: string[]): object {
-        let list: string[] = convertListStringToPropList(listParm);
+        const list: string[] = convertListStringToPropList(listParm);
         return convertPropListStringToObj(list);
     }
     function convertListStringToPropList(listParm: string[]): string[] {
-        let list: string[] = [];
+        const list: string[] = [];
         let curly_brackets = 0;
         let temp = "";
         for (let i = 0; i < listParm.length; i++) {
-            let item = listParm[i];
+            const item = listParm[i];
             if (item.startsWith("{")) {
                 curly_brackets++;
                 temp += item;

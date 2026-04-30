@@ -1,3 +1,4 @@
+import { TEXT_TO_REPLACE_REGEX } from "@/constant";
 import { translator } from "@drincs/pixi-vn-json/translator";
 import { onInkTranslate } from "./translate";
 
@@ -83,10 +84,10 @@ export function onReplaceTextBeforeTranslation(
  * @param text
  */
 function replaceText(text: string, getTextToReplace: (key: string) => string | undefined): string {
-    let matches = text.match(/\[([^\]]+)\]/);
+    const matches = text.match(TEXT_TO_REPLACE_REGEX);
     if (matches) {
-        let characterId = matches[1];
-        let character = getTextToReplace(characterId);
+        const characterId = matches[1];
+        const character = getTextToReplace(characterId);
         if (character) {
             text = text.replaceAll(matches[0], character);
         }
