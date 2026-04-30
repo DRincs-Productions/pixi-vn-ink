@@ -1,5 +1,5 @@
-import fs from "fs/promises";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
+import fs from "node:fs/promises";
 import type { Plugin } from "vite";
 import { convertorInkToJson } from "../functions/ink";
 
@@ -7,6 +7,15 @@ import { convertorInkToJson } from "../functions/ink";
  * This function creates a Vite plugin that prevents Hot Module Replacement (HMR) for .ink files.
  * Instead of triggering HMR, it imports the .ink file using the `importInkText` function.
  * @returns A Vite plugin that prevents HMR for .ink files.
+ * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @example
+ * // vite.config.ts
+ * import { defineConfig } from "vite";
+ * import { vitePluginInk } from "@drincs/pixi-vn-ink/vite";
+ *
+ * export default defineConfig({
+ *   plugins: [vitePluginInk()],
+ * });
  */
 export function vitePluginInk(): Plugin {
     return {
