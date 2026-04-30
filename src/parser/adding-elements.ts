@@ -1,5 +1,4 @@
 import { HashtagCommands } from "@/handlers";
-import { logger } from "@/utils/log-utility";
 import type {
     PixiVNJsonConditionalOperation,
     PixiVNJsonConditionalStatements,
@@ -109,12 +108,7 @@ function addConditionalElementStep(
                         if (res) {
                             op.push(res);
                         }
-                    } catch (e) {
-                        logger.error(
-                            "Error converting hashtag script operation, pushing as text",
-                            e,
-                        );
-                    }
+                    } catch (_) {}
                 }
                 if (op.length === 0) {
                     op.push({
