@@ -6,8 +6,8 @@ import type {
 } from "@drincs/pixi-vn-json";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { StandardDivert } from "../interfaces/parserItems/Divert";
-import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
+import type { StandardDivert } from "../interfaces/parserItems/Divert";
+import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { getText } from "../utils/text-utility";
 import { getValue } from "../utils/value-utility";
@@ -109,7 +109,7 @@ function addConditionalElementStep(
             item.storageOperationType === "get")
     ) {
         if (!isNewLine && list.length > 0) {
-            let prevItem = list[list.length - 1];
+            const prevItem = list[list.length - 1];
             // in this case: <> text
             if (!prevItem.glueEnabled && !prevItem.operations) {
                 prevItem.glueEnabled = true;
@@ -134,7 +134,7 @@ function addConditionalElementStep(
             });
         } else if (item == "<>") {
             if (list.length > 0) {
-                let prevItem = list[list.length - 1];
+                const prevItem = list[list.length - 1];
                 prevItem.glueEnabled = true;
                 if (!prevItem.labelToOpen) prevItem.goNextStep = true;
                 list[list.length - 1] = prevItem;
@@ -148,7 +148,7 @@ function addConditionalElementStep(
     } else if (typeof item === "object") {
         if ("type" in item && item.type !== "value") {
             if (!isNewLine && list.length > 0) {
-                let prevItem = list[list.length - 1];
+                const prevItem = list[list.length - 1];
                 // in this case: <> text
                 if (!prevItem.glueEnabled && !prevItem.operations) {
                     prevItem.glueEnabled = true;
@@ -168,7 +168,7 @@ function addConditionalElementStep(
                 glueEnabled = undefined;
             }
             if (!isNewLine && list.length > 0) {
-                let prevItem = list[list.length - 1];
+                const prevItem = list[list.length - 1];
                 if (!prevItem.labelToOpen) prevItem.goNextStep = true;
                 list[list.length - 1] = prevItem;
             }
@@ -185,7 +185,7 @@ function addConditionalElementStep(
                     glueEnabled: glueEnabled,
                 });
             } else {
-                let labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey);
+                const labelIdToOpen = getLabelByStandardDivert(item["->"], labelKey);
                 if (!labelIdToOpen) {
                     return;
                 }
@@ -212,11 +212,11 @@ function addConditionalElementStep(
 }
 
 function getDialog(text: string): PixiVNJsonLabelStep {
-    let character: string | undefined = undefined;
+    let character: string | undefined;
     if (text.includes(": ")) {
-        let parts = text.split(": ");
-        let c = parts[0];
-        let t = parts.slice(1).join(": ");
+        const parts = text.split(": ");
+        const c = parts[0];
+        const t = parts.slice(1).join(": ");
         if (RegisteredCharacters.get(c)) {
             character = c;
             text = t;

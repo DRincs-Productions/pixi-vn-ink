@@ -1,16 +1,16 @@
-import { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
+import type { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
 import HashtagCommands from "../src/handlers/hashtag-commands";
 
 export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
-        for (let label in res.labels) {
-            let tempSteps = [];
-            for (let step of res.labels[label]) {
+        for (const label in res.labels) {
+            const tempSteps = [];
+            for (const step of res.labels[label]) {
                 if (step.operations) {
-                    let ops: (PixiVNJsonOperation | PixiVNJsonIfElse<PixiVNJsonOperation>)[] = [];
-                    for (let operation of step.operations) {
+                    const ops: (PixiVNJsonOperation | PixiVNJsonIfElse<PixiVNJsonOperation>)[] = [];
+                    for (const operation of step.operations) {
                         if (operation.type === "operationtoconvert") {
-                            let v: string = operation.values
+                            const v: string = operation.values
                                 .map((v) => {
                                     if (typeof v === "string") {
                                         return v;
@@ -18,7 +18,7 @@ export async function convertOperation(res?: PixiVNJson) {
                                     return `"${v.type}"`;
                                 })
                                 .join("");
-                            let resOp = await HashtagCommands.run(v, step, {});
+                            const resOp = await HashtagCommands.run(v, step, {});
                             if (resOp) {
                                 ops.push(resOp);
                             }

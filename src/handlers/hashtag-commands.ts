@@ -91,58 +91,7 @@ namespace HashtagCommands {
         props: StepLabelPropsType,
     ): Promise<PixiVNJsonOperation | undefined> {
         try {
-            tag = tag.replaceAll('\\"', DOUBLE_QUOTES_CONVERTER);
-            tag = tag.replaceAll("\\'", QUOTES_CONVERTER);
-            tag = tag.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
-            tag = tag.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
-            tag = tag.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
-            tag = tag.replaceAll("{", " { ");
-            tag = tag.replaceAll("}", " } ");
-            tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
-            tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
-            let list: string[] = [];
-            // for string characters
-            let startComment: '"' | "'" | "`" | undefined;
-            let temp = "";
-            for (let i = 0; i < tag.length; i++) {
-                const char = tag[i];
-                if (char === '"' || char === "'" || char === "`") {
-                    if (startComment === undefined) {
-                        list.push(temp);
-                        temp = "";
-                        startComment = char;
-                        temp += char;
-                    } else if (startComment === char) {
-                        startComment = undefined;
-                        temp += char;
-                        list.push(temp);
-                        temp = "";
-                    } else {
-                        temp += char;
-                    }
-                } else {
-                    temp += char;
-                }
-            }
-            if (temp !== "") {
-                list.push(temp);
-            }
-
-            list.forEach((item, index) => {
-                // if index is shots
-                if (index % 2 === 1) {
-                    list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
-                }
-            });
-            tag = list.join("");
-            list = tag.split(" ").filter((item) => item !== "");
-            list = list.map((item) =>
-                item
-                    .replaceAll(SPACE_SEPARATOR, " ")
-                    .replaceAll(DOUBLE_QUOTES_CONVERTER, '"')
-                    .replaceAll(QUOTES_CONVERTER, "'")
-                    .replaceAll(SPECIAL_QUOTES_CONVERTER, "`"),
-            );
+            const list = convertTagTolist(tag);
 
             // If is a custom command, it will run the custom operation
             let customCommand = await runCustomCommand(list, props);
@@ -155,156 +104,218 @@ namespace HashtagCommands {
                 return HashtagCommands.run(customCommand, step, props);
             }
 
-            const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
-            const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
-            switch (operationType) {
-                case "image":
-                case "imagecontainer":
-                case "canvaselement":
-                case "video":
-                case "text":
-                    if (operationType === "video" && (type === "pause" || type === "resume")) {
-                        return {
-                            type: "video",
-                            operationType: type as any,
-                            alias: removeExtraDoubleQuotes(list[2]),
-                        };
-                    } else {
-                        return getCanvasOperationFromComment(list, operationType);
-                    }
-                case "sound":
-                case "channel":
-                    return getSoundOperationFromComment(list, operationType);
-                case "input":
-                    if (type === "request") {
-                        const op: PixiVNJsonOperation = {
-                            type: "input",
-                            operationType: "request",
-                        };
-                        if (list.length > 2) {
-                            try {
-                                const propList = list.slice(2);
-                                const props = convertListStringToObj(propList);
-                                if ("type" in props && typeof props.type === "string") {
-                                    op.valueType = props.type;
-                                }
-                                if ("default" in props) {
-                                    op.defaultValue = props.default;
-                                }
-                            } catch (_) {}
-                        }
-                        return op;
-                    }
-                    break;
-                case "assets":
-                case "bundle":
-                    switch (type) {
-                        case "load":
-                        case "lazyload": {
-                            const op: PixiVNJsonOperation = {
-                                type: operationType,
-                                operationType: type,
-                                aliases: list.slice(2),
-                            };
-                            return op;
-                        }
-                    }
-                    break;
-                case "all":
-                    if (list.length > 2) {
-                        switch (list[2]) {
-                            case "sounds":
-                            case "sound":
-                                switch (type) {
-                                    case "pause":
-                                    case "resume":
-                                    case "stop":
-                                        return {
-                                            type: "all",
-                                            operationType: type,
-                                        };
-                                }
-                        }
-                    }
-                default:
-                    if (operationType) {
-                        switch (type) {
-                            case "call":
-                            case "jump":
-                                step.labelToOpen = {
-                                    label: operationType,
-                                    type: type,
-                                };
-                                step.goNextStep = undefined;
-                                return;
-                            case "shake": {
-                                let propsEffect = {};
-                                if (list.length > 2) {
-                                    try {
-                                        propsEffect = convertListStringToObj(list.slice(2));
-                                    } catch (_) {}
-                                }
-                                const effect: PixiVNJsonCanvasEffect = {
-                                    alias: operationType,
-                                    type: type,
-                                    props: propsEffect as any,
-                                };
-                                return effect;
-                            }
-                            case "animate": {
-                                let keyframes = {};
-                                let options = {};
-                                if (list.length > 2) {
-                                    let keyframesList = list.slice(2);
-                                    let optionsList: string[] = [];
-                                    if (keyframesList.includes("options")) {
-                                        const optionsIndex = keyframesList.indexOf("options");
-                                        optionsList = keyframesList.slice(optionsIndex + 1);
-                                        keyframesList = keyframesList.slice(0, optionsIndex);
-                                    }
-                                    try {
-                                        keyframes = convertListStringToObj(keyframesList);
-                                    } catch (_) {}
-                                    if (optionsList.length > 0) {
-                                        try {
-                                            options = convertListStringToObj(optionsList);
-                                        } catch (_) {}
-                                    }
-                                }
-                                const animate: PixiVNJsonCanvasAnimate = {
-                                    alias: operationType,
-                                    type: type,
-                                    keyframes: keyframes,
-                                    options: options,
-                                };
-                                return animate;
-                            }
-                        }
-                    } else {
-                        switch (type) {
-                            case "pause":
-                                if ("dialogue" in step) {
-                                    delete step.dialogue;
-                                }
-                                if ("goNextStep" in step) {
-                                    delete step.goNextStep;
-                                }
-                                return {
-                                    type: "dialogue",
-                                    operationType: "clean",
-                                };
-                            case "continue":
-                                step.goNextStep = true;
-                                step.glueEnabled = false;
-                                return undefined;
-                        }
-                    }
-            }
+            return convertOperation(list, step);
         } catch (e) {
             logger.error("Error parsing ink hashtag-command", tag);
             throw e;
         }
-        logger.error("The operation is not valid", tag);
+    }
+    export function convertTagTolist(tag: string): string[] {
+        tag = tag.replaceAll('\\"', DOUBLE_QUOTES_CONVERTER);
+        tag = tag.replaceAll("\\'", QUOTES_CONVERTER);
+        tag = tag.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
+        tag = tag.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
+        tag = tag.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
+        tag = tag.replaceAll("{", " { ");
+        tag = tag.replaceAll("}", " } ");
+        tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");
+        tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER2, "}");
+        let list: string[] = [];
+        // for string characters
+        let startComment: '"' | "'" | "`" | undefined;
+        let temp = "";
+        for (let i = 0; i < tag.length; i++) {
+            const char = tag[i];
+            if (char === '"' || char === "'" || char === "`") {
+                if (startComment === undefined) {
+                    list.push(temp);
+                    temp = "";
+                    startComment = char;
+                    temp += char;
+                } else if (startComment === char) {
+                    startComment = undefined;
+                    temp += char;
+                    list.push(temp);
+                    temp = "";
+                } else {
+                    temp += char;
+                }
+            } else {
+                temp += char;
+            }
+        }
+        if (temp !== "") {
+            list.push(temp);
+        }
+
+        list.forEach((item, index) => {
+            // if index is shots
+            if (index % 2 === 1) {
+                list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
+            }
+        });
+        tag = list.join("");
+        list = tag.split(" ").filter((item) => item !== "");
+        list = list.map((item) =>
+            item
+                .replaceAll(SPACE_SEPARATOR, " ")
+                .replaceAll(DOUBLE_QUOTES_CONVERTER, '"')
+                .replaceAll(QUOTES_CONVERTER, "'")
+                .replaceAll(SPECIAL_QUOTES_CONVERTER, "`"),
+        );
+        return list;
+    }
+    export function convertOperation(
+        list: string[],
+        step: PixiVNJsonLabelStep,
+    ): PixiVNJsonOperation | undefined {
+        const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
+        const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
+        switch (operationType) {
+            case "image":
+            case "imagecontainer":
+            case "canvaselement":
+            case "video":
+            case "text":
+                if (operationType === "video" && (type === "pause" || type === "resume")) {
+                    return {
+                        type: "video",
+                        operationType: type as any,
+                        alias: removeExtraDoubleQuotes(list[2]),
+                    };
+                } else {
+                    return getCanvasOperationFromComment(list, operationType);
+                }
+            case "sound":
+            case "channel":
+                return getSoundOperationFromComment(list, operationType);
+            case "input":
+                if (type === "request") {
+                    const op: PixiVNJsonOperation = {
+                        type: "input",
+                        operationType: "request",
+                    };
+                    if (list.length > 2) {
+                        try {
+                            const propList = list.slice(2);
+                            const props = convertListStringToObj(propList);
+                            if ("type" in props && typeof props.type === "string") {
+                                op.valueType = props.type;
+                            }
+                            if ("default" in props) {
+                                op.defaultValue = props.default;
+                            }
+                        } catch (_) {}
+                    }
+                    return op;
+                }
+                break;
+            case "assets":
+            case "bundle":
+                switch (type) {
+                    case "load":
+                    case "lazyload": {
+                        const op: PixiVNJsonOperation = {
+                            type: operationType,
+                            operationType: type,
+                            aliases: list.slice(2),
+                        };
+                        return op;
+                    }
+                }
+                break;
+            case "all":
+                if (list.length > 2) {
+                    switch (list[2]) {
+                        case "sounds":
+                        case "sound":
+                            switch (type) {
+                                case "pause":
+                                case "resume":
+                                case "stop":
+                                    return {
+                                        type: "all",
+                                        operationType: type,
+                                    };
+                            }
+                    }
+                }
+                break;
+            default:
+                if (operationType) {
+                    switch (type) {
+                        case "call":
+                        case "jump":
+                            step.labelToOpen = {
+                                label: operationType,
+                                type: type,
+                            };
+                            step.goNextStep = undefined;
+                            return;
+                        case "shake": {
+                            let propsEffect = {};
+                            if (list.length > 2) {
+                                try {
+                                    propsEffect = convertListStringToObj(list.slice(2));
+                                } catch (_) {}
+                            }
+                            const effect: PixiVNJsonCanvasEffect = {
+                                alias: operationType,
+                                type: type,
+                                props: propsEffect as any,
+                            };
+                            return effect;
+                        }
+                        case "animate": {
+                            let keyframes = {};
+                            let options = {};
+                            if (list.length > 2) {
+                                let keyframesList = list.slice(2);
+                                let optionsList: string[] = [];
+                                if (keyframesList.includes("options")) {
+                                    const optionsIndex = keyframesList.indexOf("options");
+                                    optionsList = keyframesList.slice(optionsIndex + 1);
+                                    keyframesList = keyframesList.slice(0, optionsIndex);
+                                }
+                                try {
+                                    keyframes = convertListStringToObj(keyframesList);
+                                } catch (_) {}
+                                if (optionsList.length > 0) {
+                                    try {
+                                        options = convertListStringToObj(optionsList);
+                                    } catch (_) {}
+                                }
+                            }
+                            const animate: PixiVNJsonCanvasAnimate = {
+                                alias: operationType,
+                                type: type,
+                                keyframes: keyframes,
+                                options: options,
+                            };
+                            return animate;
+                        }
+                    }
+                } else {
+                    switch (type) {
+                        case "pause":
+                            if ("dialogue" in step) {
+                                delete step.dialogue;
+                            }
+                            if ("goNextStep" in step) {
+                                delete step.goNextStep;
+                            }
+                            return {
+                                type: "dialogue",
+                                operationType: "clean",
+                            };
+                        case "continue":
+                            step.goNextStep = true;
+                            step.glueEnabled = false;
+                            return undefined;
+                    }
+                }
+        }
+        logger.error("The operation is not valid", list);
         return undefined;
     }
 
