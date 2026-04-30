@@ -416,7 +416,8 @@ test("Example of a fallback choice", async () => {
             ],
             "find_help_|_c-2": [
                 {
-                    dialogue: "But it is too late: you collapse onto the station platform. This is the end.",
+                    dialogue:
+                        "But it is too late: you collapse onto the station platform. This is the end.",
                 },
                 {
                     end: "game_end",
@@ -675,13 +676,15 @@ test("Conditional Choices", async () => {
                                                                         {
                                                                             type: "value",
                                                                             storageType: "label",
-                                                                            storageOperationType: "get",
+                                                                            storageOperationType:
+                                                                                "get",
                                                                             label: "visit_paris",
                                                                         },
                                                                         {
                                                                             type: "value",
                                                                             storageType: "label",
-                                                                            storageOperationType: "get",
+                                                                            storageOperationType:
+                                                                                "get",
                                                                             label: "phone_estelle",
                                                                         },
                                                                     ],
@@ -870,8 +873,10 @@ test("start_|_s", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["show image bg bg01-hallway"],
+                            alias: "bg",
+                            operationType: "show",
+                            type: "image",
+                            url: "bg01-hallway",
                         },
                     ],
                     goNextStep: true,
@@ -916,8 +921,10 @@ test("start_|_s", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["show image bg bg02-dorm"],
+                            alias: "bg",
+                            operationType: "show",
+                            type: "image",
+                            url: "bg02-dorm",
                         },
                     ],
                     goNextStep: true,
@@ -926,7 +933,9 @@ test("start_|_s", async () => {
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: ["show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]"],
+                            values: [
+                                "show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]",
+                            ],
                         },
                     ],
                     goNextStep: true,

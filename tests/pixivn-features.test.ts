@@ -307,31 +307,7 @@ hello
 });
 
 test("edit image", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: [
-                                'edit image bg position { "x": -20.5, "y": 30, "test": "test \\} \' test", "test2": "\'" } visible true   cursor "pointer" alpha 0.5',
-                            ],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    dialogue: "hello",
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -371,62 +347,11 @@ test("edit image", async () => {
 hello
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 test("remove image", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["remove image bg"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ['remove image "bg 2"'],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["remove image bg with dissolve"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["remove image bg with dissolve duration 3"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    dialogue: "Hello",
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -497,59 +422,11 @@ test("remove image", async () => {
 Hello
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 test("effect image", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["shake bg"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["animate bg angle 90"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["animate bg x 100 y 200 options duration 3"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["pause"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -614,65 +491,14 @@ test("effect image", async () => {
 # pause
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 /**
  * Video
  */
 test("video", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ['show video bg "/video A.mp4"'],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["pause video bg"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["resume video bg"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["remove video bg"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    dialogue: "hello",
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -735,9 +561,7 @@ test("video", async () => {
 hello
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 /**
@@ -759,8 +583,9 @@ test("imagecontainer", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["remove imagecontainer bg"],
+            "alias": "bg",
+            "operationType": "remove",
+            "type": "imagecontainer",
                         },
                     ],
                     goNextStep: true,
@@ -832,46 +657,7 @@ hello
  * ImageContainer
  */
 test("text", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: [
-                                'show text myText "Hello world" x 10 y 20 style { fontFamily: "Arial", dropShadow: { alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, }, fill: "#ffffff", stroke: { color: "#004620", width: 12, join: "round" }, fontSize: 60, fontWeight: "lighter" } with dissolve',
-                            ],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["remove text myText"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["pause"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -942,110 +728,14 @@ test("text", async () => {
 # pause
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 /**
  * Sound
  */
 test("sound", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["play sound bird volume 100"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ['play sound bird "bird 2" volume 100'],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["pause sound bird"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["resume sound bird"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["remove sound bird"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["edit sound bird volume 100"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["edit sound bird muted true"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["pause all sounds"],
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["resume all sounds"],
-                        },
-                    ],
-                },
-                {
-                    dialogue: "Hello",
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1174,38 +864,14 @@ test("sound", async () => {
 Hello
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 /**
  * Assets
  */
 test("assets", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["load assets url1 url2"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    dialogue: "hello",
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1234,65 +900,14 @@ test("assets", async () => {
 hello
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 /**
  * Input
  */
 test("input", async () => {
-    let expected1: PixiVNJson = {
-        labels: {
-            start: [
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["request input"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["request input type number default 0"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["pause"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: ["request input  type 'array of string'"],
-                        },
-                    ],
-                    goNextStep: true,
-                },
-                {
-                    dialogue: "Hello",
-                },
-                {
-                    end: "label_end",
-                    goNextStep: true,
-                },
-            ],
-        },
-    };
-    let expected2: PixiVNJson = {
+    let expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1352,9 +967,7 @@ test("input", async () => {
 Hello
 -> DONE
 `);
-    expect(res).toEqual(expected1);
-    await convertOperation(res);
-    expect(res).toEqual(expected2);
+    expect(res).toEqual(expected);
 });
 
 /**
