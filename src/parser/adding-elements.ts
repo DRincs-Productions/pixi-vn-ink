@@ -1,11 +1,14 @@
+import { HashtagCommands } from "@/handlers";
+import { logger } from "@/utils/log-utility";
 import type {
+    PixiVNJsonConditionalOperation,
     PixiVNJsonConditionalStatements,
     PixiVNJsonLabelStep,
     PixiVNJsonStepSwitchElementType,
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
+import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "../constant";
 import type { StandardDivert } from "../interfaces/parserItems/Divert";
 import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
@@ -70,6 +73,7 @@ function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
     item:
         | string
+        | string[]
         | PixiVNJsonLabelStep
         | StandardDivert
         | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>
@@ -89,14 +93,38 @@ function addConditionalElementStep(
     if (isHashtagScript) {
         if (Array.isArray(item)) {
             if (item.length > 0) {
-                list.push({
-                    operations: [
-                        {
-                            type: "operationtoconvert",
-                            values: item,
-                        },
-                    ],
+                const currentstep = {
                     goNextStep: true,
+                };
+                const op: PixiVNJsonConditionalOperation[] = [];
+                if (
+                    item.length === 1 &&
+                    typeof item[0] === "string" &&
+                    !item[0].match(TEXT_TO_REPLACE_REGEX)
+                ) {
+                    try {
+                        const i = item[0];
+                        const list = HashtagCommands.convertTagTolist(i);
+                        const res = HashtagCommands.convertOperation(list, currentstep);
+                        if (res) {
+                            op.push(res);
+                        }
+                    } catch (e) {
+                        logger.error(
+                            "Error converting hashtag script operation, pushing as text",
+                            e,
+                        );
+                    }
+                }
+                if (op.length === 0) {
+                    op.push({
+                        type: "operationtoconvert",
+                        values: item,
+                    });
+                }
+                list.push({
+                    ...currentstep,
+                    operations: op,
                 });
             }
         }

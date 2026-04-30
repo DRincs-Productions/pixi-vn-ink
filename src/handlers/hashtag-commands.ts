@@ -340,13 +340,13 @@ namespace HashtagCommands {
                         );
                     case "text":
                         return getTextOperationFromComment(typeCanvasElement, imageId, propsList);
-                    case "canvaselement":
                     default:
                         logger.error(
                             "This show operation is not valid for this type of element",
                             typeCanvasElement,
                         );
                 }
+                break;
             case "edit": {
                 const editOp: PixiVNJsonOperation = {
                     type: typeCanvasElement,

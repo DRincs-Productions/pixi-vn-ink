@@ -82,8 +82,10 @@ test("show image", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["show image alias"],
+                            type: "image",
+                            operationType: "show",
+                            alias: "alias",
+                            url: "alias",
                         },
                     ],
                     goNextStep: true,
@@ -91,8 +93,10 @@ test("show image", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["show image bg /image.png"],
+                            type: "image",
+                            operationType: "show",
+                            alias: "bg",
+                            url: "/image.png",
                         },
                     ],
                     goNextStep: true,
@@ -100,8 +104,10 @@ test("show image", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ['show image "bg 2 alice" /image2.png'],
+                            type: "image",
+                            operationType: "show",
+                            alias: "bg 2 alice",
+                            url: "/image2.png",
                         },
                     ],
                     goNextStep: true,
@@ -109,8 +115,13 @@ test("show image", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["show image  bg '/image.png' with dissolve"],
+                            type: "image",
+                            operationType: "show",
+                            alias: "bg",
+                            url: "/image.png",
+                            transition: {
+                                type: "dissolve",
+                            },
                         },
                     ],
                     goNextStep: true,
@@ -118,8 +129,16 @@ test("show image", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: ["show image bg /image.png  with dissolve duration 3"],
+                            type: "image",
+                            operationType: "show",
+                            alias: "bg",
+                            url: "/image.png",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 3,
+                                },
+                            },
                         },
                     ],
                     goNextStep: true,
@@ -1247,13 +1266,17 @@ test("jump", async () => {
                     dialogue: "Start",
                 },
                 {
+        "goNextStep": undefined,
+        "labelToOpen":  {
+          "label": "after",
+          "type": "jump",
+        },
                     operations: [
                         {
                             type: "operationtoconvert",
                             values: ["jump after"],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "Start End",
