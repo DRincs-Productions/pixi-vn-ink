@@ -1,4 +1,8 @@
-import type { PixiVNJsonLabels, PixiVNJsonLabelStep, PixiVNJsonStepSwitch } from "@drincs/pixi-vn-json";
+import type {
+    PixiVNJsonLabels,
+    PixiVNJsonLabelStep,
+    PixiVNJsonStepSwitch,
+} from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
 import InkRootType from "../interfaces/InkRootType";
 import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
@@ -25,7 +29,9 @@ export function getInkLabels(
 function findLabel(
     story: (InkRootType | RootParserItemType | RootParserItemType[])[],
     labels: PixiVNJsonLabels,
-    sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = { externalSwitch: undefined },
+    sharedVariables: { externalSwitch: PixiVNJsonStepSwitch<string> | undefined } = {
+        externalSwitch: undefined,
+    },
 ) {
     for (const storyItem of story) {
         if (storyItem) {

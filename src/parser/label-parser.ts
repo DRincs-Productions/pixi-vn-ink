@@ -28,7 +28,12 @@ export function parseLabel<T>(
     itemList: T[] = [],
     addElement: (
         list: T[],
-        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        item:
+            | T
+            | string
+            | StandardDivert
+            | PixiVNJsonStepSwitchElementType<T>
+            | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
         options: {
@@ -39,7 +44,12 @@ export function parseLabel<T>(
     ) => void,
     addSwitchElemen: (
         list: PixiVNJsonStepSwitchElementType<T>[],
-        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        item:
+            | T
+            | string
+            | StandardDivert
+            | PixiVNJsonStepSwitchElementType<T>
+            | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
         options?: {
@@ -79,7 +89,11 @@ export function parseLabel<T>(
             isThreads,
         });
         if (shareData.preDialog[labelKey].glue) {
-            addElement(itemList, "<>", labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+            addElement(itemList, "<>", labelKey, paramNames, {
+                isNewLine,
+                isHashtagScript,
+                isThreads,
+            });
         }
         delete shareData.preDialog[labelKey];
     }
@@ -95,9 +109,17 @@ export function parseLabel<T>(
         );
         if (item) {
             if (!isNewLine && itemList.length > 0) {
-                addElement(itemList, "<>", labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                addElement(itemList, "<>", labelKey, paramNames, {
+                    isNewLine,
+                    isHashtagScript,
+                    isThreads,
+                });
             }
-            addElement(itemList, item, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+            addElement(itemList, item, labelKey, paramNames, {
+                isNewLine,
+                isHashtagScript,
+                isThreads,
+            });
         }
         return;
     }
@@ -178,7 +200,11 @@ export function parseLabel<T>(
                         }
                     }
                     if (typeof obj.key !== "string" || !obj.key.includes("$r")) {
-                        addElement(itemList, obj, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                        addElement(itemList, obj, labelKey, paramNames, {
+                            isNewLine,
+                            isHashtagScript,
+                            isThreads,
+                        });
                         isNewLine = true;
                     }
                 } else if ("VAR?" in rootItem) {
@@ -202,7 +228,11 @@ export function parseLabel<T>(
                         if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
                             envList.pop();
                             let obj = getValue(lastValue["VAR?"], paramNames, "storage");
-                            addElement(itemList, obj, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                            addElement(itemList, obj, labelKey, paramNames, {
+                                isNewLine,
+                                isHashtagScript,
+                                isThreads,
+                            });
                         } else {
                             let varList = [];
                             while (envList.length > 0 && envList[envList.length - 1] != "/ev") {
@@ -224,7 +254,8 @@ export function parseLabel<T>(
                                     {
                                         storageOperationType: "get",
                                         storageType: "logic",
-                                        operation: value.operation as PixiVNJsonArithmeticOperations,
+                                        operation:
+                                            value.operation as PixiVNJsonArithmeticOperations,
                                         type: "value",
                                     },
                                     labelKey,
@@ -254,17 +285,29 @@ export function parseLabel<T>(
         } else if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
-                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                addElement(itemList, rootItem, labelKey, paramNames, {
+                    isNewLine,
+                    isHashtagScript,
+                    isThreads,
+                });
                 isNewLine = false;
             } else if (rootItem == "ev") {
                 isInEnv = true;
             } else if (rootItem == "\n") {
                 isNewLine = true;
             } else if (rootItem == "done" || rootItem == "end") {
-                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                addElement(itemList, rootItem, labelKey, paramNames, {
+                    isNewLine,
+                    isHashtagScript,
+                    isThreads,
+                });
                 isNewLine = false;
             } else if (rootItem == "<>") {
-                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                addElement(itemList, rootItem, labelKey, paramNames, {
+                    isNewLine,
+                    isHashtagScript,
+                    isThreads,
+                });
                 isNewLine = false;
             } else if (rootItem == "nop" && isConditionalText) {
                 let res = getConditionalValue<T>(
@@ -277,7 +320,11 @@ export function parseLabel<T>(
                     nestedId,
                 );
                 if (res) {
-                    addElement(itemList, res, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                    addElement(itemList, res, labelKey, paramNames, {
+                        isNewLine,
+                        isHashtagScript,
+                        isThreads,
+                    });
                 }
                 isConditionalText = false;
                 conditionalList = [];
@@ -326,7 +373,11 @@ export function parseLabel<T>(
                 rootItem.push(el);
                 addElement(
                     itemList,
-                    { "->": labelKey ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey : newLabelKey },
+                    {
+                        "->": labelKey
+                            ? labelKey + CHOISE_LABEL_KEY_SEPARATOR + newLabelKey
+                            : newLabelKey,
+                    },
                     labelKey,
                     paramNames,
                     { isNewLine, isHashtagScript, isThreads },
@@ -365,7 +416,11 @@ export function parseLabel<T>(
                     params = getParam(["ev", ...envList], labelKey, paramNames);
                 }
                 rootItem["params"] = params;
-                addElement(itemList, rootItem, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                addElement(itemList, rootItem, labelKey, paramNames, {
+                    isNewLine,
+                    isHashtagScript,
+                    isThreads,
+                });
                 isNewLine = false;
             } else if ("*" in rootItem && typeof rootItem["*"] === "string") {
                 if (rootItem["*"].includes("c")) {
@@ -400,7 +455,11 @@ export function parseLabel<T>(
                     obj.value = arithmeticParser(varList as any, labelKey, paramNames);
                     envList = [];
                     if (obj.value !== undefined || obj.value !== null) {
-                        addElement(itemList, obj, labelKey, paramNames, { isNewLine, isHashtagScript, isThreads });
+                        addElement(itemList, obj, labelKey, paramNames, {
+                            isNewLine,
+                            isHashtagScript,
+                            isThreads,
+                        });
                     }
                     isNewLine = false;
                 }

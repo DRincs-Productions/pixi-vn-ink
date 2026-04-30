@@ -29,8 +29,8 @@ export function onReplaceTextAfterTranslation(
         /**
          * The key to be replaced
          */
-        key: string
-    ) => string | undefined
+        key: string,
+    ) => string | undefined,
 ) {
     translator.afterToTranslate = (text) => {
         return replaceText(text, getTextToReplace);
@@ -68,8 +68,8 @@ export function onReplaceTextBeforeTranslation(
         /**
          * The key to be replaced
          */
-        key: string
-    ) => string | undefined
+        key: string,
+    ) => string | undefined,
 ) {
     translator.beforeToTranslate = (text) => {
         return replaceText(text, getTextToReplace);

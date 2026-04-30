@@ -26,7 +26,10 @@ class Storage {
  * This is a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
  */
 namespace HashtagCommands {
-    async function runCustomCommand(script: string[], props: StepLabelPropsType): Promise<boolean | string> {
+    async function runCustomCommand(
+        script: string[],
+        props: StepLabelPropsType,
+    ): Promise<boolean | string> {
         const handlers = Storage.handlers;
         for (let i = 0; i < handlers.length; i++) {
             try {
@@ -316,12 +319,19 @@ namespace HashtagCommands {
                     case "video":
                         return getImageOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "imagecontainer":
-                        return getContainerOperationFromComment(typeCanvasElement, imageId, propsList);
+                        return getContainerOperationFromComment(
+                            typeCanvasElement,
+                            imageId,
+                            propsList,
+                        );
                     case "text":
                         return getTextOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "canvaselement":
                     default:
-                        logger.error("This show operation is not valid for this type of element", typeCanvasElement);
+                        logger.error(
+                            "This show operation is not valid for this type of element",
+                            typeCanvasElement,
+                        );
                 }
             case "edit":
                 let editOp: PixiVNJsonOperation = {
@@ -421,7 +431,10 @@ namespace HashtagCommands {
         if (urls[urls.length - 1] === "]") {
             urls.pop();
         } else {
-            urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
+            urls[urls.length - 1] = urls[urls.length - 1].substring(
+                0,
+                urls[urls.length - 1].length - 1,
+            );
         }
         let op: PixiVNJsonOperation = {
             type: typeCanvasElement,
@@ -514,7 +527,10 @@ namespace HashtagCommands {
         }
         return op;
     }
-    function getTransition(transitionType: string, propsList: string[]): PixiVNJsonMediaTransiotions | undefined {
+    function getTransition(
+        transitionType: string,
+        propsList: string[],
+    ): PixiVNJsonMediaTransiotions | undefined {
         switch (transitionType) {
             case "dissolve":
             case "fade":

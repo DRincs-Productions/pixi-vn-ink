@@ -17,7 +17,11 @@ export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
         return "call";
     }
     // regex per controllare se finisce con CHOISE_LABEL_KEY_SEPARATOR + c- + numero
-    if (new RegExp(`${CHOISE_LABEL_KEY_SEPARATOR.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}c-\\d+$`).test(label)) {
+    if (
+        new RegExp(
+            `${CHOISE_LABEL_KEY_SEPARATOR.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}c-\\d+$`,
+        ).test(label)
+    ) {
         return "call";
     }
     return "jump";
@@ -231,10 +235,18 @@ function getDialog(text: string): PixiVNJsonLabelStep {
     };
 }
 
-type TComment = string | PixiVNJsonValueGet | PixiVNJsonConditionalStatements<string | PixiVNJsonValueGet>;
+type TComment =
+    | string
+    | PixiVNJsonValueGet
+    | PixiVNJsonConditionalStatements<string | PixiVNJsonValueGet>;
 export function addSwitchComment(
     list: PixiVNJsonStepSwitchElementType<TComment>[],
-    item: string | TComment | StandardDivert | PixiVNJsonStepSwitchElementType<TComment> | MyVariableAssignment,
+    item:
+        | string
+        | TComment
+        | StandardDivert
+        | PixiVNJsonStepSwitchElementType<TComment>
+        | MyVariableAssignment,
     labelKey: string,
     isNewLine: boolean = true,
     isHashtagScript: boolean = false,
@@ -243,7 +255,12 @@ export function addSwitchComment(
 }
 function addConditionalComment(
     list: TComment[],
-    item: string | TComment | StandardDivert | PixiVNJsonConditionalStatements<TComment> | MyVariableAssignment,
+    item:
+        | string
+        | TComment
+        | StandardDivert
+        | PixiVNJsonConditionalStatements<TComment>
+        | MyVariableAssignment,
     _labelKey: string,
     _isNewLine: boolean,
     _isHashtagScript: boolean = false,

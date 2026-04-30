@@ -2,7 +2,11 @@ import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import { logger } from "../utils/log-utility";
 
-export function convertorInkToJson(text: string, labelToRemove: string[] = [], initialVarsToRemove: string[] = []) {
+export function convertorInkToJson(
+    text: string,
+    labelToRemove: string[] = [],
+    initialVarsToRemove: string[] = [],
+) {
     const issues: { message: string; type: ErrorType }[] = [];
     try {
         const compiler = new Compiler(text, {
@@ -40,16 +44,24 @@ export function convertorInkToJson(text: string, labelToRemove: string[] = [], i
                     const varName = match[1];
                     const textToAdd = `VAR ${varName} = ""\n\n`;
                     text = textToAdd.concat(text);
-                    return convertorInkToJson(text, labelToRemove, [...initialVarsToRemove, varName]);
+                    return convertorInkToJson(text, labelToRemove, [
+                        ...initialVarsToRemove,
+                        varName,
+                    ]);
                 }
             }
             if (error.message.includes("Variable could not be found to assign to")) {
-                const match = error.message.match(/Variable could not be found to assign to: (\w+)/);
+                const match = error.message.match(
+                    /Variable could not be found to assign to: (\w+)/,
+                );
                 if (match && match[1]) {
                     const varName = match[1];
                     const textToAdd = `VAR ${varName} = ""\n\n`;
                     text = textToAdd.concat(text);
-                    return convertorInkToJson(text, labelToRemove, [...initialVarsToRemove, varName]);
+                    return convertorInkToJson(text, labelToRemove, [
+                        ...initialVarsToRemove,
+                        varName,
+                    ]);
                 }
             }
             return { issues, labelToRemove, initialVarsToRemove };

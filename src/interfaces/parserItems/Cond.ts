@@ -1,6 +1,6 @@
-import RootParserItemType from "./RootParserItemType"
+import RootParserItemType from "./RootParserItemType";
 
 export type Cond = {
-    b: RootParserItemType[]
-}
-export default Cond
+    b: RootParserItemType[];
+};
+export default Cond;

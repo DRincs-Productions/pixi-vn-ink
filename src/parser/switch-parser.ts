@@ -27,7 +27,12 @@ export function parserSwitch<T>(
     items: ConditionalList,
     addElement: (
         list: PixiVNJsonStepSwitchElementType<T>[],
-        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        item:
+            | T
+            | string
+            | StandardDivert
+            | PixiVNJsonStepSwitchElementType<T>
+            | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
     ) => void,

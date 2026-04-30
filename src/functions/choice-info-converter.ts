@@ -46,7 +46,8 @@ export function addChoiseIntoList<T>(
             if (c.oneTime === false) {
                 delete c.oneTime;
             }
-            let choice = parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c;
+            let choice =
+                parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c;
             let prevItem = itemList[itemList.length - 1];
             if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
                 prevItem = {
@@ -73,9 +74,15 @@ export function addChoiseIntoList<T>(
                 prevItem.choices = choices.sort((a, b) => {
                     try {
                         let labelArrayA = (a as PixiVNJsonChoice).label.split(".");
-                        let endA = labelArrayA[labelArrayA.length - 1].replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR);
+                        let endA = labelArrayA[labelArrayA.length - 1].replaceAll(
+                            ".",
+                            CHOISE_LABEL_KEY_SEPARATOR,
+                        );
                         let labelArrayB = (b as PixiVNJsonChoice).label.split(".");
-                        let endB = labelArrayB[labelArrayB.length - 1].replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR);
+                        let endB = labelArrayB[labelArrayB.length - 1].replaceAll(
+                            ".",
+                            CHOISE_LABEL_KEY_SEPARATOR,
+                        );
                         if (endA.includes("c-") && endB.includes("c-")) {
                             let stringNumberA = endA.split("c-")[1];
                             let numberA = parseInt(stringNumberA);
@@ -162,10 +169,9 @@ export function getLabelChoice(
         }
         if (label) {
             if (result[label]) {
-                result[label].text = unionStringOrArray<string | (string | PixiVNJsonConditionalStatements<string>)>(
-                    text,
-                    result[label].text,
-                );
+                result[label].text = unionStringOrArray<
+                    string | (string | PixiVNJsonConditionalStatements<string>)
+                >(text, result[label].text);
             } else {
                 result[label] = {
                     text: text,

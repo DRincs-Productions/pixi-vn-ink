@@ -47,14 +47,20 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                 let end = items.pop();
                 let stringNumber = items.pop();
                 if (stringNumber === undefined || end === undefined) {
-                    logger.error("Error parsing ink file: Conditional statement is not valid", list);
+                    logger.error(
+                        "Error parsing ink file: Conditional statement is not valid",
+                        list,
+                    );
                     return;
                 }
                 let number = parseInt(stringNumber);
                 let label = items.join(".");
                 if (label.includes("^.")) {
                     let labelArray = label.split(".");
-                    let end2 = labelArray[labelArray.length - 1].replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR);
+                    let end2 = labelArray[labelArray.length - 1].replaceAll(
+                        ".",
+                        CHOISE_LABEL_KEY_SEPARATOR,
+                    );
                     labelArray.pop();
                     label = labelArray.join(".") + "." + end2;
                     if (end.includes("c-")) {
@@ -90,7 +96,10 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                 let i: PixiVNJsonConditions = {
                     type: "union",
                     unionType: item === "&&" ? "and" : "or",
-                    conditions: [conditions[conditions.length - 2], conditions[conditions.length - 1]],
+                    conditions: [
+                        conditions[conditions.length - 2],
+                        conditions[conditions.length - 1],
+                    ],
                 };
                 // remove last two elements
                 conditions.pop();
@@ -108,7 +117,11 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                 };
                 conditions[conditions.length - 1] = i;
             }
-        } else if (item && typeof item === "string" && conditionFunctions.includes(item as ConditionFunctions)) {
+        } else if (
+            item &&
+            typeof item === "string" &&
+            conditionFunctions.includes(item as ConditionFunctions)
+        ) {
             if (conditions.length < 2) {
                 logger.error("Error parsing ink file: Conditional statement is not valid", list);
             } else {
@@ -123,7 +136,11 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                 conditions.pop();
                 conditions.push(i);
             }
-        } else if (item && typeof item === "string" && arithmeticFunctions.includes(item as ArithmeticFunctions)) {
+        } else if (
+            item &&
+            typeof item === "string" &&
+            arithmeticFunctions.includes(item as ArithmeticFunctions)
+        ) {
             if (conditions.length < 2) {
                 logger.error("Error parsing ink file: Conditional statement is not valid", list);
             } else {

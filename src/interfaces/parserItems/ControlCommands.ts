@@ -1,8 +1,8 @@
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md#control-commands
- * 
+ *
  * Control commands are special instructions to the text engine to perform various actions. They are all represented by a particular text string:
- * 
+ *
  * - "ev" - Begin logical evaluation mode. In evaluation mode, objects that are encountered are added to an evaluation stack, rather than simply echoed into the main text output stream. As they're pushed onto the stack, they may be processed by other commands, functions, etc.
  * - "/ev" - End logical evaluation mode. Future objects will be appended to the output stream rather than to the evaluation stack.
  * - "out" - The topmost object on the evaluation stack is popped and appended to the output stream (main story output).
@@ -21,5 +21,23 @@
  * - "done" - Tries to close/pop the active thread, otherwise marks the story flow safe to exit without a loose end warning.
  * - "end" - Ends the story flow immediately, closes all active threads, unwinds the callstack, and removes any choices that were previously created.
  */
-type ControlCommands = "ev" | "/ev" | "out" | "pop" | "->->" | "~ret" | "du" | "str" | "/str" | "nop" | "choiceCnt" | "turn" | "turns" | "visit" | "seq" | "thread" | "done" | "end"
-export default ControlCommands
+type ControlCommands =
+    | "ev"
+    | "/ev"
+    | "out"
+    | "pop"
+    | "->->"
+    | "~ret"
+    | "du"
+    | "str"
+    | "/str"
+    | "nop"
+    | "choiceCnt"
+    | "turn"
+    | "turns"
+    | "visit"
+    | "seq"
+    | "thread"
+    | "done"
+    | "end";
+export default ControlCommands;

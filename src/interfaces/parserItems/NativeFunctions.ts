@@ -1,20 +1,71 @@
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md#native-functions
- * 
+ *
  * These are mathematical and logical functions that pop 1 or 2 arguments from the evaluation stack, evaluate the result, and push the result back onto the evaluation stack. The following operators are supported:
- * 
+ *
  * "+", "-", "/", "*", "%" (mod), "_" (unary negate), "==", ">", "<", ">=", "<=", "!=", "!" (unary 'not'), "&&", "||", "MIN", "MAX"
- * 
+ *
  * Booleans are supported only in the C-style - i.e. as integers where non-zero is treated as "true" and zero as "false". The true result of a boolean operation is pushed to the evaluation stack as 1.
  */
-type NativeFunctions = "+" | "-" | "/" | "*" | "%" | "_" | "==" | ">" | "<" | ">=" | "<=" | "!=" | "!" | "&&" | "||" | "MIN" | "MAX"
-export default NativeFunctions
+type NativeFunctions =
+    | "+"
+    | "-"
+    | "/"
+    | "*"
+    | "%"
+    | "_"
+    | "=="
+    | ">"
+    | "<"
+    | ">="
+    | "<="
+    | "!="
+    | "!"
+    | "&&"
+    | "||"
+    | "MIN"
+    | "MAX";
+export default NativeFunctions;
 
-export const nativeFunctions: NativeFunctions[] = ["+", "-", "/", "*", "%", "_", "==", ">", "<", ">=", "<=", "!=", "!", "&&", "||", "MIN", "MAX"]
+export const nativeFunctions: NativeFunctions[] = [
+    "+",
+    "-",
+    "/",
+    "*",
+    "%",
+    "_",
+    "==",
+    ">",
+    "<",
+    ">=",
+    "<=",
+    "!=",
+    "!",
+    "&&",
+    "||",
+    "MIN",
+    "MAX",
+];
 
-export type ArithmeticFunctions = "+" | "-" | "/" | "*" | "%" | "POW" | "RANDOM"
-export const arithmeticFunctions: ArithmeticFunctions[] = ["+", "-", "/", "*", "%", "POW", "RANDOM"]
-export type ArithmeticFunctionsSingle = "INT" | "FLOOR" | "FLOAT"
-export const arithmeticFunctionsSingle: ArithmeticFunctionsSingle[] = ["INT", "FLOOR", "FLOAT"]
-export type ConditionFunctions = "==" | ">" | "<" | ">=" | "<=" | "!=" | "CONTAINS"
-export const conditionFunctions: ConditionFunctions[] = ["==", ">", "<", ">=", "<=", "!=", "CONTAINS"]
+export type ArithmeticFunctions = "+" | "-" | "/" | "*" | "%" | "POW" | "RANDOM";
+export const arithmeticFunctions: ArithmeticFunctions[] = [
+    "+",
+    "-",
+    "/",
+    "*",
+    "%",
+    "POW",
+    "RANDOM",
+];
+export type ArithmeticFunctionsSingle = "INT" | "FLOOR" | "FLOAT";
+export const arithmeticFunctionsSingle: ArithmeticFunctionsSingle[] = ["INT", "FLOOR", "FLOAT"];
+export type ConditionFunctions = "==" | ">" | "<" | ">=" | "<=" | "!=" | "CONTAINS";
+export const conditionFunctions: ConditionFunctions[] = [
+    "==",
+    ">",
+    "<",
+    ">=",
+    "<=",
+    "!=",
+    "CONTAINS",
+];

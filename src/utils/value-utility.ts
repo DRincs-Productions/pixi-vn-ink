@@ -9,7 +9,7 @@ export function getParam(list: any[], labelKey: string, paramNames: string[]): a
 export function getValue(
     key: string,
     paramNames: string[],
-    defaultType: "storage" | "tempstorage" = "storage"
+    defaultType: "storage" | "tempstorage" = "storage",
 ): PixiVNJsonValueGet {
     let paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
@@ -32,7 +32,7 @@ export function getSetValue(
     key: string,
     paramNames: string[],
     value: any,
-    defaultType: "storage" | "tempstorage" = "storage"
+    defaultType: "storage" | "tempstorage" = "storage",
 ): PixiVNJsonValueSet {
     let paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {

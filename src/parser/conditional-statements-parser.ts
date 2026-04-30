@@ -60,7 +60,12 @@ export function getConditionalValue<T>(
     preData: (ReadCount | (StandardDivert | Cond)[])[],
     addSwitchElemen: (
         list: PixiVNJsonStepSwitchElementType<T>[],
-        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        item:
+            | T
+            | string
+            | StandardDivert
+            | PixiVNJsonStepSwitchElementType<T>
+            | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
     ) => void,
@@ -142,7 +147,12 @@ function getThen<T>(
     cond: (StandardDivert | Cond)[],
     addSwitchElemen: (
         list: PixiVNJsonStepSwitchElementType<T>[],
-        item: T | string | StandardDivert | PixiVNJsonStepSwitchElementType<T> | MyVariableAssignment,
+        item:
+            | T
+            | string
+            | StandardDivert
+            | PixiVNJsonStepSwitchElementType<T>
+            | MyVariableAssignment,
         labelKey: string,
         paramNames: string[],
     ) => void,
@@ -163,7 +173,11 @@ function getThen<T>(
             item.b = item.b.filter(
                 (item) =>
                     item !== null &&
-                    !(typeof item === "object" && "->" in item && new RegExp(/.*\.[0-9]/).test(item["->"])),
+                    !(
+                        typeof item === "object" &&
+                        "->" in item &&
+                        new RegExp(/.*\.[0-9]/).test(item["->"])
+                    ),
             );
             parseLabel<T>(
                 item.b,
