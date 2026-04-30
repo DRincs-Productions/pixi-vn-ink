@@ -492,19 +492,6 @@ namespace HashtagCommands {
                     props: convertListStringToObj(list.slice(3)),
                 };
                 return opedit;
-            // TODO: deprecated
-            case "volume":
-                // varse Float or Int
-                let number = parseFloat(list[3]);
-                let opvolume: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "edit",
-                    alias: soundId,
-                    props: {
-                        volume: number,
-                    },
-                };
-                return opvolume;
         }
         return undefined;
     }
