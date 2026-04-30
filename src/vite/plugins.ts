@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
-import { Plugin } from "vite";
+import type { Plugin } from "vite";
 import { convertorInkToJson } from "../functions/ink";
 
 /**
@@ -19,15 +19,15 @@ export function vitePluginInk(): Plugin {
                 const source = await read();
                 const { issues } = convertorInkToJson(source);
 
-                let error: undefined | string = undefined;
+                let error: undefined | string;
 
                 // Logghiamo eventuali warning/errori al terminale
                 issues.forEach((issue) => {
                     if (issue.type === ErrorType.Warning) {
-                        server.config.logger.warn(file + ": " + issue.message);
+                        server.config.logger.warn(`${file}: ${issue.message}`);
                     } else {
                         // Se è un errore, blocchiamo
-                        server.config.logger.error(file + ": " + issue.message);
+                        server.config.logger.error(`${file}: ${issue.message}`);
                         error = issue.message;
                     }
                 });
@@ -71,10 +71,10 @@ export function vitePluginInk(): Plugin {
             if (issues && issues.length > 0) {
                 issues.forEach((issue) => {
                     if (issue.type === ErrorType.Warning) {
-                        this.warn(id + ": " + issue.message);
+                        this.warn(`${id}: ${issue.message}`);
                     } else {
                         // Se è un errore, blocchiamo
-                        this.error(id + ": " + issue.message);
+                        this.error(`${id}: ${issue.message}`);
                     }
                 });
             }
