@@ -131,7 +131,8 @@ test("Branching and joining", async () => {
                     dialogue: " I declared.",
                 },
                 {
-                    dialogue: "My master clouted me firmly around the head and dragged me out of the door.",
+                    dialogue:
+                        "My master clouted me firmly around the head and dragged me out of the door.",
                 },
                 {
                     labelToOpen: {

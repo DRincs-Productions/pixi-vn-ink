@@ -1840,7 +1840,8 @@ test("Conditional blocks are not limited to logic", async () => {
                                     goNextStep: false,
                                 },
                                 {
-                                    dialogue: ' "But there must be a reason for this trip," I observed.',
+                                    dialogue:
+                                        ' "But there must be a reason for this trip," I observed.',
                                 },
                             ],
                         },

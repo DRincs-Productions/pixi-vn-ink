@@ -80,39 +80,43 @@ test("show image", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
                             operationType: "show",
                             alias: "alias",
                             url: "alias",
+                            $origin: "show image alias",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
                             operationType: "show",
                             alias: "bg",
                             url: "/image.png",
+                            $origin: "show image bg /image.png",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
                             operationType: "show",
                             alias: "bg 2 alice",
                             url: "/image2.png",
+                            $origin: 'show image "bg 2 alice" /image2.png',
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -122,11 +126,12 @@ test("show image", async () => {
                             transition: {
                                 type: "dissolve",
                             },
+                            $origin: "show image  bg '/image.png' with dissolve",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -139,11 +144,12 @@ test("show image", async () => {
                                     duration: 3,
                                 },
                             },
+                            $origin: "show image bg /image.png  with dissolve duration 3",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
@@ -190,7 +196,6 @@ test("show image", async () => {
                             ],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "hello",
@@ -215,6 +220,7 @@ test("show image", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -223,9 +229,9 @@ test("show image", async () => {
                             url: "alias",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -234,9 +240,9 @@ test("show image", async () => {
                             url: "/image.png",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -245,9 +251,9 @@ test("show image", async () => {
                             url: "/image2.png",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -259,9 +265,9 @@ test("show image", async () => {
                             },
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -276,9 +282,9 @@ test("show image", async () => {
                             },
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -288,7 +294,7 @@ test("show image", async () => {
                             transition: {
                                 type: "dissolve",
                                 props: {
-                                    duration: "ifelse" as any,
+                                    duration: "ifelse",
                                 },
                             },
                             props: {
@@ -296,7 +302,6 @@ test("show image", async () => {
                             },
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "hello",
@@ -330,6 +335,7 @@ test("edit image", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -341,14 +347,15 @@ test("edit image", async () => {
                                     y: 30,
                                     test: "test } ' test",
                                     test2: "'",
-                                } as any,
+                                },
                                 visible: true,
                                 cursor: "pointer",
                                 alpha: 0.5,
-                            } as any,
+                            },
+                            $origin:
+                                'edit image bg position { "x": -20.5, "y": 30, "test": "test \\} \' test", "test2": "\'" } visible true   cursor "pointer" alpha 0.5',
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "hello",
@@ -374,26 +381,29 @@ test("remove image", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
                             operationType: "remove",
                             alias: "bg",
+                            $origin: "remove image bg",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
                             operationType: "remove",
                             alias: "bg 2",
+                            $origin: 'remove image "bg 2"',
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -402,11 +412,12 @@ test("remove image", async () => {
                             transition: {
                                 type: "dissolve",
                             },
+                            $origin: "remove image bg with dissolve",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "image",
@@ -418,9 +429,9 @@ test("remove image", async () => {
                                     duration: 3,
                                 },
                             },
+                            $origin: "remove image bg with dissolve duration 3",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "Hello",
@@ -449,16 +460,18 @@ test("effect image", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             alias: "bg",
                             type: "shake",
                             props: {},
+                            $origin: "shake bg",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             alias: "bg",
@@ -467,11 +480,12 @@ test("effect image", async () => {
                                 angle: 90,
                             },
                             options: {},
+                            $origin: "animate bg angle 90",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             alias: "bg",
@@ -483,15 +497,16 @@ test("effect image", async () => {
                             options: {
                                 duration: 3,
                             },
+                            $origin: "animate bg x 100 y 200 options duration 3",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     operations: [
                         {
-                            operationType: "clean",
                             type: "dialogue",
+                            operationType: "clean",
+                            $origin: "pause",
                         },
                     ],
                 },
@@ -521,45 +536,49 @@ test("video", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "video",
                             operationType: "show",
                             alias: "bg",
                             url: "/video A.mp4",
+                            $origin: 'show video bg "/video A.mp4"',
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "video",
                             operationType: "pause",
                             alias: "bg",
+                            $origin: "pause video bg",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "video",
                             operationType: "resume",
                             alias: "bg",
+                            $origin: "resume video bg",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "video",
                             operationType: "remove",
                             alias: "bg",
+                            $origin: "remove video bg",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "hello",
@@ -591,23 +610,26 @@ test("imagecontainer", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "operationtoconvert",
-                            values: ['show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve'],
+                            values: [
+                                'show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve',
+                            ],
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
-            "alias": "bg",
-            "operationType": "remove",
-            "type": "imagecontainer",
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove imagecontainer bg",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "hello",
@@ -680,6 +702,7 @@ test("text", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "text",
@@ -711,25 +734,28 @@ test("text", async () => {
                                     fontWeight: "lighter",
                                 },
                             },
+                            $origin:
+                                'show text myText "Hello world" x 10 y 20 style { fontFamily: "Arial", dropShadow: { alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, }, fill: "#ffffff", stroke: { color: "#004620", width: 12, join: "round" }, fontSize: 60, fontWeight: "lighter" } with dissolve',
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "text",
                             operationType: "remove",
                             alias: "myText",
+                            $origin: "remove text myText",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     operations: [
                         {
                             type: "dialogue",
                             operationType: "clean",
+                            $origin: "pause",
                         },
                     ],
                 },
@@ -761,13 +787,14 @@ test("sound", async () => {
                     goNextStep: true,
                     operations: [
                         {
-                            alias: "bird",
-                            operationType: "play",
-                            props: {
-                                volume: 100,
-                            },
                             type: "sound",
+                            operationType: "play",
+                            alias: "bird",
                             url: "bird",
+                            props: {
+                                volume: 100,
+                            },
+                            $origin: "play sound bird volume 100",
                         },
                     ],
                 },
@@ -775,56 +802,14 @@ test("sound", async () => {
                     goNextStep: true,
                     operations: [
                         {
-                            alias: "bird",
+                            type: "sound",
                             operationType: "play",
-                            props: {
-                                volume: 100,
-                            },
-                            type: "sound",
+                            alias: "bird",
                             url: "bird 2",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            alias: "bird",
-                            operationType: "pause",
-                            type: "sound",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            alias: "bird",
-                            operationType: "resume",
-                            type: "sound",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            alias: "bird",
-                            operationType: "stop",
-                            type: "sound",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            alias: "bird",
-                            operationType: "edit",
                             props: {
                                 volume: 100,
                             },
-                            type: "sound",
+                            $origin: 'play sound bird "bird 2" volume 100',
                         },
                     ],
                 },
@@ -832,12 +817,60 @@ test("sound", async () => {
                     goNextStep: true,
                     operations: [
                         {
+                            type: "sound",
+                            operationType: "pause",
                             alias: "bird",
+                            $origin: "pause sound bird",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "sound",
+                            operationType: "resume",
+                            alias: "bird",
+                            $origin: "resume sound bird",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "sound",
+                            operationType: "stop",
+                            alias: "bird",
+                            $origin: "remove sound bird",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "sound",
                             operationType: "edit",
+                            alias: "bird",
+                            props: {
+                                volume: 100,
+                            },
+                            $origin: "edit sound bird volume 100",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "sound",
+                            operationType: "edit",
+                            alias: "bird",
                             props: {
                                 muted: true,
                             },
-                            type: "sound",
+                            $origin: "edit sound bird muted true",
                         },
                     ],
                 },
@@ -845,8 +878,9 @@ test("sound", async () => {
                     goNextStep: true,
                     operations: [
                         {
+                            type: "all",
                             operationType: "pause",
-                            type: "all",
+                            $origin: "pause all sounds",
                         },
                     ],
                 },
@@ -854,8 +888,9 @@ test("sound", async () => {
                     goNextStep: true,
                     operations: [
                         {
-                            operationType: "resume",
                             type: "all",
+                            operationType: "resume",
+                            $origin: "resume all sounds",
                         },
                     ],
                 },
@@ -894,14 +929,15 @@ test("assets", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "assets",
                             operationType: "load",
                             aliases: ["url1", "url2"],
+                            $origin: "load assets url1 url2",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "hello",
@@ -930,42 +966,46 @@ test("input", async () => {
         labels: {
             start: [
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "input",
                             operationType: "request",
+                            $origin: "request input",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "input",
                             operationType: "request",
                             valueType: "number",
                             defaultValue: 0,
+                            $origin: "request input type number default 0",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     operations: [
                         {
-                            operationType: "clean",
                             type: "dialogue",
+                            operationType: "clean",
+                            $origin: "pause",
                         },
                     ],
                 },
                 {
+                    goNextStep: true,
                     operations: [
                         {
                             type: "input",
                             operationType: "request",
                             valueType: "array of string",
+                            $origin: "request input  type 'array of string'",
                         },
                     ],
-                    goNextStep: true,
                 },
                 {
                     dialogue: "Hello",
@@ -1266,11 +1306,11 @@ test("jump", async () => {
                     dialogue: "Start",
                 },
                 {
-        "goNextStep": undefined,
-        "labelToOpen":  {
-          "label": "after",
-          "type": "jump",
-        },
+                    goNextStep: undefined,
+                    labelToOpen: {
+                        label: "after",
+                        type: "jump",
+                    },
                     operations: [
                         {
                             type: "operationtoconvert",

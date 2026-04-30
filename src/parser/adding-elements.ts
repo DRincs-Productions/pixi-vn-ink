@@ -96,20 +96,21 @@ function addConditionalElementStep(
                     goNextStep: true,
                 };
                 const op: PixiVNJsonConditionalOperation[] = [];
-                if (
-                    item.length === 1 &&
-                    typeof item[0] === "string" &&
-                    !item[0].match(TEXT_TO_REPLACE_REGEX)
-                ) {
-                    try {
+                try {
+                    if (
+                        item.length === 1 &&
+                        typeof item[0] === "string" &&
+                        !item[0].match(TEXT_TO_REPLACE_REGEX)
+                    ) {
                         const i = item[0];
                         const list = HashtagCommands.convertTagTolist(i);
                         const res = HashtagCommands.convertOperation(list, currentstep);
                         if (res) {
+                            res.$origin = i;
                             op.push(res);
                         }
-                    } catch (_) {}
-                }
+                    }
+                } catch (_) {}
                 if (op.length === 0) {
                     op.push({
                         type: "operationtoconvert",

@@ -873,6 +873,7 @@ test("start_|_s", async () => {
                 {
                     operations: [
                         {
+                            $origin: "show image bg bg01-hallway",
                             alias: "bg",
                             operationType: "show",
                             type: "image",
@@ -921,6 +922,7 @@ test("start_|_s", async () => {
                 {
                     operations: [
                         {
+                            $origin: "show image bg bg02-dorm",
                             alias: "bg",
                             operationType: "show",
                             type: "image",

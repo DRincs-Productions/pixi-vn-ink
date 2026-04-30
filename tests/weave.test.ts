@@ -15,7 +15,8 @@ test("Options and gathers form chains of content", async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: " were still in my pocket, and the feel of them brought a spring to my step. ",
+                    dialogue:
+                        " were still in my pocket, and the feel of them brought a spring to my step. ",
                     glueEnabled: true,
                     goNextStep: true,
                 },
@@ -84,7 +85,8 @@ test("Options and gathers form chains of content", async () => {
                     goNextStep: true,
                 },
                 {
-                    dialogue: ". He's never once let me down. Or rather, never once, previously to that night.",
+                    dialogue:
+                        ". He's never once let me down. Or rather, never once, previously to that night.",
                 },
                 {
                     labelToOpen: {
@@ -1192,7 +1194,8 @@ test("Gathers and options can be labelled", async () => {
             ],
             "meet_guard_|_g-1": [
                 {
-                    dialogue: "'Mff,' the guard replies, and then offers you a paper bag. 'Toffee?'",
+                    dialogue:
+                        "'Mff,' the guard replies, and then offers you a paper bag. 'Toffee?'",
                 },
                 {
                     end: "label_end",
@@ -1593,7 +1596,8 @@ test("Advanced: Loops in a weave", async () => {
                     dialogue: " you ask the cheerful guard.",
                 },
                 {
-                    dialogue: "'Sure. In the locker.' He grins. 'Don't think it'll fit you, though.'",
+                    dialogue:
+                        "'Sure. In the locker.' He grins. 'Don't think it'll fit you, though.'",
                 },
                 {
                     labelToOpen: {
@@ -1623,7 +1627,8 @@ test("Advanced: Loops in a weave", async () => {
                     dialogue: "'Are there dogs?'",
                 },
                 {
-                    dialogue: "'Hundreds,' the guard answers, with a toothy grin. 'Hungry devils, too.'",
+                    dialogue:
+                        "'Hundreds,' the guard answers, with a toothy grin. 'Hungry devils, too.'",
                 },
                 {
                     labelToOpen: {

@@ -28,7 +28,8 @@ test("Translate test 1", async () => {
     };
     let expected = {
         "We arrived into London at 9.45pm exactly.": "We arrived into London at 9.45pm exactly.",
-        "We hurried home to Savile Row as fast as we could.": "We hurried home to Savile Row as fast as we could.",
+        "We hurried home to Savile Row as fast as we could.":
+            "We hurried home to Savile Row as fast as we could.",
     };
     let res = {};
     generateJsonInkTranslation(input, res);

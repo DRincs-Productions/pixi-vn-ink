@@ -18,26 +18,22 @@ const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 
-class Storage {
-    static handlers: Array<HashtagHandler> = [(_script: string[]) => false];
-}
-
 /**
  * This is a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
  */
 namespace HashtagCommands {
+    const handlers: Array<HashtagHandler> = [(_script: string[]) => false];
     async function runCustomCommand(
         script: string[],
         props: StepLabelPropsType,
     ): Promise<boolean | string> {
-        const handlers = Storage.handlers;
         for (let i = 0; i < handlers.length; i++) {
             try {
                 const res = await handlers[i](script, props, convertListStringToObj);
                 if (res === true || typeof res === "string") {
                     return res;
                 }
-            } catch (e) {
+            } catch (_) {
                 // ignore handler errors and continue to next
             }
         }
@@ -68,14 +64,14 @@ namespace HashtagCommands {
      * ```
      */
     export function add(handler: HashtagHandler) {
-        Storage.handlers.push(handler);
+        handlers.push(handler);
     }
 
     /**
      * This function clear all the handlers added with the {@link add} function.
      */
     export function clear() {
-        Storage.handlers = [];
+        handlers.length = 0;
     }
 
     /**
@@ -641,7 +637,7 @@ namespace HashtagCommands {
                             objJson += `${item}`;
                         } else if (item.startsWith('"') && item.endsWith('"')) {
                             objJson += `${item}`;
-                        } else if (!isNaN(parseFloat(item))) {
+                        } else if (!Number.isNaN(parseFloat(item))) {
                             objJson += `${item}`;
                         } else {
                             objJson += `"${item}"`;

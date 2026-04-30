@@ -15,6 +15,10 @@ export async function convertOperation(res?: PixiVNJson) {
                                     if (typeof v === "string") {
                                         return v;
                                     }
+                                    console.error(
+                                        "Error converting operation: value is not a string",
+                                        v,
+                                    );
                                     return `"${v.type}"`;
                                 })
                                 .join("");
@@ -23,7 +27,16 @@ export async function convertOperation(res?: PixiVNJson) {
                                 ops.push(resOp);
                             }
                         } else {
-                            ops.push(operation);
+                            if ("$origin" in operation && operation.$origin) {
+                                const resOp = await HashtagCommands.run(
+                                    operation.$origin,
+                                    step,
+                                    {},
+                                );
+                                if (resOp) {
+                                    ops.push(resOp);
+                                }
+                            } else ops.push(operation);
                         }
                     }
                     step.operations = ops;

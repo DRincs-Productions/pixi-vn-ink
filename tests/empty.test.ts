@@ -1,12 +1,12 @@
-import { expect, test } from 'vitest';
-import { convertInkText } from '../src/functions';
+import { expect, test } from "vitest";
+import { convertInkText } from "../src/functions";
 
-test('Empty file test', async () => {
+test("Empty file test", async () => {
     let res = convertInkText(``);
-    expect(res).toEqual({ "labels": {} });
+    expect(res).toEqual({ labels: {} });
 });
 
-test('Test elements not considered', async () => {
+test("Test elements not considered", async () => {
     let res = convertInkText(`
 "What do you make of this?" she asked.
 
@@ -18,13 +18,13 @@ test('Test elements not considered', async () => {
 	... or an unlimited block of text
 */
 `);
-    expect(res).toEqual({ "labels": {} });
+    expect(res).toEqual({ labels: {} });
 });
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#randommin-max
  */
-test('exterlan temp variable', async () => {
+test("exterlan temp variable", async () => {
     let res = convertInkText(`
 ~ temp dice_roll = RANDOM(1, 6)
 
@@ -32,5 +32,5 @@ test('exterlan temp variable', async () => {
 
 ~ temp number_of_heads_the_serpent_has = RANDOM(3, 8)
 `);
-    expect(res).toEqual({ "labels": {} });
+    expect(res).toEqual({ labels: {} });
 });
