@@ -128,7 +128,7 @@ function addConditionalElementStep(
         (item &&
             typeof item === "object" &&
             "type" in item &&
-            item.type == "value" &&
+            item.type === "value" &&
             item.storageOperationType === "get")
     ) {
         if (!isNewLine && list.length > 0) {
@@ -155,7 +155,7 @@ function addConditionalElementStep(
                 end: "label_end",
                 goNextStep: true,
             });
-        } else if (item == "<>") {
+        } else if (item === "<>") {
             if (list.length > 0) {
                 const prevItem = list[list.length - 1];
                 prevItem.glueEnabled = true;
@@ -222,7 +222,7 @@ function addConditionalElementStep(
                 });
             }
         }
-        if ("type" in item && item.type == "value" && item.storageOperationType === "set") {
+        if ("type" in item && item.type === "value" && item.storageOperationType === "set") {
             if (typeof item.value === "string" && item.value.startsWith("^")) {
                 item.value = getText(item.value);
             }
@@ -297,7 +297,7 @@ function addConditionalComment(
         (item &&
             typeof item === "object" &&
             "type" in item &&
-            item.type == "value" &&
+            item.type === "value" &&
             item.storageOperationType === "get")
     ) {
         if (typeof item === "string") {

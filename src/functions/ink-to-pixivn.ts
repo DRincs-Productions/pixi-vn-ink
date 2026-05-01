@@ -2,7 +2,7 @@ import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
 import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
-import InkStoryType from "../interfaces/InkStoryType";
+import type InkStoryType from "../interfaces/InkStoryType";
 import { logger } from "../utils/log-utility";
 import { convertorInkToJson } from "./ink";
 import { getInkLabels } from "./labels-converter";
@@ -13,14 +13,14 @@ import { getInkLabels } from "./labels-converter";
  * @returns LabelJsonType or undefined
  */
 export function convertInkToJson(text: string): PixiVNJson | undefined {
-    let { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
+    const { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
     issues.forEach(({ message, type }) => {
         if (type === ErrorType.Error) {
-            logger.error("Ink compilation error: " + message);
+            logger.error(`Ink compilation error: ${message}`);
         } else if (type === ErrorType.Warning) {
-            logger.warn("Ink compilation warning: " + message);
+            logger.warn(`Ink compilation warning: ${message}`);
         } else {
-            logger.info("Ink compilation info: " + message);
+            logger.info(`Ink compilation info: ${message}`);
         }
     });
     if (!json) {
@@ -45,10 +45,10 @@ export function convertInkStoryToJson(
     } = {},
 ): PixiVNJson | undefined {
     const { labelToRemove = [], initialVarsToRemove = [] } = options;
-    let result: PixiVNJson = {};
+    const result: PixiVNJson = {};
     result.labels = getInkLabels(obj.root);
     if (result.labels && GLOBAL_DECL in result.labels) {
-        let global = result.labels[GLOBAL_DECL];
+        const global = result.labels[GLOBAL_DECL];
         delete result.labels[GLOBAL_DECL];
         global.forEach((item) => {
             if (item.operations) {
@@ -59,7 +59,7 @@ export function convertInkStoryToJson(
         });
     }
     if (result.labels && SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES in result.labels) {
-        let global = result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
+        const global = result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         delete result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         global.forEach((item) => {
             if (item.operations) {

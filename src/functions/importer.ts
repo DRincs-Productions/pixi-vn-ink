@@ -1,4 +1,4 @@
-import { init, PixiVNJson } from "@drincs/pixi-vn-json";
+import { init, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
 import { VariableGetter } from "../handlers";
 import HashtagCommands from "../handlers/hashtag-commands";
@@ -27,7 +27,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
         getLogichValue: (value, next) => VariableGetter.getLogichValue(value, next),
     });
     const promises = texts.map(async (text) => {
-        let data = convertInkToJson(text);
+        const data = convertInkToJson(text);
         if (data) {
             await importPixiVNJson(data, {
                 operationStringConvert: HashtagCommands.run,

@@ -4,11 +4,11 @@ import type {
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import InkRootType from "../interfaces/InkRootType";
-import { ContainerTypeN } from "../interfaces/parserItems/ContainerType";
-import { StandardDivert } from "../interfaces/parserItems/Divert";
-import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
+import type InkRootType from "../interfaces/InkRootType";
+import type { ContainerTypeN } from "../interfaces/parserItems/ContainerType";
+import type { StandardDivert } from "../interfaces/parserItems/Divert";
+import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { logger } from "../utils/log-utility";
 import { getParam, getSetValue, getValue } from "../utils/value-utility";
 import { addSwitchComment } from "./adding-elements";
@@ -83,7 +83,7 @@ export function parseLabel<T>(
     if (shareData.preDialog[labelKey]) {
         // *	Hello [back!] right back to you!
         isNewLine = false;
-        addElement(itemList, "^" + shareData.preDialog[labelKey].text, labelKey, paramNames, {
+        addElement(itemList, `^${shareData.preDialog[labelKey].text}`, labelKey, paramNames, {
             isNewLine,
             isHashtagScript,
             isThreads,
@@ -98,7 +98,7 @@ export function parseLabel<T>(
         delete shareData.preDialog[labelKey];
     }
     if (rootList.includes("visit")) {
-        let item = parserSwitch<T>(
+        const item = parserSwitch<T>(
             rootList as any,
             addSwitchElemen,
             addLabels,
@@ -123,7 +123,7 @@ export function parseLabel<T>(
         }
         return;
     }
-    let firstItem = rootList[0];
+    const firstItem = rootList[0];
     if (firstItem && typeof firstItem === "object" && "temp=" in firstItem) {
         while (rootList[0] && typeof rootList[0] === "object" && "temp=" in (rootList[0] as any)) {
             paramNames.push((rootList[0] as any)["temp="]);
@@ -133,8 +133,8 @@ export function parseLabel<T>(
     }
     rootList.forEach((rootItem, index) => {
         if (isHashtagScript) {
-            if (typeof rootItem === "string" && rootItem == "/#") {
-                let myList: T[] = [];
+            if (typeof rootItem === "string" && rootItem === "/#") {
+                const myList: T[] = [];
                 parseLabel(
                     commentList,
                     labelKey,
@@ -163,7 +163,7 @@ export function parseLabel<T>(
                 envList.push(rootItem);
             } else if (rootItem && typeof rootItem === "object") {
                 if ("CNT?" in rootItem) {
-                    if (index > 0 && rootList[index - 1] == "ev") {
+                    if (index > 0 && rootList[index - 1] === "ev") {
                         isConditionalText = true;
                         conditionalList.push(rootItem);
                     } else if (isConditionalText) {
@@ -173,28 +173,28 @@ export function parseLabel<T>(
                         isNewLine = false;
                     }
                 } else if ("VAR=" in rootItem || "temp=" in rootItem) {
-                    let obj = getSetValue(
+                    const obj = getSetValue(
                         "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
                         paramNames,
                         rootList[index - 1],
                         "VAR=" in rootItem ? "storage" : "tempstorage",
                     );
-                    if (obj.value && typeof obj.value === "string" && obj.value == "/str") {
+                    if (obj.value && typeof obj.value === "string" && obj.value === "/str") {
                         obj.value = rootList[index - 2];
                     }
                     if (obj.value && typeof obj.value === "object" && "^->" in obj.value) {
                         obj.value = (obj.value as any)["^->"];
                     }
                     if (envList.length > 1) {
-                        let arm = arithmeticParser(envList as any, labelKey, paramNames);
+                        const arm = arithmeticParser(envList as any, labelKey, paramNames);
                         envList = [];
                         if (
                             arm &&
                             typeof arm === "object" &&
                             "type" in arm &&
-                            arm.type == "value" &&
+                            arm.type === "value" &&
                             "storageType" in arm &&
-                            arm.storageType == "logic"
+                            arm.storageType === "logic"
                         ) {
                             obj.value = arm.operation as any;
                         }
@@ -210,24 +210,24 @@ export function parseLabel<T>(
                 } else if ("VAR?" in rootItem) {
                     envList.push(rootItem);
                 } else if ("^->" in rootItem) {
-                    let i: string = rootItem["^->"] as any;
+                    const i: string = rootItem["^->"] as any;
                     if (!i.includes("$r")) {
                         envList.push(rootItem);
                     }
                 }
             } else {
-                if (typeof rootItem === "string" && rootItem == "/ev") {
+                if (typeof rootItem === "string" && rootItem === "/ev") {
                     if (isConditionalText) {
                         conditionalList.push(rootItem);
                     }
                     isInEnv = false;
                     envList.push(rootItem);
-                } else if (typeof rootItem === "string" && rootItem == "out") {
+                } else if (typeof rootItem === "string" && rootItem === "out") {
                     if (envList.length > 0) {
-                        let lastValue = envList[envList.length - 1];
+                        const lastValue = envList[envList.length - 1];
                         if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
                             envList.pop();
-                            let obj = getValue(lastValue["VAR?"], paramNames, "storage");
+                            const obj = getValue(lastValue["VAR?"], paramNames, "storage");
                             addElement(itemList, obj, labelKey, paramNames, {
                                 isNewLine,
                                 isHashtagScript,
@@ -235,7 +235,7 @@ export function parseLabel<T>(
                             });
                         } else {
                             let varList = [];
-                            while (envList.length > 0 && envList[envList.length - 1] != "/ev") {
+                            while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
                                 varList.push(envList.pop());
                             }
                             varList = varList.reverse();
@@ -245,9 +245,9 @@ export function parseLabel<T>(
                                 value &&
                                 typeof value === "object" &&
                                 "type" in value &&
-                                value.type == "value" &&
+                                value.type === "value" &&
                                 "storageType" in value &&
-                                value.storageType == "logic"
+                                value.storageType === "logic"
                             ) {
                                 addElement(
                                     itemList,
@@ -291,26 +291,26 @@ export function parseLabel<T>(
                     isThreads,
                 });
                 isNewLine = false;
-            } else if (rootItem == "ev") {
+            } else if (rootItem === "ev") {
                 isInEnv = true;
-            } else if (rootItem == "\n") {
+            } else if (rootItem === "\n") {
                 isNewLine = true;
-            } else if (rootItem == "done" || rootItem == "end") {
+            } else if (rootItem === "done" || rootItem === "end") {
                 addElement(itemList, rootItem, labelKey, paramNames, {
                     isNewLine,
                     isHashtagScript,
                     isThreads,
                 });
                 isNewLine = false;
-            } else if (rootItem == "<>") {
+            } else if (rootItem === "<>") {
                 addElement(itemList, rootItem, labelKey, paramNames, {
                     isNewLine,
                     isHashtagScript,
                     isThreads,
                 });
                 isNewLine = false;
-            } else if (rootItem == "nop" && isConditionalText) {
-                let res = getConditionalValue<T>(
+            } else if (rootItem === "nop" && isConditionalText) {
+                const res = getConditionalValue<T>(
                     conditionalList as any[],
                     addSwitchElemen,
                     addLabels,
@@ -328,12 +328,12 @@ export function parseLabel<T>(
                 }
                 isConditionalText = false;
                 conditionalList = [];
-            } else if (rootItem == "#") {
+            } else if (rootItem === "#") {
                 isHashtagScript = true;
-            } else if (rootItem == "thread") {
+            } else if (rootItem === "thread") {
                 isThreads = true;
             }
-        } else if (rootItem instanceof Array) {
+        } else if (Array.isArray(rootItem)) {
             if (isConditionalText) {
                 conditionalList.push(rootItem);
             } else if (
@@ -346,9 +346,9 @@ export function parseLabel<T>(
                 "b" in (rootItem as any)[rootItem.length - 1]
             ) {
                 envList.pop();
-                let list = [];
-                let item = [];
-                while (envList.length > 0 && envList[envList.length - 1] != "/ev") {
+                const list = [];
+                const item = [];
+                while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
                     list.push(envList.pop() as any);
                 }
                 conditionalList = [...conditionalList, ...list.reverse()];
@@ -363,12 +363,12 @@ export function parseLabel<T>(
                 rootItem[rootItem.length - 1] &&
                 "#n" in (rootItem as any[])[rootItem.length - 1]
             ) {
-                let el = rootItem.pop() as ContainerTypeN | undefined;
+                const el = rootItem.pop() as ContainerTypeN | undefined;
                 if (!el) {
                     logger.error("Error parsing ink file: el is undefined");
                     return;
                 }
-                let newLabelKey = el["#n"];
+                const newLabelKey = el["#n"];
                 delete (el as any)["#n"];
                 rootItem.push(el);
                 addElement(
@@ -415,7 +415,7 @@ export function parseLabel<T>(
                 if (envList.length > 0) {
                     params = getParam(["ev", ...envList], labelKey, paramNames);
                 }
-                rootItem["params"] = params;
+                rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
                     isNewLine,
                     isHashtagScript,
@@ -429,7 +429,7 @@ export function parseLabel<T>(
                 }
             }
             // if is choise info
-            else if ("s" in rootItem && rootItem["s"] instanceof Array) {
+            else if ("s" in rootItem && Array.isArray(rootItem.s)) {
                 envList.push(rootItem);
                 isNewLine = false;
             } else if ("CNT?" in rootItem) {
@@ -437,7 +437,7 @@ export function parseLabel<T>(
                 isNewLine = false;
             } else if ("VAR=" in rootItem || "temp=" in rootItem) {
                 let varList = [];
-                let obj = getSetValue(
+                const obj = getSetValue(
                     "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
                     paramNames,
                     undefined,
@@ -445,10 +445,10 @@ export function parseLabel<T>(
                 );
                 if (obj.key !== "$r") {
                     envList.pop();
-                    if (envList[envList.length - 1] == "/ev") {
+                    if (envList[envList.length - 1] === "/ev") {
                         envList.pop();
                     }
-                    while (envList.length > 0 && envList[envList.length - 1] != "/ev") {
+                    while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
                         varList.push(envList.pop());
                     }
                     varList = varList.reverse();
@@ -470,9 +470,9 @@ export function parseLabel<T>(
     });
     addChoiseList(envList, itemList, labelKey, shareData, paramNames);
     // * [Open the gate] -> paragraph_2
-    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && itemList.length == 2) {
-        let firstItem = itemList[0];
-        let secondItem = itemList[1];
+    if (labelKey.includes(CHOISE_LABEL_KEY_SEPARATOR) && itemList.length === 2) {
+        const firstItem = itemList[0];
+        const secondItem = itemList[1];
         if (
             firstItem &&
             secondItem &&
@@ -480,7 +480,7 @@ export function parseLabel<T>(
             "dialogue" in firstItem &&
             typeof secondItem === "object" &&
             "labelToOpen" in secondItem &&
-            firstItem.dialogue == " " &&
+            firstItem.dialogue === " " &&
             secondItem.labelToOpen
         ) {
             // remove first step

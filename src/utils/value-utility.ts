@@ -2,7 +2,7 @@ import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-jso
 import { conditionaAritmeticParser } from "../parser/conditiona-aritmetic-parser";
 
 export function getParam(list: any[], labelKey: string, paramNames: string[]): any[] {
-    let res: any[] = conditionaAritmeticParser(list, labelKey, paramNames);
+    const res: any[] = conditionaAritmeticParser(list, labelKey, paramNames);
     return res;
 }
 
@@ -11,7 +11,7 @@ export function getValue(
     paramNames: string[],
     defaultType: "storage" | "tempstorage" = "storage",
 ): PixiVNJsonValueGet {
-    let paramIndex = paramNames.indexOf(key);
+    const paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
         return {
             type: "value",
@@ -34,7 +34,7 @@ export function getSetValue(
     value: any,
     defaultType: "storage" | "tempstorage" = "storage",
 ): PixiVNJsonValueSet {
-    let paramIndex = paramNames.indexOf(key);
+    const paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
         return {
             type: "value",

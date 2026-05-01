@@ -149,9 +149,9 @@ export function getLabelChoice(
                 }
             }
             // if is choise info
-            else if ("s" in rootItem && rootItem["s"] instanceof Array) {
-                let t = findChoiceText(rootItem["s"]);
-                let glueEnabled = rootItem["s"].includes("<>");
+            else if ("s" in rootItem && rootItem.s instanceof Array) {
+                let t = findChoiceText(rootItem.s);
+                let glueEnabled = rootItem.s.includes("<>");
                 if (t) {
                     if (lastLabel && result[lastLabel]) {
                         result[lastLabel].preDialog = { text: t, glue: glueEnabled };
