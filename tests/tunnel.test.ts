@@ -12,7 +12,6 @@ test("Tunnel 1", async () => {
                         type: "call",
                         params: undefined,
                     },
-                    glueEnabled: true,
                 },
                 {
                     dialogue: "You go back to walking around the city.",
@@ -76,18 +75,21 @@ test("Tunnel 1", async () => {
         },
     };
     const res = convertInkText(`
+-> city
 === city ===
 You are in the city.
 
 * [Talk to the merchant]
     -> merchant_dialogue ->
     You go back to walking around the city.
+    -> DONE
 
 === merchant_dialogue ===
 The merchant smiles.
 
 * "Show me your goods"
     "Here they are!"
+    ->->
 * "Goodbye"
     "See you soon!"
 ->->
@@ -97,17 +99,163 @@ The merchant smiles.
 
 test("Tunnel 2", async () => {
     const expected: PixiVNJson = {
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "reputation",
+                value: 0,
+            },
+        ],
+        labels: {
+            "city_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "guard_dialogue",
+                        type: "call",
+                        params: undefined,
+                    },
+                },
+                {
+                    dialogue: "You return to the square.",
+                },
+            ],
+            "city_|_c-1": [
+                {
+                    dialogue: "The guard helps you.",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+            city: [
+                {
+                    dialogue: "You are in the square.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Talk to the guard",
+                            label: "city_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "comparison",
+                                operator: ">=",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "reputation",
+                                },
+                            },
+                            then: {
+                                text: "Ask for a favor",
+                                label: "city_|_c-1",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+            "guard_dialogue_|_c-0": [
+                {
+                    dialogue: '"Hello citizen."',
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "reputation",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "reputation",
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+            "guard_dialogue_|_c-1": [
+                {
+                    dialogue: '"Hey you!"',
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "reputation",
+                            value: {
+                                type: "arithmetic",
+                                operator: "-",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "reputation",
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+            guard_dialogue: [
+                {
+                    dialogue: "The guard looks at you.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Greet",
+                            label: "guard_dialogue_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Insult",
+                            label: "guard_dialogue_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+        },
     };
     const res = convertInkText(`
 VAR reputation = 0
 
+-> city
 === city ===
 You are in the square.
 
 * [Talk to the guard]
     -> guard_dialogue ->
     You return to the square.
+    -> city
 
 * {reputation >= 1} [Ask for a favor]
     The guard helps you.
@@ -119,6 +267,7 @@ The guard looks at you.
 * [Greet]
     "Hello citizen."
     ~ reputation += 1
+->->
 
 * [Insult]
     "Hey you!"
