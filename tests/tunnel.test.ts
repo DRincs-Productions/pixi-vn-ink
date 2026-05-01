@@ -1,6 +1,6 @@
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkText } from "../src/functions";
+import { convertInkToJson } from "../src/functions";
 
 test("Tunnel 1", async () => {
     const expected: PixiVNJson = {
@@ -78,7 +78,7 @@ test("Tunnel 1", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> city
 === city ===
 You are in the city.
@@ -261,7 +261,7 @@ test("Tunnel 2", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR reputation = 0
 
 -> city
@@ -299,7 +299,7 @@ test("Tunnel 3", async () => {
     const expected: PixiVNJson = {
         labels: {},
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === main ===
 You walk through the forest.
 -> random_event ->
@@ -324,7 +324,7 @@ test("Tunnel 4", async () => {
     const expected: PixiVNJson = {
         labels: {},
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 LIST items = sword, key, potion
 
 VAR inventory = ()
@@ -357,7 +357,7 @@ test("Tunnel 5", async () => {
     const expected: PixiVNJson = {
         labels: {},
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR player_hp = 10
 VAR enemy_hp = 6
 
@@ -405,7 +405,7 @@ test("Tunnel 6", async () => {
     const expected: PixiVNJson = {
         labels: {},
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === intro ===
 -> dream_scene ->
 You wake up confused.
@@ -443,7 +443,7 @@ test("Tunnel 7", async () => {
     const expected: PixiVNJson = {
         labels: {},
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR quest_active = false
 VAR quest_completed = false
 
