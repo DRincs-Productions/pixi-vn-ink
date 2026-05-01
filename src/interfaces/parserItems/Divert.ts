@@ -11,9 +11,14 @@ type DivertFunction = {
     "f()": string;
     c?: boolean;
 };
-type DivertTunnel = {
+export type DivertTunnel = {
     "->t->": string;
+    var?: true;
     c?: boolean;
+    /**
+     * my property to store the parameters
+     */
+    params?: any[];
 };
 type DivertExternalFunction = {
     "x()": string;
