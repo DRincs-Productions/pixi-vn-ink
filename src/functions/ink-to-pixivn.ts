@@ -2,7 +2,7 @@ import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
 import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
-import InkStoryType from "../interfaces/InkStoryType";
+import type InkStoryType from "../interfaces/InkStoryType";
 import { logger } from "../utils/log-utility";
 import { convertorInkToJson } from "./ink";
 import { getInkLabels } from "./labels-converter";

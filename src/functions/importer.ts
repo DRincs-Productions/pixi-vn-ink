@@ -1,4 +1,4 @@
-import { init, PixiVNJson } from "@drincs/pixi-vn-json";
+import { init, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/importer";
 import { VariableGetter } from "../handlers";
 import HashtagCommands from "../handlers/hashtag-commands";

@@ -4,11 +4,11 @@ import type {
     PixiVNJsonStepSwitch,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
-import InkRootType from "../interfaces/InkRootType";
-import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import type InkRootType from "../interfaces/InkRootType";
+import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
 import { addSwitchElemenStep, addSwitchElemenText } from "../parser/adding-elements";
-import { parseLabel, ShareDataParserLabel } from "../parser/label-parser";
-import { ConditionalList, parserSwitch } from "../parser/switch-parser";
+import { parseLabel, type ShareDataParserLabel } from "../parser/label-parser";
+import { type ConditionalList, parserSwitch } from "../parser/switch-parser";
 import { logger } from "../utils/log-utility";
 import { addChoiseIntoList } from "./choice-info-converter";
 
@@ -37,7 +37,7 @@ function findLabel(
         if (storyItem) {
             if (storyItem instanceof Array) {
                 if (storyItem.includes("visit")) {
-                    let item = parserSwitch<string>(
+                    const item = parserSwitch<string>(
                         storyItem as ConditionalList,
                         addSwitchElemenText,
                         (_storyItem, _dadLabelKey, _shareData) => {},
@@ -87,9 +87,9 @@ export function addLabels(
     for (const [key, value] of Object.entries(storyItem)) {
         // if value is an array
         if (value instanceof Array) {
-            let labels: PixiVNJsonLabelStep[] = [];
-            let subLabels: PixiVNJsonLabels = {};
-            let labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key;
+            const labels: PixiVNJsonLabelStep[] = [];
+            const subLabels: PixiVNJsonLabels = {};
+            const labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key;
             // if (key.includes("g-")) {
             //     labelName = dadLabelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + key
             // }
