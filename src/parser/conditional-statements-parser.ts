@@ -1,20 +1,20 @@
+import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
+import { addChoiseIntoList } from "@/functions/choice-info-converter";
+import type InkRootType from "@/interfaces/InkRootType";
+import type Cond from "@/interfaces/parserItems/Cond";
+import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
+import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
+import type ReadCount from "@/interfaces/parserItems/ReadCount";
+import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
+import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import { conditionaAritmeticParser } from "@/parser/conditiona-aritmetic-parser";
+import { parseLabel, type ShareDataParserLabel } from "@/parser/label-parser";
+import { logger } from "@/utils/log-utility";
 import type {
     PixiVNJsonConditionalResultToCombine,
     PixiVNJsonConditionalStatements,
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import { addChoiseIntoList } from "../functions/choice-info-converter";
-import type InkRootType from "../interfaces/InkRootType";
-import type Cond from "../interfaces/parserItems/Cond";
-import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
-import type NativeFunctions from "../interfaces/parserItems/NativeFunctions";
-import type ReadCount from "../interfaces/parserItems/ReadCount";
-import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
-import { logger } from "../utils/log-utility";
-import { conditionaAritmeticParser } from "./conditiona-aritmetic-parser";
-import { parseLabel, type ShareDataParserLabel } from "./label-parser";
 
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,

@@ -2,6 +2,8 @@ import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
 import type InkRootType from "@/interfaces/InkRootType";
 import type { ContainerTypeN } from "@/interfaces/parserItems/ContainerType";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
+import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
+import type ReadCount from "@/interfaces/parserItems/ReadCount";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
 import { addSwitchComment } from "@/parser/adding-elements";
@@ -18,7 +20,7 @@ import type {
 
 export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string; glue: boolean } };
-    du?: unknown;
+    du?: NativeFunctions | ReadCount;
     params?: object;
 };
 export function parseLabel<T>(

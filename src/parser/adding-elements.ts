@@ -76,6 +76,7 @@ function addConditionalElementStep(
         | string[]
         | PixiVNJsonLabelStep
         | StandardDivert
+        | DivertTunnel
         | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>
         | MyVariableAssignment,
     labelKey: string,
