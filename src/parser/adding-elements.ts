@@ -140,7 +140,7 @@ function addConditionalElementStep(
         if (!isNewLine && list.length > 0) {
             const prevItem = list[list.length - 1];
             // in this case: <> text
-            if (!prevItem.glueEnabled && !prevItem.operations) {
+            if (!prevItem.glueEnabled && !prevItem.operations && !prevItem.labelToOpen) {
                 prevItem.glueEnabled = true;
                 if (!prevItem.labelToOpen) prevItem.goNextStep = true;
             }

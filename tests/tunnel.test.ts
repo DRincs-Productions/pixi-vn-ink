@@ -125,7 +125,6 @@ test("Tunnel 2", async () => {
                     dialogue: "You return to the square.",
                 },
                 {
-                    glueEnabled: true,
                     labelToOpen: {
                         label: "city",
                         params: undefined,
