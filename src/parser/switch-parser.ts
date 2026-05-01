@@ -1,23 +1,24 @@
+import { addChoiseIntoList } from "@/functions/choice-info-converter";
+import type InkRootType from "@/interfaces/InkRootType";
+import type { ContainerTypeF } from "@/interfaces/parserItems/ContainerType";
+import type ControlCommands from "@/interfaces/parserItems/ControlCommands";
+import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
+import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
+import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
+import type TextType from "@/interfaces/parserItems/TextType";
+import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import { parseLabel, type ShareDataParserLabel } from "@/parser/label-parser";
 import type {
     PixiVNJsonStepSwitch,
     PixiVNJsonStepSwitchElementsType,
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
-import { addChoiseIntoList } from "../functions/choice-info-converter";
-import type InkRootType from "../interfaces/InkRootType";
-import type { ContainerTypeF } from "../interfaces/parserItems/ContainerType";
-import type ControlCommands from "../interfaces/parserItems/ControlCommands";
-import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
-import type NativeFunctions from "../interfaces/parserItems/NativeFunctions";
-import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import type TextType from "../interfaces/parserItems/TextType";
-import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
-import { parseLabel, type ShareDataParserLabel } from "./label-parser";
 
 export type ConditionalList = (
     | number
     | ControlCommands
     | StandardDivert
+    | DivertTunnel
     | NativeFunctions
     | TextType
     | ContainerTypeF
@@ -31,6 +32,7 @@ export function parserSwitch<T>(
             | T
             | string
             | StandardDivert
+            | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
@@ -46,7 +48,7 @@ export function parserSwitch<T>(
     paramNames: string[],
     nestedId: string | undefined = undefined,
 ): PixiVNJsonStepSwitch<T> {
-    let elements: PixiVNJsonStepSwitchElementsType<T> = [];
+    const elements: PixiVNJsonStepSwitchElementsType<T> = [];
     let type: "random" | "sequential" | "loop" | "sequentialrandom" = "sequential";
     let min: boolean = false;
     let haveFixedEnd: boolean = true;
@@ -65,13 +67,13 @@ export function parserSwitch<T>(
         }
     });
 
-    let lastItem: ContainerTypeF = items[items.length - 1] as ContainerTypeF;
+    const lastItem: ContainerTypeF = items[items.length - 1] as ContainerTypeF;
     Object.keys(lastItem).forEach((key) => {
         let value = lastItem[key];
         if (Array.isArray(value) && value.length > 3) {
             // remove the first item and the last two
             value = value.slice(1, value.length - 2);
-            let itemList: T[] = [];
+            const itemList: T[] = [];
 
             parseLabel<T>(
                 value,
@@ -101,7 +103,7 @@ export function parserSwitch<T>(
     });
 
     if (type === "sequential") {
-        let res: PixiVNJsonStepSwitch<T> = {
+        const res: PixiVNJsonStepSwitch<T> = {
             type: "stepswitch",
             elements: elements,
             choiceType: type,
@@ -111,7 +113,7 @@ export function parserSwitch<T>(
         return res;
     }
     if (min && type === "random") {
-        let res: PixiVNJsonStepSwitch<T> = {
+        const res: PixiVNJsonStepSwitch<T> = {
             type: "stepswitch",
             elements: elements,
             choiceType: "sequentialrandom",
@@ -120,7 +122,7 @@ export function parserSwitch<T>(
         };
         return res;
     }
-    let res: PixiVNJsonStepSwitch<T> = {
+    const res: PixiVNJsonStepSwitch<T> = {
         type: "stepswitch",
         elements: elements,
         choiceType: type,
