@@ -5,7 +5,7 @@ export type StandardDivert = {
     /**
      * my property to store the parameters
      */
-    params?: unknown[];
+    params?: any[];
 };
 type DivertFunction = {
     "f()": string;
@@ -18,7 +18,7 @@ export type DivertTunnel = {
     /**
      * my property to store the parameters
      */
-    params?: unknown[];
+    params?: any[];
 };
 type DivertExternalFunction = {
     "x()": string;
