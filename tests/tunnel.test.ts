@@ -16,6 +16,10 @@ test("Tunnel 1", async () => {
                 {
                     dialogue: "You go back to walking around the city.",
                 },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
             ],
             city: [
                 {
