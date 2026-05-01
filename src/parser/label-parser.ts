@@ -18,7 +18,7 @@ import type {
 
 export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string; glue: boolean } };
-    du?: any;
+    du?: unknown;
     params?: object;
 };
 export function parseLabel<T>(
