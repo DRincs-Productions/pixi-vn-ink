@@ -8,7 +8,7 @@ import type {
 } from "@drincs/pixi-vn-json";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "../constant";
-import type { StandardDivert } from "../interfaces/parserItems/Divert";
+import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
 import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { getText } from "../utils/text-utility";

@@ -4,15 +4,15 @@ import type {
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
 import { addChoiseIntoList } from "../functions/choice-info-converter";
-import InkRootType from "../interfaces/InkRootType";
-import { ContainerTypeF } from "../interfaces/parserItems/ContainerType";
-import ControlCommands from "../interfaces/parserItems/ControlCommands";
-import { StandardDivert } from "../interfaces/parserItems/Divert";
-import NativeFunctions from "../interfaces/parserItems/NativeFunctions";
-import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import TextType from "../interfaces/parserItems/TextType";
-import { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
-import { parseLabel, ShareDataParserLabel } from "./label-parser";
+import type InkRootType from "../interfaces/InkRootType";
+import type { ContainerTypeF } from "../interfaces/parserItems/ContainerType";
+import type ControlCommands from "../interfaces/parserItems/ControlCommands";
+import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
+import type NativeFunctions from "../interfaces/parserItems/NativeFunctions";
+import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import type TextType from "../interfaces/parserItems/TextType";
+import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
+import { parseLabel, type ShareDataParserLabel } from "./label-parser";
 
 export type ConditionalList = (
     | number

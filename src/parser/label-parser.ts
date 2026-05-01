@@ -6,7 +6,7 @@ import type {
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import type InkRootType from "../interfaces/InkRootType";
 import type { ContainerTypeN } from "../interfaces/parserItems/ContainerType";
-import type { StandardDivert } from "../interfaces/parserItems/Divert";
+import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
 import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
 import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
 import { logger } from "../utils/log-utility";
