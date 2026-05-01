@@ -1,4 +1,10 @@
+import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "@/constant";
 import { HashtagCommands } from "@/handlers";
+import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
+import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import { getLabelByStandardDivert } from "@/utils/divert-utility";
+import { getText } from "@/utils/text-utility";
+import { getValue } from "@/utils/value-utility";
 import type {
     PixiVNJsonConditionalOperation,
     PixiVNJsonConditionalStatements,
@@ -7,13 +13,6 @@ import type {
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
-import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "../constant";
-import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
-import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
-import { getLabelByStandardDivert } from "../utils/divert-utility";
-import { getText } from "../utils/text-utility";
-import { getValue } from "../utils/value-utility";
-
 export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
     if (isThreads) {
         return "call";
