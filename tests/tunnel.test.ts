@@ -256,6 +256,7 @@ You are in the square.
     -> guard_dialogue ->
     You return to the square.
     -> city
+    You don't see this line because you are sent back to the city before.
 
 * {reputation >= 1} [Ask for a favor]
     The guard helps you.
