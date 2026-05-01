@@ -7,6 +7,7 @@ import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
 import type ReadCount from "@/interfaces/parserItems/ReadCount";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import type VariableReference from "@/interfaces/parserItems/VariableReference";
 import { conditionaAritmeticParser } from "@/parser/conditiona-aritmetic-parser";
 import { parseLabel, type ShareDataParserLabel } from "@/parser/label-parser";
 import { logger } from "@/utils/log-utility";
@@ -18,7 +19,7 @@ import type {
 
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
-    data: (ReadCount | NativeFunctions)[],
+    data: (ReadCount | NativeFunctions | VariableReference)[],
     paramNames: string[],
     labelKey: string,
     elseThen?: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,

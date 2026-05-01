@@ -123,7 +123,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
             PixiVNJsonComparationOperators.includes(item as PixiVNJsonComparationOperatorsType)
         ) {
             if (conditions.length < 2) {
-                conditions.push(item);
+                logger.error("Error parsing ink file: Conditional statement is not valid", list);
             } else {
                 const i: PixiVNJsonComparation = {
                     type: "compare",

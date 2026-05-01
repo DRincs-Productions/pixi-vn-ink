@@ -124,6 +124,18 @@ test("Tunnel 2", async () => {
                 {
                     dialogue: "You return to the square.",
                 },
+                {
+                    glueEnabled: true,
+                    labelToOpen: {
+                        label: "city",
+                        params: undefined,
+                        type: "jump",
+                    },
+                },
+                {
+                    dialogue:
+                        "You don't see this line because you are sent back to the city before.",
+                },
             ],
             "city_|_c-1": [
                 {
@@ -149,7 +161,7 @@ test("Tunnel 2", async () => {
                         {
                             type: "ifelse",
                             condition: {
-                                type: "comparison",
+                                type: "compare",
                                 operator: ">=",
                                 rightValue: 1,
                                 leftValue: {

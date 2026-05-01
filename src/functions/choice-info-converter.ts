@@ -1,3 +1,4 @@
+import type VariableReference from "@/interfaces/parserItems/VariableReference";
 import type {
     PixiVNJsonChoice,
     PixiVNJsonChoices,
@@ -5,16 +6,18 @@ import type {
     PixiVNJsonLabelStep,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import LabelChoiceRes from "../interfaces/LabelChoiceRes";
-import ChoicePoint, { ChoiceInfo } from "../interfaces/parserItems/ChoicePoint";
-import NativeFunctions, { nativeFunctions } from "../interfaces/parserItems/NativeFunctions";
-import ReadCount from "../interfaces/parserItems/ReadCount";
-import RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import TextType from "../interfaces/parserItems/TextType";
+import type LabelChoiceRes from "../interfaces/LabelChoiceRes";
+import type ChoicePoint from "../interfaces/parserItems/ChoicePoint";
+import type { ChoiceInfo } from "../interfaces/parserItems/ChoicePoint";
+import type NativeFunctions from "../interfaces/parserItems/NativeFunctions";
+import { nativeFunctions } from "../interfaces/parserItems/NativeFunctions";
+import type ReadCount from "../interfaces/parserItems/ReadCount";
+import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
+import type TextType from "../interfaces/parserItems/TextType";
 import { addSwitchElemenText, callOrJump } from "../parser/adding-elements";
 import { parserConditionalStatements } from "../parser/conditional-statements-parser";
-import { ShareDataParserLabel } from "../parser/label-parser";
-import { ConditionalList, parserSwitch } from "../parser/switch-parser";
+import type { ShareDataParserLabel } from "../parser/label-parser";
+import { type ConditionalList, parserSwitch } from "../parser/switch-parser";
 import { unionStringOrArray } from "../utils/array-utility";
 import { logger } from "../utils/log-utility";
 import { getText } from "../utils/text-utility";
@@ -27,12 +30,12 @@ export function addChoiseIntoList<T>(
     paramNames: string[],
 ) {
     if (choiseList.length > 0) {
-        let choices: LabelChoiceRes = {};
+        const choices: LabelChoiceRes = {};
         getLabelChoice(choiseList as any, choices, paramNames);
         for (const [key, value] of Object.entries(choices)) {
-            let newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key;
+            const newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key;
             // if last step is choice
-            let c: PixiVNJsonChoice = {
+            const c: PixiVNJsonChoice = {
                 text: value.text.length === 1 ? value.text[0] : value.text,
                 label: newKey,
                 props: {},
@@ -46,7 +49,7 @@ export function addChoiseIntoList<T>(
             if (c.oneTime === false) {
                 delete c.oneTime;
             }
-            let choice =
+            const choice =
                 parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c;
             let prevItem = itemList[itemList.length - 1];
             if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
@@ -61,7 +64,7 @@ export function addChoiseIntoList<T>(
                 "choices" in prevItem &&
                 prevItem.choices
             ) {
-                let choices = (prevItem as PixiVNJsonLabelStep).choices as PixiVNJsonChoices;
+                const choices = (prevItem as PixiVNJsonLabelStep).choices as PixiVNJsonChoices;
                 if (choices && Array.isArray(choices)) {
                     choices.push(choice);
                 } else {
@@ -73,21 +76,21 @@ export function addChoiseIntoList<T>(
                 }
                 prevItem.choices = choices.sort((a, b) => {
                     try {
-                        let labelArrayA = (a as PixiVNJsonChoice).label.split(".");
-                        let endA = labelArrayA[labelArrayA.length - 1].replaceAll(
+                        const labelArrayA = (a as PixiVNJsonChoice).label.split(".");
+                        const endA = labelArrayA[labelArrayA.length - 1].replaceAll(
                             ".",
                             CHOISE_LABEL_KEY_SEPARATOR,
                         );
-                        let labelArrayB = (b as PixiVNJsonChoice).label.split(".");
-                        let endB = labelArrayB[labelArrayB.length - 1].replaceAll(
+                        const labelArrayB = (b as PixiVNJsonChoice).label.split(".");
+                        const endB = labelArrayB[labelArrayB.length - 1].replaceAll(
                             ".",
                             CHOISE_LABEL_KEY_SEPARATOR,
                         );
                         if (endA.includes("c-") && endB.includes("c-")) {
-                            let stringNumberA = endA.split("c-")[1];
-                            let numberA = parseInt(stringNumberA);
-                            let stringNumberB = endB.split("c-")[1];
-                            let numberB = parseInt(stringNumberB);
+                            const stringNumberA = endA.split("c-")[1];
+                            const numberA = parseInt(stringNumberA);
+                            const stringNumberB = endB.split("c-")[1];
+                            const numberB = parseInt(stringNumberB);
                             return numberA - numberB;
                         }
                     } catch (error) {}
@@ -108,27 +111,35 @@ export function addChoiseIntoList<T>(
 }
 
 export function getLabelChoice(
-    items: (TextType | ReadCount | NativeFunctions | ChoicePoint | ChoiceInfo | ConditionalList)[],
+    items: (
+        | TextType
+        | ReadCount
+        | NativeFunctions
+        | ChoicePoint
+        | ChoiceInfo
+        | ConditionalList
+        | VariableReference
+    )[],
     result: LabelChoiceRes,
     paramNames: string[],
     lastLabel?: string,
 ) {
-    let text: (string | PixiVNJsonConditionalStatements<string>)[] = [];
+    const text: (string | PixiVNJsonConditionalStatements<string>)[] = [];
     let label: string = "";
     let preDialog: string = "";
     let onetime: boolean = false;
-    let condition: (ReadCount | NativeFunctions)[] = [];
+    const conditions: (ReadCount | NativeFunctions | VariableReference)[] = [];
     for (let index = 0; index < items.length; index++) {
-        let rootItem = items[index];
+        const rootItem = items[index];
         if (typeof rootItem === "string") {
             // Dialog
             if (rootItem.startsWith("^")) {
                 text.push(getText(rootItem));
             } else if (nativeFunctions.includes(rootItem as NativeFunctions)) {
-                condition.push(rootItem as NativeFunctions);
+                conditions.push(rootItem as NativeFunctions);
             }
         } else if (Array.isArray(rootItem) && rootItem.includes("visit")) {
-            let secondConditionalItem = parserSwitch<string>(
+            const secondConditionalItem = parserSwitch<string>(
                 rootItem,
                 addSwitchElemenText,
                 (_storyItem, _dadLabelKey, _shareData) => {},
@@ -141,7 +152,7 @@ export function getLabelChoice(
             // if is a choice
             if ("*" in rootItem && typeof rootItem["*"] && typeof rootItem["*"] === "string") {
                 if (rootItem["*"].includes("c")) {
-                    let l = "c" + rootItem["*"].split("c")[1];
+                    const l = `c${rootItem["*"].split("c")[1]}`;
                     label = l;
                     if (rootItem.flg & 0x10) {
                         onetime = true;
@@ -149,9 +160,9 @@ export function getLabelChoice(
                 }
             }
             // if is choise info
-            else if ("s" in rootItem && rootItem.s instanceof Array) {
-                let t = findChoiceText(rootItem.s);
-                let glueEnabled = rootItem.s.includes("<>");
+            else if ("s" in rootItem && Array.isArray(rootItem.s)) {
+                const t = findChoiceText(rootItem.s);
+                const glueEnabled = rootItem.s.includes("<>");
                 if (t) {
                     if (lastLabel && result[lastLabel]) {
                         result[lastLabel].preDialog = { text: t, glue: glueEnabled };
@@ -162,10 +173,12 @@ export function getLabelChoice(
                     }
                 }
             } else if ("CNT?" in rootItem) {
-                condition.push(rootItem);
+                conditions.push(rootItem);
+            } else if ("VAR?" in rootItem) {
+                conditions.push(rootItem);
             }
         } else {
-            condition.push(rootItem);
+            conditions.push(rootItem);
         }
         if (label) {
             if (result[label]) {
@@ -176,14 +189,14 @@ export function getLabelChoice(
                 result[label] = {
                     text: text,
                     onetime: onetime,
-                    conditions: condition,
+                    conditions: conditions,
                 };
             }
             if (preDialog) {
                 result[label].preDialog = { text: preDialog, glue: false };
             }
             // split text and label
-            let newListItem = items.slice(index + 1);
+            const newListItem = items.slice(index + 1);
             getLabelChoice(newListItem, result, paramNames, label);
             return;
         }
@@ -196,8 +209,8 @@ function findChoiceText(items: RootParserItemType[]): string | undefined {
             if (item.startsWith("^")) {
                 return getText(item);
             }
-        } else if (item instanceof Array) {
-            let res = findChoiceText(item);
+        } else if (Array.isArray(item)) {
+            const res = findChoiceText(item);
             if (res) {
                 return res;
             }
