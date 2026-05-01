@@ -1,25 +1,25 @@
+import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
+import type InkRootType from "@/interfaces/InkRootType";
+import type { ContainerTypeN } from "@/interfaces/parserItems/ContainerType";
+import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
+import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
+import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import { addSwitchComment } from "@/parser/adding-elements";
+import { arithmeticParser } from "@/parser/arithmetic-parser";
+import { getConditionalValue } from "@/parser/conditional-statements-parser";
+import { parserSwitch } from "@/parser/switch-parser";
+import { logger } from "@/utils/log-utility";
+import { getParam, getSetValue, getValue } from "@/utils/value-utility";
 import type {
     PixiVNJsonArithmeticOperations,
     PixiVNJsonConditionalStatements,
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json";
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import type InkRootType from "../interfaces/InkRootType";
-import type { ContainerTypeN } from "../interfaces/parserItems/ContainerType";
-import type { DivertTunnel, StandardDivert } from "../interfaces/parserItems/Divert";
-import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import type { MyVariableAssignment } from "../interfaces/parserItems/VariableAssignment";
-import { logger } from "../utils/log-utility";
-import { getParam, getSetValue, getValue } from "../utils/value-utility";
-import { addSwitchComment } from "./adding-elements";
-import { arithmeticParser } from "./arithmetic-parser";
-import { getConditionalValue } from "./conditional-statements-parser";
-import { parserSwitch } from "./switch-parser";
 
 export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string; glue: boolean } };
     du?: any;
-    params?: {};
+    params?: object;
 };
 export function parseLabel<T>(
     rootList: RootParserItemType[],
@@ -32,6 +32,7 @@ export function parseLabel<T>(
             | T
             | string
             | StandardDivert
+            | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
@@ -48,6 +49,7 @@ export function parseLabel<T>(
             | T
             | string
             | StandardDivert
+            | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
@@ -183,7 +185,7 @@ export function parseLabel<T>(
                         obj.value = rootList[index - 2];
                     }
                     if (obj.value && typeof obj.value === "object" && "^->" in obj.value) {
-                        obj.value = (obj.value as any)["^->"];
+                        obj.value = obj.value["^->"];
                     }
                     if (envList.length > 1) {
                         const arm = arithmeticParser(envList as any, labelKey, paramNames);
@@ -410,6 +412,23 @@ export function parseLabel<T>(
                 typeof rootItem["->"] === "string" &&
                 // {->: '.^.^.2.s'}
                 !new RegExp(/^\.\^\.\^\.\d\.s$/).test(rootItem["->"])
+            ) {
+                let params = [];
+                if (envList.length > 0) {
+                    params = getParam(["ev", ...envList], labelKey, paramNames);
+                }
+                rootItem.params = params;
+                addElement(itemList, rootItem, labelKey, paramNames, {
+                    isNewLine,
+                    isHashtagScript,
+                    isThreads,
+                });
+                isNewLine = false;
+            } else if (
+                "->t->" in rootItem &&
+                typeof rootItem["->t->"] === "string" &&
+                // {->: '.^.^.2.s'}
+                !new RegExp(/^\.\^\.\^\.\d\.s$/).test(rootItem["->t->"])
             ) {
                 let params = [];
                 if (envList.length > 0) {
