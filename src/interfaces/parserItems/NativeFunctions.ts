@@ -59,13 +59,3 @@ export const arithmeticFunctions: ArithmeticFunctions[] = [
 ];
 export type ArithmeticFunctionsSingle = "INT" | "FLOOR" | "FLOAT";
 export const arithmeticFunctionsSingle: ArithmeticFunctionsSingle[] = ["INT", "FLOOR", "FLOAT"];
-export type ConditionFunctions = "==" | ">" | "<" | ">=" | "<=" | "!=" | "CONTAINS";
-export const conditionFunctions: ConditionFunctions[] = [
-    "==",
-    ">",
-    "<",
-    ">=",
-    "<=",
-    "!=",
-    "CONTAINS",
-];

@@ -1,20 +1,20 @@
 import type { StorageElementType } from "@drincs/pixi-vn";
-import type {
-    PixiVNJsonArithmeticOperations,
-    PixiVNJsonChoiceGet,
-    PixiVNJsonComparation,
-    PixiVNJsonConditions,
-    PixiVNJsonLabelGet,
-    PixiVNJsonValueGet,
+import {
+    type PixiVNJsonArithmeticOperations,
+    type PixiVNJsonChoiceGet,
+    type PixiVNJsonComparation,
+    PixiVNJsonComparationOperators,
+    type PixiVNJsonComparationOperatorsType,
+    type PixiVNJsonConditions,
+    type PixiVNJsonLabelGet,
+    type PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
 import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
 import {
     arithmeticFunctions,
-    ArithmeticFunctions,
+    type ArithmeticFunctions,
     arithmeticFunctionsSingle,
-    ArithmeticFunctionsSingle,
-    conditionFunctions,
-    ConditionFunctions,
+    type ArithmeticFunctionsSingle,
 } from "../interfaces/parserItems/NativeFunctions";
 import { getLabelByStandardDivert } from "../utils/divert-utility";
 import { logger } from "../utils/log-utility";
@@ -24,16 +24,16 @@ import { getValue } from "../utils/value-utility";
 export function conditionaAritmeticParser(list: any[], labelKey: string, paramNames: string[]) {
     list = list.map((item) => {
         if (typeof item === "string") {
-            if ((item as any) === "rnd") {
+            if (item === "rnd") {
                 return "RANDOM";
             }
-            if ((item as any) === "?") {
+            if (item === "?") {
                 return "CONTAINS";
             }
         }
         return item;
     });
-    let conditions: (
+    const conditions: (
         | PixiVNJsonArithmeticOperations
         | PixiVNJsonValueGet
         | StorageElementType
@@ -42,10 +42,10 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
     list.forEach((item) => {
         if (typeof item === "object" && "CNT?" in item) {
             if (new RegExp(/.*\.[0-9]\..*/).test(item["CNT?"])) {
-                let items = item["CNT?"].split(".");
+                const items = item["CNT?"].split(".");
                 // remove the last element
-                let end = items.pop();
-                let stringNumber = items.pop();
+                const end = items.pop();
+                const stringNumber = items.pop();
                 if (stringNumber === undefined || end === undefined) {
                     logger.error(
                         "Error parsing ink file: Conditional statement is not valid",
@@ -53,23 +53,23 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                     );
                     return;
                 }
-                let number = parseInt(stringNumber);
+                const number = Number(stringNumber);
                 let label = items.join(".");
                 if (label.includes("^.")) {
-                    let labelArray = label.split(".");
-                    let end2 = labelArray[labelArray.length - 1].replaceAll(
+                    const labelArray = label.split(".");
+                    const end2 = labelArray[labelArray.length - 1].replaceAll(
                         ".",
                         CHOISE_LABEL_KEY_SEPARATOR,
                     );
                     labelArray.pop();
-                    label = labelArray.join(".") + "." + end2;
+                    label = `${labelArray.join(".")}.${end2}`;
                     if (end.includes("c-")) {
                         label = label + CHOISE_LABEL_KEY_SEPARATOR + end;
                     }
                 } else {
                     label = label.replaceAll(".", CHOISE_LABEL_KEY_SEPARATOR);
                 }
-                let labelIdToOpen = getLabelByStandardDivert(label, labelKey);
+                const labelIdToOpen = getLabelByStandardDivert(label, labelKey);
                 if (!labelIdToOpen) {
                     return;
                 }
@@ -83,7 +83,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                     },
                 });
             } else {
-                let labelIdToOpen = getLabelByStandardDivert(item["CNT?"], labelKey);
+                const labelIdToOpen = getLabelByStandardDivert(item["CNT?"], labelKey);
                 if (!labelIdToOpen) {
                     return;
                 }
@@ -93,7 +93,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
             conditions.push(getValue(item["VAR?"], paramNames));
         } else if (item === "&&" || item === "||") {
             if (conditions.length >= 2) {
-                let i: PixiVNJsonConditions = {
+                const i: PixiVNJsonConditions = {
                     type: "union",
                     unionType: item === "&&" ? "and" : "or",
                     conditions: [
@@ -110,7 +110,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
             if (conditions.length === 0) {
                 logger.error("Error parsing ink file: Conditional statement is not valid", list);
             } else {
-                let i: PixiVNJsonConditions = {
+                const i: PixiVNJsonConditions = {
                     type: "union",
                     unionType: "not",
                     condition: conditions[conditions.length - 1],
@@ -120,14 +120,14 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
         } else if (
             item &&
             typeof item === "string" &&
-            conditionFunctions.includes(item as ConditionFunctions)
+            PixiVNJsonComparationOperators.includes(item as PixiVNJsonComparationOperatorsType)
         ) {
             if (conditions.length < 2) {
-                logger.error("Error parsing ink file: Conditional statement is not valid", list);
+                conditions.push(item);
             } else {
-                let i: PixiVNJsonComparation = {
+                const i: PixiVNJsonComparation = {
                     type: "compare",
-                    operator: item as ConditionFunctions,
+                    operator: item as PixiVNJsonComparationOperatorsType,
                     rightValue: conditions[conditions.length - 1] as any,
                     leftValue: conditions[conditions.length - 2] as any,
                 };
@@ -144,7 +144,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
             if (conditions.length < 2) {
                 logger.error("Error parsing ink file: Conditional statement is not valid", list);
             } else {
-                let i: PixiVNJsonArithmeticOperations = {
+                const i: PixiVNJsonArithmeticOperations = {
                     type: "arithmetic",
                     operator: item as ArithmeticFunctions,
                     rightValue: conditions[conditions.length - 1] as
@@ -166,7 +166,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
             typeof item === "string" &&
             arithmeticFunctionsSingle.includes(item as ArithmeticFunctionsSingle)
         ) {
-            let i: PixiVNJsonArithmeticOperations = {
+            const i: PixiVNJsonArithmeticOperations = {
                 type: "arithmeticsingle",
                 operator: item as ArithmeticFunctionsSingle,
                 leftValue: conditions[conditions.length - 1] as
@@ -182,7 +182,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
                 conditions.push(getText(item));
             }
         } else if (typeof item === "object" && "^->" in item) {
-            let i: string = item["^->"];
+            const i: string = item["^->"];
             if (!i.includes("$r")) {
                 conditions.push(item["^->"]);
             }
