@@ -35,7 +35,7 @@ function findLabel(
 ) {
     for (const storyItem of story) {
         if (storyItem) {
-            if (storyItem instanceof Array) {
+            if (Array.isArray(storyItem)) {
                 if (storyItem.includes("visit")) {
                     const item = parserSwitch<string>(
                         storyItem as ConditionalList,
@@ -86,7 +86,7 @@ export function addLabels(
     // for value and key in item
     for (const [key, value] of Object.entries(storyItem)) {
         // if value is an array
-        if (value instanceof Array) {
+        if (Array.isArray(value)) {
             const labels: PixiVNJsonLabelStep[] = [];
             const subLabels: PixiVNJsonLabels = {};
             const labelName = (dadLabelKey ? dadLabelKey + CHOISE_LABEL_KEY_SEPARATOR : "") + key;
