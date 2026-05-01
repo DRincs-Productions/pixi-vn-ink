@@ -30,7 +30,12 @@ export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
 
 export function addSwitchElemenText(
     list: PixiVNJsonStepSwitchElementType<string>[],
-    item: string | StandardDivert | PixiVNJsonStepSwitchElementType<string> | MyVariableAssignment,
+    item:
+        | string
+        | StandardDivert
+        | DivertTunnel
+        | PixiVNJsonStepSwitchElementType<string>
+        | MyVariableAssignment,
 ) {
     if (!item) {
         return;
