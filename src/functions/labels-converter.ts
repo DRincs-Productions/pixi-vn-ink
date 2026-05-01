@@ -16,7 +16,7 @@ export function getInkLabels(
     story: (InkRootType | RootParserItemType | RootParserItemType[])[],
 ): PixiVNJsonLabels | undefined {
     try {
-        let label: PixiVNJsonLabels = {};
+        const label: PixiVNJsonLabels = {};
 
         findLabel(story, label);
 

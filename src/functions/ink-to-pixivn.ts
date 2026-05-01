@@ -13,7 +13,7 @@ import { getInkLabels } from "./labels-converter";
  * @returns LabelJsonType or undefined
  */
 export function convertInkToJson(text: string): PixiVNJson | undefined {
-    let { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
+    const { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
     issues.forEach(({ message, type }) => {
         if (type === ErrorType.Error) {
             logger.error(`Ink compilation error: ${message}`);
@@ -45,10 +45,10 @@ export function convertInkStoryToJson(
     } = {},
 ): PixiVNJson | undefined {
     const { labelToRemove = [], initialVarsToRemove = [] } = options;
-    let result: PixiVNJson = {};
+    const result: PixiVNJson = {};
     result.labels = getInkLabels(obj.root);
     if (result.labels && GLOBAL_DECL in result.labels) {
-        let global = result.labels[GLOBAL_DECL];
+        const global = result.labels[GLOBAL_DECL];
         delete result.labels[GLOBAL_DECL];
         global.forEach((item) => {
             if (item.operations) {
@@ -59,7 +59,7 @@ export function convertInkStoryToJson(
         });
     }
     if (result.labels && SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES in result.labels) {
-        let global = result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
+        const global = result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         delete result.labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES];
         global.forEach((item) => {
             if (item.operations) {

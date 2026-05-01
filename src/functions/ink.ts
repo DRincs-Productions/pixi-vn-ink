@@ -24,7 +24,7 @@ export function convertorInkToJson(
             sourceFilename: null,
         });
         const story = compiler.Compile();
-        let json = story.ToJson() || "";
+        const json = story.ToJson() || "";
         return { json, issues, labelToRemove, initialVarsToRemove };
     } catch (e) {
         const error = issues.find((em) => em.type === ErrorType.Error);
