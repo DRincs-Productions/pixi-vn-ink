@@ -7,6 +7,14 @@ test("Tunnel 1", async () => {
         labels: {
   "città_|_c-0": [
     {
+      labelToOpen: {
+        label: "dialogo_mercante",
+        type: "call",
+        params: undefined,
+      },
+      glueEnabled: true,
+    },
+    {
       dialogue: "Torni a girare per la città.",
     },
   ],

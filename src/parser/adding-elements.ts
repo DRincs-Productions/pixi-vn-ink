@@ -223,6 +223,36 @@ function addConditionalElementStep(
                     glueEnabled: glueEnabled,
                 });
             }
+        } else if ("->t->" in item) {
+            let glueEnabled = isNewLine ? undefined : true;
+            if (
+                glueEnabled &&
+                labelKey.includes("c-") &&
+                list.length > 0 &&
+                list[list.length - 1]?.dialogue === undefined
+            ) {
+                glueEnabled = undefined;
+            }
+            if (!isNewLine && list.length > 0) {
+                const prevItem = list[list.length - 1];
+                if (!prevItem.labelToOpen) prevItem.goNextStep = true;
+                list[list.length - 1] = prevItem;
+            }
+            if (item.params && item.params.length === 0) {
+                delete item.params;
+            }
+            const labelIdToOpen = getLabelByStandardDivert(item["->t->"], labelKey);
+            if (!labelIdToOpen) {
+                return;
+            }
+            list.push({
+                labelToOpen: {
+                    label: labelIdToOpen,
+                    type: "call",
+                    params: item.params,
+                },
+                glueEnabled: glueEnabled,
+            });
         }
         if ("type" in item && item.type === "value" && item.storageOperationType === "set") {
             if (typeof item.value === "string" && item.value.startsWith("^")) {
