@@ -16,11 +16,11 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
     let { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
     issues.forEach(({ message, type }) => {
         if (type === ErrorType.Error) {
-            logger.error("Ink compilation error: " + message);
+            logger.error(`Ink compilation error: ${message}`);
         } else if (type === ErrorType.Warning) {
-            logger.warn("Ink compilation warning: " + message);
+            logger.warn(`Ink compilation warning: ${message}`);
         } else {
-            logger.info("Ink compilation info: " + message);
+            logger.info(`Ink compilation info: ${message}`);
         }
     });
     if (!json) {
