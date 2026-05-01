@@ -51,6 +51,7 @@ export function addSwitchElemenStep(
         | string
         | PixiVNJsonLabelStep
         | StandardDivert
+        | DivertTunnel
         | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>
         | MyVariableAssignment,
     labelKey: string,
@@ -268,6 +269,7 @@ export function addSwitchComment(
         | string
         | TComment
         | StandardDivert
+        | DivertTunnel
         | PixiVNJsonStepSwitchElementType<TComment>
         | MyVariableAssignment,
     labelKey: string,
@@ -282,6 +284,7 @@ function addConditionalComment(
         | string
         | TComment
         | StandardDivert
+        | DivertTunnel
         | PixiVNJsonConditionalStatements<TComment>
         | MyVariableAssignment,
     _labelKey: string,
