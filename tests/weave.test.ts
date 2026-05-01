@@ -1,4 +1,4 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText } from "../src/functions";
 
@@ -6,7 +6,7 @@ import { convertInkText } from "../src/functions";
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#options-and-gathers-form-chains-of-content
  */
 test("Options and gathers form chains of content", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_c-0": [
                 {
@@ -161,7 +161,7 @@ test("Options and gathers form chains of content", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> start
 === start ==
 I ran through the forest, the dogs snapping at my heels.
@@ -187,7 +187,7 @@ I ran through the forest, the dogs snapping at my heels.
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#options-can-be-nested
  */
 test("Options can be nested", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_g-0_|_c-0_|_c-0": [
                 {
@@ -352,7 +352,7 @@ test("Options can be nested", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> start
 === start ==
 - 	"Well, Poirot? Murder or suicide?"
@@ -375,7 +375,7 @@ test("Options can be nested", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#gather-points-can-be-nested-too
  */
 test("Gather points can be nested too", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_g-0_|_c-0_|_c-0": [
                 {
@@ -587,7 +587,7 @@ test("Gather points can be nested too", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> start
 === start ==
 - 	"Well, Poirot? Murder or suicide?"
@@ -613,7 +613,7 @@ test("Gather points can be nested too", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-what-gathers-do
  */
 test("Advanced: What gathers do", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
                 {
@@ -746,7 +746,7 @@ test("Advanced: What gathers do", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> start
 === start ==
 -	"Tell us a tale, Captain!"
@@ -766,7 +766,7 @@ test("Advanced: What gathers do", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-a-conversation-with-nested-nodes
  */
 test("Example: a conversation with nested nodes", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_g-0_|_c-0_|_c-0_|_c-0": [
                 {
@@ -1032,7 +1032,7 @@ test("Example: a conversation with nested nodes", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> start
 === start ==
 - I looked at Monsieur Fogg
@@ -1062,7 +1062,7 @@ test("Example: a conversation with nested nodes", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#gathers-and-options-can-be-labelled
  */
 test("Gathers and options can be labelled", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "meet_guard_|_c-0": [
                 {
@@ -1236,7 +1236,7 @@ test("Gathers and options can be labelled", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> meet_guard
 === meet_guard ===
 The guard frowns at you.
@@ -1268,7 +1268,7 @@ fight_guard
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#scope
  */
 test("Scope", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "knot_|_stitch_one_|_gatherpoint": [
                 {
@@ -1338,7 +1338,7 @@ test("Scope", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> knot
 === knot ===
 = stitch_one
@@ -1355,7 +1355,7 @@ test("Scope", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#scope
  */
 test("Scope2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "knot_one_|_gather_one_|_c-0": [
                 {
@@ -1460,7 +1460,7 @@ test("Scope2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> knot_one
 === knot_one ===
 -	(gather_one)
@@ -1479,7 +1479,7 @@ test("Scope2", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-all-options-can-be-labelled
  */
 test("Advanced: all options can be labelled", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "fight_guard_|_throw_something_|_c-0": [
                 {
@@ -1565,7 +1565,7 @@ test("Advanced: all options can be labelled", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 ...
@@ -1584,7 +1584,7 @@ You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-loops-in-a-weave
  */
 test("Advanced: Loops in a weave", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "fight_guard_|_opts_|_c-0": [
                 {
@@ -1758,7 +1758,7 @@ test("Advanced: Loops in a weave", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 - (opts)
@@ -1787,7 +1787,7 @@ test("Advanced: Loops in a weave", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-diverting-to-options
  */
 test("Advanced: diverting to options", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "fight_guard_|_opts_|_c-0": [
                 {
@@ -1910,7 +1910,7 @@ test("Advanced: diverting to options", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 - (opts)
@@ -1935,7 +1935,7 @@ fight_the_guard
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-gathers-directly-after-an-option
  */
 test("Advanced: Gathers directly after an option", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "fight_guard_|_c-0_|_quitewell": [
                 {
@@ -2043,7 +2043,7 @@ test("Advanced: Gathers directly after an option", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> fight_guard
 === fight_guard ===
 *	"Are you quite well, Monsieur?"[] I asked.

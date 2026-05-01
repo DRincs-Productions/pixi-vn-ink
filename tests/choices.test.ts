@@ -1,4 +1,4 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText } from "../src/functions";
 
@@ -6,7 +6,7 @@ import { convertInkText } from "../src/functions";
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#2-choices
 
 test("Choices test 1", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             test: [
                 {
@@ -34,7 +34,7 @@ test("Choices test 1", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === test ===
 Hello world!
 *	Hello back!
@@ -44,7 +44,7 @@ Hello world!
 });
 
 test("Choices test 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             test: [
                 {
@@ -72,7 +72,7 @@ test("Choices test 2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === test ===
 Hello world!
 Hello world!2
@@ -83,7 +83,7 @@ Hello world!2
 });
 
 test("Choices test 3", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "test_|_c-0": [
                 {
@@ -116,7 +116,7 @@ test("Choices test 3", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === test ===
 Hello world!
 *	Hello [back!] right back to you!
@@ -126,7 +126,7 @@ Hello world!
 });
 
 test("Choices test 4", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "test_|_c-0": [
                 {
@@ -159,7 +159,7 @@ test("Choices test 4", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === test ===
 "What's that?" my master asked.
 *	"I am somewhat tired[."]," I repeated.
@@ -169,7 +169,7 @@ test("Choices test 4", async () => {
 });
 
 test("Choices test 5", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "test_|_c-0": [
                 {
@@ -243,7 +243,7 @@ test("Choices test 5", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === test ===
 "What's that?" my master asked.
 *	"I am somewhat tired[."]," I repeated.
@@ -260,7 +260,7 @@ test("Choices test 5", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#basic-branching
  */
 test("Basic branching", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "paragraph_1_|_c-0": [
                 {
@@ -348,7 +348,7 @@ test("Basic branching", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> paragraph_1
 === paragraph_1 ===
 You stand by the wall of Analand, sword in hand.
@@ -376,7 +376,7 @@ You open the gate, and step out onto the path.
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-of-a-fallback-choice
  */
 test("Example of a fallback choice", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "find_help_|_c-0": [
                 {
@@ -457,7 +457,7 @@ test("Example of a fallback choice", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> find_help
 === find_help ===
 
@@ -475,7 +475,7 @@ test("Example of a fallback choice", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#sticky-choices
  */
 test("Sticky choices", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "homers_couch_|_c-0": [
                 {
@@ -519,7 +519,7 @@ test("Sticky choices", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> homers_couch
 === homers_couch ===
 	+	[Eat another donut]
@@ -535,7 +535,7 @@ test("Sticky choices", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-choices
  */
 test("Conditional Choices", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "visit_paris_|_c-0": [
                 {
@@ -810,7 +810,7 @@ test("Conditional Choices", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> visit_paris
 === visit_paris ===
 *	{ not visit_paris } 	[Go to Paris] -> visit_paris
@@ -835,7 +835,7 @@ bored_of_paris
 });
 
 test("start_|_s", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -952,7 +952,7 @@ test("start_|_s", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 VAR _input_value_ = ""
 
 === start ===

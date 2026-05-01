@@ -1,4 +1,4 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkToJson } from "../src/functions";
 import { convertOperation } from "./convertOperation";
@@ -11,7 +11,7 @@ import { convertOperation } from "./convertOperation";
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#defining-global-variables
  */
 test("Defining Global Variables", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -104,7 +104,7 @@ test("Defining Global Variables", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR knowledge_of_the_cure = false
 VAR players_name = "Emilia"
 VAR number_of_infected_people = 521
@@ -122,7 +122,7 @@ VAR current_epilogue = -> they_all_die_of_the_plague
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-storing-diverts-as-variables
  */
 test("Advanced: storing diverts as variables", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -201,7 +201,7 @@ test("Advanced: storing diverts as variables", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR current_epilogue = -> everybody_dies
 
 === continue_or_quit ===
@@ -221,7 +221,7 @@ Give up now, or keep trying to save your Kingdom?
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#printing-variables
  */
 test("Printing variables", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -280,7 +280,7 @@ test("Printing variables", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR friendly_name_of_player = "Jackie"
 VAR age = 23
 
@@ -295,7 +295,7 @@ My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. 
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#evaluating-strings
  */
 test("Evaluating strings", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -347,7 +347,7 @@ test("Evaluating strings", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR a_colour = ""
 
 ~ a_colour = "{~red|blue|green|yellow}"
@@ -368,7 +368,7 @@ VAR a_colour = ""
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#2-logic
  */
 test("Logic", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -519,7 +519,7 @@ test("Logic", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR y = 2
 VAR x = 3
 VAR c = 1
@@ -538,7 +538,7 @@ VAR knows_about_wager = false
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#mathematics
  */
 test("Mathematics", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -584,7 +584,7 @@ test("Mathematics", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 === start
 {POW(3, 2)} is 9.
 {POW(16, 0.5)} is 4.
@@ -597,7 +597,7 @@ test("Mathematics", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#randommin-max
  */
 test("RANDOM(min, max)", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -711,7 +711,7 @@ test("RANDOM(min, max)", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 === start ===
 ~ temp dice_roll = RANDOM(1, 6)
@@ -730,7 +730,7 @@ test("RANDOM(min, max)", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-numerical-types-are-implicit
  */
 test("Advanced: numerical types are implicit", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -867,7 +867,7 @@ test("Advanced: numerical types are implicit", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR x = 0
 VAR y = 0
 VAR z = 0
@@ -886,7 +886,7 @@ VAR z = 0
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-int-floor-and-float
  */
 test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -977,7 +977,7 @@ test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 === start ===
 {INT(3.2)} is 3.
@@ -994,7 +994,7 @@ test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#string-queries
  */
 test("String queries", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1065,7 +1065,7 @@ test("String queries", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 === start ===
 { "Yes, please." == "Yes, please." }
@@ -1085,7 +1085,7 @@ test("String queries", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#a-simple-if
  */
 test("A simple if", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -1162,7 +1162,7 @@ test("A simple if", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR x = 1
 VAR y = 0
 -> start
@@ -1180,7 +1180,7 @@ VAR y = 0
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#a-simple-if
  */
 test("A simple else", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -1284,7 +1284,7 @@ test("A simple else", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR x = 0
 VAR y = 0
 -> start
@@ -1304,7 +1304,7 @@ VAR y = 0
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#extended-ifelse-ifelse-blocks
  */
 test("Extended if/else if/else blocks", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -1436,7 +1436,7 @@ test("Extended if/else if/else blocks", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR x = 0
 VAR y = 0
 -> start
@@ -1459,7 +1459,7 @@ VAR y = 0
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#switch-blocks
  */
 test("Switch blocks", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -1534,7 +1534,7 @@ test("Switch blocks", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR x = 0
 -> start
 === start
@@ -1552,7 +1552,7 @@ VAR x = 0
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-context-relevant-content
  */
 test("Example: context-relevant content", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -1763,7 +1763,7 @@ test("Example: context-relevant content", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR fear = 0
 VAR visited_poland = true
 VAR visited_snakes = true
@@ -1803,7 +1803,7 @@ dream_about_marmalade
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-blocks-are-not-limited-to-logic
  */
 test("Conditional blocks are not limited to logic", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1867,7 +1867,7 @@ test("Conditional blocks are not limited to logic", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 == start ==
 I stared at Monsieur Fogg.
@@ -1889,7 +1889,7 @@ know_about_wager
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-blocks-are-not-limited-to-logic
  */
 test("Conditional blocks are not limited to logic 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_then_|_c-0": [
                 {
@@ -2026,7 +2026,7 @@ test("Conditional blocks are not limited to logic 2", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 == start ==
 { door_open:
@@ -2054,7 +2054,7 @@ open_door
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#multiline-blocks
  */
 test("Multiline blocks", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -2203,7 +2203,7 @@ test("Multiline blocks", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR count = 0
 -> start
 == start ==
@@ -2250,7 +2250,7 @@ At the table, I drew a card. <>
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-modified-shuffles
  */
 test("Advanced: modified shuffles", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -2332,7 +2332,7 @@ test("Advanced: modified shuffles", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR count = 0
 -> start
 == start ==
@@ -2355,7 +2355,7 @@ res:
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-modified-shuffles
  */
 test("Advanced: modified shuffles 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -2440,7 +2440,7 @@ test("Advanced: modified shuffles 2", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 VAR count = 0
 -> start
 == start ==
@@ -2468,7 +2468,7 @@ res:
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#temporary-variables-are-for-scratch-calculations
  */
 test("Temporary variables are for scratch calculations", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -2634,7 +2634,7 @@ test("Temporary variables are for scratch calculations", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> near_north_pole
 === near_north_pole ===
 	~ temp number_of_warm_things = 0
@@ -2664,7 +2664,7 @@ VAR gloves = 0
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#knots-and-stitches-can-take-parameters
  */
 test("Knots and stitches can take parameters", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_c-0": [
                 {
@@ -2800,7 +2800,7 @@ test("Knots and stitches can take parameters", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 == start ==
 *	[Accuse Hasting]
@@ -2823,7 +2823,7 @@ test("Knots and stitches can take parameters", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#example-a-recursive-knot-definition
  */
 test("Example: a recursive knot definition", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -2951,7 +2951,7 @@ test("Example: a recursive knot definition", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start()
 
 === start
@@ -2977,7 +2977,7 @@ test("Example: a recursive knot definition", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-sending-divert-targets-as-parameters
  */
 test("Advanced: sending divert targets as parameters", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             sleeping_in_hut: [
                 {
@@ -3016,7 +3016,7 @@ test("Advanced: sending divert targets as parameters", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 === sleeping_in_hut ===
 	You lie down and close your eyes.
 	-> generic_sleep (-> waking_in_the_hut)
@@ -3039,7 +3039,7 @@ test("Advanced: sending divert targets as parameters", async () => {
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#global-constants
  */
 test("Global Constants", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -3103,7 +3103,7 @@ test("Global Constants", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 CONST HASTINGS = "Hastings"
 CONST POIROT = "Poirot"
 CONST JAPP = "Japp"
@@ -3128,7 +3128,7 @@ found_japps_bloodied_glove
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#global-constants
  */
 test("Global Constants 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -3227,7 +3227,7 @@ test("Global Constants 2", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 CONST LOBBY = 1
 CONST STAIRCASE = 2
 CONST HALLWAY = 3
@@ -3253,7 +3253,7 @@ VAR suitcase_location = HALLWAY
 });
 
 test("Uknown variable in text", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [],
         labels: {
             start: [
@@ -3277,7 +3277,7 @@ test("Uknown variable in text", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 === start ===
 The value of _input_value_ is: {_input_value_}
@@ -3287,7 +3287,7 @@ The value of _input_value_ is: {_input_value_}
 });
 
 test("Params", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "start_|_c-0": [
                 {
@@ -3413,7 +3413,7 @@ test("Params", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> start
 === start ===
 

@@ -1,4 +1,4 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkToJson } from "../src/functions";
 
@@ -6,7 +6,7 @@ import { convertInkToJson } from "../src/functions";
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#8-variable-text
 
 test("Sequences (the default)", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "loop_|_c-0": [
                 {
@@ -93,7 +93,7 @@ test("Sequences (the default)", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> loop
 === loop ===
 The radio hissed into life. {"Three!"|"Two!"|"One!"|There was the white noise racket of an explosion.|But it was just static.}
@@ -106,7 +106,7 @@ The radio hissed into life. {"Three!"|"Two!"|"One!"|There was the white noise ra
 });
 
 test("Cycles (marked with a &)", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "loop_|_c-0": [
                 {
@@ -184,7 +184,7 @@ test("Cycles (marked with a &)", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> loop
 === loop ===
 It was {&Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday} today.
@@ -195,7 +195,7 @@ It was {&Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday} today.
 });
 
 test("Once-only (marked with a !)", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "loop_|_c-0": [
                 {
@@ -261,7 +261,7 @@ test("Once-only (marked with a !)", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> loop
 === loop ===
 He told me a joke. {!I laughed politely.|I smiled.|I grimaced.|I promised myself to not react again.}
@@ -272,7 +272,7 @@ He told me a joke. {!I laughed politely.|I smiled.|I grimaced.|I promised myself
 });
 
 test("Shuffles (marked with a ~)", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "loop_|_c-0": [
                 {
@@ -335,7 +335,7 @@ test("Shuffles (marked with a ~)", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> loop
 === loop ===
 I tossed the coin. {~Heads|Tails}.
@@ -347,7 +347,7 @@ I tossed the coin. {~Heads|Tails}.
 
 // TODO: in Inky this code works, but in inkjs parser it doesn't work
 test("Features of Alternatives", async () => {
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> loop
 === loop ===
 I took a step forward. {!||||Then the lights went out. -> eek}
@@ -355,7 +355,7 @@ The Ratbear {&{wastes no time and |}swipes|scratches} {&at you|into your {&leg|a
 I {waited.|waited some more.|snoozed.|woke up and waited more.|gave up and left. -> leave_post_office}
 + 	"Hello, {&Master|Monsieur Fogg|you|brown-eyes}!"[] I declared.
 -> DONE
-+\	{&They headed towards the Sandlands|They set off for the desert|The party followed the old road South}
++	{&They headed towards the Sandlands|They set off for the desert|The party followed the old road South}
 -> DONE
 + [ Loop ] -> loop
 + [ Exit ] -> END
@@ -374,7 +374,7 @@ leave_post_office
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#examples
  */
 test("Examples", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "whack_a_mole_|_c-0": [
                 {
@@ -684,7 +684,7 @@ test("Examples", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> whack_a_mole
 === whack_a_mole ===
 	{I heft the hammer.|{~Missed!|Nothing!|No good. Where is he?|Ah-ha! Got him! -> END}}
@@ -703,7 +703,7 @@ test("Examples", async () => {
 });
 
 test("Examples 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "turn_on_television_|_c-0": [
                 {
@@ -819,7 +819,7 @@ test("Examples 2", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> turn_on_television
 === turn_on_television ===
 I turned on the television {for the first time|for the second time|again|once more}, but there was {nothing good on, so I turned it off again|still nothing worth watching|even less to hold my interest than before|nothing but rubbish|a program about sharks and I don't like sharks|nothing on}.
@@ -836,7 +836,7 @@ I turned on the television {for the first time|for the second time|again|once mo
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-text
  */
 test("Conditional Text", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "met_blofeld_|_c-0": [
                 {
@@ -1141,7 +1141,7 @@ test("Conditional Text", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 -> met_blofeld
 === met_blofeld ===
 {met_blofeld && met_blofeld: "I saw him. Only for a moment." }
@@ -1162,7 +1162,7 @@ learned_his_name
 });
 
 test("Conditional Text 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [],
         labels: {
             start: [
@@ -1220,7 +1220,7 @@ test("Conditional Text 2", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 === start ===
 { smth:
     # show image 

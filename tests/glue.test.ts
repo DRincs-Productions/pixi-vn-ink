@@ -1,4 +1,4 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText } from "../src/functions";
 import { convertOperation } from "./convertOperation";
@@ -7,7 +7,7 @@ import { convertOperation } from "./convertOperation";
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#diverts-are-invisible
  */
 test("Diverts are invisible", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             hurry_home: [
                 {
@@ -29,7 +29,7 @@ test("Diverts are invisible", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> hurry_home
 === hurry_home ===
 We hurried home to Savile Row -> as_fast_as_we_could
@@ -44,7 +44,7 @@ as fast as we could.
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#glue
  */
 test("Glue", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             hurry_home: [
                 {
@@ -83,7 +83,7 @@ test("Glue", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === hurry_home ===
 We hurried home <>
 -> to_savile_row
@@ -102,7 +102,7 @@ to Savile Row
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#branching-and-joining
  */
 test("Branching and joining", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "back_in_london_|_c-0": [
                 {
@@ -217,7 +217,7 @@ test("Branching and joining", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
@@ -248,7 +248,7 @@ He insisted that we hurried home to Savile Row
 });
 
 test("Fix glue error", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 key: "some_var",
@@ -331,7 +331,7 @@ test("Fix glue error", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 VAR some_var = false
 
 === start ===

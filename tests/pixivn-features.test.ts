@@ -1,15 +1,15 @@
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
-import { PixiVNJson, translator } from "@drincs/pixi-vn-json";
+import { type PixiVNJson, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText, onReplaceTextAfterTranslation } from "../src/functions";
 import { convertOperation } from "./convertOperation";
 
 test("Assign dialogue to a character", async () => {
-    let alice = new CharacterBaseModel("alice", {
+    const alice = new CharacterBaseModel("alice", {
         name: "Alice",
     });
     RegisteredCharacters.add(alice);
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -25,7 +25,7 @@ test("Assign dialogue to a character", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 alice: Hello, world!
 -> DONE
@@ -34,11 +34,11 @@ alice: Hello, world!
 });
 
 test("Assign dialogue to a character: double colons in a sentence", async () => {
-    let james = new CharacterBaseModel("james", {
+    const james = new CharacterBaseModel("james", {
         name: "James",
     });
     RegisteredCharacters.add(james);
-    let expected1: PixiVNJson = {
+    const expected1: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -54,7 +54,7 @@ test("Assign dialogue to a character: double colons in a sentence", async () => 
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start ===
 james: Well, I mean, you are kinda acting like a father. Like, I can totally see it: I'm the daughter, and you as my father, you want to make sure I'm going out with the right guy... or something...
 -> DONE
@@ -67,7 +67,7 @@ james: Well, I mean, you are kinda acting like a father. Like, I can totally see
  */
 
 test("show image", async () => {
-    let expected1: PixiVNJson = {
+    const expected1: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -207,7 +207,7 @@ test("show image", async () => {
             ],
         },
     };
-    let expected2: PixiVNJson = {
+    const expected2: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -313,7 +313,7 @@ test("show image", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 VAR duration = 3
 === start
 #show image alias
@@ -331,7 +331,7 @@ hello
 });
 
 test("edit image", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -367,9 +367,9 @@ test("edit image", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
-#edit image bg position \\\{ "x": -20.5, "y": 30, "test": "test \\\\\\\} ' test", "test2": "'" \\\} visible true   cursor "pointer" alpha 0.5 
+#edit image bg position \\{ "x": -20.5, "y": 30, "test": "test \\\\\\} ' test", "test2": "'" \\} visible true   cursor "pointer" alpha 0.5 
 hello
 -> DONE
 `);
@@ -377,7 +377,7 @@ hello
 });
 
 test("remove image", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -443,7 +443,7 @@ test("remove image", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 #remove image bg
 #remove image "bg 2"
@@ -456,7 +456,7 @@ Hello
 });
 
 test("effect image", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -517,7 +517,7 @@ test("effect image", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # shake bg
 # animate bg angle 90
@@ -532,7 +532,7 @@ test("effect image", async () => {
  * Video
  */
 test("video", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -590,7 +590,7 @@ test("video", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # show video bg "/video A.mp4"
 # pause video bg
@@ -606,7 +606,7 @@ hello
  * ImageContainer
  */
 test("imagecontainer", async () => {
-    let expected1: PixiVNJson = {
+    const expected1: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -641,7 +641,7 @@ test("imagecontainer", async () => {
             ],
         },
     };
-    let expected2: PixiVNJson = {
+    const expected2: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -682,7 +682,7 @@ test("imagecontainer", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve
 # remove imagecontainer bg
@@ -698,7 +698,7 @@ hello
  * ImageContainer
  */
 test("text", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -766,7 +766,7 @@ test("text", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # show text myText "Hello world" x 10 y 20 style \\{ fontFamily: "Arial", dropShadow: \\{ alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, \\}, fill: "\\#ffffff", stroke: \\{ color: "\\#004620", width: 12, join: "round" \\}, fontSize: 60, fontWeight: "lighter" \\} with dissolve
 # remove text myText
@@ -780,7 +780,7 @@ test("text", async () => {
  * Sound
  */
 test("sound", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -904,7 +904,7 @@ test("sound", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # play sound bird volume 100
 # play sound bird "bird 2" volume 100
@@ -925,7 +925,7 @@ Hello
  * Assets
  */
 test("assets", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -949,7 +949,7 @@ test("assets", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # load assets url1 url2
 hello
@@ -962,7 +962,7 @@ hello
  * Input
  */
 test("input", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1017,7 +1017,7 @@ test("input", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 # request input
 # request input type number default 0
@@ -1041,7 +1041,7 @@ test("replace", async () => {
             return "Alice";
         }
     });
-    let res = translator.translate(`Hello [john], my name is [alice]`);
+    const res = translator.translate(`Hello [john], my name is [alice]`);
     expect(res).toEqual(`Hello John, my name is Alice`);
 });
 
@@ -1049,7 +1049,7 @@ test("replace", async () => {
  * markdown
  */
 test("markdown", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1229,7 +1229,7 @@ test("markdown", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start
 \\# Markdown Test \\\\n<>
 Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \\\\n<>
@@ -1299,7 +1299,7 @@ Footer
  * markdown
  */
 test("jump", async () => {
-    let expected1: PixiVNJson = {
+    const expected1: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1340,7 +1340,7 @@ test("jump", async () => {
             ],
         },
     };
-    let expected2: PixiVNJson = {
+    const expected2: PixiVNJson = {
         labels: {
             start: [
                 {
@@ -1376,7 +1376,7 @@ test("jump", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === start ===
 Start
 # jump after // [!code focus]
@@ -1394,7 +1394,7 @@ After End
 });
 
 test("continue", async () => {
-    let expected2: PixiVNJson = {
+    const expected2: PixiVNJson = {
         labels: {
             "hurry_home_|_c-1": [
                 {
@@ -1432,7 +1432,7 @@ test("continue", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === hurry_home ===
 We hurried home <># continue
 + [1]

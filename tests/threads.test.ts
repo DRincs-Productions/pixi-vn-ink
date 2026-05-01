@@ -1,9 +1,9 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkToJson } from "../src/functions";
 
 test("Threads 1", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             thread_example: [
                 {
@@ -137,7 +137,7 @@ test("Threads 1", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 == thread_example ==
 I had a headache; threading is hard to get your head around.
 <- conversation
@@ -165,7 +165,7 @@ Before long, we arrived at his house.
 });
 
 test("Threads 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         initialOperations: [
             {
                 type: "value",
@@ -475,7 +475,7 @@ test("Threads 2", async () => {
             ],
         },
     };
-    let res = convertInkToJson(`
+    const res = convertInkToJson(`
 CONST HALLWAY = 1
 CONST OFFICE = 2
 

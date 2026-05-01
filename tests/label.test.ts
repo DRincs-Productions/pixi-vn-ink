@@ -1,9 +1,9 @@
-import { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertInkText } from "../src/functions";
 
 test("Label test 1", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             back_in_london: [
                 {
@@ -27,7 +27,7 @@ test("Label test 1", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
@@ -41,7 +41,7 @@ We hurried home to Savile Row as fast as we could.
 });
 
 test("Label test 2", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             back_in_london: [
                 {
@@ -62,7 +62,7 @@ test("Label test 2", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
@@ -79,7 +79,7 @@ We hurried home to Savile Row as fast as we could.
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#the-first-stitch-is-the-default
  */
 test("The first stitch is the default", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "the_orient_express_|_c-0": [
                 {
@@ -132,7 +132,7 @@ test("The first stitch is the default", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === the_orient_express ===
 
 We boarded the train, but where?
@@ -151,7 +151,7 @@ We boarded the train, but where?
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#local-diverts
  */
 test("Local diverts", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             "the_orient_express_|_in_first_class_|_c-0": [
                 {
@@ -198,7 +198,7 @@ test("Local diverts", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 -> the_orient_express
 === the_orient_express ===
 = in_first_class
@@ -214,7 +214,7 @@ test("Local diverts", async () => {
 });
 
 test("Ignore Uknown Labels", async () => {
-    let expected: PixiVNJson = {
+    const expected: PixiVNJson = {
         labels: {
             back_in_london: [
                 {
@@ -238,7 +238,7 @@ test("Ignore Uknown Labels", async () => {
             ],
         },
     };
-    let res = convertInkText(`
+    const res = convertInkText(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.

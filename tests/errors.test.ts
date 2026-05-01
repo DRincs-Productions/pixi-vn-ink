@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { convertInkText } from "../src/functions";
 
 test("Label test 1", async () => {
-    let res = convertInkText(`
+    const res = convertInkText(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
