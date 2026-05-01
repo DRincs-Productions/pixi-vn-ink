@@ -26,9 +26,9 @@ export function parserConditionalStatements<T>(
     if (data.length === 0) {
         return undefined;
     }
-    let conditions = conditionaAritmeticParser(data, labelKey, paramNames);
+    const conditions = conditionaAritmeticParser(data, labelKey, paramNames);
     if (conditions.length === 1) {
-        let res: PixiVNJsonConditionalStatements<T> = {
+        const res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: conditions[0],
             then: then,
@@ -39,7 +39,7 @@ export function parserConditionalStatements<T>(
         }
         return res;
     } else if (conditions.length > 1) {
-        let res: PixiVNJsonConditionalStatements<T> = {
+        const res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
             condition: {
                 type: "union",
@@ -64,6 +64,7 @@ export function getConditionalValue<T>(
             | T
             | string
             | StandardDivert
+            | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
@@ -83,7 +84,7 @@ export function getConditionalValue<T>(
         logger.error("Error parsing ink file: Conditional statement is not valid", preData);
         return undefined;
     }
-    let condition: (ReadCount | NativeFunctions)[] = [];
+    const condition: (ReadCount | NativeFunctions)[] = [];
     let data: (StandardDivert | Cond)[][] = [];
     // split the data
     preData.forEach((item) => {
@@ -105,22 +106,26 @@ export function getConditionalValue<T>(
         return undefined;
     }
 
-    let then = getThen(
-        data[0] as any,
+    const then = getThen<T>(
+        data[0],
         addSwitchElemen,
         addLabels,
-        labelKey + CHOISE_LABEL_KEY_SEPARATOR + "then",
+        `${labelKey}${CHOISE_LABEL_KEY_SEPARATOR}then`,
         shareData,
         paramNames,
         `${nestedId || ""}then`,
     );
-    let elseThen = undefined;
+    let elseThen:
+        | PixiVNJsonConditionalResultToCombine<T>
+        | T
+        | PixiVNJsonConditionalStatements<T>
+        | undefined;
     if (data.length === 2) {
-        elseThen = getThen(
-            data[1] as any,
+        elseThen = getThen<T>(
+            data[1],
             addSwitchElemen,
             addLabels,
-            labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else",
+            `${labelKey}${CHOISE_LABEL_KEY_SEPARATOR}else`,
             shareData,
             paramNames,
             `${nestedId || ""}else`,
@@ -129,15 +134,17 @@ export function getConditionalValue<T>(
         data.shift();
         data.push("nop" as any);
         data = [{ b: data } as any];
-        elseThen = getThen(
+        elseThen = getThen<T>(
             data as any,
             addSwitchElemen,
             addLabels,
-            labelKey + CHOISE_LABEL_KEY_SEPARATOR + "else",
+            `${labelKey}${CHOISE_LABEL_KEY_SEPARATOR}else`,
             shareData,
             paramNames,
             `${nestedId || ""}else`,
         );
+    } else {
+        elseThen = undefined;
     }
     shareData.du = undefined;
     return parserConditionalStatements<T>(then, condition, paramNames, labelKey, elseThen);
@@ -151,6 +158,7 @@ function getThen<T>(
             | T
             | string
             | StandardDivert
+            | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
@@ -166,7 +174,7 @@ function getThen<T>(
     paramNames: string[],
     nestedId: string | undefined = undefined,
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {
-    let res: T[] = [];
+    const res: T[] = [];
 
     for (const item of cond) {
         if (typeof item === "object" && "b" in item) {
@@ -197,7 +205,7 @@ function getThen<T>(
     if (res.length === 1) {
         return res[0];
     }
-    let combinateRes: PixiVNJsonConditionalResultToCombine<T> = {
+    const combinateRes: PixiVNJsonConditionalResultToCombine<T> = {
         type: "resulttocombine",
         combine: "cross",
         secondConditionalItem: res,
