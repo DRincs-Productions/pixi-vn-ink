@@ -50,7 +50,7 @@ export function addChoiseIntoList<T>(
                 delete c.oneTime;
             }
             const choice =
-                parserConditionalStatements(c, value.conditions, paramNames, labelKey) || c;
+                parserConditionalStatements(c, value.conditions, paramNames, labelKey, undefined, shareData.functions) || c;
             let prevItem = itemList[itemList.length - 1];
             if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
                 prevItem = {
@@ -144,7 +144,7 @@ export function getLabelChoice(
                 addSwitchElemenText,
                 (_storyItem, _dadLabelKey, _shareData) => {},
                 lastLabel,
-                { preDialog: {} },
+                { preDialog: {}, functions: [] },
                 paramNames,
             );
             text.push(secondConditionalItem);
