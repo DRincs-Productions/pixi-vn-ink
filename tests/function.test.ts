@@ -126,16 +126,26 @@ You continue your journey.
 });
 
 test("Function 2", async () => {
+    const res = convertInkToJson(`
+=== main ===
+Hello
+~ test(0)
+~ test(1, 2, 3)
+-> END
+`);
+    expect(res).toEqual(undefined);
+});
+
+test("Function 3", async () => {
     const expected: PixiVNJson = {
         labels: {},
     };
     const res = convertInkToJson(`
-VAR max = 3
-
--> main
 === main ===
-~ test(0)
+Hello
+~ test(0, 1, 2)
 ~ test(1, 2, 3)
+-> END
 `);
     expect(res).toEqual(expected);
 });
