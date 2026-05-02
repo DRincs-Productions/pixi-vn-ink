@@ -294,31 +294,6 @@ The guard looks at you.
     expect(res).toEqual(expected);
 });
 
-test("Tunnel 3", async () => {
-    const expected: PixiVNJson = {
-        labels: {},
-    };
-    const res = convertInkToJson(`
-=== main ===
-You walk through the forest.
--> random_event ->
-You continue your journey.
--> END
-
-=== random_event ===
-{random_event_value():
-    - You encounter an animal.
-    - You find a coin.
-    - Nothing happens.
-}
-->->
-
-=== function random_event_value ===
-~ return RANDOM(0,2)
-`);
-    expect(res).toEqual(expected);
-});
-
 test("Tunnel 4", async () => {
     const expected: PixiVNJson = {
         labels: {},

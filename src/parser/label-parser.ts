@@ -22,6 +22,7 @@ export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string; glue: boolean } };
     du?: NativeFunctions | ReadCount;
     params?: object;
+    functions: { name: string; args: number }[];
 };
 export function parseLabel<T>(
     rootList: RootParserItemType[],
@@ -218,6 +219,8 @@ export function parseLabel<T>(
                     if (!i.includes("$r")) {
                         envList.push(rootItem);
                     }
+                } else if ("f()" in rootItem) {
+                    envList.push(rootItem);
                 }
             } else {
                 if (typeof rootItem === "string" && rootItem === "/ev") {

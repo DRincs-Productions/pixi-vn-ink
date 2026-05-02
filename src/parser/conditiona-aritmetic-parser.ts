@@ -1,3 +1,14 @@
+import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
+import {
+    type ArithmeticFunctions,
+    arithmeticFunctions,
+    type ArithmeticFunctionsSingle,
+    arithmeticFunctionsSingle,
+} from "@/interfaces/parserItems/NativeFunctions";
+import { getLabelByStandardDivert } from "@/utils/divert-utility";
+import { logger } from "@/utils/log-utility";
+import { getText } from "@/utils/text-utility";
+import { getValue } from "@/utils/value-utility";
 import type { StorageElementType } from "@drincs/pixi-vn";
 import {
     type PixiVNJsonArithmeticOperations,
@@ -6,22 +17,17 @@ import {
     PixiVNJsonComparationOperators,
     type PixiVNJsonComparationOperatorsType,
     type PixiVNJsonConditions,
+    type PixiVNJsonFunction,
     type PixiVNJsonLabelGet,
     type PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json";
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import {
-    arithmeticFunctions,
-    type ArithmeticFunctions,
-    arithmeticFunctionsSingle,
-    type ArithmeticFunctionsSingle,
-} from "../interfaces/parserItems/NativeFunctions";
-import { getLabelByStandardDivert } from "../utils/divert-utility";
-import { logger } from "../utils/log-utility";
-import { getText } from "../utils/text-utility";
-import { getValue } from "../utils/value-utility";
 
-export function conditionaAritmeticParser(list: any[], labelKey: string, paramNames: string[]) {
+export function conditionaAritmeticParser(
+    list: any[],
+    labelKey: string,
+    paramNames: string[],
+    functions: { name: string; args: number }[],
+) {
     list = list.map((item) => {
         if (typeof item === "string") {
             if (item === "rnd") {
@@ -38,6 +44,7 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
         | PixiVNJsonValueGet
         | StorageElementType
         | PixiVNJsonConditions
+        | PixiVNJsonFunction
     )[] = [];
     list.forEach((item) => {
         if (typeof item === "object" && "CNT?" in item) {
@@ -91,6 +98,13 @@ export function conditionaAritmeticParser(list: any[], labelKey: string, paramNa
             }
         } else if (typeof item === "object" && "VAR?" in item) {
             conditions.push(getValue(item["VAR?"], paramNames));
+        } else if (typeof item === "object" && "f()" in item) {
+            const functionName = item["f()"];
+            conditions.push({
+                type: "function",
+                functionName: functionName,
+                args: item["a()"] || [],
+            });
         } else if (item === "&&" || item === "||") {
             if (conditions.length >= 2) {
                 const i: PixiVNJsonConditions = {

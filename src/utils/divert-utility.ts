@@ -1,4 +1,4 @@
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
+import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
 
 export function getLabelByStandardDivert(divertName: string, labelKey: string): string | undefined {
     // .^.^.10.s
@@ -9,7 +9,7 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
     // start.0.g-1
     if (new RegExp(/.*\.[0-9]+\..*$/).test(divertName)) {
         // remove .number. with regex
-        let items = divertName.split(".").filter((item) => {
+        const items = divertName.split(".").filter((item) => {
             return !item.match(/^[0-9]+$/);
         });
         divertName = items.join(".");
@@ -20,7 +20,7 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
 
     // start_|_g-0
     if (!new RegExp(/^\.\^.*$/).test(divertName) && divertName.includes("g-")) {
-        let list = divertName.split("g-");
+        const list = divertName.split("g-");
         return (
             getLabelByStandardDivertInternal(labelKey) +
             CHOISE_LABEL_KEY_SEPARATOR +
@@ -42,7 +42,7 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
         new RegExp(/^\..*$/).test(divertName) &&
         labelKey
     ) {
-        let endOfLabel = divertName.substring(1);
+        const endOfLabel = divertName.substring(1);
         return (
             getLabelByStandardDivertInternal(labelKey, counter) +
             CHOISE_LABEL_KEY_SEPARATOR +
@@ -59,9 +59,9 @@ export function getLabelByStandardDivert(divertName: string, labelKey: string): 
 }
 
 function getLabelByStandardDivertInternal(labelKey: string, counter: number = 0): string {
-    let array = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR);
+    const array = labelKey.split(CHOISE_LABEL_KEY_SEPARATOR);
     while (array.length > 1 && counter > 0) {
-        let i = array.pop();
+        const i = array.pop();
         if (i?.includes("g-")) {
             counter--;
         }

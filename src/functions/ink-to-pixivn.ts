@@ -1,11 +1,11 @@
+import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "@/constant";
+import { convertorInkToJson } from "@/functions/ink";
+import { getInkLabels } from "@/functions/labels-converter";
+import type InkStoryType from "@/interfaces/InkStoryType";
+import { logger } from "@/utils/log-utility";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
-import { GLOBAL_DECL, SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES } from "../constant";
-import type InkStoryType from "../interfaces/InkStoryType";
-import { logger } from "../utils/log-utility";
-import { convertorInkToJson } from "./ink";
-import { getInkLabels } from "./labels-converter";
 
 /**
  * This function converts string written in ink language into the LabelJsonType.
@@ -13,7 +13,8 @@ import { getInkLabels } from "./labels-converter";
  * @returns LabelJsonType or undefined
  */
 export function convertInkToJson(text: string): PixiVNJson | undefined {
-    const { json, labelToRemove, issues, initialVarsToRemove } = convertorInkToJson(text);
+    const { json, labelToRemove, issues, initialVarsToRemove, functions } =
+        convertorInkToJson(text);
     issues.forEach(({ message, type }) => {
         if (type === ErrorType.Error) {
             logger.error(`Ink compilation error: ${message}`);
@@ -34,7 +35,7 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         logger.error("Error parsing ink file");
         return;
     }
-    return convertInkStoryToJson(obj, { labelToRemove, initialVarsToRemove });
+    return convertInkStoryToJson(obj, { labelToRemove, initialVarsToRemove, functions });
 }
 
 export function convertInkStoryToJson(
@@ -42,11 +43,12 @@ export function convertInkStoryToJson(
     options: {
         labelToRemove?: string[];
         initialVarsToRemove?: string[];
+        functions?: { name: string; args: number }[];
     } = {},
 ): PixiVNJson | undefined {
     const { labelToRemove = [], initialVarsToRemove = [] } = options;
     const result: PixiVNJson = {};
-    result.labels = getInkLabels(obj.root);
+    result.labels = getInkLabels(obj.root, options);
     if (result.labels && GLOBAL_DECL in result.labels) {
         const global = result.labels[GLOBAL_DECL];
         delete result.labels[GLOBAL_DECL];
