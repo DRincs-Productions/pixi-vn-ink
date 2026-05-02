@@ -191,7 +191,7 @@ export function parseLabel<T>(
                         obj.value = obj.value["^->"];
                     }
                     if (envList.length > 1) {
-                        const arm = arithmeticParser(envList as any, labelKey, paramNames);
+                        const arm = arithmeticParser(envList as any, labelKey, paramNames, shareData.functions);
                         envList = [];
                         if (
                             arm &&
@@ -246,7 +246,7 @@ export function parseLabel<T>(
                                 varList.push(envList.pop());
                             }
                             varList = varList.reverse();
-                            let value = arithmeticParser(varList as any, labelKey, paramNames);
+                            let value = arithmeticParser(varList as any, labelKey, paramNames, shareData.functions);
                             envList = [];
                             if (
                                 value &&
@@ -420,7 +420,7 @@ export function parseLabel<T>(
             ) {
                 let params = [];
                 if (envList.length > 0) {
-                    params = getParam(["ev", ...envList], labelKey, paramNames);
+                    params = getParam(["ev", ...envList], labelKey, paramNames, shareData.functions);
                 }
                 rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
@@ -437,7 +437,7 @@ export function parseLabel<T>(
             ) {
                 let params = [];
                 if (envList.length > 0) {
-                    params = getParam(["ev", ...envList], labelKey, paramNames);
+                    params = getParam(["ev", ...envList], labelKey, paramNames, shareData.functions);
                 }
                 rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
@@ -476,7 +476,7 @@ export function parseLabel<T>(
                         varList.push(envList.pop());
                     }
                     varList = varList.reverse();
-                    obj.value = arithmeticParser(varList as any, labelKey, paramNames);
+                    obj.value = arithmeticParser(varList as any, labelKey, paramNames, shareData.functions);
                     envList = [];
                     if (obj.value !== undefined || obj.value !== null) {
                         addElement(itemList, obj, labelKey, paramNames, {

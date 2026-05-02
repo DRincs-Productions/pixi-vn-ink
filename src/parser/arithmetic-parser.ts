@@ -9,12 +9,13 @@ export function arithmeticParser(
     data: (ArithmeticFunctions | VariableReference)[],
     labelKey: string,
     paramNames: string[],
+    functions: { name: string; args: number }[] = [],
 ): PixiVNJsonValueGet | StorageElementType | undefined {
     if (data.length === 0) {
         logger.error("Error parsing ink file: Arithmetic statement is not valid", data);
         return undefined;
     }
-    const conditions = conditionaAritmeticParser(data, labelKey, paramNames);
+    const conditions = conditionaAritmeticParser(data, labelKey, paramNames, functions);
     if (conditions.length === 1) {
         const first = conditions[0];
         if (
