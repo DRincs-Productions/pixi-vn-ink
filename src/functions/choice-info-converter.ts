@@ -31,7 +31,7 @@ export function addChoiseIntoList<T>(
 ) {
     if (choiseList.length > 0) {
         const choices: LabelChoiceRes = {};
-        getLabelChoice(choiseList as any, choices, paramNames);
+        getLabelChoice(choiseList as any, choices, paramNames, shareData);
         for (const [key, value] of Object.entries(choices)) {
             const newKey = labelKey + CHOISE_LABEL_KEY_SEPARATOR + key;
             // if last step is choice
@@ -50,7 +50,14 @@ export function addChoiseIntoList<T>(
                 delete c.oneTime;
             }
             const choice =
-                parserConditionalStatements(c, value.conditions, paramNames, labelKey, undefined, shareData.functions) || c;
+                parserConditionalStatements(
+                    c,
+                    value.conditions,
+                    paramNames,
+                    labelKey,
+                    undefined,
+                    shareData.functions,
+                ) || c;
             let prevItem = itemList[itemList.length - 1];
             if (typeof prevItem === "object" && prevItem && "type" in prevItem) {
                 prevItem = {
@@ -122,6 +129,7 @@ export function getLabelChoice(
     )[],
     result: LabelChoiceRes,
     paramNames: string[],
+    shareData: ShareDataParserLabel,
     lastLabel?: string,
 ) {
     const text: (string | PixiVNJsonConditionalStatements<string>)[] = [];
@@ -144,7 +152,7 @@ export function getLabelChoice(
                 addSwitchElemenText,
                 (_storyItem, _dadLabelKey, _shareData) => {},
                 lastLabel,
-                { preDialog: {}, functions: [] },
+                shareData,
                 paramNames,
             );
             text.push(secondConditionalItem);
@@ -197,7 +205,7 @@ export function getLabelChoice(
             }
             // split text and label
             const newListItem = items.slice(index + 1);
-            getLabelChoice(newListItem, result, paramNames, label);
+            getLabelChoice(newListItem, result, paramNames, shareData, label);
             return;
         }
     }

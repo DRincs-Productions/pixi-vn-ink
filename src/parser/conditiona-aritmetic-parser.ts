@@ -100,10 +100,24 @@ export function conditionaAritmeticParser(
             conditions.push(getValue(item["VAR?"], paramNames));
         } else if (typeof item === "object" && "f()" in item) {
             const functionName = item["f()"];
+            const fun = functions.find((f) => f.name === functionName);
+            if (!fun) {
+                logger.error(
+                    `Error parsing ink file: Function ${functionName} is not defined`,
+                    list,
+                );
+                return;
+            }
+            const args = [];
+            for (let i = 0; i < fun.args; i++) {
+                if (conditions.length !== 0) {
+                    args.push(conditions.pop());
+                }
+            }
             conditions.push({
                 type: "function",
                 functionName: functionName,
-                args: item["a()"] || [],
+                args: args,
             });
         } else if (item === "&&" || item === "||") {
             if (conditions.length >= 2) {

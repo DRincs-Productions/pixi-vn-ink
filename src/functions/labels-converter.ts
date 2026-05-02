@@ -72,7 +72,10 @@ function findLabel(
                         ],
                     });
                 }
-                addLabels(storyItem, labels);
+                addLabels(storyItem, labels, "", {
+                    preDialog: {},
+                    functions: sharedVariables.functions || [],
+                });
             }
         }
     }

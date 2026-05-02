@@ -4,6 +4,15 @@ import { convertInkToJson } from "../src/functions";
 
 test("Function 1", async () => {
     const expected: PixiVNJson = {
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "max",
+                value: 3,
+            },
+        ],
         labels: {
             main: [
                 {
@@ -28,7 +37,53 @@ test("Function 1", async () => {
                 {
                     conditionalStep: {
                         type: "ifelse",
-                        condition: 1,
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: 1,
+                            leftValue: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 3,
+                                leftValue: {
+                                    type: "arithmetic",
+                                    operator: "+",
+                                    rightValue: {
+                                        type: "function",
+                                        functionName: "test",
+                                        args: [0],
+                                    },
+                                    leftValue: {
+                                        type: "arithmetic",
+                                        operator: "+",
+                                        rightValue: 1,
+                                        leftValue: {
+                                            type: "arithmetic",
+                                            operator: "+",
+                                            rightValue: {
+                                                type: "function",
+                                                functionName: "random_event_value",
+                                                args: [
+                                                    {
+                                                        type: "value",
+                                                        storageOperationType: "get",
+                                                        storageType: "storage",
+                                                        key: "max",
+                                                    },
+                                                    {
+                                                        type: "arithmetic",
+                                                        operator: "+",
+                                                        rightValue: 0,
+                                                        leftValue: 0,
+                                                    },
+                                                ],
+                                            },
+                                            leftValue: 2,
+                                        },
+                                    },
+                                },
+                            },
+                        },
                         then: {
                             dialogue: "You encounter an animal.",
                         },
@@ -66,6 +121,21 @@ You continue your journey.
     - else: Nothing happens.
 }
 ->->
+`);
+    expect(res).toEqual(expected);
+});
+
+test("Function 2", async () => {
+    const expected: PixiVNJson = {
+        labels: {},
+    };
+    const res = convertInkToJson(`
+VAR max = 3
+
+-> main
+=== main ===
+~ test(0)
+~ test(1, 2, 3)
 `);
     expect(res).toEqual(expected);
 });
