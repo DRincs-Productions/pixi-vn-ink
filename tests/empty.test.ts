@@ -1,9 +1,13 @@
 import { convertInkText } from "@/loader";
+import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 test("Empty file test", async () => {
     const res = convertInkText(``);
-    expect(res).toEqual({ labels: {} });
+    expect(res).toEqual({
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {},
+    });
 });
 
 test("Test elements not considered", async () => {
@@ -18,7 +22,10 @@ test("Test elements not considered", async () => {
 	... or an unlimited block of text
 */
 `);
-    expect(res).toEqual({ labels: {} });
+    expect(res).toEqual({
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {},
+    });
 });
 
 /**
@@ -32,5 +39,8 @@ test("exterlan temp variable", async () => {
 
 ~ temp number_of_heads_the_serpent_has = RANDOM(3, 8)
 `);
-    expect(res).toEqual({ labels: {} });
+    expect(res).toEqual({
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {},
+    });
 });
