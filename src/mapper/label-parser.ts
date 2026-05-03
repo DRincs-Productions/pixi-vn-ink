@@ -2,8 +2,6 @@ import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
 import type InkRootType from "@/interfaces/InkRootType";
 import type { ContainerTypeN } from "@/interfaces/parserItems/ContainerType";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
-import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
-import type ReadCount from "@/interfaces/parserItems/ReadCount";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
 import { addSwitchComment } from "@/mapper/adding-elements";
@@ -11,6 +9,7 @@ import { arithmeticParser } from "@/mapper/arithmetic-parser";
 import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
 import { getConditionalValue } from "@/mapper/conditional-statements-parser";
 import { parserSwitch } from "@/mapper/switch-parser";
+import type { MapperSharedType } from "@/mapper/types";
 import { getParam, getSetValue, getValue } from "@/mapper/value-utility";
 import { logger } from "@/utils/log-utility";
 import type {
@@ -20,16 +19,10 @@ import type {
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json/schema";
 
-export type ShareDataParserLabel = {
-    preDialog: { [label: string]: { text: string; glue: boolean } };
-    du?: NativeFunctions | ReadCount;
-    params?: object;
-    functions: { name: string; args: number }[];
-};
 export function parseLabel<T>(
     rootList: RootParserItemType[],
     labelKey: string,
-    shareData: ShareDataParserLabel,
+    shareData: MapperSharedType,
     itemList: T[] = [],
     addElement: (
         list: T[],
@@ -69,13 +62,13 @@ export function parseLabel<T>(
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
         dadLabelKey: string,
-        shareData: ShareDataParserLabel,
+        shareData: MapperSharedType,
     ) => void,
     addChoiseList: (
         choiseList: RootParserItemType[],
         itemList: (T | PixiVNJsonConditionalStatements<T>)[],
         labelKey: string,
-        shareData: ShareDataParserLabel,
+        shareData: MapperSharedType,
         paramNames: string[],
     ) => void,
     nestedId: string | undefined = undefined,

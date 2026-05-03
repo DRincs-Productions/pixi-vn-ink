@@ -9,7 +9,8 @@ import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssi
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
 import { addChoiseIntoList } from "@/mapper/choice-info-converter";
 import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
-import { parseLabel, type ShareDataParserLabel } from "@/mapper/label-parser";
+import { parseLabel } from "@/mapper/label-parser";
+import type { MapperSharedType } from "@/mapper/types";
 import { logger } from "@/utils/log-utility";
 import type {
     PixiVNJsonConditionalResultToCombine,
@@ -75,10 +76,10 @@ export function getConditionalValue<T>(
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
         dadLabelKey: string,
-        shareData: ShareDataParserLabel,
+        shareData: MapperSharedType,
     ) => void,
     labelKey: string,
-    shareData: ShareDataParserLabel,
+    shareData: MapperSharedType,
     paramNames: string[],
     nestedId: string | undefined = undefined,
 ): PixiVNJsonConditionalStatements<T> | undefined {
@@ -176,10 +177,10 @@ function getThen<T>(
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
         dadLabelKey: string,
-        shareData: ShareDataParserLabel,
+        shareData: MapperSharedType,
     ) => void,
     labelKey: string,
-    shareData: ShareDataParserLabel,
+    shareData: MapperSharedType,
     paramNames: string[],
     nestedId: string | undefined = undefined,
 ): PixiVNJsonConditionalResultToCombine<T> | T | PixiVNJsonConditionalStatements<T> {

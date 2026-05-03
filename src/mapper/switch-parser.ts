@@ -7,7 +7,8 @@ import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType
 import type TextType from "@/interfaces/parserItems/TextType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
 import { addChoiseIntoList } from "@/mapper/choice-info-converter";
-import { parseLabel, type ShareDataParserLabel } from "@/mapper/label-parser";
+import { parseLabel } from "@/mapper/label-parser";
+import type { MapperSharedType } from "@/mapper/types";
 import type {
     PixiVNJsonStepSwitch,
     PixiVNJsonStepSwitchElementsType,
@@ -41,10 +42,10 @@ export function parserSwitch<T>(
     addLabels: (
         storyItem: InkRootType | RootParserItemType,
         dadLabelKey: string,
-        shareData: ShareDataParserLabel,
+        shareData: MapperSharedType,
     ) => void,
     labelKey: string = "",
-    shareData: ShareDataParserLabel,
+    shareData: MapperSharedType,
     paramNames: string[],
     nestedId: string | undefined = undefined,
 ): PixiVNJsonStepSwitch<T> {

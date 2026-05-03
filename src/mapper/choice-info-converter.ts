@@ -10,8 +10,8 @@ import type TextType from "@/interfaces/parserItems/TextType";
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
 import { addSwitchElemenText, callOrJump } from "@/mapper/adding-elements";
 import { parserConditionalStatements } from "@/mapper/conditional-statements-parser";
-import type { ShareDataParserLabel } from "@/mapper/label-parser";
 import { parserSwitch, type ConditionalList } from "@/mapper/switch-parser";
+import type { MapperSharedType } from "@/mapper/types";
 import { unionStringOrArray } from "@/utils/array-utility";
 import { logger } from "@/utils/log-utility";
 import { getText } from "@/utils/text-utility";
@@ -26,7 +26,7 @@ export function addChoiseIntoList<T>(
     choiseList: RootParserItemType[],
     itemList: (T | PixiVNJsonConditionalStatements<T>)[],
     labelKey: string,
-    shareData: ShareDataParserLabel,
+    shareData: MapperSharedType,
     paramNames: string[],
 ) {
     if (choiseList.length > 0) {
@@ -129,7 +129,7 @@ export function getLabelChoice(
     )[],
     result: LabelChoiceRes,
     paramNames: string[],
-    shareData: ShareDataParserLabel,
+    shareData: MapperSharedType,
     lastLabel?: string,
 ) {
     const text: (string | PixiVNJsonConditionalStatements<string>)[] = [];
