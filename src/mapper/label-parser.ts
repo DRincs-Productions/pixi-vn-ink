@@ -313,7 +313,7 @@ export function parseLabel<T>(
                             }
                             varList = varList.reverse();
                             const value = conditionaAritmeticParser(
-                                varList as any,
+                                varList,
                                 labelKey,
                                 paramNames,
                                 shareData.functions,
@@ -322,10 +322,10 @@ export function parseLabel<T>(
 
                             value.forEach((v) => {
                                 if (
-                                    value &&
-                                    typeof value === "object" &&
-                                    "type" in value &&
-                                    value.type === "function"
+                                    v &&
+                                    typeof v === "object" &&
+                                    "type" in v &&
+                                    v.type === "function"
                                 ) {
                                     addElement(
                                         itemList,

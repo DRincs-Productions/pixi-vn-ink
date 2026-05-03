@@ -158,6 +158,26 @@ test("Function 3", async () => {
                     goNextStep: true,
                     operations: [
                         {
+                            type: "function",
+                            functionName: "test",
+                            args: [0, 1, 2],
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "function",
+                            functionName: "test",
+                            args: [1, 2, 3],
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
                             type: "value",
                             storageOperationType: "set",
                             storageType: "tempstorage",

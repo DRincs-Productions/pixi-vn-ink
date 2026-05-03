@@ -117,7 +117,7 @@ export function conditionaAritmeticParser(
             conditions.push({
                 type: "function",
                 functionName: functionName,
-                args: args,
+                args: args.reverse(),
             });
         } else if (item === "&&" || item === "||") {
             if (conditions.length >= 2) {
