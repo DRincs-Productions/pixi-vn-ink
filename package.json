@@ -81,15 +81,15 @@
     "@drincs/pixi-vn-json": "1.12.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.13",
+    "@biomejs/biome": "^2.4.14",
     "inkjs": "2.4.0",
-    "jsdom": "^29.1.0",
+    "jsdom": "^29.1.1",
     "json5": "^2.2.3",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.1",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
-    "typescript": "6.0.3",
+    "typescript": "^6.0.3",
     "vite-tsconfig-paths": "^6.1.1",
     "vite": "^8.0.10",
     "vitest": "^4.1.5"
