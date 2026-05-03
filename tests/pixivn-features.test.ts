@@ -1,7 +1,8 @@
+import { onReplaceTextAfterTranslation } from "@/functions";
+import { convertInkText } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
 import { type PixiVNJson, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkText, onReplaceTextAfterTranslation } from "../src/functions";
 import { convertOperation } from "./convertOperation";
 
 test("Assign dialogue to a character", async () => {

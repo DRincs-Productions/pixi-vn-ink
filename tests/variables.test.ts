@@ -1,6 +1,6 @@
+import { convertInkToJson } from "@/loader";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkToJson } from "../src/functions";
 import { convertOperation } from "./convertOperation";
 
 /**

@@ -1,6 +1,6 @@
+import { convertInkToJson } from "@/loader";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkToJson } from "../src/functions";
 
 // Variable Text
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#8-variable-text

@@ -1,5 +1,5 @@
+import { convertInkText } from "@/loader";
 import { expect, test } from "vitest";
-import { convertInkText } from "../src/functions";
 
 test("Label test 1", async () => {
     const res = convertInkText(`

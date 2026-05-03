@@ -1,6 +1,6 @@
+import { convertInkText } from "@/loader";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertInkText } from "../src/functions";
 
 test("Label test 1", async () => {
     const expected: PixiVNJson = {
