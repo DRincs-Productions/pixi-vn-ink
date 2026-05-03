@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "experimentalDecorators": true,
-    "module": "commonjs",
+    "module": "esnext",
     "paths": {
       "@/*": ["./src/*"],
       "@drincs/pixi-vn-ink/parser": ["./src/parser/index.ts"],

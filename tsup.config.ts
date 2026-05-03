@@ -20,7 +20,6 @@ export default defineConfig((options) => {
             splitting: false,
             clean: true,
             minify: true,
-            bundle: true,
             skipNodeModulesBundle: false,
             outExtension({ format }) {
                 return {
@@ -40,7 +39,6 @@ export default defineConfig((options) => {
             treeshake: true,
             clean: false,
             minify: true,
-            bundle: true,
             skipNodeModulesBundle: false,
             noExternal: ["@drincs/pixi-vn-json"],
             external: ["vite", "@drincs/pixi-vn-ink/parser", "@drincs/pixi-vn-ink/mapper"],
