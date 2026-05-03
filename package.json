@@ -25,6 +25,12 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.mjs"
     },
+    "./parser": {
+      "types": "./dist/parser.d.ts",
+      "import": "./dist/parser.mjs",
+      "require": "./dist/parser.cjs",
+      "default": "./dist/parser.mjs"
+    },
     "./vite": {
       "types": "./dist/vite.d.ts",
       "import": "./dist/vite.mjs",
@@ -40,6 +46,9 @@
   },
   "typesVersions": {
     "*": {
+      "parser": [
+        "./dist/parser.d.ts"
+      ],
       "vite": [
         "./dist/vite.d.ts"
       ],
