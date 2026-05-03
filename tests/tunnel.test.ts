@@ -299,12 +299,171 @@ The guard looks at you.
 test("Tunnel 4", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "inventory",
+                value: [],
+            },
+        ],
+        labels: {
+            "house_|_c-0": [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "inventory",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "key",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "inventory",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    dialogue: "You found a key.",
+                },
+            ],
+            "house_|_c-1": [
+                {
+                    labelToOpen: {
+                        label: "show_inventory",
+                        type: "call",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    dialogue: "You return to the room.",
+                },
+            ],
+            house: [
+                {
+                    dialogue: "You are at home.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Open the chest",
+                            label: "house_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Check inventory",
+                            label: "house_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            show_inventory: [
+                {
+                    dialogue: "You have:",
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "key",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "inventory",
+                            },
+                        },
+                        then: {
+                            dialogue: "A rusty key.",
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "compare",
+                                    operator: "==",
+                                    rightValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "sword",
+                                    },
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "inventory",
+                                    },
+                                },
+                                then: {
+                                    dialogue: "A sword.",
+                                },
+                                else: {
+                                    conditionalStep: {
+                                        type: "ifelse",
+                                        condition: {
+                                            type: "compare",
+                                            operator: "==",
+                                            rightValue: {
+                                                type: "value",
+                                                storageOperationType: "get",
+                                                storageType: "storage",
+                                                key: "potion",
+                                            },
+                                            leftValue: {
+                                                type: "value",
+                                                storageOperationType: "get",
+                                                storageType: "storage",
+                                                key: "inventory",
+                                            },
+                                        },
+                                        then: {
+                                            dialogue: "A potion.",
+                                        },
+                                        else: {
+                                            dialogue: "Nothing.",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 LIST items = sword, key, potion
 
 VAR inventory = ()
+VAR inventory2 = (sword, key)
 
 === house ===
 You are at home.
