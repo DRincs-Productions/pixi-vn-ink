@@ -1,33 +1,63 @@
-import { logger } from "@/utils/log-utility";
+import type { CompileSharedType, IssueType } from "@/parser/types";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 
-export function convertorInkToJson(
-    text: string,
-    labelToRemove: string[] = [],
-    initialVarsToRemove: string[] = [],
-    functions: { name: string; args: number }[] = [],
-) {
-    const issues: { message: string; type: ErrorType }[] = [];
-    try {
-        const compiler = new Compiler(text, {
-            errorHandler: (message: string, type: ErrorType) => {
-                issues.push({ message, type });
-            },
-            countAllVisits: true,
-            fileHandler: {
-                ResolveInkFilename: (filename: string) => filename,
-                LoadInkFileContents: () => {
-                    return "";
+export namespace InkCompiler {
+    export function compile(
+        text: string,
+        shared: Omit<CompileSharedType, "textSource"> = {
+            labelToRemove: [],
+            initialVarsToRemove: [],
+            functions: [],
+        },
+    ) {
+        const issues: IssueType[] = [];
+        try {
+            const compiler = new Compiler(text, {
+                errorHandler: (message: string, type: ErrorType) => {
+                    const cleanedMsg = message.replace(/^[A-Z]+: line \d+: ?/, "");
+                    const lineMatch = message.match(/line (\d+)/);
+                    issues.push({
+                        message: cleanedMsg,
+                        type,
+                        line: lineMatch ? Number(lineMatch[1]) : -1,
+                    });
                 },
-            },
-            pluginNames: [],
-            sourceFilename: null,
-        });
-        const story = compiler.Compile();
-        const json = story.ToJson() || "";
-        return { json, issues, labelToRemove, initialVarsToRemove, functions };
-    } catch (e) {
+                countAllVisits: true,
+                fileHandler: {
+                    ResolveInkFilename: (filename: string) => filename,
+                    LoadInkFileContents: () => {
+                        return "";
+                    },
+                },
+                pluginNames: [],
+                sourceFilename: null,
+            });
+            const story = compiler.Compile();
+            const json = story.ToJson() || "";
+            return { json, issues };
+        } catch (_e) {
+            let recompile = false;
+            getErrors(
+                issues,
+                () => {
+                    recompile = true;
+                },
+                { ...shared, textSource: text },
+            );
+            if (recompile) {
+                return compile(text, shared);
+            }
+            return { issues };
+        }
+    }
+
+    export function getErrors(
+        issues: IssueType[],
+        recompile: () => void,
+        shared: CompileSharedType,
+    ) {
+        const { functions, initialVarsToRemove, labelToRemove } = shared;
         const error = issues.find((em) => em.type === ErrorType.Error);
         if (error) {
             if (error.message.includes("Divert target not found")) {
@@ -35,9 +65,9 @@ export function convertorInkToJson(
                 if (match?.[1]) {
                     const labelName = match[1];
                     const textToAdd = `\n\n=== ${labelName} ===\n\n-> DONE`;
-                    text = text.concat(textToAdd);
+                    shared.textSource = shared.textSource.concat(textToAdd);
                     labelToRemove.push(labelName);
-                    return convertorInkToJson(text, labelToRemove, initialVarsToRemove, functions);
+                    return recompile();
                 }
             }
             if (error.message.includes("Unresolved variable")) {
@@ -45,9 +75,9 @@ export function convertorInkToJson(
                 if (match?.[1]) {
                     const varName = match[1];
                     const textToAdd = `VAR ${varName} = ""\n\n`;
-                    text = textToAdd.concat(text);
+                    shared.textSource = textToAdd.concat(shared.textSource);
                     initialVarsToRemove.push(varName);
-                    return convertorInkToJson(text, labelToRemove, initialVarsToRemove, functions);
+                    return recompile();
                 }
             }
             if (error.message.includes("Variable could not be found to assign to")) {
@@ -57,9 +87,9 @@ export function convertorInkToJson(
                 if (match?.[1]) {
                     const varName = match[1];
                     const textToAdd = `VAR ${varName} = ""\n\n`;
-                    text = textToAdd.concat(text);
+                    shared.textSource = textToAdd.concat(shared.textSource);
                     initialVarsToRemove.push(varName);
-                    return convertorInkToJson(text, labelToRemove, initialVarsToRemove, functions);
+                    return recompile();
                 }
             }
             if (error.message.includes("Function call target not found")) {
@@ -67,10 +97,10 @@ export function convertorInkToJson(
                 if (match?.[1]) {
                     const functionName = match[1];
                     const textToAdd = `\n\n=== function ${functionName}() ===\n\n~ return\n\n`;
-                    text = text.concat(textToAdd);
+                    shared.textSource = shared.textSource.concat(textToAdd);
                     functions.push({ name: functionName, args: 0 });
                     labelToRemove.push(functionName);
-                    return convertorInkToJson(text, labelToRemove, initialVarsToRemove, functions);
+                    return recompile();
                 }
             }
             if (error.message.includes(" arguments, but got ")) {
@@ -89,11 +119,11 @@ export function convertorInkToJson(
                               )
                             : "";
                     const textToAdd = `\n\n=== function ${functionName}(${argsList}) ===\n\n~ return\n\n`;
-                    text = text.replaceAll(
+                    shared.textSource = shared.textSource.replaceAll(
                         `\n\n=== function ${functionName}() ===\n\n~ return\n\n`,
                         "",
                     ); // Remove previous placeholder if exists
-                    text = text.concat(textToAdd);
+                    shared.textSource = shared.textSource.concat(textToAdd);
                     const fun = functions.find((f) => f.name === functionName);
                     if (fun) {
                         fun.args = requiredArgs;
@@ -101,12 +131,11 @@ export function convertorInkToJson(
                         functions.push({ name: functionName, args: requiredArgs });
                         labelToRemove.push(functionName);
                     }
-                    return convertorInkToJson(text, labelToRemove, initialVarsToRemove, functions);
+                    return recompile();
                 }
             }
-            return { issues, labelToRemove, initialVarsToRemove, functions };
+            return { issues };
         }
-        logger.error("Error compiling ink file");
-        throw e;
+        return { issues };
     }
 }

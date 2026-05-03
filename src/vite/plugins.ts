@@ -1,7 +1,7 @@
+import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { Plugin } from "vite";
-import { convertorInkToJson } from "../functions/ink";
 
 /**
  * This function creates a Vite plugin that prevents Hot Module Replacement (HMR) for .ink files.
@@ -26,18 +26,18 @@ export function vitePluginInk(): Plugin {
             if (file.endsWith(".ink")) {
                 // Leggiamo il contenuto modificato
                 const source = await read();
-                const { issues } = convertorInkToJson(source);
+                const { issues } = InkCompiler.compile(source);
 
                 let error: undefined | string;
 
                 // Logghiamo eventuali warning/errori al terminale
-                issues.forEach((issue) => {
-                    if (issue.type === ErrorType.Warning) {
-                        server.config.logger.warn(`${file}: ${issue.message}`);
+                issues.forEach(({ line, message, type }) => {
+                    if (type === ErrorType.Warning) {
+                        server.config.logger.warn(`${file}:${line} ${message}`);
                     } else {
                         // Se è un errore, blocchiamo
-                        server.config.logger.error(`${file}: ${issue.message}`);
-                        error = issue.message;
+                        server.config.logger.error(`${file}:${line} ${message}`);
+                        error = message;
                     }
                 });
 
@@ -74,19 +74,17 @@ export function vitePluginInk(): Plugin {
 
             const source = await fs.readFile(id, "utf-8");
 
-            const { issues } = convertorInkToJson(source);
+            const { issues } = InkCompiler.compile(source);
 
             // Se ci sono warning, li logghiamo ma NON blocchiamo la build
-            if (issues && issues.length > 0) {
-                issues.forEach((issue) => {
-                    if (issue.type === ErrorType.Warning) {
-                        this.warn(`${id}: ${issue.message}`);
-                    } else {
-                        // Se è un errore, blocchiamo
-                        this.error(`${id}: ${issue.message}`);
-                    }
-                });
-            }
+            issues.forEach(({ line, message, type }) => {
+                if (type === ErrorType.Warning) {
+                    this.warn(`${id}:${line} ${message}`);
+                } else {
+                    // Se è un errore, blocchiamo
+                    this.error(`${id}:${line} ${message}`);
+                }
+            });
 
             // esporta source
             return {
