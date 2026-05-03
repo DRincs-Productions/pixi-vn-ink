@@ -23,13 +23,13 @@ export function parserConditionalStatements<T>(
     data: (ReadCount | NativeFunctions | VariableReference)[],
     paramNames: string[],
     labelKey: string,
+    shared: MapperSharedType,
     elseThen?: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
-    functions: { name: string; args: number }[] = [],
 ): undefined | PixiVNJsonConditionalStatements<T> {
     if (data.length === 0) {
         return undefined;
     }
-    const conditions = conditionaAritmeticParser(data, labelKey, paramNames, functions);
+    const conditions = conditionaAritmeticParser(data, labelKey, paramNames, shared);
     if (conditions.length === 1) {
         const res: PixiVNJsonConditionalStatements<T> = {
             type: "ifelse",
@@ -155,8 +155,8 @@ export function getConditionalValue<T>(
         condition,
         paramNames,
         labelKey,
+        shareData,
         elseThen,
-        shareData.functions,
     );
 }
 

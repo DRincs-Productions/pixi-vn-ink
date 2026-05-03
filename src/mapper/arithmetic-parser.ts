@@ -1,6 +1,7 @@
 import type { ArithmeticFunctions } from "@/interfaces/parserItems/NativeFunctions";
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
 import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
+import type { MapperSharedType } from "@/mapper/types";
 import { logger } from "@/utils/log-utility";
 import type { StorageElementType } from "@drincs/pixi-vn";
 import type { PixiVNJsonValueGet } from "@drincs/pixi-vn-json/schema";
@@ -9,13 +10,13 @@ export function arithmeticParser(
     data: (ArithmeticFunctions | VariableReference)[],
     labelKey: string,
     paramNames: string[],
-    functions: { name: string; args: number }[] = [],
+    shared: MapperSharedType,
 ): PixiVNJsonValueGet | StorageElementType | undefined {
     if (data.length === 0) {
         logger.error("Error parsing ink file: Arithmetic statement is not valid", data);
         return undefined;
     }
-    const conditions = conditionaAritmeticParser(data, labelKey, paramNames, functions);
+    const conditions = conditionaAritmeticParser(data, labelKey, paramNames, shared);
     if (conditions.length === 1) {
         const first = conditions[0];
         if (

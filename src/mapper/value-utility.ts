@@ -1,13 +1,14 @@
 import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
+import type { MapperSharedType } from "@/mapper/types";
 import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json/schema";
 
 export function getParam(
     list: any[],
     labelKey: string,
     paramNames: string[],
-    functions: { name: string; args: number }[] = [],
+    shared: MapperSharedType,
 ): any[] {
-    const res: any[] = conditionaAritmeticParser(list, labelKey, paramNames, functions);
+    const res: any[] = conditionaAritmeticParser(list, labelKey, paramNames, shared);
     return res;
 }
 

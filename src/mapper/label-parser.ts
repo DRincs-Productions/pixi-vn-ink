@@ -192,7 +192,7 @@ export function parseLabel<T>(
                             envList as any,
                             labelKey,
                             paramNames,
-                            shareData.functions,
+                            shareData,
                         );
                         envList = [];
                         if (
@@ -257,7 +257,7 @@ export function parseLabel<T>(
                                     varList as any,
                                     labelKey,
                                     paramNames,
-                                    shareData.functions,
+                                    shareData,
                                 );
                                 envList = [];
                                 if (
@@ -310,7 +310,7 @@ export function parseLabel<T>(
                                 varList,
                                 labelKey,
                                 paramNames,
-                                shareData.functions,
+                                shareData,
                             );
                             envList = [];
 
@@ -477,12 +477,7 @@ export function parseLabel<T>(
             ) {
                 let params = [];
                 if (envList.length > 0) {
-                    params = getParam(
-                        ["ev", ...envList],
-                        labelKey,
-                        paramNames,
-                        shareData.functions,
-                    );
+                    params = getParam(["ev", ...envList], labelKey, paramNames, shareData);
                 }
                 rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
@@ -499,12 +494,7 @@ export function parseLabel<T>(
             ) {
                 let params = [];
                 if (envList.length > 0) {
-                    params = getParam(
-                        ["ev", ...envList],
-                        labelKey,
-                        paramNames,
-                        shareData.functions,
-                    );
+                    params = getParam(["ev", ...envList], labelKey, paramNames, shareData);
                 }
                 rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
@@ -543,12 +533,7 @@ export function parseLabel<T>(
                         varList.push(envList.pop());
                     }
                     varList = varList.reverse();
-                    obj.value = arithmeticParser(
-                        varList as any,
-                        labelKey,
-                        paramNames,
-                        shareData.functions,
-                    );
+                    obj.value = arithmeticParser(varList as any, labelKey, paramNames, shareData);
                     envList = [];
                     if (obj.value !== undefined || obj.value !== null) {
                         addElement(itemList, obj, labelKey, paramNames, {

@@ -5,6 +5,7 @@ import {
     type ArithmeticFunctionsSingle,
     arithmeticFunctionsSingle,
 } from "@/interfaces/parserItems/NativeFunctions";
+import type { MapperSharedType } from "@/mapper/types";
 import { getValue } from "@/mapper/value-utility";
 import { getLabelByStandardDivert } from "@/utils/divert-utility";
 import { logger } from "@/utils/log-utility";
@@ -26,8 +27,9 @@ export function conditionaAritmeticParser(
     list: any[],
     labelKey: string,
     paramNames: string[],
-    functions: { name: string; args: number }[],
+    shared: MapperSharedType,
 ) {
+    const { functions } = shared;
     list = list.map((item) => {
         if (typeof item === "string") {
             if (item === "rnd") {
