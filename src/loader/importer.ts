@@ -1,7 +1,7 @@
+import { HashtagCommands } from "@/handlers";
+import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { init, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
-import HashtagCommands from "../handlers/hashtag-commands";
-import { convertInkToJson } from "./ink-to-pixivn";
 
 /**
  * This function imports string or array of strings written in ink language into the Pixi’VN engine.

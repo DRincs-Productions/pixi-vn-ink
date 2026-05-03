@@ -34,7 +34,7 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
     let obj: InkStoryType;
     try {
         obj = JSON5.parse(json);
-    } catch (e) {
+    } catch (_e) {
         logger.error("Error parsing ink file");
         return;
     }
