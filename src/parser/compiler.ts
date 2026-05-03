@@ -135,6 +135,16 @@ export namespace InkCompiler {
                     return recompile();
                 }
             }
+
+            issues.forEach((issue) => {
+                // Function call to 'test' requires 1 arguments, but got 3
+                const match = issue.message.match(
+                    /Function call to '(\w+)' requires (\d+) arguments, but got (\d+)/,
+                );
+                if (match?.[1]) {
+                    issue.message = `The function '${match[1]}' have optional arguments, but in ink all arguments must be required. Please make sure to provide all the required arguments for the function call.`;
+                }
+            });
             return { issues };
         }
         return { issues };
