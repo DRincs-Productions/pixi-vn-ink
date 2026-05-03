@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { importInkText } from "../functions";
+import { importInkText } from "@/loader/importer";
 
 /**
  * Setup listener for ink updates via HMR
