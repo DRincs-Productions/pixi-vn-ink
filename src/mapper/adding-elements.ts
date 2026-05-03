@@ -8,6 +8,7 @@ import { getText } from "@/utils/text-utility";
 import type {
     PixiVNJsonConditionalOperation,
     PixiVNJsonConditionalStatements,
+    PixiVNJsonFunction,
     PixiVNJsonLabelStep,
     PixiVNJsonStepSwitchElementType,
     PixiVNJsonValueGet,
@@ -67,7 +68,8 @@ export function addSwitchElemenStep(
         | StandardDivert
         | DivertTunnel
         | PixiVNJsonStepSwitchElementType<PixiVNJsonLabelStep>
-        | MyVariableAssignment,
+        | MyVariableAssignment
+        | PixiVNJsonFunction,
     labelKey: string,
     paramNames: string[],
     options: {
@@ -92,7 +94,8 @@ function addConditionalElementStep(
         | StandardDivert
         | DivertTunnel
         | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>
-        | MyVariableAssignment,
+        | MyVariableAssignment
+        | PixiVNJsonFunction,
     labelKey: string,
     paramNames: string[],
     options: {
@@ -203,9 +206,10 @@ function addConditionalElementStep(
                     }
                     break;
                 case "function":
-                    console.warn(
-                        "Warning: trying to add a value or function operation as step. This is likely a mistake, so it will be ignored.",
-                    );
+                    list.push({
+                        goNextStep: true,
+                        operations: [item],
+                    });
                     break;
                 default:
                     if (!isNewLine && list.length > 0) {

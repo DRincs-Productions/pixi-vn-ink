@@ -66,16 +66,16 @@ test("Function 1", async () => {
                                                 functionName: "random_event_value",
                                                 args: [
                                                     {
-                                                        type: "value",
-                                                        storageOperationType: "get",
-                                                        storageType: "storage",
-                                                        key: "max",
-                                                    },
-                                                    {
                                                         type: "arithmetic",
                                                         operator: "+",
                                                         rightValue: 0,
                                                         leftValue: 0,
+                                                    },
+                                                    {
+                                                        type: "value",
+                                                        storageOperationType: "get",
+                                                        storageType: "storage",
+                                                        key: "max",
                                                     },
                                                 ],
                                             },
@@ -140,13 +140,77 @@ Hello
 test("Function 3", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "a",
+                value: 0,
+            },
+        ],
+        labels: {
+            main: [
+                {
+                    dialogue: "Hello",
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "c",
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "function",
+                                    functionName: "test",
+                                    args: [1, 2, 3],
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "a",
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "function",
+                                    functionName: "test",
+                                    args: [1, 2, 3],
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
+VAR a = 0
+
 === main ===
 Hello
 ~ test(0, 1, 2)
 ~ test(1, 2, 3)
+~ temp c = test(1, 2, 3)
+~ a = test(1, 2, 3)
 -> END
 `);
     expect(res).toEqual(expected);

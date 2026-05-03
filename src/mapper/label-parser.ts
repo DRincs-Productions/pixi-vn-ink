@@ -8,6 +8,7 @@ import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
 import { addSwitchComment } from "@/mapper/adding-elements";
 import { arithmeticParser } from "@/mapper/arithmetic-parser";
+import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
 import { getConditionalValue } from "@/mapper/conditional-statements-parser";
 import { parserSwitch } from "@/mapper/switch-parser";
 import { getParam, getSetValue, getValue } from "@/mapper/value-utility";
@@ -15,6 +16,7 @@ import { logger } from "@/utils/log-utility";
 import type {
     PixiVNJsonArithmeticOperations,
     PixiVNJsonConditionalStatements,
+    PixiVNJsonFunction,
     PixiVNJsonStepSwitchElementType,
 } from "@drincs/pixi-vn-json/schema";
 
@@ -37,7 +39,8 @@ export function parseLabel<T>(
             | StandardDivert
             | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
-            | MyVariableAssignment,
+            | MyVariableAssignment
+            | PixiVNJsonFunction,
         labelKey: string,
         paramNames: string[],
         options: {
@@ -301,6 +304,50 @@ export function parseLabel<T>(
                             isNewLine = false;
                         }
                         break;
+                    case "pop": {
+                        const lastValue = envList[envList.length - 1];
+                        if (lastValue && typeof lastValue === "object" && "f()" in lastValue) {
+                            let varList = [];
+                            while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
+                                varList.push(envList.pop());
+                            }
+                            varList = varList.reverse();
+                            const value = conditionaAritmeticParser(
+                                varList as any,
+                                labelKey,
+                                paramNames,
+                                shareData.functions,
+                            );
+                            envList = [];
+
+                            value.forEach((v) => {
+                                if (
+                                    value &&
+                                    typeof value === "object" &&
+                                    "type" in value &&
+                                    value.type === "function"
+                                ) {
+                                    addElement(
+                                        itemList,
+                                        v as PixiVNJsonFunction,
+                                        labelKey,
+                                        paramNames,
+                                        {
+                                            isNewLine,
+                                            isHashtagScript,
+                                            isThreads,
+                                        },
+                                    );
+                                } else {
+                                    logger.warn("Unhandled case: value is not a function", v);
+                                }
+                            });
+                            isNewLine = false;
+                        } else {
+                            envList.push(rootItem);
+                        }
+                        return;
+                    }
                     default:
                         envList.push(rootItem);
                 }
