@@ -44,8 +44,17 @@ export function addSwitchElemenText(
         if (item.startsWith("^")) {
             list.push(getText(item));
         }
-    } else if (typeof item === "object" && "type" in item && item.type !== "value") {
-        list.push(item);
+    } else if (typeof item === "object" && "type" in item) {
+        switch (item.type) {
+            case "value":
+            case "function":
+                console.warn(
+                    "Warning: trying to add a value or function operation as text. This is likely a mistake, so it will be ignored.",
+                );
+                break;
+            default:
+                list.push(item);
+        }
     }
 }
 
@@ -175,17 +184,40 @@ function addConditionalElementStep(
             }
         }
     } else if (typeof item === "object") {
-        if ("type" in item && item.type !== "value") {
-            if (!isNewLine && list.length > 0) {
-                const prevItem = list[list.length - 1];
-                // in this case: <> text
-                if (!prevItem.glueEnabled && !prevItem.operations) {
-                    prevItem.glueEnabled = true;
-                    if (!prevItem.labelToOpen) prevItem.goNextStep = true;
-                }
-                list[list.length - 1] = prevItem;
+        if ("type" in item) {
+            switch (item.type) {
+                case "value":
+                    if (item.storageOperationType === "set") {
+                        if (typeof item.value === "string" && item.value.startsWith("^")) {
+                            item.value = getText(item.value);
+                        }
+                        list.push({
+                            goNextStep: true,
+                            operations: [item],
+                        });
+                    } else {
+                        console.warn(
+                            "Warning: trying to add a value get operation as step. This is likely a mistake, so it will be ignored.",
+                        );
+                    }
+                    break;
+                case "function":
+                    console.warn(
+                        "Warning: trying to add a value or function operation as step. This is likely a mistake, so it will be ignored.",
+                    );
+                    break;
+                default:
+                    if (!isNewLine && list.length > 0) {
+                        const prevItem = list[list.length - 1];
+                        // in this case: <> text
+                        if (!prevItem.glueEnabled && !prevItem.operations) {
+                            prevItem.glueEnabled = true;
+                            if (!prevItem.labelToOpen) prevItem.goNextStep = true;
+                        }
+                        list[list.length - 1] = prevItem;
+                    }
+                    list.push({ conditionalStep: item });
             }
-            list.push({ conditionalStep: item });
         } else if ("->" in item) {
             let glueEnabled = isNewLine ? undefined : true;
             if (
@@ -256,15 +288,6 @@ function addConditionalElementStep(
                     params: item.params,
                 },
                 glueEnabled: glueEnabled,
-            });
-        }
-        if ("type" in item && item.type === "value" && item.storageOperationType === "set") {
-            if (typeof item.value === "string" && item.value.startsWith("^")) {
-                item.value = getText(item.value);
-            }
-            list.push({
-                goNextStep: true,
-                operations: [item],
             });
         }
     }
