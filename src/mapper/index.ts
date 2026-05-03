@@ -166,7 +166,7 @@ export namespace InkMapper {
                 // if (key.includes("g-")) {
                 //     labelName = dadLabelKey.split(CHOISE_LABEL_KEY_SEPARATOR)[0] + CHOISE_LABEL_KEY_SEPARATOR + key
                 // }
-                parseLabel(
+                parseLabel<PixiVNJsonLabelStep>(
                     value,
                     labelName,
                     shared,
