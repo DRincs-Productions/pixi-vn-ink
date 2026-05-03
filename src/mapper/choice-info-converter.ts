@@ -1,26 +1,26 @@
+import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
+import type LabelChoiceRes from "@/interfaces/LabelChoiceRes";
+import type ChoicePoint from "@/interfaces/parserItems/ChoicePoint";
+import type { ChoiceInfo } from "@/interfaces/parserItems/ChoicePoint";
+import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
+import { nativeFunctions } from "@/interfaces/parserItems/NativeFunctions";
+import type ReadCount from "@/interfaces/parserItems/ReadCount";
+import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
+import type TextType from "@/interfaces/parserItems/TextType";
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
+import { addSwitchElemenText, callOrJump } from "@/mapper/adding-elements";
+import { parserConditionalStatements } from "@/mapper/conditional-statements-parser";
+import type { ShareDataParserLabel } from "@/mapper/label-parser";
+import { parserSwitch, type ConditionalList } from "@/mapper/switch-parser";
+import { unionStringOrArray } from "@/utils/array-utility";
+import { logger } from "@/utils/log-utility";
+import { getText } from "@/utils/text-utility";
 import type {
     PixiVNJsonChoice,
     PixiVNJsonChoices,
     PixiVNJsonConditionalStatements,
     PixiVNJsonLabelStep,
-} from "@drincs/pixi-vn-json";
-import { CHOISE_LABEL_KEY_SEPARATOR } from "../constant";
-import type LabelChoiceRes from "../interfaces/LabelChoiceRes";
-import type ChoicePoint from "../interfaces/parserItems/ChoicePoint";
-import type { ChoiceInfo } from "../interfaces/parserItems/ChoicePoint";
-import type NativeFunctions from "../interfaces/parserItems/NativeFunctions";
-import { nativeFunctions } from "../interfaces/parserItems/NativeFunctions";
-import type ReadCount from "../interfaces/parserItems/ReadCount";
-import type RootParserItemType from "../interfaces/parserItems/RootParserItemType";
-import type TextType from "../interfaces/parserItems/TextType";
-import { addSwitchElemenText, callOrJump } from "../parser/adding-elements";
-import { parserConditionalStatements } from "../parser/conditional-statements-parser";
-import type { ShareDataParserLabel } from "../parser/label-parser";
-import { type ConditionalList, parserSwitch } from "../parser/switch-parser";
-import { unionStringOrArray } from "../utils/array-utility";
-import { logger } from "../utils/log-utility";
-import { getText } from "../utils/text-utility";
+} from "@drincs/pixi-vn-json/schema";
 
 export function addChoiseIntoList<T>(
     choiseList: RootParserItemType[],
@@ -95,12 +95,12 @@ export function addChoiseIntoList<T>(
                         );
                         if (endA.includes("c-") && endB.includes("c-")) {
                             const stringNumberA = endA.split("c-")[1];
-                            const numberA = parseInt(stringNumberA);
+                            const numberA = Number(stringNumberA);
                             const stringNumberB = endB.split("c-")[1];
-                            const numberB = parseInt(stringNumberB);
+                            const numberB = Number(stringNumberB);
                             return numberA - numberB;
                         }
-                    } catch (error) {}
+                    } catch (_error) {}
                     return 0;
                 });
             } else {

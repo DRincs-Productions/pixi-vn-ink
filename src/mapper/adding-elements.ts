@@ -2,17 +2,18 @@ import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "@/constant";
 import { HashtagCommands } from "@/handlers";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import { getValue } from "@/mapper/value-utility";
 import { getLabelByStandardDivert } from "@/utils/divert-utility";
 import { getText } from "@/utils/text-utility";
-import { getValue } from "@/utils/value-utility";
 import type {
     PixiVNJsonConditionalOperation,
     PixiVNJsonConditionalStatements,
     PixiVNJsonLabelStep,
     PixiVNJsonStepSwitchElementType,
     PixiVNJsonValueGet,
-} from "@drincs/pixi-vn-json";
+} from "@drincs/pixi-vn-json/schema";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
+
 export function callOrJump(label: string, isThreads: boolean): "call" | "jump" {
     if (isThreads) {
         return "call";

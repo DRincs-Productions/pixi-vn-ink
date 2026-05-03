@@ -5,22 +5,22 @@ import {
     type ArithmeticFunctionsSingle,
     arithmeticFunctionsSingle,
 } from "@/interfaces/parserItems/NativeFunctions";
+import { getValue } from "@/mapper/value-utility";
 import { getLabelByStandardDivert } from "@/utils/divert-utility";
 import { logger } from "@/utils/log-utility";
 import { getText } from "@/utils/text-utility";
-import { getValue } from "@/utils/value-utility";
 import type { StorageElementType } from "@drincs/pixi-vn";
-import {
-    type PixiVNJsonArithmeticOperations,
-    type PixiVNJsonChoiceGet,
-    type PixiVNJsonComparation,
-    PixiVNJsonComparationOperators,
-    type PixiVNJsonComparationOperatorsType,
-    type PixiVNJsonConditions,
-    type PixiVNJsonFunction,
-    type PixiVNJsonLabelGet,
-    type PixiVNJsonValueGet,
-} from "@drincs/pixi-vn-json";
+import { PixiVNJsonComparationOperators } from "@drincs/pixi-vn-json";
+import type {
+    PixiVNJsonArithmeticOperations,
+    PixiVNJsonChoiceGet,
+    PixiVNJsonComparation,
+    PixiVNJsonComparationOperatorsType,
+    PixiVNJsonConditions,
+    PixiVNJsonFunction,
+    PixiVNJsonLabelGet,
+    PixiVNJsonValueGet,
+} from "@drincs/pixi-vn-json/schema";
 
 export function conditionaAritmeticParser(
     list: any[],

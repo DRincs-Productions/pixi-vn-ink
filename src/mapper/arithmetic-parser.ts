@@ -1,9 +1,9 @@
 import type { ArithmeticFunctions } from "@/interfaces/parserItems/NativeFunctions";
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
-import { conditionaAritmeticParser } from "@/parser/conditiona-aritmetic-parser";
+import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
 import { logger } from "@/utils/log-utility";
 import type { StorageElementType } from "@drincs/pixi-vn";
-import type { PixiVNJsonValueGet } from "@drincs/pixi-vn-json";
+import type { PixiVNJsonValueGet } from "@drincs/pixi-vn-json/schema";
 
 export function arithmeticParser(
     data: (ArithmeticFunctions | VariableReference)[],

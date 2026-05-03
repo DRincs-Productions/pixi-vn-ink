@@ -1,7 +1,12 @@
-import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json";
-import { conditionaAritmeticParser } from "../parser/conditiona-aritmetic-parser";
+import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
+import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json/schema";
 
-export function getParam(list: any[], labelKey: string, paramNames: string[], functions: { name: string; args: number }[] = []): any[] {
+export function getParam(
+    list: any[],
+    labelKey: string,
+    paramNames: string[],
+    functions: { name: string; args: number }[] = [],
+): any[] {
     const res: any[] = conditionaAritmeticParser(list, labelKey, paramNames, functions);
     return res;
 }

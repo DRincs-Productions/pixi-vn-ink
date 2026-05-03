@@ -1,4 +1,3 @@
-import { addChoiseIntoList } from "@/functions/choice-info-converter";
 import type InkRootType from "@/interfaces/InkRootType";
 import type { ContainerTypeF } from "@/interfaces/parserItems/ContainerType";
 import type ControlCommands from "@/interfaces/parserItems/ControlCommands";
@@ -7,12 +6,13 @@ import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import type TextType from "@/interfaces/parserItems/TextType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
-import { parseLabel, type ShareDataParserLabel } from "@/parser/label-parser";
+import { addChoiseIntoList } from "@/mapper/choice-info-converter";
+import { parseLabel, type ShareDataParserLabel } from "@/mapper/label-parser";
 import type {
     PixiVNJsonStepSwitch,
     PixiVNJsonStepSwitchElementsType,
     PixiVNJsonStepSwitchElementType,
-} from "@drincs/pixi-vn-json";
+} from "@drincs/pixi-vn-json/schema";
 
 export type ConditionalList = (
     | number

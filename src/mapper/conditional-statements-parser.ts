@@ -1,5 +1,4 @@
 import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
-import { addChoiseIntoList } from "@/functions/choice-info-converter";
 import type InkRootType from "@/interfaces/InkRootType";
 import type Cond from "@/interfaces/parserItems/Cond";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
@@ -8,14 +7,15 @@ import type ReadCount from "@/interfaces/parserItems/ReadCount";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
-import { conditionaAritmeticParser } from "@/parser/conditiona-aritmetic-parser";
-import { parseLabel, type ShareDataParserLabel } from "@/parser/label-parser";
+import { addChoiseIntoList } from "@/mapper/choice-info-converter";
+import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
+import { parseLabel, type ShareDataParserLabel } from "@/mapper/label-parser";
 import { logger } from "@/utils/log-utility";
 import type {
     PixiVNJsonConditionalResultToCombine,
     PixiVNJsonConditionalStatements,
     PixiVNJsonStepSwitchElementType,
-} from "@drincs/pixi-vn-json";
+} from "@drincs/pixi-vn-json/schema";
 
 export function parserConditionalStatements<T>(
     then: T | PixiVNJsonConditionalStatements<T> | PixiVNJsonConditionalResultToCombine<T>,
@@ -149,7 +149,14 @@ export function getConditionalValue<T>(
         elseThen = undefined;
     }
     shareData.du = undefined;
-    return parserConditionalStatements<T>(then, condition, paramNames, labelKey, elseThen, shareData.functions);
+    return parserConditionalStatements<T>(
+        then,
+        condition,
+        paramNames,
+        labelKey,
+        elseThen,
+        shareData.functions,
+    );
 }
 
 function getThen<T>(

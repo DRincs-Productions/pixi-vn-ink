@@ -6,17 +6,17 @@ import type NativeFunctions from "@/interfaces/parserItems/NativeFunctions";
 import type ReadCount from "@/interfaces/parserItems/ReadCount";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
-import { addSwitchComment } from "@/parser/adding-elements";
-import { arithmeticParser } from "@/parser/arithmetic-parser";
-import { getConditionalValue } from "@/parser/conditional-statements-parser";
-import { parserSwitch } from "@/parser/switch-parser";
+import { addSwitchComment } from "@/mapper/adding-elements";
+import { arithmeticParser } from "@/mapper/arithmetic-parser";
+import { getConditionalValue } from "@/mapper/conditional-statements-parser";
+import { parserSwitch } from "@/mapper/switch-parser";
+import { getParam, getSetValue, getValue } from "@/mapper/value-utility";
 import { logger } from "@/utils/log-utility";
-import { getParam, getSetValue, getValue } from "@/utils/value-utility";
 import type {
     PixiVNJsonArithmeticOperations,
     PixiVNJsonConditionalStatements,
     PixiVNJsonStepSwitchElementType,
-} from "@drincs/pixi-vn-json";
+} from "@drincs/pixi-vn-json/schema";
 
 export type ShareDataParserLabel = {
     preDialog: { [label: string]: { text: string; glue: boolean } };
@@ -191,7 +191,12 @@ export function parseLabel<T>(
                         obj.value = obj.value["^->"];
                     }
                     if (envList.length > 1) {
-                        const arm = arithmeticParser(envList as any, labelKey, paramNames, shareData.functions);
+                        const arm = arithmeticParser(
+                            envList as any,
+                            labelKey,
+                            paramNames,
+                            shareData.functions,
+                        );
                         envList = [];
                         if (
                             arm &&
@@ -246,7 +251,12 @@ export function parseLabel<T>(
                                 varList.push(envList.pop());
                             }
                             varList = varList.reverse();
-                            let value = arithmeticParser(varList as any, labelKey, paramNames, shareData.functions);
+                            let value = arithmeticParser(
+                                varList as any,
+                                labelKey,
+                                paramNames,
+                                shareData.functions,
+                            );
                             envList = [];
                             if (
                                 value &&
@@ -420,7 +430,12 @@ export function parseLabel<T>(
             ) {
                 let params = [];
                 if (envList.length > 0) {
-                    params = getParam(["ev", ...envList], labelKey, paramNames, shareData.functions);
+                    params = getParam(
+                        ["ev", ...envList],
+                        labelKey,
+                        paramNames,
+                        shareData.functions,
+                    );
                 }
                 rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
@@ -437,7 +452,12 @@ export function parseLabel<T>(
             ) {
                 let params = [];
                 if (envList.length > 0) {
-                    params = getParam(["ev", ...envList], labelKey, paramNames, shareData.functions);
+                    params = getParam(
+                        ["ev", ...envList],
+                        labelKey,
+                        paramNames,
+                        shareData.functions,
+                    );
                 }
                 rootItem.params = params;
                 addElement(itemList, rootItem, labelKey, paramNames, {
@@ -476,7 +496,12 @@ export function parseLabel<T>(
                         varList.push(envList.pop());
                     }
                     varList = varList.reverse();
-                    obj.value = arithmeticParser(varList as any, labelKey, paramNames, shareData.functions);
+                    obj.value = arithmeticParser(
+                        varList as any,
+                        labelKey,
+                        paramNames,
+                        shareData.functions,
+                    );
                     envList = [];
                     if (obj.value !== undefined || obj.value !== null) {
                         addElement(itemList, obj, labelKey, paramNames, {
