@@ -1,9 +1,10 @@
 import { convertInkToJson } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 test("Threads 1", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             thread_example: [
                 {
@@ -166,6 +167,7 @@ Before long, we arrived at his house.
 
 test("Threads 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",

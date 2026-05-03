@@ -1,5 +1,5 @@
 import { convertInkText } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 // Choices
@@ -7,6 +7,7 @@ import { expect, test } from "vitest";
 
 test("Choices test 1", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             test: [
                 {
@@ -45,6 +46,7 @@ Hello world!
 
 test("Choices test 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             test: [
                 {
@@ -84,6 +86,7 @@ Hello world!2
 
 test("Choices test 3", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "test_|_c-0": [
                 {
@@ -127,6 +130,7 @@ Hello world!
 
 test("Choices test 4", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "test_|_c-0": [
                 {
@@ -170,6 +174,7 @@ test("Choices test 4", async () => {
 
 test("Choices test 5", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "test_|_c-0": [
                 {
@@ -261,6 +266,7 @@ test("Choices test 5", async () => {
  */
 test("Basic branching", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "paragraph_1_|_c-0": [
                 {
@@ -377,6 +383,7 @@ You open the gate, and step out onto the path.
  */
 test("Example of a fallback choice", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "find_help_|_c-0": [
                 {
@@ -476,6 +483,7 @@ test("Example of a fallback choice", async () => {
  */
 test("Sticky choices", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "homers_couch_|_c-0": [
                 {
@@ -536,6 +544,7 @@ test("Sticky choices", async () => {
  */
 test("Conditional Choices", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "visit_paris_|_c-0": [
                 {
@@ -836,6 +845,7 @@ bored_of_paris
 
 test("start_|_s", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",

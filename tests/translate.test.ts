@@ -1,8 +1,10 @@
+import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { generateJsonInkTranslation, type PixiVNJson } from "../src";
 
 test("Translate test 1", async () => {
     const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             back_in_london: [
                 {

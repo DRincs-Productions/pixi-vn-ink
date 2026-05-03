@@ -1,9 +1,10 @@
 import { convertInkText } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 test("Label test 1", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             back_in_london: [
                 {
@@ -42,6 +43,7 @@ We hurried home to Savile Row as fast as we could.
 
 test("Label test 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             back_in_london: [
                 {
@@ -80,6 +82,7 @@ We hurried home to Savile Row as fast as we could.
  */
 test("The first stitch is the default", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "the_orient_express_|_c-0": [
                 {
@@ -152,6 +155,7 @@ We boarded the train, but where?
  */
 test("Local diverts", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "the_orient_express_|_in_first_class_|_c-0": [
                 {
@@ -215,6 +219,7 @@ test("Local diverts", async () => {
 
 test("Ignore Uknown Labels", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             back_in_london: [
                 {

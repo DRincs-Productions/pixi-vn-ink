@@ -1,5 +1,5 @@
 import { convertInkText } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 /**
@@ -7,6 +7,7 @@ import { expect, test } from "vitest";
  */
 test("Options and gathers form chains of content", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_c-0": [
                 {
@@ -188,6 +189,7 @@ I ran through the forest, the dogs snapping at my heels.
  */
 test("Options can be nested", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_g-0_|_c-0_|_c-0": [
                 {
@@ -376,6 +378,7 @@ test("Options can be nested", async () => {
  */
 test("Gather points can be nested too", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_g-0_|_c-0_|_c-0": [
                 {
@@ -614,6 +617,7 @@ test("Gather points can be nested too", async () => {
  */
 test("Advanced: What gathers do", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_g-0_|_c-0_|_c-0_|_c-0_|_c-0_|_c-0": [
                 {
@@ -767,6 +771,7 @@ test("Advanced: What gathers do", async () => {
  */
 test("Example: a conversation with nested nodes", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_g-0_|_c-0_|_c-0_|_c-0": [
                 {
@@ -1063,6 +1068,7 @@ test("Example: a conversation with nested nodes", async () => {
  */
 test("Gathers and options can be labelled", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "meet_guard_|_c-0": [
                 {
@@ -1269,6 +1275,7 @@ fight_guard
  */
 test("Scope", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "knot_|_stitch_one_|_gatherpoint": [
                 {
@@ -1356,6 +1363,7 @@ test("Scope", async () => {
  */
 test("Scope2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "knot_one_|_gather_one_|_c-0": [
                 {
@@ -1480,6 +1488,7 @@ test("Scope2", async () => {
  */
 test("Advanced: all options can be labelled", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "fight_guard_|_throw_something_|_c-0": [
                 {
@@ -1585,6 +1594,7 @@ You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
  */
 test("Advanced: Loops in a weave", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "fight_guard_|_opts_|_c-0": [
                 {
@@ -1788,6 +1798,7 @@ test("Advanced: Loops in a weave", async () => {
  */
 test("Advanced: diverting to options", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "fight_guard_|_opts_|_c-0": [
                 {
@@ -1936,6 +1947,7 @@ fight_the_guard
  */
 test("Advanced: Gathers directly after an option", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "fight_guard_|_c-0_|_quitewell": [
                 {

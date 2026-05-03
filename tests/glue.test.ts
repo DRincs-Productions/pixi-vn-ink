@@ -1,5 +1,5 @@
 import { convertInkText } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
 
@@ -8,6 +8,7 @@ import { convertOperation } from "./convertOperation";
  */
 test("Diverts are invisible", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             hurry_home: [
                 {
@@ -45,6 +46,7 @@ as fast as we could.
  */
 test("Glue", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             hurry_home: [
                 {
@@ -103,6 +105,7 @@ to Savile Row
  */
 test("Branching and joining", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "back_in_london_|_c-0": [
                 {
@@ -249,6 +252,7 @@ He insisted that we hurried home to Savile Row
 
 test("Fix glue error", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 key: "some_var",

@@ -1,7 +1,7 @@
 import { onReplaceTextAfterTranslation } from "@/functions";
 import { convertInkText } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
-import { type PixiVNJson, translator } from "@drincs/pixi-vn-json";
+import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
 
@@ -11,6 +11,7 @@ test("Assign dialogue to a character", async () => {
     });
     RegisteredCharacters.add(alice);
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -40,6 +41,7 @@ test("Assign dialogue to a character: double colons in a sentence", async () => 
     });
     RegisteredCharacters.add(james);
     const expected1: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -69,6 +71,7 @@ james: Well, I mean, you are kinda acting like a father. Like, I can totally see
 
 test("show image", async () => {
     const expected1: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -209,6 +212,7 @@ test("show image", async () => {
         },
     };
     const expected2: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -333,6 +337,7 @@ hello
 
 test("edit image", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -379,6 +384,7 @@ hello
 
 test("remove image", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -458,6 +464,7 @@ Hello
 
 test("effect image", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -534,6 +541,7 @@ test("effect image", async () => {
  */
 test("video", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -608,6 +616,7 @@ hello
  */
 test("imagecontainer", async () => {
     const expected1: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -643,6 +652,7 @@ test("imagecontainer", async () => {
         },
     };
     const expected2: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -700,6 +710,7 @@ hello
  */
 test("text", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -782,6 +793,7 @@ test("text", async () => {
  */
 test("sound", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -927,6 +939,7 @@ Hello
  */
 test("assets", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -964,6 +977,7 @@ hello
  */
 test("input", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -1051,6 +1065,7 @@ test("replace", async () => {
  */
 test("markdown", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -1301,6 +1316,7 @@ Footer
  */
 test("jump", async () => {
     const expected1: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -1342,6 +1358,7 @@ test("jump", async () => {
         },
     };
     const expected2: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -1396,6 +1413,7 @@ After End
 
 test("continue", async () => {
     const expected2: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "hurry_home_|_c-1": [
                 {

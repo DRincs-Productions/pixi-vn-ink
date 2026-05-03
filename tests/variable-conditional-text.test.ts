@@ -1,5 +1,5 @@
 import { convertInkToJson } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 // Variable Text
@@ -7,6 +7,7 @@ import { expect, test } from "vitest";
 
 test("Sequences (the default)", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "loop_|_c-0": [
                 {
@@ -107,6 +108,7 @@ The radio hissed into life. {"Three!"|"Two!"|"One!"|There was the white noise ra
 
 test("Cycles (marked with a &)", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "loop_|_c-0": [
                 {
@@ -196,6 +198,7 @@ It was {&Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday} today.
 
 test("Once-only (marked with a !)", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "loop_|_c-0": [
                 {
@@ -273,6 +276,7 @@ He told me a joke. {!I laughed politely.|I smiled.|I grimaced.|I promised myself
 
 test("Shuffles (marked with a ~)", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "loop_|_c-0": [
                 {
@@ -375,6 +379,7 @@ leave_post_office
  */
 test("Examples", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "whack_a_mole_|_c-0": [
                 {
@@ -704,6 +709,7 @@ test("Examples", async () => {
 
 test("Examples 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "turn_on_television_|_c-0": [
                 {
@@ -837,6 +843,7 @@ I turned on the television {for the first time|for the second time|again|once mo
  */
 test("Conditional Text", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "met_blofeld_|_c-0": [
                 {
@@ -1163,6 +1170,7 @@ learned_his_name
 
 test("Conditional Text 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [],
         labels: {
             start: [

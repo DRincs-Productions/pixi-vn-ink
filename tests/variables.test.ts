@@ -1,5 +1,5 @@
 import { convertInkToJson } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
 
@@ -12,6 +12,7 @@ import { convertOperation } from "./convertOperation";
  */
 test("Defining Global Variables", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -123,6 +124,7 @@ VAR current_epilogue = -> they_all_die_of_the_plague
  */
 test("Advanced: storing diverts as variables", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -222,6 +224,7 @@ Give up now, or keep trying to save your Kingdom?
  */
 test("Printing variables", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -296,6 +299,7 @@ My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. 
  */
 test("Evaluating strings", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -369,6 +373,7 @@ VAR a_colour = ""
  */
 test("Logic", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -539,6 +544,7 @@ VAR knows_about_wager = false
  */
 test("Mathematics", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -598,6 +604,7 @@ test("Mathematics", async () => {
  */
 test("RANDOM(min, max)", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -731,6 +738,7 @@ test("RANDOM(min, max)", async () => {
  */
 test("Advanced: numerical types are implicit", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -887,6 +895,7 @@ VAR z = 0
  */
 test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -995,6 +1004,7 @@ test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
  */
 test("String queries", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -1086,6 +1096,7 @@ test("String queries", async () => {
  */
 test("A simple if", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -1181,6 +1192,7 @@ VAR y = 0
  */
 test("A simple else", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -1305,6 +1317,7 @@ VAR y = 0
  */
 test("Extended if/else if/else blocks", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -1460,6 +1473,7 @@ VAR y = 0
  */
 test("Switch blocks", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -1553,6 +1567,7 @@ VAR x = 0
  */
 test("Example: context-relevant content", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -1804,6 +1819,7 @@ dream_about_marmalade
  */
 test("Conditional blocks are not limited to logic", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -1890,6 +1906,7 @@ know_about_wager
  */
 test("Conditional blocks are not limited to logic 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_then_|_c-0": [
                 {
@@ -2055,6 +2072,7 @@ open_door
  */
 test("Multiline blocks", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -2251,6 +2269,7 @@ At the table, I drew a card. <>
  */
 test("Advanced: modified shuffles", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -2356,6 +2375,7 @@ res:
  */
 test("Advanced: modified shuffles 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -2469,6 +2489,7 @@ res:
  */
 test("Temporary variables are for scratch calculations", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -2665,6 +2686,7 @@ VAR gloves = 0
  */
 test("Knots and stitches can take parameters", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_c-0": [
                 {
@@ -2824,6 +2846,7 @@ test("Knots and stitches can take parameters", async () => {
  */
 test("Example: a recursive knot definition", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
                 {
@@ -2978,6 +3001,7 @@ test("Example: a recursive knot definition", async () => {
  */
 test("Advanced: sending divert targets as parameters", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             sleeping_in_hut: [
                 {
@@ -3040,6 +3064,7 @@ test("Advanced: sending divert targets as parameters", async () => {
  */
 test("Global Constants", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -3129,6 +3154,7 @@ found_japps_bloodied_glove
  */
 test("Global Constants 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -3254,6 +3280,7 @@ VAR suitcase_location = HALLWAY
 
 test("Uknown variable in text", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [],
         labels: {
             start: [
@@ -3288,6 +3315,7 @@ The value of _input_value_ is: {_input_value_}
 
 test("Params", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "start_|_c-0": [
                 {

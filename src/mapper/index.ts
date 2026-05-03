@@ -12,6 +12,7 @@ import { parseLabel, type ShareDataParserLabel } from "@/mapper/label-parser";
 import { type ConditionalList, parserSwitch } from "@/mapper/switch-parser";
 import type { CompileSharedType } from "@/parser/types";
 import { logger } from "@/utils/log-utility";
+import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json";
 import type {
     PixiVNJson,
     PixiVNJsonLabels,
@@ -25,7 +26,9 @@ export namespace InkMapper {
         shared: Partial<CompileSharedType> = {},
     ): PixiVNJson | undefined {
         const { labelToRemove = [], initialVarsToRemove = [] } = shared;
-        const result: PixiVNJson = {};
+        const result: PixiVNJson = {
+            $schema: PIXIVNJSON_SCHEMA_URL,
+        };
         result.labels = getInkLabels(obj.root, shared);
         if (result.labels && GLOBAL_DECL in result.labels) {
             const global = result.labels[GLOBAL_DECL];

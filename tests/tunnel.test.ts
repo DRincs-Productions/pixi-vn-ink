@@ -1,9 +1,10 @@
 import { convertInkToJson } from "@/loader";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 
 test("Tunnel 1", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             "city_|_c-0": [
                 {
@@ -103,6 +104,7 @@ The merchant smiles.
 
 test("Tunnel 2", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
             {
                 type: "value",
@@ -296,6 +298,7 @@ The guard looks at you.
 
 test("Tunnel 4", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
     };
     const res = convertInkToJson(`
@@ -329,6 +332,7 @@ You have:
 
 test("Tunnel 5", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
     };
     const res = convertInkToJson(`
@@ -377,6 +381,7 @@ The enemy strikes.
 
 test("Tunnel 6", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
     };
     const res = convertInkToJson(`
@@ -415,6 +420,7 @@ You are in your room.
 
 test("Tunnel 7", async () => {
     const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
     };
     const res = convertInkToJson(`
