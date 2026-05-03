@@ -57,7 +57,8 @@ export function parseLabel<T>(
             | StandardDivert
             | DivertTunnel
             | PixiVNJsonStepSwitchElementType<T>
-            | MyVariableAssignment,
+            | MyVariableAssignment
+            | PixiVNJsonFunction,
         labelKey: string,
         paramNames: string[],
         options?: {

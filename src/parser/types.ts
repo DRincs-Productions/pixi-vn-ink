@@ -4,6 +4,7 @@ export type CompileSharedType = {
     labelToRemove: string[];
     initialVarsToRemove: string[];
     functions: { name: string; args: number }[];
+    enums: { [key: string]: object };
     textSource: string;
 };
 export type IssueType = { message: string; type: ErrorType; line: number };

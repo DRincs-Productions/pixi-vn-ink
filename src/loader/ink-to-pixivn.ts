@@ -16,6 +16,7 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         labelToRemove: [],
         initialVarsToRemove: [],
         functions: [],
+        enums: {},
     };
     const { json, issues } = InkCompiler.compile(text, shared);
     issues.forEach(({ message, type }) => {
@@ -38,5 +39,6 @@ export function convertInkToJson(text: string): PixiVNJson | undefined {
         logger.error("Error parsing ink file");
         return;
     }
+    shared.enums = obj.listDefs || {};
     return InkMapper.inkToJson(obj, shared);
 }

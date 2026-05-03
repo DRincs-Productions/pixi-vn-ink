@@ -9,6 +9,7 @@ export namespace InkCompiler {
             labelToRemove: [],
             initialVarsToRemove: [],
             functions: [],
+            enums: {},
         },
     ) {
         const issues: IssueType[] = [];

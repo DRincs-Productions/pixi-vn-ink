@@ -8,28 +8,39 @@ import type InkStoryType from "@/interfaces/InkStoryType";
 import type RootParserItemType from "@/interfaces/parserItems/RootParserItemType";
 import { addSwitchElemenStep, addSwitchElemenText } from "@/mapper/adding-elements";
 import { addChoiseIntoList } from "@/mapper/choice-info-converter";
-import { parseLabel, type ShareDataParserLabel } from "@/mapper/label-parser";
+import { parseLabel } from "@/mapper/label-parser";
 import { type ConditionalList, parserSwitch } from "@/mapper/switch-parser";
-import type { CompileSharedType } from "@/parser/types";
+import type { MapperSharedType } from "@/mapper/types";
 import { logger } from "@/utils/log-utility";
 import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json";
 import type {
     PixiVNJson,
     PixiVNJsonLabels,
     PixiVNJsonLabelStep,
-    PixiVNJsonStepSwitch,
 } from "@drincs/pixi-vn-json/schema";
 
 export namespace InkMapper {
     export function inkToJson(
         obj: InkStoryType,
-        shared: Partial<CompileSharedType> = {},
+        shared: Partial<MapperSharedType> = {},
     ): PixiVNJson | undefined {
-        const { labelToRemove = [], initialVarsToRemove = [] } = shared;
+        const {
+            labelToRemove = [],
+            initialVarsToRemove = [],
+            enums = {},
+            functions = [],
+            preDialog = {},
+        } = shared;
         const result: PixiVNJson = {
             $schema: PIXIVNJSON_SCHEMA_URL,
         };
-        result.labels = getInkLabels(obj.root, shared);
+        result.labels = getInkLabels(obj.root, {
+            labelToRemove,
+            initialVarsToRemove,
+            enums,
+            functions,
+            preDialog,
+        });
         if (result.labels && GLOBAL_DECL in result.labels) {
             const global = result.labels[GLOBAL_DECL];
             delete result.labels[GLOBAL_DECL];
@@ -76,14 +87,12 @@ export namespace InkMapper {
 
     function getInkLabels(
         story: (InkRootType | RootParserItemType | RootParserItemType[])[],
-        options: {
-            functions?: { name: string; args: number }[];
-        },
+        shared: MapperSharedType,
     ): PixiVNJsonLabels | undefined {
         try {
             const label: PixiVNJsonLabels = {};
 
-            findLabel(story, label, options);
+            findLabel(story, label, shared);
 
             return label;
         } catch (e) {
@@ -94,10 +103,7 @@ export namespace InkMapper {
     function findLabel(
         story: (InkRootType | RootParserItemType | RootParserItemType[])[],
         labels: PixiVNJsonLabels,
-        sharedVariables: {
-            externalSwitch?: PixiVNJsonStepSwitch<string>;
-            functions?: { name: string; args: number }[];
-        } = {},
+        shared: MapperSharedType,
     ) {
         for (const storyItem of story) {
             if (storyItem) {
@@ -108,17 +114,17 @@ export namespace InkMapper {
                             addSwitchElemenText,
                             (_storyItem, _dadLabelKey, _shareData) => {},
                             "",
-                            { preDialog: {}, functions: sharedVariables.functions || [] },
+                            shared,
                             [],
                         );
                         if (item) {
-                            sharedVariables.externalSwitch = item;
+                            shared.externalSwitch = item;
                         }
                     } else {
-                        findLabel(storyItem, labels, sharedVariables);
+                        findLabel(storyItem, labels, shared);
                     }
                 } else if (typeof storyItem === "object") {
-                    if (storyItem && "VAR=" in storyItem && sharedVariables.externalSwitch) {
+                    if (storyItem && "VAR=" in storyItem && shared.externalSwitch) {
                         if (!labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES]) {
                             labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES] = [];
                         }
@@ -126,7 +132,7 @@ export namespace InkMapper {
                             operations: [
                                 {
                                     type: "value",
-                                    value: sharedVariables.externalSwitch as any,
+                                    value: shared.externalSwitch as any,
                                     key: storyItem["VAR="],
                                     storageType: "storage",
                                     storageOperationType: "set",
@@ -134,10 +140,7 @@ export namespace InkMapper {
                             ],
                         });
                     }
-                    addLabels(storyItem, labels, "", {
-                        preDialog: {},
-                        functions: sharedVariables.functions || [],
-                    });
+                    addLabels(storyItem, labels, "", shared);
                 }
             }
         }
@@ -147,7 +150,7 @@ export namespace InkMapper {
         storyItem: InkRootType | RootParserItemType,
         result: PixiVNJsonLabels,
         dadLabelKey: string = "",
-        shareData: ShareDataParserLabel = { preDialog: {}, functions: [] },
+        shared: MapperSharedType,
     ) {
         if (storyItem === null) {
             return;
@@ -166,7 +169,7 @@ export namespace InkMapper {
                 parseLabel(
                     value,
                     labelName,
-                    shareData,
+                    shared,
                     labels,
                     addSwitchElemenStep,
                     addSwitchElemenStep,
