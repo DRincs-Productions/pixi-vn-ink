@@ -1,7 +1,7 @@
 // https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md#containers
 
-import { StandardDivert } from "./Divert";
-import TextType from "./TextType";
+import type { StandardDivert } from "@/interfaces/parserItems/Divert";
+import type TextType from "@/interfaces/parserItems/TextType";
 
 type ListItem = StandardDivert | "pop" | TextType | null;
 export type ContainerTypeF = {

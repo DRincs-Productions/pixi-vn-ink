@@ -228,75 +228,81 @@ export function parseLabel<T>(
                     envList.push(rootItem);
                 }
             } else {
-                if (typeof rootItem === "string" && rootItem === "/ev") {
-                    if (isConditionalText) {
-                        conditionalList.push(rootItem);
-                    }
-                    isInEnv = false;
-                    envList.push(rootItem);
-                } else if (typeof rootItem === "string" && rootItem === "out") {
-                    if (envList.length > 0) {
-                        const lastValue = envList[envList.length - 1];
-                        if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
-                            envList.pop();
-                            const obj = getValue(lastValue["VAR?"], paramNames, "storage");
-                            addElement(itemList, obj, labelKey, paramNames, {
-                                isNewLine,
-                                isHashtagScript,
-                                isThreads,
-                            });
-                        } else {
-                            let varList = [];
-                            while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
-                                varList.push(envList.pop());
-                            }
-                            varList = varList.reverse();
-                            let value = arithmeticParser(
-                                varList as any,
-                                labelKey,
-                                paramNames,
-                                shareData.functions,
-                            );
-                            envList = [];
-                            if (
-                                value &&
-                                typeof value === "object" &&
-                                "type" in value &&
-                                value.type === "value" &&
-                                "storageType" in value &&
-                                value.storageType === "logic"
-                            ) {
-                                addElement(
-                                    itemList,
-                                    {
-                                        storageOperationType: "get",
-                                        storageType: "logic",
-                                        operation:
-                                            value.operation as PixiVNJsonArithmeticOperations,
-                                        type: "value",
-                                    },
+                switch (rootItem) {
+                    case "/ev":
+                        if (isConditionalText) {
+                            conditionalList.push(rootItem);
+                        }
+                        isInEnv = false;
+                        envList.push(rootItem);
+                        break;
+                    case "out":
+                        if (envList.length > 0) {
+                            const lastValue = envList[envList.length - 1];
+                            if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
+                                envList.pop();
+                                const obj = getValue(lastValue["VAR?"], paramNames, "storage");
+                                addElement(itemList, obj, labelKey, paramNames, {
+                                    isNewLine,
+                                    isHashtagScript,
+                                    isThreads,
+                                });
+                            } else {
+                                let varList = [];
+                                while (
+                                    envList.length > 0 &&
+                                    envList[envList.length - 1] !== "/ev"
+                                ) {
+                                    varList.push(envList.pop());
+                                }
+                                varList = varList.reverse();
+                                let value = arithmeticParser(
+                                    varList as any,
                                     labelKey,
                                     paramNames,
-                                    { isNewLine, isHashtagScript, isThreads },
+                                    shareData.functions,
                                 );
-                            } else {
-                                addElement(itemList, "<>", labelKey, paramNames, {
-                                    isNewLine,
-                                    isHashtagScript,
-                                    isThreads,
-                                });
-                                value = `^${value}`;
-                                addElement(itemList, value, labelKey, paramNames, {
-                                    isNewLine,
-                                    isHashtagScript,
-                                    isThreads,
-                                });
+                                envList = [];
+                                if (
+                                    value &&
+                                    typeof value === "object" &&
+                                    "type" in value &&
+                                    value.type === "value" &&
+                                    "storageType" in value &&
+                                    value.storageType === "logic"
+                                ) {
+                                    addElement(
+                                        itemList,
+                                        {
+                                            storageOperationType: "get",
+                                            storageType: "logic",
+                                            operation:
+                                                value.operation as PixiVNJsonArithmeticOperations,
+                                            type: "value",
+                                        },
+                                        labelKey,
+                                        paramNames,
+                                        { isNewLine, isHashtagScript, isThreads },
+                                    );
+                                } else {
+                                    addElement(itemList, "<>", labelKey, paramNames, {
+                                        isNewLine,
+                                        isHashtagScript,
+                                        isThreads,
+                                    });
+                                    value = `^${value}`;
+                                    addElement(itemList, value, labelKey, paramNames, {
+                                        isNewLine,
+                                        isHashtagScript,
+                                        isThreads,
+                                    });
+                                }
                             }
+                            isNewLine = false;
                         }
-                        isNewLine = false;
-                    }
-                } else {
-                    envList.push(rootItem);
+                        break;
+                    default:
+                        envList.push(rootItem);
                 }
             }
         } else if (typeof rootItem === "string") {
