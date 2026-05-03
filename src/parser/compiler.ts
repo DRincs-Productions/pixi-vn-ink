@@ -38,15 +38,16 @@ export namespace InkCompiler {
             return { json, issues };
         } catch (_e) {
             let recompile = false;
+            const sharedWithText = { ...shared, textSource: text };
             getErrors(
                 issues,
                 () => {
                     recompile = true;
                 },
-                { ...shared, textSource: text },
+                sharedWithText,
             );
             if (recompile) {
-                return compile(text, shared);
+                return compile(sharedWithText.textSource, shared);
             }
             return { issues };
         }
