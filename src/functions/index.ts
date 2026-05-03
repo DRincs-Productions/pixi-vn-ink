@@ -1,6 +1,5 @@
 export { importInkText, importJson } from "./importer";
 export {
-    convertInkStoryToJson,
     /**
      * @deprecated use convertInkToJson instead
      */
