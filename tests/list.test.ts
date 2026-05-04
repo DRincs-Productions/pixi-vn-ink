@@ -39,13 +39,40 @@ test("LIST 2", async () => {
     };
     const res = convertInkToJson(`
 LIST abilita = forza, agilita, intelligenza, fortuna
+LIST primeNumbers = two = 2, three = 3, five = 5
+LIST DoctorsInSurgery = (Adams), (Bernard), (Cartwright), (Denver), (Eamonn)
+LIST primeNumbers2 = (two2 = 2), (three2) = 3, (five2 = 5)
 
 VAR skill = ()
 
 === start ===
 ~ skill += abilita.forza
 ~ skill += abilita.agilita
+~ skill = ()
+~ skill = (Adams, Bernard, Eamonn)
 
+{ DoctorsInSurgery: The surgery is open today. | Everyone has gone home. }
+{ DoctorsInSurgery == (Adams, Bernard):
+	Dr Adams and Dr Bernard are having a loud argument in one corner.
+}
+{ DoctorsInSurgery != (Adams, Bernard):
+	At least Adams and Bernard aren't arguing.
+}
+{ DoctorsInSurgery ? (Adams, Bernard):
+	Dr Adams and Dr Bernard are having a hushed argument in one corner.
+}
+{ DoctorsInSurgery has Eamonn:
+	Dr Eamonn is polishing his glasses.
+}
+{ DoctorsInSurgery !? (Adams, Bernard):
+	Dr Adams and Dr Bernard are having a hushed argument in one corner.
+}
+{ DoctorsInSurgery hasnt Eamonn:
+	Dr Eamonn is polishing his glasses.
+}
+DoctorsInSurgery !? (Adams, Bernard)
+SomeList ? ()
+~ myList = ValueList()
 {skill ? abilita.forza:
     Hai forza
 }

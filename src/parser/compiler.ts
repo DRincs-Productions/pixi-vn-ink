@@ -94,6 +94,19 @@ export namespace InkCompiler {
                     return recompile();
                 }
             }
+            // "Variable could not be found to assign to: 'myList'"
+            if (error.message.includes("Variable could not be found to assign to")) {
+                const match = error.message.match(
+                    /Variable could not be found to assign to: '(\w+)'/,
+                );
+                if (match?.[1]) {
+                    const varName = match[1];
+                    const textToAdd = `VAR ${varName} = ""\n\n`;
+                    shared.textSource = textToAdd.concat(shared.textSource);
+                    initialVarsToRemove.push(varName);
+                    return recompile();
+                }
+            }
             if (error.message.includes("Function call target not found")) {
                 const match = error.message.match(/Function call target not found: '-> (\w+)'/);
                 if (match?.[1]) {
