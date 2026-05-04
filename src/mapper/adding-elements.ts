@@ -72,6 +72,7 @@ export function addSwitchElemenStep(
         | MyVariableAssignment
         | PixiVNJsonFunction,
     labelKey: string,
+    shared: MapperSharedType,
     paramNames: string[],
     options: {
         isNewLine?: boolean;
@@ -80,11 +81,18 @@ export function addSwitchElemenStep(
     } = {},
 ) {
     const { isNewLine = true, isHashtagScript = false, isThreads = false } = options;
-    return addConditionalElementStep(list as any, item as any, labelKey, paramNames, {
-        isNewLine,
-        isHashtagScript,
-        isThreads,
-    });
+    return addConditionalElementStep(
+        list as PixiVNJsonLabelStep[],
+        item as any,
+        labelKey,
+        shared,
+        paramNames,
+        {
+            isNewLine,
+            isHashtagScript,
+            isThreads,
+        },
+    );
 }
 function addConditionalElementStep(
     list: PixiVNJsonLabelStep[],
@@ -98,13 +106,13 @@ function addConditionalElementStep(
         | MyVariableAssignment
         | PixiVNJsonFunction,
     labelKey: string,
+    shared: MapperSharedType,
     paramNames: string[],
     options: {
         isNewLine: boolean;
         isHashtagScript?: boolean;
         isThreads: boolean;
     },
-    shared: MapperSharedType,
 ) {
     if (!item) {
         return;

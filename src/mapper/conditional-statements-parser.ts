@@ -71,6 +71,7 @@ export function getConditionalValue<T>(
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
+        shareData: MapperSharedType,
         paramNames: string[],
     ) => void,
     addLabels: (
@@ -172,6 +173,7 @@ function getThen<T>(
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
+        shareData: MapperSharedType,
         paramNames: string[],
     ) => void,
     addLabels: (

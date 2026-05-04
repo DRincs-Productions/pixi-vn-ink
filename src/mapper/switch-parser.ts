@@ -37,6 +37,7 @@ export function parserSwitch<T>(
             | PixiVNJsonStepSwitchElementType<T>
             | MyVariableAssignment,
         labelKey: string,
+        shareData: MapperSharedType,
         paramNames: string[],
     ) => void,
     addLabels: (
