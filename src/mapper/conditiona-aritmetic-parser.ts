@@ -6,7 +6,7 @@ import {
     arithmeticFunctionsSingle,
 } from "@/interfaces/parserItems/NativeFunctions";
 import type { MapperSharedType } from "@/mapper/types";
-import { getValue } from "@/mapper/value-utility";
+import { getPixiVNJsonLabelChoice, getValue } from "@/mapper/value-utility";
 import { getLabelByStandardDivert } from "@/utils/divert-utility";
 import { logger } from "@/utils/log-utility";
 import { getText } from "@/utils/text-utility";
@@ -14,12 +14,10 @@ import type { StorageElementType } from "@drincs/pixi-vn";
 import { PixiVNJsonComparationOperators } from "@drincs/pixi-vn-json";
 import type {
     PixiVNJsonArithmeticOperations,
-    PixiVNJsonChoiceGet,
     PixiVNJsonComparation,
     PixiVNJsonComparationOperatorsType,
     PixiVNJsonConditions,
     PixiVNJsonFunction,
-    PixiVNJsonLabelGet,
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json/schema";
 
@@ -223,28 +221,4 @@ export function conditionaAritmeticParser(
         }
     });
     return conditions;
-}
-
-function getPixiVNJsonLabelChoice(label: string): PixiVNJsonLabelGet | PixiVNJsonChoiceGet {
-    // try {
-    //     let list = label.split(CHOISE_LABEL_KEY_SEPARATOR)
-    //     let end = list[list.length - 1]
-    //     if (end.includes("c-")) {
-    //         let stringNumber = end.split("c-")[1]
-    //         let number = parseInt(stringNumber)
-    //         return {
-    //             type: "value",
-    //             storageType: "choice",
-    //             storageOperationType: "get",
-    //             index: number,
-    //         }
-    //     }
-    // } catch (e) { }
-
-    return {
-        type: "value",
-        storageType: "label",
-        storageOperationType: "get",
-        label: label,
-    };
 }

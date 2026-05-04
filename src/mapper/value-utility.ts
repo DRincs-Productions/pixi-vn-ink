@@ -1,7 +1,12 @@
 import type { ListInk } from "@/interfaces/parserItems/List";
 import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
 import type { MapperSharedType } from "@/mapper/types";
-import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json/schema";
+import type {
+    PixiVNJsonChoiceGet,
+    PixiVNJsonLabelGet,
+    PixiVNJsonValueGet,
+    PixiVNJsonValueSet,
+} from "@drincs/pixi-vn-json/schema";
 
 export function getParam(
     list: any[],
@@ -72,7 +77,7 @@ export function getSetValue(
                         type: "value",
                         storageOperationType: "set",
                         storageType: defaultType,
-                        key: `${key}:${enumKey}`,
+                        key: `${key}.${enumKey}`,
                         value: enumValue,
                     });
                 });
@@ -98,4 +103,13 @@ export function getSetValue(
             value: value,
         },
     ];
+}
+
+export function getPixiVNJsonLabelChoice(label: string): PixiVNJsonLabelGet | PixiVNJsonChoiceGet {
+    return {
+        type: "value",
+        storageType: "label",
+        storageOperationType: "get",
+        label: label,
+    };
 }

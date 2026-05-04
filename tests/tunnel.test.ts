@@ -311,21 +311,21 @@ test("Tunnel 3", async () => {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
-                key: "items:sword",
+                key: "items.sword",
                 value: 1,
             },
             {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
-                key: "items:key",
+                key: "items.key",
                 value: 2,
             },
             {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
-                key: "items:potion",
+                key: "items.potion",
                 value: 3,
             },
             {
@@ -360,7 +360,7 @@ test("Tunnel 3", async () => {
                                     type: "value",
                                     storageOperationType: "get",
                                     storageType: "storage",
-                                    key: "items:key",
+                                    key: "items.key",
                                 },
                                 leftValue: {
                                     type: "value",
@@ -426,7 +426,7 @@ test("Tunnel 3", async () => {
                                 type: "value",
                                 storageOperationType: "get",
                                 storageType: "storage",
-                                key: "items:key",
+                                key: "items.key",
                             },
                             leftValue: {
                                 type: "value",
@@ -448,7 +448,7 @@ test("Tunnel 3", async () => {
                                         type: "value",
                                         storageOperationType: "get",
                                         storageType: "storage",
-                                        key: "items:sword",
+                                        key: "items.sword",
                                     },
                                     leftValue: {
                                         type: "value",
@@ -470,7 +470,7 @@ test("Tunnel 3", async () => {
                                                 type: "value",
                                                 storageOperationType: "get",
                                                 storageType: "storage",
-                                                key: "items:potion",
+                                                key: "items.potion",
                                             },
                                             leftValue: {
                                                 type: "value",
@@ -504,7 +504,7 @@ VAR inventory2 = (sword, key)
 You are at home.
 
 * [Open the chest]
-    ~ inventory += key
+    ~ inventory += items.key
     You found a key.
 
 * [Check inventory]
@@ -514,9 +514,9 @@ You are at home.
 === show_inventory ===
 You have:
 {inventory:
-    - key: A rusty key.
-    - sword: A sword.
-    - potion: A potion.
+    - items.key: A rusty key.
+    - items.sword: A sword.
+    - items.potion: A potion.
     - else: Nothing.
 }
 ->->
