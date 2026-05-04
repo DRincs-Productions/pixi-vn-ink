@@ -175,46 +175,48 @@ export function parseLabel<T>(
                         isNewLine = false;
                     }
                 } else if ("VAR=" in rootItem || "temp=" in rootItem) {
-                    const obj = getSetValue(
+                    const setOperations = getSetValue(
                         "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
                         paramNames,
                         rootList[index - 1],
                         "VAR=" in rootItem ? "storage" : "tempstorage",
                         shareData,
                     );
-                    if (obj.value && typeof obj.value === "string" && obj.value === "/str") {
-                        obj.value = rootList[index - 2];
-                    }
-                    if (obj.value && typeof obj.value === "object" && "^->" in obj.value) {
-                        obj.value = obj.value["^->"];
-                    }
-                    if (envList.length > 1) {
-                        const arm = arithmeticParser(
-                            envList as any,
-                            labelKey,
-                            paramNames,
-                            shareData,
-                        );
-                        envList = [];
-                        if (
-                            arm &&
-                            typeof arm === "object" &&
-                            "type" in arm &&
-                            arm.type === "value" &&
-                            "storageType" in arm &&
-                            arm.storageType === "logic"
-                        ) {
-                            obj.value = arm.operation as any;
+                    setOperations.forEach((obj) => {
+                        if (obj.value && typeof obj.value === "string" && obj.value === "/str") {
+                            obj.value = rootList[index - 2];
                         }
-                    }
-                    if (typeof obj.key !== "string" || !obj.key.includes("$r")) {
-                        addElement(itemList, obj, labelKey, paramNames, {
-                            isNewLine,
-                            isHashtagScript,
-                            isThreads,
-                        });
-                        isNewLine = true;
-                    }
+                        if (obj.value && typeof obj.value === "object" && "^->" in obj.value) {
+                            obj.value = obj.value["^->"];
+                        }
+                        if (envList.length > 1) {
+                            const arm = arithmeticParser(
+                                envList as any,
+                                labelKey,
+                                paramNames,
+                                shareData,
+                            );
+                            envList = [];
+                            if (
+                                arm &&
+                                typeof arm === "object" &&
+                                "type" in arm &&
+                                arm.type === "value" &&
+                                "storageType" in arm &&
+                                arm.storageType === "logic"
+                            ) {
+                                obj.value = arm.operation as any;
+                            }
+                        }
+                        if (typeof obj.key !== "string" || !obj.key.includes("$r")) {
+                            addElement(itemList, obj, labelKey, paramNames, {
+                                isNewLine,
+                                isHashtagScript,
+                                isThreads,
+                            });
+                            isNewLine = true;
+                        }
+                    });
                 } else if ("VAR?" in rootItem) {
                     envList.push(rootItem);
                 } else if ("^->" in rootItem) {
@@ -518,34 +520,41 @@ export function parseLabel<T>(
                 envList.push(rootItem);
                 isNewLine = false;
             } else if ("VAR=" in rootItem || "temp=" in rootItem) {
-                let varList = [];
-                const obj = getSetValue(
+                const setOperations = getSetValue(
                     "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
                     paramNames,
                     undefined,
                     "VAR=" in rootItem ? "storage" : "tempstorage",
                     shareData,
                 );
-                if (obj.key !== "$r") {
-                    envList.pop();
-                    if (envList[envList.length - 1] === "/ev") {
+                setOperations.forEach((obj) => {
+                    let varList = [];
+                    if (obj.key !== "$r") {
                         envList.pop();
+                        if (envList[envList.length - 1] === "/ev") {
+                            envList.pop();
+                        }
+                        while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
+                            varList.push(envList.pop());
+                        }
+                        varList = varList.reverse();
+                        obj.value = arithmeticParser(
+                            varList as any,
+                            labelKey,
+                            paramNames,
+                            shareData,
+                        );
+                        envList = [];
+                        if (obj.value !== undefined || obj.value !== null) {
+                            addElement(itemList, obj, labelKey, paramNames, {
+                                isNewLine,
+                                isHashtagScript,
+                                isThreads,
+                            });
+                        }
+                        isNewLine = false;
                     }
-                    while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
-                        varList.push(envList.pop());
-                    }
-                    varList = varList.reverse();
-                    obj.value = arithmeticParser(varList as any, labelKey, paramNames, shareData);
-                    envList = [];
-                    if (obj.value !== undefined || obj.value !== null) {
-                        addElement(itemList, obj, labelKey, paramNames, {
-                            isNewLine,
-                            isHashtagScript,
-                            isThreads,
-                        });
-                    }
-                    isNewLine = false;
-                }
+                });
             } else {
                 addLabels(rootItem, labelKey, shareData);
             }

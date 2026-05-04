@@ -305,11 +305,28 @@ test("Tunnel 4", async () => {
                 storageOperationType: "set",
                 storageType: "storage",
                 key: "items",
-                value: {
-                    sword: 1,
-                    key: 2,
-                    potion: 3,
-                },
+                value: [1, 2, 3],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "sword",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "key",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "potion",
+                value: 3,
             },
             {
                 type: "value",
@@ -339,7 +356,12 @@ test("Tunnel 4", async () => {
                             value: {
                                 type: "arithmetic",
                                 operator: "+",
-                                rightValue: 2,
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "key",
+                                },
                                 leftValue: {
                                     type: "value",
                                     storageOperationType: "get",
@@ -399,8 +421,13 @@ test("Tunnel 4", async () => {
                         type: "ifelse",
                         condition: {
                             type: "compare",
-                            operator: "CONTAINS",
-                            rightValue: 2,
+                            operator: "==",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "key",
+                            },
                             leftValue: {
                                 type: "value",
                                 storageOperationType: "get",
@@ -417,7 +444,12 @@ test("Tunnel 4", async () => {
                                 condition: {
                                     type: "compare",
                                     operator: "==",
-                                    rightValue: 1,
+                                    rightValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "sword",
+                                    },
                                     leftValue: {
                                         type: "value",
                                         storageOperationType: "get",
@@ -434,7 +466,12 @@ test("Tunnel 4", async () => {
                                         condition: {
                                             type: "compare",
                                             operator: "==",
-                                            rightValue: 3,
+                                            rightValue: {
+                                                type: "value",
+                                                storageOperationType: "get",
+                                                storageType: "storage",
+                                                key: "potion",
+                                            },
                                             leftValue: {
                                                 type: "value",
                                                 storageOperationType: "get",

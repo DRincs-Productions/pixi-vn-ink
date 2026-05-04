@@ -6,7 +6,7 @@ export type MapperSharedType = {
     labelToRemove: string[];
     initialVarsToRemove: string[];
     functions: { name: string; args: number }[];
-    enums: { [key: string]: any };
+    enums: { [key: string]: Record<string, number> };
     externalSwitch?: PixiVNJsonStepSwitch<string>;
     preDialog: { [label: string]: { text: string; glue: boolean } };
     du?: NativeFunctions | ReadCount;
