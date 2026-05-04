@@ -22,7 +22,7 @@ export function getParam(
 export function getValue(
     key: string,
     paramNames: string[],
-    defaultType: "storage" | "tempstorage" = "storage",
+    defaultType: "storage" | "tempstorage",
 ): PixiVNJsonValueGet {
     const paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
@@ -69,12 +69,7 @@ export function getSetValue(
                 if (key === origin && shared.enums && key in shared.enums) {
                     return shared.enums[key];
                 } else {
-                    return {
-                        type: "value",
-                        storageOperationType: "get",
-                        storageType: "storage",
-                        key: origin,
-                    };
+                    return getValue(origin, paramNames, defaultType);
                 }
             });
             if (origins.length === 1) {

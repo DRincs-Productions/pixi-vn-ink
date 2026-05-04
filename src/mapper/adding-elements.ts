@@ -244,7 +244,7 @@ function addConditionalElementStep(
             if (item.var) {
                 list.push({
                     labelToOpen: {
-                        label: getValue(item["->"], paramNames),
+                        label: getValue(item["->"], paramNames, "storage"),
                         type: isThreads ? "call" : "jump",
                         params: item.params,
                     },

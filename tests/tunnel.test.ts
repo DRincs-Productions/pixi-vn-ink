@@ -339,12 +339,7 @@ test("Tunnel 4", async () => {
                             value: {
                                 type: "arithmetic",
                                 operator: "+",
-                                rightValue: {
-                                    type: "value",
-                                    storageOperationType: "get",
-                                    storageType: "storage",
-                                    key: "key",
-                                },
+                                rightValue: 2,
                                 leftValue: {
                                     type: "value",
                                     storageOperationType: "get",
@@ -404,13 +399,8 @@ test("Tunnel 4", async () => {
                         type: "ifelse",
                         condition: {
                             type: "compare",
-                            operator: "==",
-                            rightValue: {
-                                type: "value",
-                                storageOperationType: "get",
-                                storageType: "storage",
-                                key: "key",
-                            },
+                            operator: "CONTAINS",
+                            rightValue: 2,
                             leftValue: {
                                 type: "value",
                                 storageOperationType: "get",
@@ -427,12 +417,7 @@ test("Tunnel 4", async () => {
                                 condition: {
                                     type: "compare",
                                     operator: "==",
-                                    rightValue: {
-                                        type: "value",
-                                        storageOperationType: "get",
-                                        storageType: "storage",
-                                        key: "sword",
-                                    },
+                                    rightValue: 1,
                                     leftValue: {
                                         type: "value",
                                         storageOperationType: "get",
@@ -449,12 +434,7 @@ test("Tunnel 4", async () => {
                                         condition: {
                                             type: "compare",
                                             operator: "==",
-                                            rightValue: {
-                                                type: "value",
-                                                storageOperationType: "get",
-                                                storageType: "storage",
-                                                key: "potion",
-                                            },
+                                            rightValue: 3,
                                             leftValue: {
                                                 type: "value",
                                                 storageOperationType: "get",

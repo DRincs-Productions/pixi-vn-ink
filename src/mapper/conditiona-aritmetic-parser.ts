@@ -99,7 +99,7 @@ export function conditionaAritmeticParser(
                 conditions.push(getPixiVNJsonLabelChoice(labelIdToOpen));
             }
         } else if (typeof item === "object" && "VAR?" in item) {
-            conditions.push(getValue(item["VAR?"], paramNames));
+            conditions.push(getValue(item["VAR?"], paramNames, "storage"));
         } else if (typeof item === "object" && "f()" in item) {
             const functionName = item["f()"];
             const fun = functions.find((f) => f.name === functionName);
