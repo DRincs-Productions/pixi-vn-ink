@@ -75,11 +75,11 @@ test("LIST 3", async () => {
 LIST a = uno, due, tre
 LIST b = due, tre, quattro
 
-VAR unione = a + b
-VAR intersezione = a ^ b
-VAR differenza = a - b
-
 === start ===
+~ temp unione = ( a + b)
+~ temp intersezione = a ^ b
+~ temp differenza = a - b
+
 {intersezione ? a.due:
     Due è in comune
 }
@@ -98,13 +98,184 @@ VAR differenza = a - b
 test("LIST 4", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        initialOperations: [],
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "flag",
+                value: [1, 2, 3, 4],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "flag.A",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "flag.B",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "flag.C",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "flag.D",
+                value: 4,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "stato2",
+                value: [],
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "stato2",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "flag.A",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "stato2",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "stato2",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "flag.B",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "stato2",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "flag",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stato1",
+                            },
+                        },
+                        then: {
+                            dialogue: "stato1 completo",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "<",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stato1",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stato2",
+                            },
+                        },
+                        then: {
+                            dialogue: "stato2 è subset",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stato2",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stato1",
+                            },
+                        },
+                        then: {
+                            dialogue: "stato1 è superset",
+                        },
+                    },
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 LIST flag = A, B, C, D
 
-VAR stato1 = flag
 VAR stato2 = ()
 
 === start ===
