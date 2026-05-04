@@ -36,12 +36,11 @@ export function getValue(
 }
 
 export function getSetValue(
-    key: string,
+    options: { key: string; value: any | ListInk; defaultType: "storage" | "tempstorage" },
     paramNames: string[],
-    value: any | ListInk,
-    defaultType: "storage" | "tempstorage",
     shared: MapperSharedType,
 ): PixiVNJsonValueSet[] {
+    const { key, value, defaultType } = options;
     const paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
         return [
@@ -72,7 +71,7 @@ export function getSetValue(
                         type: "value",
                         storageOperationType: "set",
                         storageType: defaultType,
-                        key: enumKey,
+                        key: `${key}:${enumKey}`,
                         value: enumValue,
                     });
                 });

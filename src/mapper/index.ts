@@ -11,6 +11,7 @@ import { addChoiseIntoList } from "@/mapper/choice-info-converter";
 import { parseLabel } from "@/mapper/label-parser";
 import { type ConditionalList, parserSwitch } from "@/mapper/switch-parser";
 import type { MapperSharedType } from "@/mapper/types";
+import { getSetValue } from "@/mapper/value-utility";
 import { logger } from "@/utils/log-utility";
 import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json";
 import type {
@@ -129,15 +130,15 @@ export namespace InkMapper {
                             labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES] = [];
                         }
                         labels[SPECIAL_LABEL_FOR_EXTERNAL_VARIABLES].push({
-                            operations: [
+                            operations: getSetValue(
                                 {
-                                    type: "value",
-                                    value: shared.externalSwitch as any,
+                                    defaultType: "storage",
                                     key: storyItem["VAR="],
-                                    storageType: "storage",
-                                    storageOperationType: "set",
+                                    value: shared.externalSwitch,
                                 },
-                            ],
+                                [],
+                                shared,
+                            ),
                         });
                     }
                     addLabels(storyItem, labels, "", shared);

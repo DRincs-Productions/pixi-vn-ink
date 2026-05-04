@@ -176,10 +176,12 @@ export function parseLabel<T>(
                     }
                 } else if ("VAR=" in rootItem || "temp=" in rootItem) {
                     const setOperations = getSetValue(
-                        "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
+                        {
+                            key: "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
+                            value: rootList[index - 1],
+                            defaultType: "VAR=" in rootItem ? "storage" : "tempstorage",
+                        },
                         paramNames,
-                        rootList[index - 1],
-                        "VAR=" in rootItem ? "storage" : "tempstorage",
                         shareData,
                     );
                     setOperations.forEach((obj) => {
@@ -521,10 +523,12 @@ export function parseLabel<T>(
                 isNewLine = false;
             } else if ("VAR=" in rootItem || "temp=" in rootItem) {
                 const setOperations = getSetValue(
-                    "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
+                    {
+                        key: "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
+                        value: undefined,
+                        defaultType: "VAR=" in rootItem ? "storage" : "tempstorage",
+                    },
                     paramNames,
-                    undefined,
-                    "VAR=" in rootItem ? "storage" : "tempstorage",
                     shareData,
                 );
                 setOperations.forEach((obj) => {
