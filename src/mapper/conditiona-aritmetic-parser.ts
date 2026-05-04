@@ -174,9 +174,13 @@ export function conditionaAritmeticParser(
             if (conditions.length < 2) {
                 logger.error("Error parsing ink file: Conditional statement is not valid", list);
             } else {
+                switch (item as ArithmeticFunctions) {
+                    case "L^":
+                        item = "INTERSECTION";
+                }
                 const i: PixiVNJsonArithmeticOperations = {
                     type: "arithmetic",
-                    operator: item as ArithmeticFunctions,
+                    operator: item,
                     rightValue: conditions[conditions.length - 1] as
                         | PixiVNJsonValueGet
                         | StorageElementType

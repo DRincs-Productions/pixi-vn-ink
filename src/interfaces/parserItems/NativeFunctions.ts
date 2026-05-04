@@ -47,7 +47,7 @@ export const nativeFunctions: NativeFunctions[] = [
     "MAX",
 ];
 
-export type ArithmeticFunctions = "+" | "-" | "/" | "*" | "%" | "POW" | "RANDOM";
+export type ArithmeticFunctions = "+" | "-" | "/" | "*" | "%" | "POW" | "RANDOM" | "L^";
 export const arithmeticFunctions: ArithmeticFunctions[] = [
     "+",
     "-",
@@ -56,6 +56,7 @@ export const arithmeticFunctions: ArithmeticFunctions[] = [
     "%",
     "POW",
     "RANDOM",
+    "L^",
 ];
 export type ArithmeticFunctionsSingle = "INT" | "FLOOR" | "FLOAT";
 export const arithmeticFunctionsSingle: ArithmeticFunctionsSingle[] = ["INT", "FLOOR", "FLOAT"];

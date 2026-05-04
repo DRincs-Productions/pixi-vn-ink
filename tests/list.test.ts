@@ -68,8 +68,236 @@ VAR skill = ()
 test("LIST 3", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        initialOperations: [],
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "a",
+                value: [1, 2, 3],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "a.uno",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "a.due",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "a.tre",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "b",
+                value: [1, 2, 3],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "b.due",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "b.tre",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "b.quattro",
+                value: 3,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "unione",
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "+",
+                                    rightValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "b",
+                                    },
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "a",
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "intersezione",
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "INTERSECTION",
+                                    rightValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "b",
+                                    },
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "a",
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "tempstorage",
+                            key: "differenza",
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "arithmetic",
+                                    operator: "-",
+                                    rightValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "b",
+                                    },
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "a",
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "a.due",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "intersezione",
+                            },
+                        },
+                        then: {
+                            dialogue: "Due è in comune",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "a.uno",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "differenza",
+                            },
+                        },
+                        then: {
+                            dialogue: "Uno è solo in a",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "b.quattro",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "unione",
+                            },
+                        },
+                        then: {
+                            dialogue: "Quattro incluso",
+                        },
+                    },
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 LIST a = uno, due, tre
