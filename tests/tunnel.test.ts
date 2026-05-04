@@ -296,7 +296,7 @@ The guard looks at you.
     expect(res).toEqual(expected);
 });
 
-test("Tunnel 4", async () => {
+test("Tunnel 3", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
         initialOperations: [
@@ -311,21 +311,21 @@ test("Tunnel 4", async () => {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
-                key: "sword",
+                key: "items:sword",
                 value: 1,
             },
             {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
-                key: "key",
+                key: "items:key",
                 value: 2,
             },
             {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
-                key: "potion",
+                key: "items:potion",
                 value: 3,
             },
             {
@@ -360,7 +360,7 @@ test("Tunnel 4", async () => {
                                     type: "value",
                                     storageOperationType: "get",
                                     storageType: "storage",
-                                    key: "key",
+                                    key: "items:key",
                                 },
                                 leftValue: {
                                     type: "value",
@@ -426,7 +426,7 @@ test("Tunnel 4", async () => {
                                 type: "value",
                                 storageOperationType: "get",
                                 storageType: "storage",
-                                key: "key",
+                                key: "items:key",
                             },
                             leftValue: {
                                 type: "value",
@@ -448,7 +448,7 @@ test("Tunnel 4", async () => {
                                         type: "value",
                                         storageOperationType: "get",
                                         storageType: "storage",
-                                        key: "sword",
+                                        key: "items:sword",
                                     },
                                     leftValue: {
                                         type: "value",
@@ -470,7 +470,7 @@ test("Tunnel 4", async () => {
                                                 type: "value",
                                                 storageOperationType: "get",
                                                 storageType: "storage",
-                                                key: "potion",
+                                                key: "items:potion",
                                             },
                                             leftValue: {
                                                 type: "value",
@@ -524,7 +524,7 @@ You have:
     expect(res).toEqual(expected);
 });
 
-test("Tunnel 5", async () => {
+test("Tunnel 4", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
@@ -573,7 +573,7 @@ The enemy strikes.
     expect(res).toEqual(expected);
 });
 
-test("Tunnel 6", async () => {
+test("Tunnel 5", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
@@ -612,7 +612,7 @@ You are in your room.
     expect(res).toEqual(expected);
 });
 
-test("Tunnel 7", async () => {
+test("Tunnel 6", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {},
