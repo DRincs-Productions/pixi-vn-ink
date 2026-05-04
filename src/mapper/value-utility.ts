@@ -1,4 +1,5 @@
 import type { ListInk } from "@/interfaces/parserItems/List";
+import type VariableReference from "@/interfaces/parserItems/VariableReference";
 import { conditionaAritmeticParser } from "@/mapper/conditiona-aritmetic-parser";
 import type { MapperSharedType } from "@/mapper/types";
 import type {
@@ -42,7 +43,11 @@ export function getValue(
 }
 
 export function getSetValue(
-    options: { key: string; value: any | ListInk; defaultType: "storage" | "tempstorage" },
+    options: {
+        key: string;
+        value: any | ListInk | VariableReference;
+        defaultType: "storage" | "tempstorage";
+    },
     paramNames: string[],
     shared: MapperSharedType,
 ): PixiVNJsonValueSet[] {
@@ -58,41 +63,71 @@ export function getSetValue(
                 value: value,
             },
         ];
-    } else if (typeof value === "object" && "list" in value && typeof value.list === "object") {
-        if (
-            "origins" in value &&
-            Array.isArray(value.origins) &&
-            (value.origins as string[]).length > 0
-        ) {
-            return (value.origins as string[]).reduce((acc: PixiVNJsonValueSet[]) => {
-                acc.push({
-                    type: "value",
-                    storageOperationType: "set",
-                    storageType: defaultType,
-                    key: key,
-                    value: Object.values(shared.enums[key]),
-                });
-                Object.entries(shared.enums[key]).forEach(([enumKey, enumValue]) => {
+    } else if (typeof value === "object") {
+        if ("list" in value && typeof value.list === "object") {
+            if (
+                "origins" in value &&
+                Array.isArray(value.origins) &&
+                (value.origins as string[]).length > 0
+            ) {
+                return (value.origins as string[]).reduce((acc: PixiVNJsonValueSet[]) => {
                     acc.push({
                         type: "value",
                         storageOperationType: "set",
                         storageType: defaultType,
-                        key: `${key}.${enumKey}`,
-                        value: enumValue,
+                        key: key,
+                        value: Object.values(shared.enums[key]),
                     });
-                });
-                return acc;
-            }, []);
+                    Object.entries(shared.enums[key]).forEach(([enumKey, enumValue]) => {
+                        acc.push({
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: defaultType,
+                            key: `${key}.${enumKey}`,
+                            value: enumValue,
+                        });
+                    });
+                    return acc;
+                }, []);
+            }
+            return [
+                {
+                    type: "value",
+                    storageOperationType: "set",
+                    storageType: defaultType,
+                    key: key,
+                    value: Object.values(value.list),
+                },
+            ];
+        } else if (typeof value === "object" && "VAR?" in value) {
+            if (typeof value["VAR?"] === "string" && value["VAR?"].includes(".")) {
+                const [enumKey, enumValueKey] = value["VAR?"].split(".");
+                if (enumKey in shared.enums && enumValueKey in shared.enums[enumKey]) {
+                    return [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: defaultType,
+                            key: key,
+                            value: shared.enums[enumKey][enumValueKey],
+                        },
+                    ];
+                }
+            }
+            return [
+                {
+                    type: "value",
+                    storageOperationType: "set",
+                    storageType: defaultType,
+                    key: key,
+                    value: getValue(
+                        { key: value["VAR?"], defaultType: "storage" },
+                        paramNames,
+                        shared,
+                    ),
+                },
+            ];
         }
-        return [
-            {
-                type: "value",
-                storageOperationType: "set",
-                storageType: defaultType,
-                key: key,
-                value: Object.values(value.list),
-            },
-        ];
     }
     return [
         {
