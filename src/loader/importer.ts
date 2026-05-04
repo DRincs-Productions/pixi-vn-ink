@@ -1,5 +1,6 @@
 import { HashtagCommands } from "@/handlers";
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
+import type { LoaderSharedType } from "@/loader/type";
 import { init, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
 
@@ -23,8 +24,12 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
         texts = [texts];
     }
     init();
+    const shared: LoaderSharedType = {
+        functions: [],
+        enums: {},
+    };
     const promises = texts.map(async (text) => {
-        const data = convertInkToJson(text);
+        const data = convertInkToJson(text, shared);
         if (data) {
             await importPixiVNJson(data, {
                 operationStringConvert: HashtagCommands.run,

@@ -1,4 +1,6 @@
 import type InkStoryType from "@/interfaces/InkStoryType";
+import type { LoaderSharedType } from "@/loader/type";
+import type { CompileSharedType } from "@/parser/types";
 import { logger } from "@/utils/log-utility";
 import { InkMapper } from "@drincs/pixi-vn-ink/mapper";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
@@ -11,12 +13,16 @@ import JSON5 from "json5";
  * @param text string or array of strings written in ink language
  * @returns LabelJsonType or undefined
  */
-export function convertInkToJson(text: string): PixiVNJson | undefined {
-    const shared = {
+export function convertInkToJson(
+    text: string,
+    options: Partial<LoaderSharedType> = {},
+): PixiVNJson | undefined {
+    const shared: CompileSharedType = {
         labelToRemove: [],
         initialVarsToRemove: [],
-        functions: [],
-        enums: {},
+        functions: options.functions || [],
+        enums: options.enums || {},
+        textSource: text,
     };
     const { json, issues } = InkCompiler.compile(text, shared);
     issues.forEach(({ message, type }) => {
