@@ -480,3 +480,255 @@ VAR player_rank = rank.base
 `);
     expect(res).toEqual(expected);
 });
+
+test("LIST 6", async () => {
+    const res = convertInkToJson(`
+=== text2 ===
+~ lista += colori.rosso
+~ lista += stati.rosso
+~ value += stati.rosso
+~ value = 1
+
+{c == colori.rosso:
+    Colore rosso ok
+}
+
+{s == stati.rosso:
+    Stato rosso ok
+}
+
+{lista ? colori.rosso:
+    Lista contiene colore rosso
+}
+
+{lista ? stati.rosso:
+    Lista contiene stato rosso
+}
+
+{player_stats ? stats.forza:
+    Forte
+}
+`);
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [],
+        labels: {
+            text2: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "lista",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "colori.rosso",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "lista",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "lista",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "stati.rosso",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "lista",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "value",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "stati.rosso",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "value",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "value",
+                            value: 1,
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "colori.rosso",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "c",
+                            },
+                        },
+                        then: {
+                            dialogue: "Colore rosso ok",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stati.rosso",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "s",
+                            },
+                        },
+                        then: {
+                            dialogue: "Stato rosso ok",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "colori.rosso",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "lista",
+                            },
+                        },
+                        then: {
+                            dialogue: "Lista contiene colore rosso",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stati.rosso",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "lista",
+                            },
+                        },
+                        then: {
+                            dialogue: "Lista contiene stato rosso",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "stats.forza",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "player_stats",
+                            },
+                        },
+                        then: {
+                            dialogue: "Forte",
+                        },
+                    },
+                },
+            ],
+        },
+    };
+    expect(res).toEqual(expected);
+});

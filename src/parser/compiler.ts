@@ -136,6 +136,34 @@ export namespace InkCompiler {
                     return recompile();
                 }
             }
+            // "Could not find target for read count: -> colori.rosso, or couldn't find list item with the name colori,rosso"
+            if (error.message.includes("Could not find target for read count")) {
+                const match = error.message.match(
+                    /Could not find target for read count: -> (\w+\.\w+)/,
+                );
+                if (match?.[1]) {
+                    const listItem = match[1];
+                    const [listName, itemName] = listItem.split(".");
+                    const textToAdd = `\n\nLIST ${listName} = ${itemName}\n\n`;
+                    shared.textSource = shared.textSource.concat(textToAdd);
+                    shared.initialVarsToRemove.push(listName);
+                    shared.initialVarsToRemove.push(`${listName}.${itemName}`);
+                    return recompile();
+                }
+            }
+            // "variable for increment could not be found: 'lista' after searching: {this.descriptionOfScope}"
+            if (error.message.includes("variable for increment could not be found")) {
+                const match = error.message.match(
+                    /variable for increment could not be found: '(\w+)' after searching:/,
+                );
+                if (match?.[1]) {
+                    const varName = match[1];
+                    const textToAdd = `VAR ${varName} = 0\n\n`;
+                    shared.textSource = textToAdd.concat(shared.textSource);
+                    shared.initialVarsToRemove.push(varName);
+                    return recompile();
+                }
+            }
 
             issues.forEach((issue) => {
                 // Function call to 'test' requires 1 arguments, but got 3
