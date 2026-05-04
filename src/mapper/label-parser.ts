@@ -180,6 +180,7 @@ export function parseLabel<T>(
                         paramNames,
                         rootList[index - 1],
                         "VAR=" in rootItem ? "storage" : "tempstorage",
+                        shareData,
                     );
                     if (obj.value && typeof obj.value === "string" && obj.value === "/str") {
                         obj.value = rootList[index - 2];
@@ -523,6 +524,7 @@ export function parseLabel<T>(
                     paramNames,
                     undefined,
                     "VAR=" in rootItem ? "storage" : "tempstorage",
+                    shareData,
                 );
                 if (obj.key !== "$r") {
                     envList.pop();

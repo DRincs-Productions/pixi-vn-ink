@@ -304,8 +304,26 @@ test("Tunnel 4", async () => {
                 type: "value",
                 storageOperationType: "set",
                 storageType: "storage",
+                key: "items",
+                value: {
+                    sword: 1,
+                    key: 2,
+                    potion: 3,
+                },
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
                 key: "inventory",
                 value: [],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "inventory2",
+                value: [1, 2],
             },
         ],
         labels: {
