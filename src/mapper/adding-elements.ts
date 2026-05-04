@@ -2,6 +2,7 @@ import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "@/constant";
 import { HashtagCommands } from "@/handlers";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
+import type { MapperSharedType } from "@/mapper/types";
 import { getValue } from "@/mapper/value-utility";
 import { getLabelByStandardDivert } from "@/utils/divert-utility";
 import { getText } from "@/utils/text-utility";
@@ -103,6 +104,7 @@ function addConditionalElementStep(
         isHashtagScript?: boolean;
         isThreads: boolean;
     },
+    shared: MapperSharedType,
 ) {
     if (!item) {
         return;
@@ -244,7 +246,11 @@ function addConditionalElementStep(
             if (item.var) {
                 list.push({
                     labelToOpen: {
-                        label: getValue(item["->"], paramNames, "storage"),
+                        label: getValue(
+                            { key: item["->"], defaultType: "storage" },
+                            paramNames,
+                            shared,
+                        ),
                         type: isThreads ? "call" : "jump",
                         params: item.params,
                     },

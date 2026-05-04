@@ -14,10 +14,11 @@ export function getParam(
 }
 
 export function getValue(
-    key: string,
+    options: { key: string; defaultType: "storage" | "tempstorage" },
     paramNames: string[],
-    defaultType: "storage" | "tempstorage",
+    shared: MapperSharedType,
 ): PixiVNJsonValueGet {
+    const { key, defaultType } = options;
     const paramIndex = paramNames.indexOf(key);
     if (paramIndex >= 0) {
         return {
@@ -58,7 +59,7 @@ export function getSetValue(
             Array.isArray(value.origins) &&
             (value.origins as string[]).length > 0
         ) {
-            return (value.origins as string[]).reduce((acc: PixiVNJsonValueSet[], origin) => {
+            return (value.origins as string[]).reduce((acc: PixiVNJsonValueSet[]) => {
                 acc.push({
                     type: "value",
                     storageOperationType: "set",

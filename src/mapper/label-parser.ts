@@ -71,6 +71,7 @@ export function parseLabel<T>(
         shareData: MapperSharedType,
         paramNames: string[],
     ) => void,
+    shared: MapperSharedType,
     nestedId: string | undefined = undefined,
     isNewLine: boolean = true,
     paramNames: string[] = [],
@@ -243,7 +244,11 @@ export function parseLabel<T>(
                             const lastValue = envList[envList.length - 1];
                             if (lastValue && typeof lastValue === "object" && "VAR?" in lastValue) {
                                 envList.pop();
-                                const obj = getValue(lastValue["VAR?"], paramNames, "storage");
+                                const obj = getValue(
+                                    { key: lastValue["VAR?"], defaultType: "storage" },
+                                    paramNames,
+                                    shared,
+                                );
                                 addElement(itemList, obj, labelKey, paramNames, {
                                     isNewLine,
                                     isHashtagScript,
