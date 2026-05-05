@@ -150,6 +150,14 @@ export function getSetValue(
                             value: enumValue,
                         });
                     });
+                } else {
+                    res.push({
+                        type: "value",
+                        storageOperationType: "set",
+                        storageType: defaultType,
+                        key: key,
+                        value: Object.values(value.list),
+                    });
                 }
                 return res;
             }
