@@ -217,6 +217,13 @@ test("LIST 2", async () => {
                 key: "primeNumbers2.five2",
                 value: 5,
             },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "skill",
+                value: [],
+            },
         ],
         labels: {
             start: [
@@ -282,7 +289,7 @@ test("LIST 2", async () => {
                             storageOperationType: "set",
                             storageType: "storage",
                             key: "skill",
-                            value: undefined,
+                            value: [],
                         },
                     ],
                 },
@@ -294,7 +301,7 @@ test("LIST 2", async () => {
                             storageOperationType: "set",
                             storageType: "storage",
                             key: "skill",
-                            value: undefined,
+                            value: [1, 2, 5],
                         },
                     ],
                 },
@@ -319,10 +326,15 @@ test("LIST 2", async () => {
                     conditionalStep: {
                         type: "ifelse",
                         condition: {
-                            type: "value",
-                            storageOperationType: "get",
-                            storageType: "storage",
-                            key: "DoctorsInSurgery",
+                            type: "compare",
+                            operator: "==",
+                            rightValue: [1, 2],
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "DoctorsInSurgery",
+                            },
                         },
                         then: {
                             dialogue:
@@ -334,10 +346,15 @@ test("LIST 2", async () => {
                     conditionalStep: {
                         type: "ifelse",
                         condition: {
-                            type: "value",
-                            storageOperationType: "get",
-                            storageType: "storage",
-                            key: "DoctorsInSurgery",
+                            type: "compare",
+                            operator: "!=",
+                            rightValue: [1, 2],
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "DoctorsInSurgery",
+                            },
                         },
                         then: {
                             dialogue: "At least Adams and Bernard aren't arguing.",
@@ -348,10 +365,15 @@ test("LIST 2", async () => {
                     conditionalStep: {
                         type: "ifelse",
                         condition: {
-                            type: "value",
-                            storageOperationType: "get",
-                            storageType: "storage",
-                            key: "DoctorsInSurgery",
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: [1, 2],
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "DoctorsInSurgery",
+                            },
                         },
                         then: {
                             dialogue:
@@ -387,10 +409,19 @@ test("LIST 2", async () => {
                     conditionalStep: {
                         type: "ifelse",
                         condition: {
-                            type: "value",
-                            storageOperationType: "get",
-                            storageType: "storage",
-                            key: "DoctorsInSurgery",
+                            type: "union",
+                            unionType: "not",
+                            condition: {
+                                type: "compare",
+                                operator: "CONTAINS",
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "DoctorsInSurgery",
+                                },
+                                rightValue: [1, 2],
+                            },
                         },
                         then: {
                             dialogue:
@@ -403,32 +434,28 @@ test("LIST 2", async () => {
                         type: "ifelse",
                         condition: {
                             type: "union",
-                            unionType: "and",
-                            conditions: [
-                                {
+                            unionType: "not",
+                            condition: {
+                                type: "compare",
+                                operator: "CONTAINS",
+                                leftValue: {
                                     type: "value",
                                     storageOperationType: "get",
                                     storageType: "storage",
                                     key: "DoctorsInSurgery",
                                 },
-                                {
+                                rightValue: {
                                     type: "value",
                                     storageOperationType: "get",
                                     storageType: "storage",
                                     key: "Eamonn",
                                 },
-                            ],
+                            },
                         },
                         then: {
                             dialogue: "Dr Eamonn is polishing his glasses.",
                         },
                     },
-                },
-                {
-                    dialogue: "DoctorsInSurgery !? (Adams, Bernard)",
-                },
-                {
-                    dialogue: "SomeList ? ()",
                 },
                 {
                     goNextStep: true,
