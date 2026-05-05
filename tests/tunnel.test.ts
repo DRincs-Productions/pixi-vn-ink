@@ -548,7 +548,259 @@ You have:
 test("Tunnel 4", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "player_hp",
+                value: 10,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "enemy_hp",
+                value: 6,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    dialogue: "A goblin appears!",
+                },
+                {
+                    labelToOpen: {
+                        label: "combat",
+                        type: "call",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    dialogue: "You survived.",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+            "combat_|_then_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "player_attack",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "combat_|_then_|_c-1": [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "player_hp",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "player_hp",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    dialogue: "You brace yourself.",
+                },
+                {
+                    labelToOpen: {
+                        label: "enemy_attack",
+                        type: "call",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    labelToOpen: {
+                        label: "combat",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            combat: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "union",
+                            unionType: "and",
+                            conditions: [
+                                {
+                                    type: "compare",
+                                    operator: ">",
+                                    rightValue: 0,
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "player_hp",
+                                    },
+                                },
+                                {
+                                    type: "compare",
+                                    operator: ">",
+                                    rightValue: 0,
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "enemy_hp",
+                                    },
+                                },
+                            ],
+                        },
+                        then: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    dialogue: "Status: You ",
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "player_hp",
+                                    },
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: " / Enemy ",
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "enemy_hp",
+                                    },
+                                },
+                                {
+                                    choices: [
+                                        {
+                                            text: "Attack",
+                                            label: "combat_|_then_|_c-0",
+                                            props: {},
+                                            type: "call",
+                                            oneTime: true,
+                                        },
+                                        {
+                                            text: "Defend",
+                                            label: "combat_|_then_|_c-1",
+                                            props: {},
+                                            type: "call",
+                                            oneTime: true,
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "compare",
+                                    operator: "<=",
+                                    rightValue: 0,
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "player_hp",
+                                    },
+                                },
+                                then: {
+                                    dialogue: "You died.",
+                                },
+                                else: {
+                                    dialogue: "You won!",
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+            player_attack: [
+                {
+                    dialogue: "You deal damage.",
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "enemy_hp",
+                            value: {
+                                type: "arithmetic",
+                                operator: "-",
+                                rightValue: 2,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "enemy_hp",
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+            enemy_attack: [
+                {
+                    dialogue: "The enemy strikes.",
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "player_hp",
+                            value: {
+                                type: "arithmetic",
+                                operator: "-",
+                                rightValue: 2,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "player_hp",
+                                },
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 VAR player_hp = 10
@@ -565,7 +817,7 @@ You survived.
     Status: You {player_hp} / Enemy {enemy_hp}
 
     * [Attack]
-        -> player_attack ->
+        -> player_attack
     * [Defend]
         ~ player_hp += 1
         You brace yourself.
@@ -597,7 +849,112 @@ The enemy strikes.
 test("Tunnel 5", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        labels: {},
+        labels: {
+            "intro_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "room",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            intro: [
+                {
+                    labelToOpen: {
+                        label: "dream_scene",
+                        type: "call",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    dialogue: "You wake up confused.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Get up",
+                            label: "intro_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "dream_scene_|_vision1_|_c-0": [
+                {
+                    dialogue: '"Your destiny awaits."',
+                },
+                {
+                    labelToOpen: {
+                        label: "dream_scene_|_vision2",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+            "dream_scene_|_vision1_|_c-1": [
+                {
+                    dialogue: "Everything fades.",
+                },
+            ],
+            "dream_scene_|_vision1": [
+                {
+                    dialogue: "A figure speaks to you.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Listen",
+                            label: "dream_scene_|_vision1_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Ignore",
+                            label: "dream_scene_|_vision1_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "dream_scene_|_vision2": [
+                {
+                    dialogue: "You see a door.",
+                },
+                {
+                    choices: [
+                        {
+                            text: "Open it",
+                            label: "dream_scene_|_vision2_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            dream_scene: [
+                {
+                    dialogue: "The world is distorted...",
+                },
+            ],
+            room: [
+                {
+                    dialogue: "You are in your room.",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 === intro ===
@@ -636,7 +993,152 @@ You are in your room.
 test("Tunnel 6", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "quest_active",
+                value: false,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "quest_completed",
+                value: false,
+            },
+        ],
+        labels: {
+            "village_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "quest",
+                        type: "call",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+                {
+                    dialogue: "You return to the village.",
+                },
+            ],
+            village: [
+                {
+                    choices: [
+                        {
+                            text: "Talk to the chief",
+                            label: "village_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "quest_|_else_|_then_|_c-0": [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "quest_completed",
+                            value: true,
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "quest_|_else_|_then_|_c-1": [
+                {
+                    dialogue: "Come back when you find it.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            quest: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "quest_completed",
+                        },
+                        then: {
+                            dialogue: '"Thank you, hero!"',
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "quest_active",
+                                },
+                                then: {
+                                    type: "resulttocombine",
+                                    combine: "cross",
+                                    secondConditionalItem: [
+                                        {
+                                            dialogue: '"Have you found the item?"',
+                                        },
+                                        {
+                                            choices: [
+                                                {
+                                                    text: "Yes",
+                                                    label: "quest_|_else_|_then_|_c-0",
+                                                    props: {},
+                                                    type: "call",
+                                                    oneTime: true,
+                                                },
+                                                {
+                                                    text: "No",
+                                                    label: "quest_|_else_|_then_|_c-1",
+                                                    props: {},
+                                                    type: "call",
+                                                    oneTime: true,
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                else: {
+                                    type: "resulttocombine",
+                                    combine: "cross",
+                                    secondConditionalItem: [
+                                        {
+                                            dialogue: '"Find the relic!"',
+                                        },
+                                        {
+                                            goNextStep: true,
+                                            operations: [
+                                                {
+                                                    type: "value",
+                                                    storageOperationType: "set",
+                                                    storageType: "storage",
+                                                    key: "quest_active",
+                                                    value: true,
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 VAR quest_active = false
@@ -655,8 +1157,10 @@ VAR quest_completed = false
         "Have you found the item?"
         * [Yes]
             ~ quest_completed = true
+            -> DONE
         * [No]
             Come back when you find it.
+            -> DONE
     - else:
         "Find the relic!"
         ~ quest_active = true
