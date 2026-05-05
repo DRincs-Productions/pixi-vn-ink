@@ -85,7 +85,10 @@ export function onReplaceTextBeforeTranslation(
 /**
  * Internal helper used by the deprecated {@link onReplaceTextAfterTranslation} and
  * {@link onReplaceTextBeforeTranslation} functions.
- * Recursively replaces text between square brackets using the provided handler.
+ * Iteratively replaces all `[key]` tokens in the text using the provided handler.
+ * Keys for which the handler returns `undefined` are tracked so they are never retried,
+ * preventing infinite loops. The loop continues until no further replacements can be made,
+ * allowing newly-introduced `[key]` tokens (produced by previous replacements) to be processed.
  * @param text The source text
  * @param getTextToReplace The function to get the replacement string for a given key
  */
@@ -93,35 +96,31 @@ function legacyReplaceText(
     text: string,
     getTextToReplace: (key: string) => string | undefined,
 ): string {
-    const processedKeys = new Set<string>();
-    return legacyReplaceTextRecursive(text, getTextToReplace, processedKeys);
-}
+    const globalRegex = new RegExp(TEXT_TO_REPLACE_REGEX.source, "g");
+    const skippedKeys = new Set<string>();
+    let changed = true;
 
-/**
- * Recursive implementation of {@link legacyReplaceText}.
- * Tracks already-attempted keys to avoid infinite loops when a handler returns `undefined`.
- */
-function legacyReplaceTextRecursive(
-    text: string,
-    getTextToReplace: (key: string) => string | undefined,
-    processedKeys: Set<string>,
-): string {
-    const match = text.match(TEXT_TO_REPLACE_REGEX);
-    if (!match) return text;
+    while (changed) {
+        changed = false;
+        const allMatches = [...text.matchAll(globalRegex)];
+        const seenKeys = new Set<string>();
 
-    const key = match[1];
-    if (processedKeys.has(key)) {
-        // Skip keys whose handler returned undefined to prevent infinite loops
-        return text;
+        for (const match of allMatches) {
+            const key = match[1];
+            if (seenKeys.has(key) || skippedKeys.has(key)) continue;
+            seenKeys.add(key);
+
+            const replacement = getTextToReplace(key);
+            if (replacement !== undefined) {
+                text = text.replaceAll(match[0], replacement);
+                changed = true;
+            } else {
+                skippedKeys.add(key);
+            }
+        }
     }
 
-    const replacement = getTextToReplace(key);
-    if (replacement !== undefined) {
-        text = text.replaceAll(match[0], replacement);
-    } else {
-        processedKeys.add(key);
-    }
-    return legacyReplaceTextRecursive(text, getTextToReplace, processedKeys);
+    return text;
 }
 
 /**
@@ -175,7 +174,11 @@ export namespace TextReplaces {
      * Handlers are executed in the order they are added. The first handler added runs first.
      *
      * When the first handler of a given type (`"before-translation"` or `"after-translation"`)
-     * is registered, the corresponding translator hook is automatically wired up.
+     * is registered, the corresponding translator hook (`translator.beforeToTranslate` or
+     * `translator.afterToTranslate`) is automatically set so that `TextReplaces` takes exclusive
+     * ownership of that hook. Do **not** mix `TextReplaces` with the deprecated
+     * {@link onReplaceTextBeforeTranslation} / {@link onReplaceTextAfterTranslation} functions
+     * for the same phase, as they will overwrite each other's hook.
      *
      * @param fn The handler function. Receives the key found inside `[...]` and should return
      *   the replacement string, or `undefined` to leave that token unchanged.
