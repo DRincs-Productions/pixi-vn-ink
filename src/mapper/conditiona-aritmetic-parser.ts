@@ -30,11 +30,11 @@ export function conditionaAritmeticParser(
     const { functions } = shared;
     list = list.map((item) => {
         if (typeof item === "string") {
-            if (item === "rnd") {
-                return "RANDOM";
-            }
-            if (item === "?") {
-                return "CONTAINS";
+            switch (item) {
+                case "rnd":
+                    return "RANDOM";
+                case "?":
+                    return "CONTAINS";
             }
         }
         return item;
@@ -47,7 +47,110 @@ export function conditionaAritmeticParser(
         | PixiVNJsonFunction
     )[] = [];
     list.forEach((item) => {
-        if (typeof item === "object" && "CNT?" in item) {
+        if (typeof item === "string") {
+            switch (item) {
+                case "&&":
+                case "||":
+                    if (conditions.length >= 2) {
+                        const i: PixiVNJsonConditions = {
+                            type: "union",
+                            unionType: item === "&&" ? "and" : "or",
+                            conditions: [
+                                conditions[conditions.length - 2],
+                                conditions[conditions.length - 1],
+                            ],
+                        };
+                        // remove last two elements
+                        conditions.pop();
+                        conditions.pop();
+                        conditions.push(i);
+                    }
+                    break;
+                case "!":
+                    if (conditions.length === 0) {
+                        logger.error(
+                            "Error parsing ink file: Conditional statement is not valid",
+                            list,
+                        );
+                    } else {
+                        const i: PixiVNJsonConditions = {
+                            type: "union",
+                            unionType: "not",
+                            condition: conditions[conditions.length - 1],
+                        };
+                        conditions[conditions.length - 1] = i;
+                    }
+                    break;
+                default:
+                    if (
+                        PixiVNJsonComparationOperators.includes(
+                            item as PixiVNJsonComparationOperatorsType,
+                        )
+                    ) {
+                        if (conditions.length < 2) {
+                            logger.error(
+                                "Error parsing ink file: Conditional statement is not valid",
+                                list,
+                            );
+                        } else {
+                            const i: PixiVNJsonComparation = {
+                                type: "compare",
+                                operator: item as PixiVNJsonComparationOperatorsType,
+                                rightValue: conditions[conditions.length - 1] as any,
+                                leftValue: conditions[conditions.length - 2] as any,
+                            };
+                            // remove last two elements
+                            conditions.pop();
+                            conditions.pop();
+                            conditions.push(i);
+                        }
+                    } else if (arithmeticFunctions.includes(item as ArithmeticFunctions)) {
+                        if (conditions.length < 2) {
+                            logger.error(
+                                "Error parsing ink file: Conditional statement is not valid",
+                                list,
+                            );
+                        } else {
+                            switch (item as ArithmeticFunctions) {
+                                case "L^":
+                                    item = "INTERSECTION";
+                            }
+                            const i: PixiVNJsonArithmeticOperations = {
+                                type: "arithmetic",
+                                operator: item,
+                                rightValue: conditions[conditions.length - 1] as
+                                    | PixiVNJsonValueGet
+                                    | StorageElementType
+                                    | PixiVNJsonArithmeticOperations,
+                                leftValue: conditions[conditions.length - 2] as
+                                    | PixiVNJsonValueGet
+                                    | StorageElementType
+                                    | PixiVNJsonArithmeticOperations,
+                            };
+                            // remove last two elements
+                            conditions.pop();
+                            conditions.pop();
+                            conditions.push(i);
+                        }
+                    } else if (
+                        arithmeticFunctionsSingle.includes(item as ArithmeticFunctionsSingle)
+                    ) {
+                        const i: PixiVNJsonArithmeticOperations = {
+                            type: "arithmeticsingle",
+                            operator: item as ArithmeticFunctionsSingle,
+                            leftValue: conditions[conditions.length - 1] as
+                                | PixiVNJsonValueGet
+                                | StorageElementType
+                                | PixiVNJsonArithmeticOperations,
+                        };
+                        // remove last two elements
+                        conditions.pop();
+                        conditions.push(i);
+                    } else if (item.startsWith("^")) {
+                        conditions.push(getText(item));
+                    }
+            }
+        } else if (typeof item === "object" && "CNT?" in item) {
             if (new RegExp(/.*\.[0-9]\..*/).test(item["CNT?"])) {
                 const items = item["CNT?"].split(".");
                 // remove the last element
@@ -121,100 +224,6 @@ export function conditionaAritmeticParser(
                 functionName: functionName,
                 args: args.reverse(),
             });
-        } else if (item === "&&" || item === "||") {
-            if (conditions.length >= 2) {
-                const i: PixiVNJsonConditions = {
-                    type: "union",
-                    unionType: item === "&&" ? "and" : "or",
-                    conditions: [
-                        conditions[conditions.length - 2],
-                        conditions[conditions.length - 1],
-                    ],
-                };
-                // remove last two elements
-                conditions.pop();
-                conditions.pop();
-                conditions.push(i);
-            }
-        } else if (item === "!") {
-            if (conditions.length === 0) {
-                logger.error("Error parsing ink file: Conditional statement is not valid", list);
-            } else {
-                const i: PixiVNJsonConditions = {
-                    type: "union",
-                    unionType: "not",
-                    condition: conditions[conditions.length - 1],
-                };
-                conditions[conditions.length - 1] = i;
-            }
-        } else if (
-            item &&
-            typeof item === "string" &&
-            PixiVNJsonComparationOperators.includes(item as PixiVNJsonComparationOperatorsType)
-        ) {
-            if (conditions.length < 2) {
-                logger.error("Error parsing ink file: Conditional statement is not valid", list);
-            } else {
-                const i: PixiVNJsonComparation = {
-                    type: "compare",
-                    operator: item as PixiVNJsonComparationOperatorsType,
-                    rightValue: conditions[conditions.length - 1] as any,
-                    leftValue: conditions[conditions.length - 2] as any,
-                };
-                // remove last two elements
-                conditions.pop();
-                conditions.pop();
-                conditions.push(i);
-            }
-        } else if (
-            item &&
-            typeof item === "string" &&
-            arithmeticFunctions.includes(item as ArithmeticFunctions)
-        ) {
-            if (conditions.length < 2) {
-                logger.error("Error parsing ink file: Conditional statement is not valid", list);
-            } else {
-                switch (item as ArithmeticFunctions) {
-                    case "L^":
-                        item = "INTERSECTION";
-                }
-                const i: PixiVNJsonArithmeticOperations = {
-                    type: "arithmetic",
-                    operator: item,
-                    rightValue: conditions[conditions.length - 1] as
-                        | PixiVNJsonValueGet
-                        | StorageElementType
-                        | PixiVNJsonArithmeticOperations,
-                    leftValue: conditions[conditions.length - 2] as
-                        | PixiVNJsonValueGet
-                        | StorageElementType
-                        | PixiVNJsonArithmeticOperations,
-                };
-                // remove last two elements
-                conditions.pop();
-                conditions.pop();
-                conditions.push(i);
-            }
-        } else if (
-            item &&
-            typeof item === "string" &&
-            arithmeticFunctionsSingle.includes(item as ArithmeticFunctionsSingle)
-        ) {
-            const i: PixiVNJsonArithmeticOperations = {
-                type: "arithmeticsingle",
-                operator: item as ArithmeticFunctionsSingle,
-                leftValue: conditions[conditions.length - 1] as
-                    | PixiVNJsonValueGet
-                    | StorageElementType
-                    | PixiVNJsonArithmeticOperations,
-            };
-            // remove last two elements
-            conditions.pop();
-            conditions.push(i);
-        } else if (item && typeof item === "string") {
-            if (item.startsWith("^")) {
-                conditions.push(getText(item));
-            }
         } else if (typeof item === "object" && "^->" in item) {
             const i: string = item["^->"];
             if (!i.includes("$r")) {
