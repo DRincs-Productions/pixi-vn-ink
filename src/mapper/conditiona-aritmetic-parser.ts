@@ -18,6 +18,7 @@ import type {
     PixiVNJsonComparationOperatorsType,
     PixiVNJsonConditions,
     PixiVNJsonFunction,
+    PixiVNJsonUnionCondition,
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json/schema";
 
@@ -79,6 +80,29 @@ export function conditionaAritmeticParser(
                             condition: conditions[conditions.length - 1],
                         };
                         conditions[conditions.length - 1] = i;
+                    }
+                    break;
+                case "!?":
+                    if (conditions.length > 1) {
+                        const i: PixiVNJsonUnionCondition = {
+                            type: "union",
+                            unionType: "not",
+                            condition: {
+                                type: "compare",
+                                operator: "CONTAINS",
+                                leftValue: conditions[conditions.length - 2],
+                                rightValue: conditions[conditions.length - 1],
+                            },
+                        };
+                        // remove last two elements
+                        conditions.pop();
+                        conditions.pop();
+                        conditions.push(i);
+                    } else {
+                        logger.error(
+                            "Error parsing ink file: Conditional statement is not valid",
+                            list,
+                        );
                     }
                     break;
                 default:
