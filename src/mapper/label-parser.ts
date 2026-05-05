@@ -237,6 +237,11 @@ export function parseLabel<T>(
                     }
                 } else if ("f()" in rootItem) {
                     envList.push(rootItem);
+                } else if ("list" in rootItem && typeof rootItem.list === "object") {
+                    const value = Object.values(rootItem.list as object).map((value) => {
+                        return value;
+                    });
+                    envList.push(value as any);
                 }
             } else {
                 switch (rootItem) {

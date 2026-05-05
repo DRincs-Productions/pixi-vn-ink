@@ -34,13 +34,522 @@ VAR grado = rango.recluta
 test("LIST 2", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        initialOperations: [],
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "abilita",
+                value: [1, 2, 3, 4],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "abilita.forza",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "abilita.agilita",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "abilita.intelligenza",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "abilita.fortuna",
+                value: 4,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers",
+                value: [2, 3, 5],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers.two",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers.three",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers.five",
+                value: 5,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "Bernard",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "Cartwright",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "Denver",
+                value: 4,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "Eamonn",
+                value: 5,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "DoctorsInSurgery",
+                value: [1, 2, 3, 4, 5],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "DoctorsInSurgery.Adams",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "DoctorsInSurgery.Bernard",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "DoctorsInSurgery.Cartwright",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "DoctorsInSurgery.Denver",
+                value: 4,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "DoctorsInSurgery.Eamonn",
+                value: 5,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "two2",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "three2",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "five2",
+                value: 5,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers2",
+                value: [2, 3, 5],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers2.two2",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers2.three2",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "primeNumbers2.five2",
+                value: 5,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "skill",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "abilita.forza",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "skill",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "skill",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "abilita.agilita",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "skill",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "skill",
+                            value: undefined,
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "skill",
+                            value: undefined,
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "DoctorsInSurgery",
+                        },
+                        then: {
+                            dialogue: " The surgery is open today. ",
+                        },
+                        else: {
+                            dialogue: " Everyone has gone home. ",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "DoctorsInSurgery",
+                        },
+                        then: {
+                            dialogue:
+                                "Dr Adams and Dr Bernard are having a loud argument in one corner.",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "DoctorsInSurgery",
+                        },
+                        then: {
+                            dialogue: "At least Adams and Bernard aren't arguing.",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "DoctorsInSurgery",
+                        },
+                        then: {
+                            dialogue:
+                                "Dr Adams and Dr Bernard are having a hushed argument in one corner.",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "Eamonn",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "DoctorsInSurgery",
+                            },
+                        },
+                        then: {
+                            dialogue: "Dr Eamonn is polishing his glasses.",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "DoctorsInSurgery",
+                        },
+                        then: {
+                            dialogue:
+                                "Dr Adams and Dr Bernard are having a hushed argument in one corner.",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "union",
+                            unionType: "and",
+                            conditions: [
+                                {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "DoctorsInSurgery",
+                                },
+                                {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "Eamonn",
+                                },
+                            ],
+                        },
+                        then: {
+                            dialogue: "Dr Eamonn is polishing his glasses.",
+                        },
+                    },
+                },
+                {
+                    dialogue: "DoctorsInSurgery !? (Adams, Bernard)",
+                },
+                {
+                    dialogue: "SomeList ? ()",
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "myList",
+                            value: {
+                                type: "value",
+                                storageType: "logic",
+                                storageOperationType: "get",
+                                operation: {
+                                    type: "function",
+                                    functionName: "ValueList",
+                                    args: [],
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "abilita.forza",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "skill",
+                            },
+                        },
+                        then: {
+                            dialogue: "Hai forza",
+                        },
+                    },
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "skill",
+                            value: {
+                                type: "arithmetic",
+                                operator: "-",
+                                rightValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "abilita.forza",
+                                },
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "skill",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "CONTAINS",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "abilita.forza",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "skill",
+                            },
+                        },
+                        then: {
+                            dialogue: "Ancora forza",
+                        },
+                        else: {
+                            dialogue: "Forza rimossa",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "skill",
+                        },
+                        then: {
+                            dialogue: "Lista non vuota",
+                        },
+                    },
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 LIST abilita = forza, agilita, intelligenza, fortuna
 LIST primeNumbers = two = 2, three = 3, five = 5
-LIST DoctorsInSurgery = (Adams), (Bernard), (Cartwright), (Denver), (Eamonn)
+LIST DoctorsInSurgery = Adams, (Bernard), (Cartwright), (Denver), (Eamonn)
 LIST primeNumbers2 = (two2 = 2), (three2) = 3, (five2 = 5)
 
 VAR skill = ()
