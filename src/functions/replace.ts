@@ -1,4 +1,5 @@
 import { TEXT_TO_REPLACE_REGEX } from "@/constant";
+import type { ReplaceHandler, ReplaceHandlerOptions } from "@/handlers/interfaces/ReplaceHandler";
 import { translator } from "@drincs/pixi-vn-json/translator";
 import { onInkTranslate } from "./translate";
 
@@ -94,4 +95,8 @@ function replaceText(text: string, getTextToReplace: (key: string) => string | u
         return replaceText(text, getTextToReplace);
     }
     return text;
+}
+
+export namespace TextReplacesManager {
+    const handlers: Set<{ fn: ReplaceHandler; options: ReplaceHandlerOptions }> = new Set();
 }
