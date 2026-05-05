@@ -220,6 +220,11 @@ export function conditionaAritmeticParser(
             if (!i.includes("$r")) {
                 conditions.push(item["^->"]);
             }
+        } else if (typeof item === "object" && "list" in item) {
+            const listValue = Object.values(item.list).map((value) => {
+                return value;
+            });
+            conditions.push(listValue as number[]);
         } else {
             conditions.push(item);
         }
