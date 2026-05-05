@@ -986,3 +986,309 @@ She enters my room before I'VE even had a chance to.
 `);
     expect(res).toEqual(expected);
 });
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-choices
+ * Tests the `not` operator on a knot label used as a visit count.
+ */
+test("Conditional choice with NOT operator", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            visited_london: [
+                {
+                    dialogue: "You are in London.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "visited_london",
+                        type: "jump",
+                    },
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "union",
+                                unionType: "not",
+                                condition: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    label: "visited_london",
+                                },
+                            },
+                            then: {
+                                text: "Go to London",
+                                label: "start_|_c-0",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    const res = convertInkText(`
+=== visited_london ===
+You are in London.
+-> DONE
+=== start ===
+* { not visited_london } [Go to London] -> visited_london
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#logical-operators-and-and-or
+ * Tests the OR operator (`or`) inside brackets on knot labels.
+ */
+test("Conditional choice with OR in brackets", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            visit_paris: [
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            visit_rome: [
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "somewhere_new",
+                        type: "jump",
+                    },
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "union",
+                                unionType: "not",
+                                condition: {
+                                    type: "union",
+                                    unionType: "or",
+                                    conditions: [
+                                        {
+                                            type: "value",
+                                            storageType: "label",
+                                            storageOperationType: "get",
+                                            label: "visit_paris",
+                                        },
+                                        {
+                                            type: "value",
+                                            storageType: "label",
+                                            storageOperationType: "get",
+                                            label: "visit_rome",
+                                        },
+                                    ],
+                                },
+                            },
+                            then: {
+                                text: "Go somewhere new",
+                                label: "start_|_c-0",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+            somewhere_new: [
+                {
+                    dialogue: "You are somewhere new.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkText(`
+=== visit_paris ===
+-> DONE
+=== visit_rome ===
+-> DONE
+=== start ===
+* { not (visit_paris or visit_rome) } [Go somewhere new] -> somewhere_new
+=== somewhere_new ===
+You are somewhere new.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-multiple-conditions
+ * Tests multiple separate conditions on a sticky choice, which are combined with AND.
+ */
+test("Multiple conditions AND on sticky choice", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "bored_of_paris",
+                value: false,
+            },
+        ],
+        labels: {
+            visit_paris: [
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "visit_paris",
+                        type: "jump",
+                    },
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "union",
+                                unionType: "and",
+                                conditions: [
+                                    {
+                                        type: "value",
+                                        storageType: "label",
+                                        storageOperationType: "get",
+                                        label: "visit_paris",
+                                    },
+                                    {
+                                        type: "union",
+                                        unionType: "not",
+                                        condition: {
+                                            type: "value",
+                                            storageOperationType: "get",
+                                            storageType: "storage",
+                                            key: "bored_of_paris",
+                                        },
+                                    },
+                                ],
+                            },
+                            then: {
+                                text: "Return to Paris",
+                                label: "start_|_c-0",
+                                props: {},
+                                type: "call",
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    const res = convertInkText(`
+VAR bored_of_paris = false
+=== visit_paris ===
+-> DONE
+=== start ===
++ { visit_paris } { not bored_of_paris } [Return to Paris] -> visit_paris
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#advanced-knotstitch-labels-are-actually-read-counts
+ * Tests using a knot visit count directly in a comparison expression.
+ */
+test("Knot label read count comparison in conditional choice", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            seen_clue: [
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            "start_|_c-0": [
+                {
+                    labelToOpen: {
+                        label: "arrest",
+                        type: "jump",
+                    },
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            type: "ifelse",
+                            condition: {
+                                type: "compare",
+                                operator: ">",
+                                rightValue: 3,
+                                leftValue: {
+                                    type: "value",
+                                    storageType: "label",
+                                    storageOperationType: "get",
+                                    label: "seen_clue",
+                                },
+                            },
+                            then: {
+                                text: "Flat-out arrest Mr Jefferson",
+                                label: "start_|_c-0",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+            arrest: [
+                {
+                    dialogue: "You arrest Mr Jefferson.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkText(`
+=== seen_clue ===
+-> DONE
+=== start ===
+* { seen_clue > 3 } [Flat-out arrest Mr Jefferson] -> arrest
+=== arrest ===
+You arrest Mr Jefferson.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
