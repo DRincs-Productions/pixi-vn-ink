@@ -47,13 +47,38 @@ export function getSetValue(
         key: string;
         value: any | ListInk | VariableReference;
         defaultType: "storage" | "tempstorage";
+        artmeticValue?: boolean;
     },
     paramNames: string[],
     shared: MapperSharedType,
 ): PixiVNJsonValueSet[] {
-    const { key, value, defaultType } = options;
+    const { key, value, defaultType, artmeticValue } = options;
     const paramIndex = paramNames.indexOf(key);
-    if (paramIndex >= 0) {
+    if (artmeticValue) {
+        if (typeof value === "object" && "list" in value) {
+            const listValue = Object.values(value.list).map((value) => {
+                return value;
+            });
+            return [
+                {
+                    type: "value",
+                    storageOperationType: "set",
+                    storageType: defaultType,
+                    key: key,
+                    value: listValue as number[],
+                },
+            ];
+        }
+        return [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: defaultType,
+                key: key,
+                value: value,
+            },
+        ];
+    } else if (paramIndex >= 0) {
         return [
             {
                 type: "value",

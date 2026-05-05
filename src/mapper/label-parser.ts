@@ -238,10 +238,7 @@ export function parseLabel<T>(
                 } else if ("f()" in rootItem) {
                     envList.push(rootItem);
                 } else if ("list" in rootItem && typeof rootItem.list === "object") {
-                    const value = Object.values(rootItem.list as object).map((value) => {
-                        return value;
-                    });
-                    envList.push(value as any);
+                    envList.push(rootItem);
                 }
             } else {
                 switch (rootItem) {
@@ -543,43 +540,41 @@ export function parseLabel<T>(
                 envList.push(rootItem);
                 isNewLine = false;
             } else if ("VAR=" in rootItem || "temp=" in rootItem) {
-                const setOperations = getSetValue(
-                    {
-                        key: "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="],
-                        value: undefined,
-                        defaultType: "VAR=" in rootItem ? "storage" : "tempstorage",
-                    },
-                    paramNames,
-                    shareData,
-                );
-                setOperations.forEach((obj) => {
-                    let varList = [];
-                    if (obj.key !== "$r") {
+                const key = "VAR=" in rootItem ? rootItem["VAR="] : rootItem["temp="];
+                let value: unknown;
+                let varList = [];
+                if (key !== "$r") {
+                    envList.pop();
+                    if (envList[envList.length - 1] === "/ev") {
                         envList.pop();
-                        if (envList[envList.length - 1] === "/ev") {
-                            envList.pop();
-                        }
-                        while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
-                            varList.push(envList.pop());
-                        }
-                        varList = varList.reverse();
-                        obj.value = arithmeticParser(
-                            varList as any,
-                            labelKey,
-                            paramNames,
-                            shareData,
-                        );
-                        envList = [];
-                        if (obj.value !== undefined || obj.value !== null) {
-                            addElement(itemList, obj, labelKey, shareData, paramNames, {
+                    }
+                    while (envList.length > 0 && envList[envList.length - 1] !== "/ev") {
+                        varList.push(envList.pop());
+                    }
+                    varList = varList.reverse();
+                    value = arithmeticParser(varList as any, labelKey, paramNames, shareData);
+                    envList = [];
+                    const setOperations = getSetValue(
+                        {
+                            key,
+                            value,
+                            defaultType: "VAR=" in rootItem ? "storage" : "tempstorage",
+                            artmeticValue: true,
+                        },
+                        paramNames,
+                        shareData,
+                    );
+                    setOperations.forEach((setOperation) => {
+                        if (setOperation.value !== undefined || setOperation.value !== null) {
+                            addElement(itemList, setOperation, labelKey, shareData, paramNames, {
                                 isNewLine,
                                 isHashtagScript,
                                 isThreads,
                             });
                         }
-                        isNewLine = false;
-                    }
-                });
+                    });
+                    isNewLine = false;
+                }
             } else {
                 addLabels(rootItem, labelKey, shareData);
             }
