@@ -89,16 +89,45 @@ export function getSetValue(
                     });
                     return acc;
                 }, []);
+            } else {
+                const set = new Set<string>();
+                const res = Object.entries(value.list).reduce(
+                    (acc: PixiVNJsonValueSet[], [enumKey, enumValue]) => {
+                        const [listKey, valueKey] = enumKey.split(".");
+                        acc.push({
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: defaultType,
+                            key: valueKey,
+                            value: enumValue as number,
+                        });
+                        set.add(listKey);
+                        return acc;
+                    },
+                    [],
+                );
+                set.forEach((listKey) => {
+                    res.push({
+                        type: "value",
+                        storageOperationType: "set",
+                        storageType: defaultType,
+                        key: listKey,
+                        value: Object.values(shared.enums[listKey]),
+                    });
+                });
+                if (key in shared.enums) {
+                    Object.entries(shared.enums[key]).forEach(([enumKey, enumValue]) => {
+                        res.push({
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: defaultType,
+                            key: `${key}.${enumKey}`,
+                            value: enumValue,
+                        });
+                    });
+                }
+                return res;
             }
-            return [
-                {
-                    type: "value",
-                    storageOperationType: "set",
-                    storageType: defaultType,
-                    key: key,
-                    value: Object.values(value.list),
-                },
-            ];
         } else if (typeof value === "object" && "VAR?" in value) {
             if (typeof value["VAR?"] === "string" && value["VAR?"].includes(".")) {
                 const [enumKey, enumValueKey] = value["VAR?"].split(".");
