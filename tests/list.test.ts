@@ -5,8 +5,171 @@ import { expect, test } from "vitest";
 test("LIST 1", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
-        initialOperations: [],
-        labels: {},
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rango",
+                value: [1, 2, 3, 4],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rango.recluta",
+                value: 1,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rango.soldato",
+                value: 2,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rango.capitano",
+                value: 3,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rango.generale",
+                value: 4,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "grado",
+                value: 1,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "grado",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "grado",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "grado",
+                            value: {
+                                type: "arithmetic",
+                                operator: "+",
+                                rightValue: 2,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "grado",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "value",
+                            storageOperationType: "set",
+                            storageType: "storage",
+                            key: "grado",
+                            value: {
+                                type: "arithmetic",
+                                operator: "-",
+                                rightValue: 1,
+                                leftValue: {
+                                    type: "value",
+                                    storageOperationType: "get",
+                                    storageType: "storage",
+                                    key: "grado",
+                                },
+                            },
+                        },
+                    ],
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">=",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "rango.capitano",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "grado",
+                            },
+                        },
+                        then: {
+                            dialogue: "Accesso alto livello",
+                        },
+                        else: {
+                            dialogue: "Accesso base",
+                        },
+                    },
+                },
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "rango.soldato",
+                            },
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "rango.generale",
+                            },
+                        },
+                        then: {
+                            dialogue: "Ordine corretto",
+                        },
+                    },
+                },
+            ],
+        },
     };
     const res = convertInkToJson(`
 LIST rango = recluta, soldato, capitano, generale
