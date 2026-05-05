@@ -579,8 +579,6 @@ VAR skill = ()
 { DoctorsInSurgery hasnt Eamonn:
 	Dr Eamonn is polishing his glasses.
 }
-DoctorsInSurgery !? (Adams, Bernard)
-SomeList ? ()
 ~ myList = ValueList()
 {skill ? abilita.forza:
     Hai forza
