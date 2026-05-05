@@ -5,4 +5,8 @@ export type ReplaceHandler = (
     key: string,
 ) => string | undefined;
 
-export type ReplaceHandlerOptions = {};
+export type ReplaceHandlerOptions = {
+    name: string;
+    description?: string;
+    regexValidation: RegExp;
+};

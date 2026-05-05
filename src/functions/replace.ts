@@ -98,5 +98,24 @@ function replaceText(text: string, getTextToReplace: (key: string) => string | u
 }
 
 export namespace TextReplacesManager {
+    export const options = { replaceRegex: /\[([^\]]+)\]/ };
     const handlers: Set<{ fn: ReplaceHandler; options: ReplaceHandlerOptions }> = new Set();
+    export function add(fn: ReplaceHandler, options: ReplaceHandlerOptions) {
+        handlers.add({ fn, options });
+    }
+    export function remove(fn: ReplaceHandler) {
+        handlers.forEach((handler) => {
+            if (handler.fn === fn) {
+                handlers.delete(handler);
+            }
+        });
+    }
+    export function info(): ReplaceHandlerOptions[] {
+        return Array.from(handlers).map((handler) => handler.options);
+    }
+    export function replace(text: string): string {
+        // for each handler, if is regexValidation is true, replace the text with the handler function
+        // use before the handler function added before
+        return text;
+    }
 }
