@@ -54,7 +54,17 @@ export function getSetValue(
 ): PixiVNJsonValueSet[] {
     const { key, value, defaultType, artmeticValue } = options;
     const paramIndex = paramNames.indexOf(key);
-    if (artmeticValue) {
+    if (paramIndex >= 0) {
+        return [
+            {
+                type: "value",
+                storageType: "params",
+                storageOperationType: "set",
+                key: paramIndex,
+                value: value,
+            },
+        ];
+    } else if (artmeticValue) {
         if (typeof value === "object" && "list" in value) {
             const listValue = Object.values(value.list).map((value) => {
                 return value;
@@ -75,16 +85,6 @@ export function getSetValue(
                 storageOperationType: "set",
                 storageType: defaultType,
                 key: key,
-                value: value,
-            },
-        ];
-    } else if (paramIndex >= 0) {
-        return [
-            {
-                type: "value",
-                storageType: "params",
-                storageOperationType: "set",
-                key: paramIndex,
                 value: value,
             },
         ];
