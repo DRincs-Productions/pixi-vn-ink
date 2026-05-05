@@ -9,4 +9,8 @@ export type ReplaceHandlerOptions = {
     name: string;
     description?: string;
     regexValidation: RegExp;
+    /**
+     * @default "before-translation"
+     */
+    type?: "after-translation" | "before-translation";
 };

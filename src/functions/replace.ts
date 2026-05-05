@@ -113,7 +113,12 @@ export namespace TextReplacesManager {
     export function info(): ReplaceHandlerOptions[] {
         return Array.from(handlers).map((handler) => handler.options);
     }
-    export function replace(text: string): string {
+    export function replace(
+        text: string,
+        options: {
+            type: "after-translation" | "before-translation";
+        },
+    ): string {
         // for each handler, if is regexValidation is true, replace the text with the handler function
         // use before the handler function added before
         return text;
