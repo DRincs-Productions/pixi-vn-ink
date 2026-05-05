@@ -1,2 +1,7 @@
-export { onReplaceTextAfterTranslation, onReplaceTextBeforeTranslation } from "./replace";
+export {
+    onReplaceTextAfterTranslation,
+    onReplaceTextBeforeTranslation,
+    TextReplaces,
+    TextReplacesManager,
+} from "./replace";
 export { generateJsonInkTranslation, onInkTranslate } from "./translate";
