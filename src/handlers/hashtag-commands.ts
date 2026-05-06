@@ -21,15 +21,15 @@ const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 /**
  * This is a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
  */
-namespace HashtagCommands {
-    const handlers: Array<HashtagHandler> = [(_script: string[]) => false];
+export namespace HashtagCommands {
+    const handlers: Set<HashtagHandler> = new Set([(_script: string[]) => false]);
     async function runCustomCommand(
         script: string[],
         props: StepLabelPropsType,
     ): Promise<boolean | string> {
-        for (let i = 0; i < handlers.length; i++) {
+        for (const handler of handlers) {
             try {
-                const res = await handlers[i](script, props, convertListStringToObj);
+                const res = await handler(script, props, convertListStringToObj);
                 if (res === true || typeof res === "string") {
                     return res;
                 }
@@ -64,14 +64,14 @@ namespace HashtagCommands {
      * ```
      */
     export function add(handler: HashtagHandler) {
-        handlers.push(handler);
+        handlers.add(handler);
     }
 
     /**
      * This function clear all the handlers added with the {@link add} function.
      */
     export function clear() {
-        handlers.length = 0;
+        handlers.clear();
     }
 
     /**
@@ -682,7 +682,6 @@ namespace HashtagCommands {
         return false;
     }
 }
-export default HashtagCommands;
 
 /**
  * @deprecated This function is deprecated, use {@link HashtagCommands.add} instead
