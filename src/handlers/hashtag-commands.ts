@@ -478,7 +478,8 @@ export namespace HashtagCommands {
         const type = removeExtraDoubleQuotes(list[0]);
         const soundId = removeExtraDoubleQuotes(list[2]);
         switch (type) {
-            case "play": {                const tempList = convertListStringToPropList(list.slice(3));
+            case "play": {
+                const tempList = convertListStringToPropList(list.slice(3));
                 let url: string;
                 let propList: string[];
                 if (tempList.length % 2 === 0) {
