@@ -1,4 +1,5 @@
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { PixiVNJsonLabelStep, PixiVNJsonOperation } from "@drincs/pixi-vn-json/schema";
 import type { ZodType } from "zod";
 
 /**
@@ -34,6 +35,11 @@ export type HashtagHandler = (
      */
     convertListStringToObj: (listParm: string[]) => object,
 ) => boolean | string | Promise<boolean | string>;
+
+export type MapperHandler = (
+    list: string[],
+    step: PixiVNJsonLabelStep,
+) => PixiVNJsonOperation | undefined;
 
 /**
  * Configuration options for a Hashtag-Command handler registered via {@link HashtagCommands.add}.

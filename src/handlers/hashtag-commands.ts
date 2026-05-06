@@ -8,9 +8,13 @@ import type {
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
-import { ZodType } from "zod";
+import z, { ZodType } from "zod";
 import { logger } from "../utils/log-utility";
-import type { HashtagHandler, HashtagHandlerOptions } from "./interfaces/HashtagHandler";
+import type {
+    HashtagHandler,
+    HashtagHandlerOptions,
+    MapperHandler,
+} from "./interfaces/HashtagHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -24,6 +28,7 @@ const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
  */
 export namespace HashtagCommands {
     const handlers: { fn: HashtagHandler; opts: HashtagHandlerOptions }[] = [];
+    const mapperHandlers: { fn: MapperHandler; opts: HashtagHandlerOptions }[] = [];
     async function runCustomCommand(
         script: string[],
         props: StepLabelPropsType,
@@ -60,7 +65,7 @@ export namespace HashtagCommands {
     /**
      * @deprecated Use the two-parameter overload with {@link HashtagHandlerOptions} instead.
      */
-    export function add(handler: HashtagHandler);
+    export function add(handler: HashtagHandler): void;
     /**
      * This function add a new handler (middleware) that will be called before the system interprets a possible Hashtag-Command that starts with `#`.
      * The developer can use this function to run a custom Hashtag-Command. If the function returns `true`, the system will not interpret the Hashtag-Command.
@@ -85,7 +90,7 @@ export namespace HashtagCommands {
      * }, { name: "navigate-command", validation: /^navigate\b/ })
      * ```
      */
-    export function add(handler: HashtagHandler, opts: HashtagHandlerOptions);
+    export function add(handler: HashtagHandler, opts: HashtagHandlerOptions): void;
     export function add(
         handler: HashtagHandler,
         opts: HashtagHandlerOptions = {
@@ -96,11 +101,19 @@ export namespace HashtagCommands {
         handlers.push({ fn: handler, opts });
     }
 
+    export function addMapper(handler: MapperHandler, opts: HashtagHandlerOptions) {
+        mapperHandlers.push({ fn: handler, opts });
+    }
+
     /**
      * This function clear all the handlers added with the {@link add} function.
      */
     export function clear() {
         handlers.length = 0;
+    }
+
+    export function clearMappers() {
+        mapperHandlers.length = 0;
     }
 
     /**
@@ -126,7 +139,7 @@ export namespace HashtagCommands {
                 if (customCommand.startsWith("#")) {
                     customCommand = customCommand.substring(1);
                 }
-                return HashtagCommands.run(customCommand, step, props);
+                return await HashtagCommands.run(customCommand, step, props);
             }
 
             return convertOperation(list, step);
@@ -194,6 +207,8 @@ export namespace HashtagCommands {
         list: string[],
         step: PixiVNJsonLabelStep,
     ): PixiVNJsonOperation | undefined {
+        // TODO use mapperHandlers
+
         const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
         const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
         switch (operationType) {
@@ -269,14 +284,14 @@ export namespace HashtagCommands {
             default:
                 if (operationType) {
                     switch (type) {
-                        case "call":
-                        case "jump":
-                            step.labelToOpen = {
-                                label: operationType,
-                                type: type,
-                            };
-                            step.goNextStep = undefined;
-                            return;
+                        // case "call":
+                        // case "jump":
+                        //     step.labelToOpen = {
+                        //         label: operationType,
+                        //         type: type,
+                        //     };
+                        //     step.goNextStep = undefined;
+                        //     return;
                         case "shake": {
                             let propsEffect = {};
                             if (list.length > 2) {
@@ -718,3 +733,31 @@ export namespace HashtagCommands {
 export function onInkHashtagScript(runCustomHashtagScript: HashtagHandler) {
     HashtagCommands.add(runCustomHashtagScript);
 }
+
+HashtagCommands.addMapper(
+    (list: string[], step: PixiVNJsonLabelStep) => {
+        step.labelToOpen = {
+            label: list[1],
+            type: "call",
+        };
+        step.goNextStep = undefined;
+    },
+    {
+        name: "call",
+        validation: z.tuple([z.literal("call"), z.string()]),
+    },
+);
+
+HashtagCommands.addMapper(
+    (list: string[], step: PixiVNJsonLabelStep) => {
+        step.labelToOpen = {
+            label: list[1],
+            type: "jump",
+        };
+        step.goNextStep = undefined;
+    },
+    {
+        name: "jump",
+        validation: z.tuple([z.literal("jump"), z.string()]),
+    },
+);
