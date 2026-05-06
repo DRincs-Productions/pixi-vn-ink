@@ -1,3 +1,13 @@
+import type { ZodType } from "zod";
+
+/**
+ * A handler function invoked for each `[key]` token found in the text that passes the
+ * {@link ReplaceHandlerOptions.validation} check.
+ *
+ * @param key The content found inside the square brackets (without the brackets themselves).
+ *   For example, for the token `[john]` the key is `"john"`.
+ * @returns The string to substitute in place of `[key]`, or `undefined` to leave the token unchanged.
+ */
 export type ReplaceHandler = (
     /**
      * The key to be replaced
@@ -6,27 +16,49 @@ export type ReplaceHandler = (
 ) => string | undefined;
 
 /**
- * The options to create a replace handler. It will be used to identify the handler and to validate the key.
+ * Configuration options for a text-replacement handler registered via {@link TextReplaces.add}.
  */
 export type ReplaceHandlerOptions = {
     /**
-     * The name of the handler. It will be used in the documentation and in the system to identify the handler.
+     * A unique name that identifies this handler.
+     * Used for documentation and debugging purposes.
      */
     name: string;
     /**
-     * A description of the handler. It will be used in the documentation and in the system to identify the handler.
+     * An optional human-readable description of what this handler does.
+     * Used for documentation purposes.
      */
     description?: string;
     /**
-     * The validation of the key. It will be used to validate the key before replacing it. It can be a regular expression, "characterId" or "all". If it is a regular expression, the key will be validated against the regular expression. If it is "characterId", the key will be validated as a character id. If it is "all", the key will be valid for all the keys.
+     * Determines whether this handler should be invoked for a given `[key]` token.
+     *
+     * - `"all"` – the handler is always invoked for every token found.
+     * - `"characterId"` – the handler is invoked only when the key matches a registered character ID
+     *   (i.e. the character is present in `RegisteredCharacters`).
+     * - `RegExp` – the key string is tested against the regular expression. The handler is invoked
+     *   only if the regex matches.
+     * - `ZodType<string>` – the key string is validated with `schema.safeParse(key)`. The handler
+     *   is invoked only if validation succeeds.
+     *
      * @example
      * ```ts
-     * regexValidation: /^[a-zA-Z0-9_]+$/
+     * // RegExp: only replace keys that look like lowercase identifiers
+     * validation: /^[a-z_]+$/
+     *
+     * // Zod: only replace keys that are one of a fixed set of values
+     * import { z } from "zod"
+     * validation: z.enum(["player", "npc", "enemy"])
      * ```
      */
-    validation: RegExp | "characterId" | "all";
+    validation: RegExp | "characterId" | "all" | ZodType<string>;
     /**
-     * The type of the handler. It will be used to identify when the handler will be called. If the type is "before-translation", the handler will be called before the translation. If the type is "after-translation", the handler will be called after the translation.
+     * When this handler should be invoked relative to the translation step.
+     *
+     * - `"before-translation"` – the handler runs **before** {@link onInkTranslate} is called.
+     *   Useful for pre-processing tokens, e.g. converting `[key]` into `{{key}}` for i18next.
+     * - `"after-translation"` – the handler runs **after** {@link onInkTranslate} is called.
+     *   Useful for substituting values that depend on the translated text.
+     *
      * @default "before-translation"
      */
     type?: "after-translation" | "before-translation";

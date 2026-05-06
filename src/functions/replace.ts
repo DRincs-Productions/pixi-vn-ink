@@ -2,6 +2,7 @@ import { TEXT_TO_REPLACE_REGEX } from "@/constant";
 import type { ReplaceHandler, ReplaceHandlerOptions } from "@/handlers/interfaces/ReplaceHandler";
 import { translator } from "@drincs/pixi-vn-json/translator";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
+import { ZodType } from "zod";
 import { onInkTranslate } from "./translate";
 
 /**
@@ -284,17 +285,23 @@ export namespace TextReplaces {
 
     /**
      * Applies a single handler to the text by scanning all `[key]` tokens, validating each
-     * against the handler's regex, and performing replacements.
+     * against the handler's validation option, and performing replacements.
+     *
+     * Validation rules:
+     * - `"all"` – every key is passed to the handler.
+     * - `"characterId"` – the key is passed only if it matches a registered character ID.
+     * - `RegExp` – the key is passed only if the regex matches it.
+     * - `ZodType<string>` – the key is passed only if `schema.safeParse(key)` succeeds.
      *
      * @param text The source text.
      * @param fn The handler function.
-     * @param regexValidation The regex used to decide whether this handler should process a key.
+     * @param validation The validation rule to apply to each key.
      * @returns The text after the handler has been applied to all matching tokens.
      */
     function applyHandler(
         text: string,
         fn: ReplaceHandler,
-        regexValidation: RegExp | "characterId" | "all",
+        validation: RegExp | "characterId" | "all" | ZodType<string>,
     ): string {
         const globalRegex = new RegExp(options.replaceRegex.source, "g");
         // Collect all unique keys currently in the text, preserving encounter order.
@@ -309,15 +316,20 @@ export namespace TextReplaces {
         }
 
         for (const key of uniqueKeys) {
-            if (regexValidation === "characterId") {
+            if (validation === "characterId") {
                 if (!RegisteredCharacters.has(key)) continue;
-                text = text.replaceAll(`[${key}]`, fn(key) ?? `[${key}]`);
-                continue;
+            } else if (validation !== "all") {
+                if (validation instanceof RegExp) {
+                    if (!validation.test(key)) continue;
+                } else if (validation instanceof ZodType) {
+                    const result = validation.safeParse(key);
+                    if (!result.success) continue;
+                }
             }
-            if (regexValidation !== "all" && !regexValidation.test(key)) {
-                continue;
+            const replacement = fn(key);
+            if (replacement !== undefined) {
+                text = text.replaceAll(`[${key}]`, replacement);
             }
-            text = text.replaceAll(`[${key}]`, fn(key) ?? `[${key}]`);
         }
 
         return text;

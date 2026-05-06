@@ -1,6 +1,6 @@
 import type { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
 import { translator } from "@drincs/pixi-vn-json/translator";
-import HashtagCommands from "../handlers/hashtag-commands";
+import { HashtagCommands } from "../handlers/hashtag-commands";
 
 /**
  * This function set the function to translate the text

@@ -8,6 +8,7 @@ import type {
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
+import { ZodType } from "zod";
 import { logger } from "../utils/log-utility";
 import type { HashtagHandler, HashtagHandlerOptions } from "./interfaces/HashtagHandler";
 
@@ -29,9 +30,22 @@ export namespace HashtagCommands {
     ): Promise<boolean | string> {
         for (let i = 0; i < handlers.length; i++) {
             try {
-                // TODO if all run
-                // TODO if a regex script.join(" "); and validate with opts.validation
-                // TODO if zod schema validate array with opts.validation
+                const { validation } = handlers[i].opts;
+                // "all" → always invoke this handler
+                if (validation === "all") {
+                    // fall through to invocation below
+                } else if (validation instanceof RegExp) {
+                    // RegExp → join tokens with a space and test against the pattern
+                    if (!validation.test(script.join(" "))) {
+                        continue;
+                    }
+                } else if (validation instanceof ZodType) {
+                    // Zod schema → validate the full string[] array
+                    const result = validation.safeParse(script);
+                    if (!result.success) {
+                        continue;
+                    }
+                }
                 const res = await handlers[i].fn(script, props, convertListStringToObj);
                 if (res === true || typeof res === "string") {
                     return res;
