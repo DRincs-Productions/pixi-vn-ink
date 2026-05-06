@@ -276,27 +276,6 @@ export namespace HashtagCommands {
             case "sound":
             case "channel":
                 return getSoundOperationFromComment(list, operationType);
-            case "input":
-                if (type === "request") {
-                    const op: PixiVNJsonOperation = {
-                        type: "input",
-                        operationType: "request",
-                    };
-                    if (list.length > 2) {
-                        try {
-                            const propList = list.slice(2);
-                            const props = convertListStringToObj(propList);
-                            if ("type" in props && typeof props.type === "string") {
-                                op.valueType = props.type;
-                            }
-                            if ("default" in props) {
-                                op.defaultValue = props.default;
-                            }
-                        } catch (_) {}
-                    }
-                    return op;
-                }
-                break;
             default:
                 if (operationType) {
                     switch (type) {
@@ -499,8 +478,7 @@ export namespace HashtagCommands {
         const type = removeExtraDoubleQuotes(list[0]);
         const soundId = removeExtraDoubleQuotes(list[2]);
         switch (type) {
-            case "play": {
-                const tempList = convertListStringToPropList(list.slice(3));
+            case "play": {                const tempList = convertListStringToPropList(list.slice(3));
                 let url: string;
                 let propList: string[];
                 if (tempList.length % 2 === 0) {
@@ -527,15 +505,6 @@ export namespace HashtagCommands {
                     }
                 }
                 return opplay;
-            }
-            case "pause":
-            case "resume": {
-                const oppause: PixiVNJsonOperation = {
-                    type: operationType,
-                    operationType: type as any,
-                    alias: soundId,
-                };
-                return oppause;
             }
             case "stop":
             case "remove": {
@@ -615,7 +584,7 @@ export namespace HashtagCommands {
      * into object:
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
-    function convertListStringToObj(listParm: string[]): object {
+    export function convertListStringToObj(listParm: string[]): object {
         const list: string[] = convertListStringToPropList(listParm);
         return convertPropListStringToObj(list);
     }
@@ -835,5 +804,104 @@ HashtagCommands.addMapper(
             z.literal("all"),
             z.enum(["sounds", "sound"]),
         ]),
+    },
+);
+
+// # pause sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "pause",
+        alias: list[2],
+    }),
+    {
+        name: "pause-sound",
+        description: "Pauses the sound identified by its alias.",
+        validation: z.tuple([z.literal("pause"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # pause channel <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "channel",
+        operationType: "pause",
+        alias: list[2],
+    }),
+    {
+        name: "pause-channel",
+        description: "Pauses the audio channel identified by its alias.",
+        validation: z.tuple([z.literal("pause"), z.literal("channel"), z.string()]),
+    },
+);
+
+// # resume sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "resume",
+        alias: list[2],
+    }),
+    {
+        name: "resume-sound",
+        description: "Resumes the sound identified by its alias.",
+        validation: z.tuple([z.literal("resume"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # resume channel <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "channel",
+        operationType: "resume",
+        alias: list[2],
+    }),
+    {
+        name: "resume-channel",
+        description: "Resumes the audio channel identified by its alias.",
+        validation: z.tuple([z.literal("resume"), z.literal("channel"), z.string()]),
+    },
+);
+
+// # request input
+HashtagCommands.addMapper(
+    (_list) => ({
+        type: "input",
+        operationType: "request",
+    }),
+    {
+        name: "request-input",
+        description: "Requests player input without any additional constraints.",
+        validation: z.tuple([z.literal("request"), z.literal("input")]),
+    },
+);
+
+// # request input <key> <value> [<key> <value> …]
+// e.g. # request input type number default 18
+HashtagCommands.addMapper(
+    (list) => {
+        const op: PixiVNJsonOperation = {
+            type: "input",
+            operationType: "request",
+        };
+        try {
+            const props = HashtagCommands.convertListStringToObj(list.slice(2));
+            if ("type" in props && typeof props.type === "string") {
+                op.valueType = props.type;
+            }
+            if ("default" in props) {
+                op.defaultValue = (props as Record<string, unknown>).default;
+            }
+        } catch (_) {}
+        return op;
+    },
+    {
+        name: "request-input-params",
+        description:
+            "Requests player input with optional key/value parameters (e.g. type, default).",
+        validation: z
+            .tuple([z.literal("request"), z.literal("input")])
+            .rest(z.string())
+            .refine((arr) => arr.length > 2 && (arr.length - 2) % 2 === 0),
     },
 );

@@ -64,6 +64,27 @@ export type MapperHandler = (
 ) => PixiVNJsonOperation | undefined;
 
 /**
+ * Describes the extra fields that can be provided with a `request input` operation.
+ *
+ * @example
+ * ```ink
+ * # request input type number default 18
+ * # request input default mario
+ * ```
+ */
+export interface PixiVNJsonInputRequest {
+    /**
+     * The expected value type for the input (e.g. `"string"`, `"number"`, `"boolean"`).
+     * Used by the engine to validate or cast the player's answer.
+     */
+    valueType?: string;
+    /**
+     * A default value that will be used if the player does not provide any input.
+     */
+    defaultValue?: any;
+}
+
+/**
  * Configuration options for a Hashtag-Command handler registered via {@link HashtagCommands.add}.
  */
 export interface HashtagHandlerOptions {

@@ -1,2 +1,2 @@
 export { HashtagCommands, onInkHashtagScript } from "@/handlers/hashtag-commands";
-export { HashtagHandler } from "@/handlers/interfaces/HashtagHandler";
+export { HashtagHandler, PixiVNJsonInputRequest } from "@/handlers/interfaces/HashtagHandler";
