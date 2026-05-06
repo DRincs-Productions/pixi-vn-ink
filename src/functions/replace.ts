@@ -1,6 +1,7 @@
 import { TEXT_TO_REPLACE_REGEX } from "@/constant";
 import type { ReplaceHandler, ReplaceHandlerOptions } from "@/handlers/interfaces/ReplaceHandler";
 import { translator } from "@drincs/pixi-vn-json/translator";
+import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { onInkTranslate } from "./translate";
 
 /**
@@ -157,8 +158,16 @@ function legacyReplaceText(
  * ```
  */
 export namespace TextReplaces {
-    /** The regex used to find replacement tokens in the text (e.g. `[key]`). */
-    export const options = { replaceRegex: /\[([^\]]+)\]/ };
+    /**
+     * Configuration options for the `TextReplaces` system.
+     */
+    export const options = {
+        /**
+         * The regex used to find replacement tokens in the text (e.g. `[key]`).
+         * @default /\[([^\]]+)\]/
+         */
+        replaceRegex: /\[([^\]]+)\]/,
+    };
 
     /** Internal registry of handlers in insertion order. */
     const _handlers: { fn: ReplaceHandler; opts: ReplaceHandlerOptions }[] = [];
@@ -282,7 +291,11 @@ export namespace TextReplaces {
      * @param regexValidation The regex used to decide whether this handler should process a key.
      * @returns The text after the handler has been applied to all matching tokens.
      */
-    function applyHandler(text: string, fn: ReplaceHandler, regexValidation: RegExp): string {
+    function applyHandler(
+        text: string,
+        fn: ReplaceHandler,
+        regexValidation: RegExp | "characterId" | "all",
+    ): string {
         const globalRegex = new RegExp(options.replaceRegex.source, "g");
         // Collect all unique keys currently in the text, preserving encounter order.
         const allMatches = [...text.matchAll(globalRegex)];
@@ -296,20 +309,17 @@ export namespace TextReplaces {
         }
 
         for (const key of uniqueKeys) {
-            if (!regexValidation.test(key)) continue;
-            const replacement = fn(key);
-            if (replacement !== undefined) {
-                text = text.replaceAll(`[${key}]`, replacement);
+            if (regexValidation === "characterId") {
+                if (!RegisteredCharacters.has(key)) continue;
+                text = text.replaceAll(`[${key}]`, fn(key) ?? `[${key}]`);
+                continue;
             }
+            if (regexValidation !== "all" && !regexValidation.test(key)) {
+                continue;
+            }
+            text = text.replaceAll(`[${key}]`, fn(key) ?? `[${key}]`);
         }
 
         return text;
     }
 }
-
-/**
- * @deprecated Use {@link TextReplaces} instead.
- *
- * Legacy alias kept for backwards compatibility.
- */
-export const TextReplacesManager = TextReplaces;

@@ -1,5 +1,5 @@
-import { onReplaceTextAfterTranslation } from "@/functions";
-import { convertInkText } from "@/loader";
+import { TextReplaces } from "@/functions";
+import { convertInkToJson } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
 import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
@@ -27,7 +27,7 @@ test("Assign dialogue to a character", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 alice: Hello, world!
 -> DONE
@@ -57,7 +57,7 @@ test("Assign dialogue to a character: double colons in a sentence", async () => 
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 james: Well, I mean, you are kinda acting like a father. Like, I can totally see it: I'm the daughter, and you as my father, you want to make sure I'm going out with the right guy... or something...
 -> DONE
@@ -318,7 +318,7 @@ test("show image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR duration = 3
 === start
 #show image alias
@@ -373,7 +373,7 @@ test("edit image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 #edit image bg position \\{ "x": -20.5, "y": 30, "test": "test \\\\\\} ' test", "test2": "'" \\} visible true   cursor "pointer" alpha 0.5 
 hello
@@ -450,7 +450,7 @@ test("remove image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 #remove image bg
 #remove image "bg 2"
@@ -525,7 +525,7 @@ test("effect image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # shake bg
 # animate bg angle 90
@@ -599,7 +599,7 @@ test("video", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # show video bg "/video A.mp4"
 # pause video bg
@@ -693,7 +693,7 @@ test("imagecontainer", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve
 # remove imagecontainer bg
@@ -778,7 +778,7 @@ test("text", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # show text myText "Hello world" x 10 y 20 style \\{ fontFamily: "Arial", dropShadow: \\{ alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, \\}, fill: "\\#ffffff", stroke: \\{ color: "\\#004620", width: 12, join: "round" \\}, fontSize: 60, fontWeight: "lighter" \\} with dissolve
 # remove text myText
@@ -917,7 +917,7 @@ test("sound", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # play sound bird volume 100
 # play sound bird "bird 2" volume 100
@@ -963,7 +963,7 @@ test("assets", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # load assets url1 url2
 hello
@@ -1032,7 +1032,7 @@ test("input", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # request input
 # request input type number default 0
@@ -1048,13 +1048,17 @@ Hello
  * Replace
  */
 test("replace", async () => {
-    onReplaceTextAfterTranslation((key) => {
+    TextReplaces.add((key) => {
         if (key === "john") {
             return "John";
         }
         if (key === "alice") {
             return "Alice";
         }
+    }, {
+        name: "test replace",
+        // all
+        regexValidation: /.*/,
     });
     const res = translator.translate(`Hello [john], my name is [alice]`);
     expect(res).toEqual(`Hello John, my name is Alice`);
@@ -1245,7 +1249,7 @@ test("markdown", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 \\# Markdown Test \\\\n<>
 Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \\\\n<>
@@ -1394,7 +1398,7 @@ test("jump", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 Start
 # jump after // [!code focus]
@@ -1451,7 +1455,7 @@ test("continue", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === hurry_home ===
 We hurried home <># continue
 + [1]
