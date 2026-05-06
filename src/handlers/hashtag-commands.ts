@@ -101,6 +101,43 @@ export namespace HashtagCommands {
         handlers.push({ fn: handler, opts });
     }
 
+    /**
+     * Registers a new mapper that converts a specific Hashtag-Command pattern into a
+     * {@link PixiVNJsonOperation}.
+     *
+     * Mappers are evaluated in registration order by
+     * {@link HashtagCommands.convertOperation} **before** the built-in `switch` table.  The
+     * first mapper whose {@link HashtagHandlerOptions.validation} matches the raw token list is
+     * called and its return value is used as the operation; subsequent mappers (and the built-in
+     * switch) are skipped.
+     *
+     * Use `addMapper` instead of {@link add} when you want to extend or override the built-in
+     * command → operation translation without intercepting the full handler pipeline.
+     *
+     * @param handler A {@link MapperHandler} that receives the full token list and the current
+     *   step, and returns either a {@link PixiVNJsonOperation} or `undefined`.
+     * @param opts Configuration including a name, optional description, and the validation rule
+     *   used to select this mapper.
+     *
+     * @example
+     * ```ts
+     * import { HashtagCommands } from 'pixi-vn-ink'
+     * import { z } from 'zod'
+     *
+     * // Handle: # navigate scene_name
+     * HashtagCommands.addMapper(
+     *     (list, step) => {
+     *         step.labelToOpen = { label: list[1], type: "jump" }
+     *         step.goNextStep = undefined
+     *         return undefined
+     *     },
+     *     {
+     *         name: "navigate-command",
+     *         validation: z.tuple([z.literal("navigate"), z.string()]),
+     *     },
+     * )
+     * ```
+     */
     export function addMapper(handler: MapperHandler, opts: HashtagHandlerOptions) {
         mapperHandlers.push({ fn: handler, opts });
     }
@@ -112,6 +149,12 @@ export namespace HashtagCommands {
         handlers.length = 0;
     }
 
+    /**
+     * Removes all mapper handlers registered with {@link addMapper}.
+     *
+     * Useful in tests to reset the mapper state between test cases, or in applications that need
+     * to replace the default mappers with a custom set.
+     */
     export function clearMappers() {
         mapperHandlers.length = 0;
     }
@@ -207,7 +250,23 @@ export namespace HashtagCommands {
         list: string[],
         step: PixiVNJsonLabelStep,
     ): PixiVNJsonOperation | undefined {
-        // TODO use mapperHandlers
+        // Try each registered mapper whose validation matches the raw token list.
+        // The first match wins; its return value (including undefined) is used directly.
+        for (const mapper of mapperHandlers) {
+            const { validation } = mapper.opts;
+            let matches = false;
+            if (validation === "all") {
+                matches = true;
+            } else if (validation instanceof RegExp) {
+                matches = validation.test(list.join(" "));
+            } else if (validation instanceof ZodType) {
+                const result = validation.safeParse(list);
+                matches = result.success;
+            }
+            if (matches) {
+                return mapper.fn(list, step);
+            }
+        }
 
         const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
         const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
@@ -217,15 +276,7 @@ export namespace HashtagCommands {
             case "canvaselement":
             case "video":
             case "text":
-                if (operationType === "video" && (type === "pause" || type === "resume")) {
-                    return {
-                        type: "video",
-                        operationType: type as any,
-                        alias: removeExtraDoubleQuotes(list[2]),
-                    };
-                } else {
-                    return getCanvasOperationFromComment(list, operationType);
-                }
+                return getCanvasOperationFromComment(list, operationType);
             case "sound":
             case "channel":
                 return getSoundOperationFromComment(list, operationType);
@@ -250,48 +301,9 @@ export namespace HashtagCommands {
                     return op;
                 }
                 break;
-            case "assets":
-            case "bundle":
-                switch (type) {
-                    case "load":
-                    case "lazyload": {
-                        const op: PixiVNJsonOperation = {
-                            type: operationType,
-                            operationType: type,
-                            aliases: list.slice(2),
-                        };
-                        return op;
-                    }
-                }
-                break;
-            case "all":
-                if (list.length > 2) {
-                    switch (list[2]) {
-                        case "sounds":
-                        case "sound":
-                            switch (type) {
-                                case "pause":
-                                case "resume":
-                                case "stop":
-                                    return {
-                                        type: "all",
-                                        operationType: type,
-                                    };
-                            }
-                    }
-                }
-                break;
             default:
                 if (operationType) {
                     switch (type) {
-                        // case "call":
-                        // case "jump":
-                        //     step.labelToOpen = {
-                        //         label: operationType,
-                        //         type: type,
-                        //     };
-                        //     step.goNextStep = undefined;
-                        //     return;
                         case "shake": {
                             let propsEffect = {};
                             if (list.length > 2) {
@@ -334,24 +346,6 @@ export namespace HashtagCommands {
                             };
                             return animate;
                         }
-                    }
-                } else {
-                    switch (type) {
-                        case "pause":
-                            if ("dialogue" in step) {
-                                delete step.dialogue;
-                            }
-                            if ("goNextStep" in step) {
-                                delete step.goNextStep;
-                            }
-                            return {
-                                type: "dialogue",
-                                operationType: "clean",
-                            };
-                        case "continue":
-                            step.goNextStep = true;
-                            step.glueEnabled = false;
-                            return undefined;
                     }
                 }
         }
@@ -744,6 +738,8 @@ HashtagCommands.addMapper(
     },
     {
         name: "call",
+        description:
+            "Calls the label specified by the second token, then returns to the current position.",
         validation: z.tuple([z.literal("call"), z.string()]),
     },
 );
@@ -758,6 +754,90 @@ HashtagCommands.addMapper(
     },
     {
         name: "jump",
+        description: "Jumps to the label specified by the second token without returning.",
         validation: z.tuple([z.literal("jump"), z.string()]),
+    },
+);
+
+// # pause  →  clean the current dialogue and halt auto-advance
+HashtagCommands.addMapper(
+    (_list: string[], step: PixiVNJsonLabelStep) => {
+        if ("dialogue" in step) {
+            delete step.dialogue;
+        }
+        if ("goNextStep" in step) {
+            delete step.goNextStep;
+        }
+        return {
+            type: "dialogue",
+            operationType: "clean",
+        } as const;
+    },
+    {
+        name: "pause",
+        description: "Clears the current dialogue and waits for user input before advancing.",
+        validation: z.tuple([z.literal("pause")]),
+    },
+);
+
+// # continue  →  force the step to auto-advance
+HashtagCommands.addMapper(
+    (_list: string[], step: PixiVNJsonLabelStep) => {
+        step.goNextStep = true;
+        step.glueEnabled = false;
+        return undefined;
+    },
+    {
+        name: "continue",
+        description: "Forces the story to proceed to the next step automatically.",
+        validation: z.tuple([z.literal("continue")]),
+    },
+);
+
+// # pause video <alias>  /  # resume video <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "video",
+        operationType: list[0] as "pause" | "resume",
+        alias: list[2],
+    }),
+    {
+        name: "video-pause-resume",
+        description: "Pauses or resumes a video canvas element identified by its alias.",
+        validation: z.tuple([z.enum(["pause", "resume"]), z.literal("video"), z.string()]),
+    },
+);
+
+// # load assets <alias...>  /  # lazyload assets <alias...>
+// # load bundle <alias...>  /  # lazyload bundle <alias...>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: list[1] as "assets" | "bundle",
+        operationType: list[0] as "load" | "lazyload",
+        aliases: list.slice(2),
+    }),
+    {
+        name: "assets-bundle-load",
+        description: "Loads (eagerly or lazily) a set of asset or bundle aliases.",
+        validation: z
+            .tuple([z.enum(["load", "lazyload"]), z.enum(["assets", "bundle"])])
+            .rest(z.string()),
+    },
+);
+
+// # pause all sounds  /  # resume all sounds  /  # stop all sounds
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "all",
+        operationType: list[0] as "pause" | "resume" | "stop",
+    }),
+    {
+        name: "all-sounds-pause-resume-stop",
+        description: "Pauses, resumes, or stops all active sounds at once.",
+        validation: z.tuple([
+            z.enum(["pause", "resume", "stop"]),
+            z.literal("all"),
+            z.enum(["sounds", "sound"]),
+        ]),
     },
 );

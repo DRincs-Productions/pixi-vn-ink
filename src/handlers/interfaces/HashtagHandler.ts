@@ -36,8 +36,30 @@ export type HashtagHandler = (
     convertListStringToObj: (listParm: string[]) => object,
 ) => boolean | string | Promise<boolean | string>;
 
+/**
+ * A mapper function that converts a specific Hashtag-Command token list into a
+ * {@link PixiVNJsonOperation} (or `undefined` when the command only modifies the step without
+ * producing an operation, e.g. `call` / `jump`).
+ *
+ * Unlike {@link HashtagHandler}, a mapper is purely synchronous and is **selected** by its
+ * validation rule rather than deciding for itself whether to handle the command.  The selection
+ * logic in {@link HashtagCommands.convertOperation} tests each mapper's
+ * {@link HashtagHandlerOptions.validation} against the full token list; only the first matching
+ * mapper is called.
+ *
+ * @returns The {@link PixiVNJsonOperation} to enqueue, or `undefined` if the command only produces
+ *   side-effects on `step` (such as setting `labelToOpen`).
+ */
 export type MapperHandler = (
+    /**
+     * The full token list produced by parsing the Hashtag-Command (output of `convertTagTolist`).
+     * For example the tag `# pause video bg` produces `["pause", "video", "bg"]`.
+     */
     list: string[],
+    /**
+     * The current label step. The mapper may mutate this (e.g. set `labelToOpen` or delete
+     * `goNextStep`) before returning the operation.
+     */
     step: PixiVNJsonLabelStep,
 ) => PixiVNJsonOperation | undefined;
 
