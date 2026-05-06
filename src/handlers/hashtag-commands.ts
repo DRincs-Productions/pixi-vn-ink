@@ -353,15 +353,6 @@ export namespace HashtagCommands {
                         );
                 }
                 break;
-            case "edit": {
-                const editOp: PixiVNJsonOperation = {
-                    type: typeCanvasElement,
-                    operationType: "edit",
-                    alias: imageId,
-                    props: convertPropListStringToObj(propsList) as any,
-                };
-                return editOp;
-            }
             case "remove": {
                 const removeOp: PixiVNJsonOperation = {
                     type: typeCanvasElement,
@@ -909,6 +900,92 @@ HashtagCommands.addMapper(
             .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
     },
 );
+// # edit image <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "image",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-image",
+        description: "Edits the properties of an image canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("image"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit imagecontainer <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "imagecontainer",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-imagecontainer",
+        description:
+            "Edits the properties of an image-container canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit canvaselement <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "canvaselement",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-canvaselement",
+        description: "Edits the properties of a canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("canvaselement"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit video <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "video",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-video",
+        description: "Edits the properties of a video canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("video"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit text <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "text",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-text",
+        description: "Edits the properties of a text canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("text"), z.string()])
+            .rest(z.string()),
+    },
+);
+
 HashtagCommands.addMapper(
     (_list) => ({
         type: "input",
