@@ -273,9 +273,6 @@ export namespace HashtagCommands {
             case "video":
             case "text":
                 return getCanvasOperationFromComment(list, operationType);
-            case "sound":
-            case "channel":
-                return getSoundOperationFromComment(list, operationType);
             default:
                 if (operationType) {
                     switch (type) {
@@ -469,64 +466,6 @@ export namespace HashtagCommands {
         };
         const propList = list.slice(endIndex + 1);
         return setShowProps(op, propList);
-    }
-
-    function getSoundOperationFromComment(
-        list: string[],
-        operationType: "sound" | "channel",
-    ): PixiVNJsonOperation | undefined {
-        const type = removeExtraDoubleQuotes(list[0]);
-        const soundId = removeExtraDoubleQuotes(list[2]);
-        switch (type) {
-            case "play": {
-                const tempList = convertListStringToPropList(list.slice(3));
-                let url: string;
-                let propList: string[];
-                if (tempList.length % 2 === 0) {
-                    url = soundId;
-                    // # sound play soundId prop1 "value 1" prop2 "value 2"
-                    propList = tempList;
-                } else {
-                    url = removeExtraDoubleQuotes(tempList[0]);
-                    propList = tempList.slice(1);
-                }
-
-                const opplay: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "play",
-                    alias: soundId,
-                };
-                if (url) {
-                    opplay.url = url;
-                }
-                if (list.length > 3) {
-                    const props = convertListStringToObj(propList);
-                    if (props !== undefined) {
-                        opplay.props = props;
-                    }
-                }
-                return opplay;
-            }
-            case "stop":
-            case "remove": {
-                const opremove: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "stop",
-                    alias: soundId,
-                };
-                return opremove;
-            }
-            case "edit": {
-                const opedit: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "edit",
-                    alias: soundId,
-                    props: convertListStringToObj(list.slice(3)),
-                };
-                return opedit;
-            }
-        }
-        return undefined;
     }
 
     function setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
@@ -886,7 +825,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "remove-sound",
+        name: "(deprecate) remove-sound",
         description: "Removes (stops) the sound identified by its alias.",
         validation: z.tuple([z.literal("remove"), z.literal("sound"), z.string()]),
     },
@@ -928,7 +867,8 @@ HashtagCommands.addMapper(
     },
     {
         name: "play-sound",
-        description: "Plays a sound using its alias as the URL, with optional key/value properties.",
+        description:
+            "Plays a sound using its alias as the URL, with optional key/value properties.",
         validation: z
             .tuple([z.literal("play"), z.literal("sound"), z.string()])
             .rest(z.string())
@@ -962,8 +902,7 @@ HashtagCommands.addMapper(
     },
     {
         name: "play-sound-with-source",
-        description:
-            "Plays a sound with an explicit source URL and optional key/value properties.",
+        description: "Plays a sound with an explicit source URL and optional key/value properties.",
         validation: z
             .tuple([z.literal("play"), z.literal("sound"), z.string()])
             .rest(z.string())
