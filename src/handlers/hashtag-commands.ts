@@ -58,7 +58,7 @@ export namespace HashtagCommands {
     }
 
     /**
-     * @deprecated
+     * @deprecated Use the two-parameter overload with {@link HashtagHandlerOptions} instead.
      */
     export function add(handler: HashtagHandler);
     /**
@@ -66,6 +66,7 @@ export namespace HashtagCommands {
      * The developer can use this function to run a custom Hashtag-Command. If the function returns `true`, the system will not interpret the Hashtag-Command.
      * If returns a array of strings, the system will interpret the array as a new Hashtag-Command.
      * @param handler The handler to run a custom Hashtag-Command
+     * @param opts Configuration for this handler, including its name, optional description, and validation rule.
      * @example
      * ```ts
      * import { HashtagScript } from 'pixi-vn-ink'
@@ -81,7 +82,7 @@ export namespace HashtagCommands {
      *        return true
      *    }
      *    return false
-     * })
+     * }, { name: "navigate-command", validation: /^navigate\b/ })
      * ```
      */
     export function add(handler: HashtagHandler, opts: HashtagHandlerOptions);
