@@ -276,7 +276,7 @@ export namespace TextReplaces {
         );
 
         for (const handler of activeHandlers) {
-            text = applyHandler(text, handler.fn, handler.opts.regexValidation);
+            text = applyHandler(text, handler.fn, handler.opts.validation);
         }
 
         return text;

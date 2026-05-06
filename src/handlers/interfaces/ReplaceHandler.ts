@@ -18,13 +18,13 @@ export type ReplaceHandlerOptions = {
      */
     description?: string;
     /**
-     * The regex to validate the key. If the key does not match the regex, it will not be replaced.
+     * The validation of the key. It will be used to validate the key before replacing it. It can be a regular expression, "characterId" or "all". If it is a regular expression, the key will be validated against the regular expression. If it is "characterId", the key will be validated as a character id. If it is "all", the key will be valid for all the keys.
      * @example
      * ```ts
      * regexValidation: /^[a-zA-Z0-9_]+$/
      * ```
      */
-    regexValidation: RegExp | "characterId" | "all";
+    validation: RegExp | "characterId" | "all";
     /**
      * The type of the handler. It will be used to identify when the handler will be called. If the type is "before-translation", the handler will be called before the translation. If the type is "after-translation", the handler will be called after the translation.
      * @default "before-translation"

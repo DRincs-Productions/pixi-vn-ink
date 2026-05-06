@@ -1,6 +1,6 @@
-import { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { StepLabelPropsType } from "@drincs/pixi-vn";
 
-type HashtagHandler = (
+export type HashtagHandler = (
     /**
      * A Hashtag-Command to run. It corresponds to a line of code that starts with `#`.
      * This is an array of strings, it is the Hashtag-Command that was split by spaces. For add a space in a string, you need to use `""`.
@@ -19,4 +19,9 @@ type HashtagHandler = (
      */
     convertListStringToObj: (listParm: string[]) => object,
 ) => boolean | string | Promise<boolean | string>;
-export default HashtagHandler;
+
+export interface HashtagHandlerOptions {
+    name: string;
+    description?: string;
+    validation: RegExp | "all";
+}

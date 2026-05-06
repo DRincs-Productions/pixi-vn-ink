@@ -9,7 +9,7 @@ import type {
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
 import { logger } from "../utils/log-utility";
-import type HashtagHandler from "./interfaces/HashtagHandler";
+import type { HashtagHandler, HashtagHandlerOptions } from "./interfaces/HashtagHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -22,14 +22,14 @@ const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
  * This is a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
  */
 export namespace HashtagCommands {
-    const handlers: Set<HashtagHandler> = new Set([(_script: string[]) => false]);
+    const handlers: { fn: HashtagHandler; opts: HashtagHandlerOptions }[] = [];
     async function runCustomCommand(
         script: string[],
         props: StepLabelPropsType,
     ): Promise<boolean | string> {
-        for (const handler of handlers) {
+        for (let i = 0; i < handlers.length; i++) {
             try {
-                const res = await handler(script, props, convertListStringToObj);
+                const res = await handlers[i].fn(script, props, convertListStringToObj);
                 if (res === true || typeof res === "string") {
                     return res;
                 }
@@ -40,6 +40,10 @@ export namespace HashtagCommands {
         return false;
     }
 
+    /**
+     * @deprecated
+     */
+    export function add(handler: HashtagHandler);
     /**
      * This function add a new handler (middleware) that will be called before the system interprets a possible Hashtag-Command that starts with `#`.
      * The developer can use this function to run a custom Hashtag-Command. If the function returns `true`, the system will not interpret the Hashtag-Command.
@@ -63,15 +67,22 @@ export namespace HashtagCommands {
      * })
      * ```
      */
-    export function add(handler: HashtagHandler) {
-        handlers.add(handler);
+    export function add(handler: HashtagHandler, opts: HashtagHandlerOptions);
+    export function add(
+        handler: HashtagHandler,
+        opts: HashtagHandlerOptions = {
+            name: "custom-command",
+            validation: "all",
+        },
+    ) {
+        handlers.push({ fn: handler, opts });
     }
 
     /**
      * This function clear all the handlers added with the {@link add} function.
      */
     export function clear() {
-        handlers.clear();
+        handlers.length = 0;
     }
 
     /**
