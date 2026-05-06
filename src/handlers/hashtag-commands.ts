@@ -37,9 +37,7 @@ export namespace HashtagCommands {
             try {
                 const { validation } = handlers[i].opts;
                 // "all" → always invoke this handler
-                if (validation === "all") {
-                    // fall through to invocation below
-                } else if (validation instanceof RegExp) {
+                if (validation instanceof RegExp) {
                     // RegExp → join tokens with a space and test against the pattern
                     if (!validation.test(script.join(" "))) {
                         continue;
@@ -95,7 +93,7 @@ export namespace HashtagCommands {
         handler: HashtagHandler,
         opts: HashtagHandlerOptions = {
             name: "custom-command",
-            validation: "all",
+            validation: /^/,
         },
     ) {
         handlers.push({ fn: handler, opts });
@@ -255,9 +253,7 @@ export namespace HashtagCommands {
         for (const mapper of mapperHandlers) {
             const { validation } = mapper.opts;
             let matches = false;
-            if (validation === "all") {
-                matches = true;
-            } else if (validation instanceof RegExp) {
+            if (validation instanceof RegExp) {
                 matches = validation.test(list.join(" "));
             } else if (validation instanceof ZodType) {
                 const result = validation.safeParse(list);
@@ -771,7 +767,7 @@ HashtagCommands.addMapper(
         return {
             type: "dialogue",
             operationType: "clean",
-        } as const;
+        };
     },
     {
         name: "pause",

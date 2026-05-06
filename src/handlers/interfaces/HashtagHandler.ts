@@ -80,7 +80,6 @@ export interface HashtagHandlerOptions {
     /**
      * Determines whether this handler should be invoked for a given command.
      *
-     * - `"all"` – the handler is always invoked, regardless of the command content.
      * - `RegExp` – the command tokens are joined with a space (`script.join(" ")`) and tested
      *   against the regular expression. The handler is invoked only if the regex matches.
      * - `ZodType<string[]>` – the command token array is validated with
@@ -96,5 +95,5 @@ export interface HashtagHandlerOptions {
      * validation: z.tuple([z.literal("navigate"), z.string().min(1)]).rest(z.string())
      * ```
      */
-    validation: RegExp | "all" | ZodType<string[]>;
+    validation: RegExp | ZodType<string[]>;
 }
