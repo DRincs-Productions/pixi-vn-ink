@@ -624,6 +624,7 @@ export function onInkHashtagScript(runCustomHashtagScript: HashtagHandler) {
     HashtagCommands.add(runCustomHashtagScript);
 }
 
+// # jump label_name  →  jump to the label specified by the second token without returning
 HashtagCommands.addMapper(
     (list: string[], step: PixiVNJsonLabelStep) => {
         step.labelToOpen = {
@@ -640,6 +641,7 @@ HashtagCommands.addMapper(
     },
 );
 
+// # jump label_name  →  jump to the label specified by the second token without returning
 HashtagCommands.addMapper(
     (list: string[], step: PixiVNJsonLabelStep) => {
         step.labelToOpen = {
@@ -911,9 +913,7 @@ HashtagCommands.addMapper(
     {
         name: "edit-image",
         description: "Edits the properties of an image canvas element identified by its alias.",
-        validation: z
-            .tuple([z.literal("edit"), z.literal("image"), z.string()])
-            .rest(z.string()),
+        validation: z.tuple([z.literal("edit"), z.literal("image"), z.string()]).rest(z.string()),
     },
 );
 
@@ -963,9 +963,7 @@ HashtagCommands.addMapper(
     {
         name: "edit-video",
         description: "Edits the properties of a video canvas element identified by its alias.",
-        validation: z
-            .tuple([z.literal("edit"), z.literal("video"), z.string()])
-            .rest(z.string()),
+        validation: z.tuple([z.literal("edit"), z.literal("video"), z.string()]).rest(z.string()),
     },
 );
 
@@ -980,9 +978,7 @@ HashtagCommands.addMapper(
     {
         name: "edit-text",
         description: "Edits the properties of a text canvas element identified by its alias.",
-        validation: z
-            .tuple([z.literal("edit"), z.literal("text"), z.string()])
-            .rest(z.string()),
+        validation: z.tuple([z.literal("edit"), z.literal("text"), z.string()]).rest(z.string()),
     },
 );
 
