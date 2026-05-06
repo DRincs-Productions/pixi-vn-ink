@@ -29,6 +29,9 @@ export namespace HashtagCommands {
     ): Promise<boolean | string> {
         for (let i = 0; i < handlers.length; i++) {
             try {
+                // TODO if all run
+                // TODO if a regex script.join(" "); and validate with opts.validation
+                // TODO if zod schema validate array with opts.validation
                 const res = await handlers[i].fn(script, props, convertListStringToObj);
                 if (res === true || typeof res === "string") {
                     return res;
