@@ -864,7 +864,112 @@ HashtagCommands.addMapper(
     },
 );
 
-// # request input
+// # stop sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "stop",
+        alias: list[2],
+    }),
+    {
+        name: "stop-sound",
+        description: "Stops the sound identified by its alias.",
+        validation: z.tuple([z.literal("stop"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # remove sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "stop",
+        alias: list[2],
+    }),
+    {
+        name: "remove-sound",
+        description: "Removes (stops) the sound identified by its alias.",
+        validation: z.tuple([z.literal("remove"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # edit sound <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-sound",
+        description: "Edits the properties of a sound identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("sound"), z.string()])
+            .rest(z.string())
+            .refine((arr) => (arr.length - 3) % 2 === 0),
+    },
+);
+
+// # play sound <alias> [<key> <value> …]
+// The alias is also used as the URL when no explicit source is given (even number of extra tokens).
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "play",
+            alias,
+            url: alias,
+        };
+        if (list.length > 3) {
+            op.props = HashtagCommands.convertListStringToObj(list.slice(3));
+        }
+        return op;
+    },
+    {
+        name: "play-sound",
+        description: "Plays a sound using its alias as the URL, with optional key/value properties.",
+        validation: z
+            .tuple([z.literal("play"), z.literal("sound"), z.string()])
+            .rest(z.string())
+            .refine((arr) => (arr.length - 3) % 2 === 0),
+    },
+);
+
+// # play sound <alias> <source> [<key> <value> …]
+// An explicit source URL is present when the number of extra tokens after the alias is odd.
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        let url = list[3];
+        if (
+            (url.startsWith('"') && url.endsWith('"')) ||
+            (url.startsWith("'") && url.endsWith("'")) ||
+            (url.startsWith("`") && url.endsWith("`"))
+        ) {
+            url = url.slice(1, -1);
+        }
+        const op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "play",
+            alias,
+            url,
+        };
+        if (list.length > 4) {
+            op.props = HashtagCommands.convertListStringToObj(list.slice(4));
+        }
+        return op;
+    },
+    {
+        name: "play-sound-with-source",
+        description:
+            "Plays a sound with an explicit source URL and optional key/value properties.",
+        validation: z
+            .tuple([z.literal("play"), z.literal("sound"), z.string()])
+            .rest(z.string())
+            .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
+    },
+);
 HashtagCommands.addMapper(
     (_list) => ({
         type: "input",
@@ -881,17 +986,21 @@ HashtagCommands.addMapper(
 // e.g. # request input type number default 18
 HashtagCommands.addMapper(
     (list) => {
-        // TODO: PixiVNJsonInputRequest
         const op: PixiVNJsonOperation = {
             type: "input",
             operationType: "request",
         };
         try {
-            Object.entries(HashtagCommands.convertListStringToObj(list.slice(2))).forEach(
-                ([key, value]) => {
-                    op[key as keyof PixiVNJsonOperation] = value;
-                },
-            );
+            const props = HashtagCommands.convertListStringToObj(list.slice(2)) as Record<
+                string,
+                unknown
+            >;
+            if ("type" in props && typeof props.type === "string") {
+                op.valueType = props.type;
+            }
+            if ("default" in props) {
+                op.defaultValue = props.default;
+            }
         } catch (_) {}
         return op;
     },
