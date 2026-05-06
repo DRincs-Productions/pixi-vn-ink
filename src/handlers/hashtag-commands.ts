@@ -881,18 +881,17 @@ HashtagCommands.addMapper(
 // e.g. # request input type number default 18
 HashtagCommands.addMapper(
     (list) => {
+        // TODO: PixiVNJsonInputRequest
         const op: PixiVNJsonOperation = {
             type: "input",
             operationType: "request",
         };
         try {
-            const props = HashtagCommands.convertListStringToObj(list.slice(2));
-            if ("type" in props && typeof props.type === "string") {
-                op.valueType = props.type;
-            }
-            if ("default" in props) {
-                op.defaultValue = (props as Record<string, unknown>).default;
-            }
+            Object.entries(HashtagCommands.convertListStringToObj(list.slice(2))).forEach(
+                ([key, value]) => {
+                    op[key as keyof PixiVNJsonOperation] = value;
+                },
+            );
         } catch (_) {}
         return op;
     },
