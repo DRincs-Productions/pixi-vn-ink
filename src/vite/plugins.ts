@@ -100,7 +100,7 @@ function isInsideDirectory(baseDirectory: string, targetPath: string): boolean {
     return !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
 }
 
-function renderInkJsonOutputFile(
+function resolveInkJsonOutputPath(
     outputPattern: string,
     root: string,
     inputBaseDirectory: string,
@@ -312,7 +312,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 );
                 continue;
             }
-            const outputFile = renderInkJsonOutputFile(
+            const outputFile = resolveInkJsonOutputPath(
                 outputPattern,
                 resolvedConfig.root,
                 inputBaseDirectory,
@@ -332,7 +332,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             }
 
             await fs.mkdir(path.dirname(outputFile), { recursive: true });
-            await fs.writeFile(outputFile, `${JSON.stringify(converted, null, 2)}\n`, "utf-8");
+            await fs.writeFile(
+                outputFile,
+                `${JSON.stringify(converted, null, 2)}\n`,
+                "utf-8",
+            );
 
             manifestUrls.push(
                 getManifestEntry(
@@ -360,7 +364,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
-        await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
+        await fs.writeFile(
+            manifestFile,
+            `${JSON.stringify(manifestUrls, null, 2)}\n`,
+            "utf-8",
+        );
     };
 
     return {

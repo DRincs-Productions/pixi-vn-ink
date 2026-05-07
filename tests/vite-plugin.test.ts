@@ -158,10 +158,10 @@ describe("vitePluginInk", () => {
         const root = await createTempProject();
         tempDirectories.push(root);
 
-        await fs.mkdir(path.join(root, "ink", "chapter-1"), { recursive: true });
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
         await fs.mkdir(path.join(root, "public"), { recursive: true });
         await fs.writeFile(
-            path.join(root, "ink", "chapter-1", "second.ink"),
+            path.join(root, "ink", "second.ink"),
             "=== second ===\nAnother line.\n",
             "utf-8",
         );
@@ -182,8 +182,8 @@ describe("vitePluginInk", () => {
             root,
             "generated",
             "by-file",
-            "chapter-1",
-            "second.ink-from-ink/chapter-1/second.json",
+            "second.ink-from-ink",
+            "second.json",
         );
         await expect(fs.access(jsonPath)).resolves.toBeUndefined();
     });
