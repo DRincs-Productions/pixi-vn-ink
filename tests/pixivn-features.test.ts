@@ -566,6 +566,50 @@ test("effect image", async () => {
     expect(res).toEqual(expected);
 });
 
+test("effect image with params", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "shake",
+                            props: { x: 10, y: 20 },
+                            $origin: "shake bg x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "animate",
+                            keyframes: {},
+                            options: { duration: 3 },
+                            $origin: "animate bg options duration 3",
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== start
+# shake bg x 10 y 20
+# animate bg options duration 3
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
 /**
  * Video
  */

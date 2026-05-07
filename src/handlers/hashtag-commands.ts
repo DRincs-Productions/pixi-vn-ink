@@ -962,7 +962,7 @@ HashtagCommands.addMapper(
     (list) => ({
         alias: list[1],
         type: "shake",
-        props: list.length > 2 ? HashtagCommands.convertListStringToObj(list.slice(2)) : {},
+        props: HashtagCommands.convertListStringToObj(list.slice(2)),
     }),
     {
         name: "shake-effect",
@@ -988,9 +988,8 @@ HashtagCommands.addMapper(
         const animate: PixiVNJsonCanvasAnimate = {
             alias: list[1],
             type: "animate",
-            keyframes:
-                keyframesList.length > 0 ? HashtagCommands.convertListStringToObj(keyframesList) : {},
-            options: optionsList.length > 0 ? HashtagCommands.convertListStringToObj(optionsList) : {},
+            keyframes: HashtagCommands.convertListStringToObj(keyframesList),
+            options: HashtagCommands.convertListStringToObj(optionsList),
         };
         return animate;
     },
