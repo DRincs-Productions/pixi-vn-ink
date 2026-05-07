@@ -1,10 +1,52 @@
+import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
-import type { Plugin } from "vite";
+import path from "node:path";
+import type { Plugin, ResolvedConfig } from "vite";
+import { glob } from "tinyglobby";
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
+const JSON_MANIFEST_FILE_NAME = "manifest.json";
+
+function normalizeSlashes(value: string): string {
+    return value.replaceAll("\\", "/");
+}
+
+function getGlobBaseDirectory(root: string, pattern: string): string {
+    const segments = normalizeSlashes(pattern).split("/");
+    const staticSegments: string[] = [];
+    for (const segment of segments) {
+        if (segment === "." || segment === "") {
+            continue;
+        }
+        if (/[*!?[\]{}()]/.test(segment)) {
+            break;
+        }
+        staticSegments.push(segment);
+    }
+    return path.resolve(root, ...staticSegments);
+}
+
+function resolvePublicSubdirectory(publicDirectory: string, subdirectory: string): string {
+    const trimmedSubdirectory = subdirectory.trim();
+    if (!trimmedSubdirectory) {
+        throw new Error("vitePluginInk option `inkJsonPublicDir` must not be empty.");
+    }
+    const outputDirectory = path.resolve(publicDirectory, trimmedSubdirectory);
+    const relativeToPublic = path.relative(publicDirectory, outputDirectory);
+    if (
+        outputDirectory === publicDirectory ||
+        relativeToPublic.startsWith("..") ||
+        path.isAbsolute(relativeToPublic)
+    ) {
+        throw new Error(
+            "vitePluginInk option `inkJsonPublicDir` must point to a subdirectory inside Vite `publicDir`.",
+        );
+    }
+    return outputDirectory;
+}
 
 /**
  * Options for {@link vitePluginInk}.
@@ -25,6 +67,19 @@ export interface VitePluginInkOptions {
      * @example "./ink/**\/*.ink"
      */
     inkGlob?: string;
+    /**
+     * Subdirectory inside Vite's `publicDir` where matched `.ink` files are exported as `.json`.
+     *
+     * When provided together with {@link VitePluginInkOptions.inkGlob}, each matched `.ink` file is
+     * converted with `convertInkToJson` and written into this subdirectory while preserving its
+     * relative folder structure. A `manifest.json` file is also generated in the same folder to
+     * simplify runtime bulk loading.
+     *
+     * The value must be a subdirectory name relative to `publicDir`, for example `ink-json`.
+     *
+     * @example "ink-json"
+     */
+    inkJsonPublicDir?: string;
 }
 
 /**
@@ -35,6 +90,9 @@ export interface VitePluginInkOptions {
  * - Optionally generates a virtual module `virtual:pixi-vn-ink` (when {@link VitePluginInkOptions.inkGlob}
  *   is provided) that exports all matched ink file contents as a `string[]`, removing the need
  *   to write a manual glob-import helper.
+ * - Optionally exports the same matched `.ink` files as `.json` into a subdirectory of `public`
+ *   (when {@link VitePluginInkOptions.inkJsonPublicDir} is provided), together with a
+ *   `manifest.json` file for bulk runtime loading with `importPixiVNJson`.
  *
  * @param options - Optional plugin configuration.
  * @returns A Vite plugin.
@@ -64,13 +122,117 @@ export interface VitePluginInkOptions {
  *
  * await importInkText(inkTexts);
  * setupInkHmrListener();
+ *
+ * @example
+ * // vite.config.ts – generate JSON files in public/ink-json too
+ * import { defineConfig } from "vite";
+ * import { vitePluginInk } from "@drincs/pixi-vn-ink/vite";
+ *
+ * export default defineConfig({
+ *   plugins: [
+ *     vitePluginInk({
+ *       inkGlob: "./ink/**\/*.ink",
+ *       inkJsonPublicDir: "ink-json",
+ *     }),
+ *   ],
+ * });
+ *
+ * @example
+ * // Bulk-load the generated JSON files at runtime
+ * import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
+ *
+ * const manifest = (await fetch("/ink-json/manifest.json").then((response) =>
+ *   response.json(),
+ * )) as string[];
+ *
+ * const stories = await Promise.all(
+ *   manifest.map((url) => fetch(url).then((response) => response.json())),
+ * );
+ *
+ * await Promise.all(stories.map((story) => importPixiVNJson(story)));
  */
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
-    const { inkGlob } = options ?? {};
+    const { inkGlob, inkJsonPublicDir } = options ?? {};
+    let resolvedConfig: ResolvedConfig | undefined;
+
+    const exportInkJsonFiles = async () => {
+        if (!resolvedConfig || !inkGlob || !inkJsonPublicDir) {
+            return;
+        }
+        const outputDirectory = resolvePublicSubdirectory(resolvedConfig.publicDir, inkJsonPublicDir);
+        const inputBaseDirectory = getGlobBaseDirectory(resolvedConfig.root, inkGlob);
+        const matchedFiles = await glob(inkGlob, {
+            absolute: true,
+            cwd: resolvedConfig.root,
+            onlyFiles: true,
+        });
+        const manifestUrls: string[] = [];
+        const generatedJsonFiles = new Set<string>();
+
+        await fs.mkdir(outputDirectory, { recursive: true });
+
+        for (const matchedFile of matchedFiles) {
+            const source = await fs.readFile(matchedFile, "utf-8");
+            const converted = convertInkToJson(source);
+            const relativeInputFile = path.relative(inputBaseDirectory, matchedFile);
+            const relativeJsonFile = relativeInputFile.replace(/\.ink$/i, ".json");
+            const outputFile = path.join(outputDirectory, relativeJsonFile);
+            generatedJsonFiles.add(outputFile);
+
+            if (!converted) {
+                await fs.rm(outputFile, { force: true });
+                continue;
+            }
+
+            await fs.mkdir(path.dirname(outputFile), { recursive: true });
+            await fs.writeFile(outputFile, `${JSON.stringify(converted, null, 2)}\n`, "utf-8");
+
+            const publicRelativePath = normalizeSlashes(
+                path.relative(resolvedConfig.publicDir, outputFile),
+            );
+            manifestUrls.push(`/${publicRelativePath}`);
+        }
+
+        const manifestFile = path.join(outputDirectory, JSON_MANIFEST_FILE_NAME);
+        const existingJsonFiles = await glob("**/*.json", {
+            absolute: true,
+            cwd: outputDirectory,
+            onlyFiles: true,
+        });
+
+        for (const existingJsonFile of existingJsonFiles) {
+            if (existingJsonFile !== manifestFile && !generatedJsonFiles.has(existingJsonFile)) {
+                await fs.rm(existingJsonFile, { force: true });
+            }
+        }
+
+        manifestUrls.sort((left, right) => left.localeCompare(right));
+        await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
+    };
 
     return {
         name: "vite-plugin-ink",
         enforce: "pre",
+
+        configResolved(config) {
+            resolvedConfig = config;
+            if (inkJsonPublicDir && !inkGlob) {
+                throw new Error(
+                    "vitePluginInk option `inkJsonPublicDir` requires `inkGlob` to be set.",
+                );
+            }
+            if (inkJsonPublicDir) {
+                resolvePublicSubdirectory(config.publicDir, inkJsonPublicDir);
+            }
+        },
+
+        async buildStart() {
+            await exportInkJsonFiles();
+        },
+
+        configureServer() {
+            void exportInkJsonFiles();
+        },
 
         resolveId(id) {
             if (id === VIRTUAL_MODULE_ID) {
@@ -109,6 +271,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     }
                 });
 
+                await exportInkJsonFiles();
+
                 // Mostra overlay per errori
                 if (error) {
                     server.ws.send({
@@ -137,7 +301,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 return [];
             }
         },
-        async transform(code, id) {
+        async transform(_code, id) {
             if (!id.endsWith(".ink")) return null;
 
             const source = await fs.readFile(id, "utf-8");

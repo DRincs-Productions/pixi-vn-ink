@@ -86,13 +86,14 @@
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
     "@drincs/pixi-vn-json": "1.13.2",
-    "zod": "^4.4.3"
+    "zod": ">=4.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
     "inkjs": "2.4.0",
     "jsdom": "^29.1.1",
     "json5": "^2.2.3",
+    "tinyglobby": "^0.2.16",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.1",
     "typedoc": "^0.28.19",
