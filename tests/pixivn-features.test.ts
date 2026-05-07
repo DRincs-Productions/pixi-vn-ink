@@ -88,6 +88,17 @@ test("show image", async () => {
                     operations: [
                         {
                             type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove image bg x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "image",
                             operationType: "show",
                             alias: "alias",
                             url: "alias",
@@ -441,6 +452,23 @@ test("remove image", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 5,
+                                },
+                            },
+                            $origin: 'remove image bg "/image B.png" x 10 y 20 with dissolve duration 5',
+                        },
+                    ],
+                },
+                {
                     dialogue: "Hello",
                 },
                 {
@@ -452,10 +480,12 @@ test("remove image", async () => {
     };
     const res = convertInkToJson(`
 === start
+#remove image bg x 10 y 20
 #remove image bg
 #remove image "bg 2"
 #remove image bg with dissolve
 #remove image bg with dissolve duration 3
+#remove image bg "/image B.png" x 10 y 20 with dissolve duration 5
 Hello
 -> DONE
 `);
@@ -590,6 +620,34 @@ test("video", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "video",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove video bg x 1 y 2",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "video",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: 'remove video bg "/video B.mp4" x 1 y 2 with dissolve duration 2',
+                        },
+                    ],
+                },
+                {
                     dialogue: "hello",
                 },
                 {
@@ -605,6 +663,8 @@ test("video", async () => {
 # pause video bg
 # resume video bg
 # remove video bg
+# remove video bg x 1 y 2
+# remove video bg "/video B.mp4" x 1 y 2 with dissolve duration 2
 hello
 -> DONE
 `);
@@ -619,6 +679,28 @@ test("imagecontainer", async () => {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "show",
+                            alias: "myText",
+                            text: "myText",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 1,
+                                },
+                            },
+                            props: {
+                                x: 10,
+                                y: 20,
+                            },
+                            $origin: "show text myText x 10 y 20 with dissolve duration 1",
+                        },
+                    ],
+                },
                 {
                     goNextStep: true,
                     operations: [
@@ -780,6 +862,7 @@ test("text", async () => {
     };
     const res = convertInkToJson(`
 === start
+# show text myText x 10 y 20 with dissolve duration 1
 # show text myText "Hello world" x 10 y 20 style \\{ fontFamily: "Arial", dropShadow: \\{ alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, \\}, fill: "\\#ffffff", stroke: \\{ color: "\\#004620", width: 12, join: "round" \\}, fontSize: 60, fontWeight: "lighter" \\} with dissolve
 # remove text myText
 # pause
