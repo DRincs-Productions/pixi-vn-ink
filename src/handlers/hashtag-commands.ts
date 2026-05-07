@@ -7,7 +7,6 @@ import { logger } from "@/utils/log-utility";
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
-    PixiVNJsonCanvasEffect,
     PixiVNJsonLabelStep,
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
@@ -276,57 +275,6 @@ export namespace HashtagCommands {
             }
         }
 
-        const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
-        const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
-        switch (operationType) {
-            default:
-                if (operationType) {
-                    switch (type) {
-                        case "shake": {
-                            let propsEffect = {};
-                            if (list.length > 2) {
-                                try {
-                                    propsEffect = convertListStringToObj(list.slice(2));
-                                } catch (_) {}
-                            }
-                            const effect: PixiVNJsonCanvasEffect = {
-                                alias: operationType,
-                                type: type,
-                                props: propsEffect,
-                            };
-                            return effect;
-                        }
-                        case "animate": {
-                            let keyframes = {};
-                            let options = {};
-                            if (list.length > 2) {
-                                let keyframesList = list.slice(2);
-                                let optionsList: string[] = [];
-                                if (keyframesList.includes("options")) {
-                                    const optionsIndex = keyframesList.indexOf("options");
-                                    optionsList = keyframesList.slice(optionsIndex + 1);
-                                    keyframesList = keyframesList.slice(0, optionsIndex);
-                                }
-                                try {
-                                    keyframes = convertListStringToObj(keyframesList);
-                                } catch (_) {}
-                                if (optionsList.length > 0) {
-                                    try {
-                                        options = convertListStringToObj(optionsList);
-                                    } catch (_) {}
-                                }
-                            }
-                            const animate: PixiVNJsonCanvasAnimate = {
-                                alias: operationType,
-                                type: type,
-                                keyframes: keyframes,
-                                options: options,
-                            };
-                            return animate;
-                        }
-                    }
-                }
-        }
         logger.error("The operation is not valid", list);
         return undefined;
     }
@@ -1008,6 +956,66 @@ function splitImageContainerShowListForValidation(
         afterWith: propList.slice(withIndex + 1),
     };
 }
+
+// # shake <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        alias: list[1],
+        type: "shake",
+        props: list.length > 2 ? HashtagCommands.convertListStringToObj(list.slice(2)) : {},
+    }),
+    {
+        name: "shake-effect",
+        description: "Applies shake effect to a canvas alias with optional key/value parameters.",
+        validation: z
+            .tuple([z.literal("shake"), z.string()])
+            .rest(z.string())
+            .refine((arr) => (arr.length - 2) % 2 === 0),
+    },
+);
+
+// # animate <alias> [<key> <value> …] [options <key> <value> …]
+HashtagCommands.addMapper(
+    (list) => {
+        const commandList = list.slice(2);
+        let keyframesList = commandList;
+        let optionsList: string[] = [];
+        if (commandList.includes("options")) {
+            const optionsIndex = commandList.indexOf("options");
+            keyframesList = commandList.slice(0, optionsIndex);
+            optionsList = commandList.slice(optionsIndex + 1);
+        }
+        const animate: PixiVNJsonCanvasAnimate = {
+            alias: list[1],
+            type: "animate",
+            keyframes:
+                keyframesList.length > 0 ? HashtagCommands.convertListStringToObj(keyframesList) : {},
+            options: optionsList.length > 0 ? HashtagCommands.convertListStringToObj(optionsList) : {},
+        };
+        return animate;
+    },
+    {
+        name: "animate-effect",
+        description:
+            "Animates a canvas alias with keyframes and optional options section, both in key/value pairs.",
+        validation: z
+            .tuple([z.literal("animate"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const commandList = arr.slice(2);
+                const optionsIndex = commandList.indexOf("options");
+                if (optionsIndex === -1) {
+                    return commandList.length % 2 === 0;
+                }
+                if (commandList.lastIndexOf("options") !== optionsIndex) {
+                    return false;
+                }
+                const keyframesList = commandList.slice(0, optionsIndex);
+                const optionsList = commandList.slice(optionsIndex + 1);
+                return keyframesList.length % 2 === 0 && optionsList.length % 2 === 0;
+            }),
+    },
+);
 
 // # show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
