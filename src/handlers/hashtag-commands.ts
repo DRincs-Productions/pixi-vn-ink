@@ -361,29 +361,6 @@ export namespace HashtagCommands {
                         );
                 }
                 break;
-            case "remove": {
-                if (typeCanvasElement === "image" || typeCanvasElement === "video") {
-                    logger.error(
-                        "This remove operation is not valid for this type of element",
-                        typeCanvasElement,
-                    );
-                    return undefined;
-                }
-                const removeOp: PixiVNJsonOperation = {
-                    type: typeCanvasElement,
-                    operationType: "remove",
-                    alias: imageId,
-                };
-                if (propsList.length > 1 && propsList[0] === "with") {
-                    const transitionType = list[list.indexOf("with") + 1];
-                    const transitionList = list.slice(list.indexOf("with") + 2);
-                    const transition = getTransition(transitionType, transitionList);
-                    if (transition !== undefined) {
-                        removeOp.transition = transition;
-                    }
-                }
-                return removeOp;
-            }
             default:
                 logger.error("The operation type is not valid", type);
         }
@@ -1052,8 +1029,8 @@ function getTextShowOperationForMapper(
     return op;
 }
 
-function getImageOrVideoRemoveOperationForMapper(
-    type: "image" | "video",
+function getCanvasRemoveOperationForMapper(
+    type: "image" | "video" | "canvaselement" | "text" | "imagecontainer",
     alias: string,
     list: string[],
 ): PixiVNJsonOperation | undefined {
@@ -1121,7 +1098,7 @@ HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
         const propsList = convertListStringToPropListForMapper(list.slice(3));
-        return getImageOrVideoRemoveOperationForMapper("image", alias, propsList);
+        return getCanvasRemoveOperationForMapper("image", alias, propsList);
     },
     {
         name: "remove-image",
@@ -1136,13 +1113,61 @@ HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
         const propsList = convertListStringToPropListForMapper(list.slice(3));
-        return getImageOrVideoRemoveOperationForMapper("video", alias, propsList);
+        return getCanvasRemoveOperationForMapper("video", alias, propsList);
     },
     {
         name: "remove-video",
         description:
             "Removes a video canvas element with optional source/properties and transition.",
         validation: z.tuple([z.literal("remove"), z.literal("video"), z.string()]).rest(z.string()),
+    },
+);
+
+// # remove canvaselement <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("canvaselement", alias, propsList);
+    },
+    {
+        name: "remove-canvaselement",
+        description:
+            "Removes a canvas element with optional properties and optional transition params.",
+        validation: z
+            .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # remove text <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("text", alias, propsList);
+    },
+    {
+        name: "remove-text",
+        description: "Removes a text canvas element with optional properties and transition.",
+        validation: z.tuple([z.literal("remove"), z.literal("text"), z.string()]).rest(z.string()),
+    },
+);
+
+// # remove imagecontainer <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("imagecontainer", alias, propsList);
+    },
+    {
+        name: "remove-imagecontainer",
+        description:
+            "Removes an image-container canvas element with optional properties and transition.",
+        validation: z
+            .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string()),
     },
 );
 

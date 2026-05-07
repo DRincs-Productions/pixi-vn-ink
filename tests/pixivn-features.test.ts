@@ -671,6 +671,70 @@ hello
     expect(res).toEqual(expected);
 });
 
+test("remove canvaselement", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "canvaselement",
+                            operationType: "remove",
+                            alias: "box",
+                            $origin: "remove canvaselement box x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "canvaselement",
+                            operationType: "remove",
+                            alias: "box",
+                            transition: {
+                                type: "dissolve",
+                            },
+                            $origin: "remove canvaselement box x 10 y 20 with dissolve",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "canvaselement",
+                            operationType: "remove",
+                            alias: "box",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: "remove canvaselement box x 10 y 20 with dissolve duration 2",
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== start
+# remove canvaselement box x 10 y 20
+# remove canvaselement box x 10 y 20 with dissolve
+# remove canvaselement box x 10 y 20 with dissolve duration 2
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
 /**
  * ImageContainer
  */
@@ -698,6 +762,34 @@ test("imagecontainer", async () => {
                             operationType: "remove",
                             alias: "bg",
                             $origin: "remove imagecontainer bg",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove imagecontainer bg x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: "remove imagecontainer bg x 10 y 20 with dissolve duration 2",
                         },
                     ],
                 },
@@ -744,6 +836,32 @@ test("imagecontainer", async () => {
                     goNextStep: true,
                 },
                 {
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
                     dialogue: "hello",
                 },
                 {
@@ -757,6 +875,8 @@ test("imagecontainer", async () => {
 === start
 # show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve
 # remove imagecontainer bg
+# remove imagecontainer bg x 10 y 20
+# remove imagecontainer bg x 10 y 20 with dissolve duration 2
 hello
 -> DONE
 `);
@@ -845,6 +965,34 @@ test("text", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "remove",
+                            alias: "myText",
+                            $origin: "remove text myText x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "remove",
+                            alias: "myText",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: "remove text myText x 10 y 20 with dissolve duration 2",
+                        },
+                    ],
+                },
+                {
                     operations: [
                         {
                             type: "dialogue",
@@ -865,6 +1013,8 @@ test("text", async () => {
 # show text myText x 10 y 20 with dissolve duration 1
 # show text myText "Hello world" x 10 y 20 style \\{ fontFamily: "Arial", dropShadow: \\{ alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, \\}, fill: "\\#ffffff", stroke: \\{ color: "\\#004620", width: 12, join: "round" \\}, fontSize: 60, fontWeight: "lighter" \\} with dissolve
 # remove text myText
+# remove text myText x 10 y 20
+# remove text myText x 10 y 20 with dissolve duration 2
 # pause
 -> DONE
 `);
