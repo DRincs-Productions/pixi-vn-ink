@@ -250,9 +250,12 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             void exportInkJsonFiles().catch((error) => {
                 const normalizedError =
                     error instanceof Error ? error : new Error(String(error));
-                resolvedConfig?.logger.error("[vite-plugin-ink] Failed to export Ink JSON files.", {
-                    error: normalizedError,
-                });
+                resolvedConfig?.logger.error(
+                    "[vite-plugin-ink] Failed to export Ink JSON files during server startup.",
+                    {
+                        error: normalizedError,
+                    },
+                );
             });
         },
 
