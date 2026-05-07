@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import type { PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
 import { HashtagCommands } from "../src/handlers/hashtag-commands";
+import { z } from "zod";
 
 test("mergeJsonBlocks merges sibling JSON-like blocks", () => {
     expect(
@@ -176,4 +177,63 @@ test("convertOperation rejects animate with odd keyframes or options params", ()
             step,
         ),
     ).toBeUndefined();
+});
+
+test("run custom handler uses regex validation filter", async () => {
+    HashtagCommands.clear();
+    const calls: string[] = [];
+    HashtagCommands.add(
+        (script) => {
+            calls.push(script.join(" "));
+            return true;
+        },
+        {
+            name: "only-jump",
+            validation: /^jump\b/,
+        },
+    );
+
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    await HashtagCommands.run("pause", step, {});
+    await HashtagCommands.run("jump target", step, {});
+
+    expect(calls).toEqual(["jump target"]);
+    HashtagCommands.clear();
+});
+
+test("run custom handler uses zod validation filter", async () => {
+    HashtagCommands.clear();
+    let called = 0;
+    HashtagCommands.add(
+        () => {
+            called += 1;
+            return true;
+        },
+        {
+            name: "jump-zod",
+            validation: z.tuple([z.literal("jump"), z.string()]),
+        },
+    );
+
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    await HashtagCommands.run("jump dest", step, {});
+    await HashtagCommands.run("jump", step, {});
+
+    expect(called).toBe(1);
+    HashtagCommands.clear();
+});
+
+test("run custom handler supports deprecated add(handler) overload", async () => {
+    HashtagCommands.clear();
+    let called = 0;
+    HashtagCommands.add(() => {
+        called += 1;
+        return false;
+    });
+
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    await HashtagCommands.run("shake bg", step, {});
+
+    expect(called).toBe(1);
+    HashtagCommands.clear();
 });

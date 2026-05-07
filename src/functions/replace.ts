@@ -129,7 +129,7 @@ function legacyReplaceText(
  * Manages text replacement handlers that process content enclosed in square brackets (`[key]`).
  *
  * Handlers are called in the order they were added. For each handler, the current text is scanned
- * for all `[key]` patterns. If the handler's `regexValidation` matches a key, the handler is
+ * for all `[key]` patterns. If the handler's `validation` matches a key, the handler is
  * invoked with that key. If the handler returns a string, all occurrences of `[key]` are replaced
  * with the returned value. After a handler finishes processing the text, the next handler starts
  * on the updated text.
@@ -151,7 +151,7 @@ function legacyReplaceText(
  *     {
  *         name: "character-name",
  *         description: "Replaces character IDs with their display names",
- *         regexValidation: /^[a-z_]+$/,
+ *         validation: /^[a-z_]+$/,
  *         type: "after-translation",
  *     }
  * )
@@ -202,7 +202,7 @@ export namespace TextReplaces {
      *     (key) => key === "player" ? "Mario" : undefined,
      *     {
      *         name: "player-name",
-     *         regexValidation: /^player$/,
+     *         validation: /^player$/,
      *     }
      * )
      * ```
@@ -249,7 +249,7 @@ export namespace TextReplaces {
      *
      * For each handler:
      * 1. All `[key]` tokens currently present in the text are collected.
-     * 2. For each unique key, the handler's `regexValidation` is tested against the key.
+     * 2. For each unique key, the handler's `validation` is tested against the key.
      * 3. If validation passes, the handler is called with the key.
      * 4. If the handler returns a string, **all** occurrences of `[key]` in the text are
      *    replaced with that string.

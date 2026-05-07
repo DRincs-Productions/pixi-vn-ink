@@ -1335,7 +1335,7 @@ test("replace", async () => {
     }, {
         name: "test replace",
         // all
-        regexValidation: /.*/,
+        validation: "all",
     });
     const res = translator.translate(`Hello [john], my name is [alice]`);
     expect(res).toEqual(`Hello John, my name is Alice`);
