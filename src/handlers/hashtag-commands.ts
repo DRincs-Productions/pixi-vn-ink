@@ -299,7 +299,7 @@ export namespace HashtagCommands {
                             const effect: PixiVNJsonCanvasEffect = {
                                 alias: operationType,
                                 type: type,
-                                props: propsEffect as any,
+                                props: propsEffect,
                             };
                             return effect;
                         }
@@ -485,7 +485,7 @@ export namespace HashtagCommands {
             }
             if (propList.length > 0) {
                 const props = convertPropListStringToObj(propList);
-                op.props = props as any;
+                op.props = props;
             }
         }
         return op;
