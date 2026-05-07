@@ -281,7 +281,6 @@ export namespace HashtagCommands {
         const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
         switch (operationType) {
             case "image":
-            case "imagecontainer":
             case "canvaselement":
             case "video":
             case "text":
@@ -1050,6 +1049,33 @@ function getCanvasRemoveOperationForMapper(
     return op;
 }
 
+function getImageContainerShowOperationForMapper(
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
+    return getContainerOperationFromComment("imagecontainer", alias, list);
+}
+
+function splitImageContainerShowListForValidation(
+    fullList: string[],
+): { beforeWith: string[]; afterWith: string[] } | undefined {
+    const commandList = fullList.slice(3);
+    const startIndex = commandList.findIndex((item) => item.startsWith("["));
+    const endIndex = commandList.findIndex((item) => item.endsWith("]"));
+    if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+        return undefined;
+    }
+    const propList = commandList.slice(endIndex + 1);
+    const withIndex = propList.indexOf("with");
+    if (withIndex === -1) {
+        return { beforeWith: propList, afterWith: [] };
+    }
+    return {
+        beforeWith: propList.slice(0, withIndex),
+        afterWith: propList.slice(withIndex + 1),
+    };
+}
+
 // # show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
@@ -1062,6 +1088,70 @@ HashtagCommands.addMapper(
         description:
             "Shows an image canvas element with optional source, properties, and transition.",
         validation: z.tuple([z.literal("show"), z.literal("image"), z.string()]).rest(z.string()),
+    },
+);
+
+// # show imagecontainer <alias> [<list>] [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => getImageContainerShowOperationForMapper(list[2], convertListStringToPropListForMapper(list.slice(3))),
+    {
+        name: "show-imagecontainer",
+        description:
+            "Shows an image-container canvas element with list and optional key/value properties.",
+        validation: z
+            .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const split = splitImageContainerShowListForValidation(arr);
+                if (split === undefined) {
+                    return false;
+                }
+                return split.afterWith.length === 0 && split.beforeWith.length % 2 === 0;
+            }),
+    },
+);
+
+// # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition>
+HashtagCommands.addMapper(
+    (list) => getImageContainerShowOperationForMapper(list[2], convertListStringToPropListForMapper(list.slice(3))),
+    {
+        name: "show-imagecontainer-with-transition",
+        description:
+            "Shows an image-container canvas element with list, optional properties, and transition.",
+        validation: z
+            .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const split = splitImageContainerShowListForValidation(arr);
+                if (split === undefined) {
+                    return false;
+                }
+                return split.afterWith.length === 1 && split.beforeWith.length % 2 === 0;
+            }),
+    },
+);
+
+// # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition> <key> <value> …
+HashtagCommands.addMapper(
+    (list) => getImageContainerShowOperationForMapper(list[2], convertListStringToPropListForMapper(list.slice(3))),
+    {
+        name: "show-imagecontainer-with-transition-props",
+        description:
+            "Shows an image-container canvas element with list, optional properties, transition, and transition properties.",
+        validation: z
+            .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const split = splitImageContainerShowListForValidation(arr);
+                if (split === undefined) {
+                    return false;
+                }
+                return (
+                    split.afterWith.length > 1 &&
+                    (split.afterWith.length - 1) % 2 === 0 &&
+                    split.beforeWith.length % 2 === 0
+                );
+            }),
     },
 );
 
