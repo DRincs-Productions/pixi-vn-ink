@@ -187,4 +187,59 @@ describe("vitePluginInk", () => {
         );
         await expect(fs.access(jsonPath)).resolves.toBeUndefined();
     });
+
+    it("treats inkGlob as rooted at project root (supports leading slash)", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "src", "stories"), { recursive: true });
+        await fs.mkdir(path.join(root, "public", "stories"), { recursive: true });
+
+        await fs.writeFile(path.join(root, "ink", "from-ink.ink"), "=== start ===\nInk.\n", "utf-8");
+        await fs.writeFile(
+            path.join(root, "src", "stories", "from-src.ink"),
+            "=== start ===\nSrc.\n",
+            "utf-8",
+        );
+        await fs.writeFile(
+            path.join(root, "public", "stories", "from-public.ink"),
+            "=== start ===\nPublic.\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "/**/*.ink",
+            inkJsonOutputPattern: "./generated/[dir][name].json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+        } as ResolvedConfig);
+
+        await plugin.buildStart?.call(undefined);
+
+        await expect(fs.access(path.join(root, "generated", "ink", "from-ink.json"))).resolves.toBeUndefined();
+        await expect(
+            fs.access(path.join(root, "generated", "src", "stories", "from-src.json")),
+        ).resolves.toBeUndefined();
+        await expect(
+            fs.access(path.join(root, "generated", "public", "stories", "from-public.json")),
+        ).resolves.toBeUndefined();
+    });
+
+    it("rejects inkGlob patterns that escape project root", async () => {
+        const plugin = vitePluginInk({
+            inkGlob: "../**/*.ink",
+            inkJsonOutputPattern: "./generated/[name].json",
+        });
+
+        expect(() =>
+            plugin.configResolved?.({
+                root: "/tmp/project",
+                publicDir: "/tmp/project/public",
+            } as ResolvedConfig),
+        ).toThrow("must be rooted in Vite `root`");
+    });
 });

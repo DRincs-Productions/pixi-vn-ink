@@ -16,6 +16,20 @@ function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");
 }
 
+function getRootRelativeInkGlob(inkGlob: string): string {
+    const normalized = normalizeSlashes(inkGlob.trim());
+    if (!normalized) {
+        throw new Error("vitePluginInk option `inkGlob` must not be empty.");
+    }
+    const withoutPrefix = normalized.replace(/^\.?\//, "");
+    if (!withoutPrefix || withoutPrefix.startsWith("../")) {
+        throw new Error(
+            "vitePluginInk option `inkGlob` must be rooted in Vite `root` and cannot escape it.",
+        );
+    }
+    return withoutPrefix;
+}
+
 function getGlobBaseDirectory(root: string, pattern: string): string {
     const segments = normalizeSlashes(pattern).split("/");
     const staticSegments: string[] = [];
@@ -284,9 +298,15 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         if (!outputPattern) {
             return;
         }
+        const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
         const outputDirectory = getOutputBaseDirectory(outputPattern);
-        const inputBaseDirectory = getGlobBaseDirectory(resolvedConfig.root, inkGlob);
-        const matchedFiles = await glob(inkGlob, {
+        const inputBaseDirectory = getGlobBaseDirectory(resolvedConfig.root, rootRelativeInkGlob);
+        if (!isInsideDirectory(resolvedConfig.root, inputBaseDirectory)) {
+            throw new Error(
+                "vitePluginInk option `inkGlob` must be rooted in Vite `root` and cannot escape it.",
+            );
+        }
+        const matchedFiles = await glob(rootRelativeInkGlob, {
             absolute: true,
             cwd: resolvedConfig.root,
             onlyFiles: true,
@@ -377,6 +397,15 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         configResolved(config) {
             resolvedConfig = config;
+            const rootRelativeInkGlob = inkGlob ? getRootRelativeInkGlob(inkGlob) : undefined;
+            if (rootRelativeInkGlob) {
+                const inputBaseDirectory = getGlobBaseDirectory(config.root, rootRelativeInkGlob);
+                if (!isInsideDirectory(config.root, inputBaseDirectory)) {
+                    throw new Error(
+                        "vitePluginInk option `inkGlob` must be rooted in Vite `root` and cannot escape it.",
+                    );
+                }
+            }
             if ((inkJsonPublicDir || inkJsonOutputPattern) && !inkGlob) {
                 throw new Error(
                     "vitePluginInk options `inkJsonPublicDir` and `inkJsonOutputPattern` require `inkGlob` to be set.",
@@ -429,8 +458,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 if (!inkGlob) {
                     return "export default [];";
                 }
+                const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
                 return [
-                    `const modules = import.meta.glob(${JSON.stringify(inkGlob)}, { eager: true, import: 'default' });`,
+                    `const modules = import.meta.glob(${JSON.stringify(`/${rootRelativeInkGlob}`)}, { eager: true, import: 'default' });`,
                     "export default Object.values(modules);",
                 ].join("\n");
             }
