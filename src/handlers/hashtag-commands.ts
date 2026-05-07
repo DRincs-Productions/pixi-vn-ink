@@ -1,3 +1,9 @@
+import type {
+    HashtagHandler,
+    HashtagHandlerOptions,
+    MapperHandler,
+} from "@/handlers/interfaces/HashtagHandler";
+import { logger } from "@/utils/log-utility";
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
@@ -8,12 +14,6 @@ import type {
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
 import z, { ZodType } from "zod";
-import { logger } from "../utils/log-utility";
-import type {
-    HashtagHandler,
-    HashtagHandlerOptions,
-    MapperHandler,
-} from "./interfaces/HashtagHandler";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
