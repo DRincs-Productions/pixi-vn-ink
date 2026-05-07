@@ -348,9 +348,6 @@ export namespace HashtagCommands {
         switch (type) {
             case "show":
                 switch (typeCanvasElement) {
-                    case "image":
-                    case "video":
-                        return getImageOperationFromComment(typeCanvasElement, imageId, propsList);
                     case "imagecontainer":
                         return getContainerOperationFromComment(
                             typeCanvasElement,
@@ -969,6 +966,125 @@ HashtagCommands.addMapper(
             .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
     },
 );
+function convertListStringToPropListForMapper(listParm: string[]): string[] {
+    const list: string[] = [];
+    let curlyBrackets = 0;
+    let temp = "";
+    for (const item of listParm) {
+        if (item.startsWith("{")) {
+            curlyBrackets++;
+            temp += item;
+        } else if (item.endsWith("}") && curlyBrackets > 0) {
+            curlyBrackets--;
+            temp += item;
+            if (curlyBrackets === 0) {
+                list.push(temp);
+                temp = "";
+            }
+        } else if (curlyBrackets > 0) {
+            temp += item;
+        } else {
+            list.push(item);
+        }
+    }
+    return list;
+}
+
+function getTransitionForMapper(
+    transitionType: string,
+    propsList: string[],
+): PixiVNJsonMediaTransiotions | undefined {
+    switch (transitionType) {
+        case "dissolve":
+        case "fade":
+        case "movein":
+        case "moveout":
+        case "zoomin":
+        case "zoomout":
+        case "pushin":
+        case "pushout":
+            break;
+        default:
+            return undefined;
+    }
+    const transition: PixiVNJsonMediaTransiotions = {
+        type: transitionType,
+    };
+    if (propsList.length > 0) {
+        try {
+            transition.props = HashtagCommands.convertListStringToObj(propsList);
+        } catch (_) {}
+    }
+    return transition;
+}
+
+function getImageOrVideoShowOperationForMapper(
+    type: "image" | "video",
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
+    let url: string;
+    let propList: string[];
+    if (list.length % 2 === 0) {
+        url = alias;
+        propList = list;
+    } else {
+        url = list[0];
+        propList = list.slice(1);
+    }
+    const op: PixiVNJsonOperation = {
+        type,
+        operationType: "show",
+        alias,
+        url,
+    };
+    if (propList.length > 0) {
+        if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+            const transitionType = propList[propList.indexOf("with") + 1];
+            const transitionList = propList.slice(propList.indexOf("with") + 2);
+            propList = propList.slice(0, propList.indexOf("with"));
+            const transition = getTransitionForMapper(transitionType, transitionList);
+            if (transition !== undefined) {
+                op.transition = transition;
+            }
+        }
+        if (propList.length > 0) {
+            op.props = HashtagCommands.convertListStringToObj(propList);
+        }
+    }
+    return op;
+}
+
+// # show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getImageOrVideoShowOperationForMapper("image", alias, propsList);
+    },
+    {
+        name: "show-image",
+        description:
+            "Shows an image canvas element with optional source, properties, and transition.",
+        validation: z.tuple([z.literal("show"), z.literal("image"), z.string()]).rest(z.string()),
+    },
+);
+
+// # show video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getImageOrVideoShowOperationForMapper("video", alias, propsList);
+    },
+    {
+        name: "show-video",
+        description:
+            "Shows a video canvas element with optional source, properties, and transition.",
+        validation: z.tuple([z.literal("show"), z.literal("video"), z.string()]).rest(z.string()),
+    },
+);
+
 // # edit image <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
