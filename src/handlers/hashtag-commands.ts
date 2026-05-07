@@ -98,6 +98,14 @@ export namespace HashtagCommands {
     }
 
     /**
+     * This function returns an array of all the registered handlers with their configuration. It can be used to get information about the registered handlers, for example, to display a list of available Hashtag-Commands in a debug menu.
+     * @returns An array of all the registered handlers with their configuration.
+     */
+    export function info(): HashtagHandlerOptions[] {
+        return [...mapperHandlers.map((h) => h.opts), ...handlers.map((h) => h.opts)];
+    }
+
+    /**
      * Registers a new mapper that converts a specific Hashtag-Command pattern into a
      * {@link PixiVNJsonOperation}.
      *
