@@ -1,5 +1,7 @@
-import { vitePluginInk } from "@/vite/plugins";
+import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES, vitePluginInk } from "@/vite/plugins";
+import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import fs from "node:fs/promises";
+import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import type { ResolvedConfig } from "vite";
@@ -241,5 +243,147 @@ describe("vitePluginInk", () => {
                 publicDir: "/tmp/project/public",
             } as ResolvedConfig),
         ).toThrow("must be rooted in Vite `root`");
+    });
+});
+
+/**
+ * Helpers to run a Connect-style middleware list as a minimal HTTP test server.
+ */
+type MiddlewareFn = (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    next: () => void,
+) => void | Promise<void>;
+
+function makeTestServer(middleware: MiddlewareFn): http.Server {
+    return http.createServer((req, res) => {
+        void (async () => {
+            let handled = false;
+            const next = () => {
+                handled = true;
+            };
+            await middleware(req, res, next);
+            if (handled && !res.writableEnded) {
+                res.statusCode = 404;
+                res.end();
+            }
+        })();
+    });
+}
+
+function request(
+    server: http.Server,
+    method: string,
+    path: string,
+    body?: string,
+): Promise<{ status: number; body: string }> {
+    return new Promise((resolve, reject) => {
+        const addr = server.address() as { port: number };
+        const req = http.request(
+            { host: "127.0.0.1", port: addr.port, method, path },
+            (res) => {
+                let data = "";
+                res.on("data", (chunk: Buffer) => {
+                    data += chunk.toString();
+                });
+                res.on("end", () => resolve({ status: res.statusCode ?? 0, body: data }));
+            },
+        );
+        req.on("error", reject);
+        if (body !== undefined) {
+            req.write(body);
+        }
+        req.end();
+    });
+}
+
+describe("vitePluginInk dev API", () => {
+    const servers: http.Server[] = [];
+
+    afterEach(async () => {
+        await Promise.all(
+            servers.map(
+                (s) =>
+                    new Promise<void>((resolve) => {
+                        s.close(() => resolve());
+                    }),
+            ),
+        );
+        servers.length = 0;
+    });
+
+    function startPlugin(): { server: http.Server; middleware: MiddlewareFn } {
+        const plugin = vitePluginInk();
+        let middleware!: MiddlewareFn;
+
+        // Capture the middleware registered via server.middlewares.use(fn)
+        const fakeServer = {
+            middlewares: {
+                use(fn: MiddlewareFn) {
+                    middleware = fn;
+                },
+            },
+        };
+        plugin.configureServer?.(fakeServer as any);
+
+        const server = makeTestServer(middleware);
+        servers.push(server);
+        return new Promise<{ server: http.Server; middleware: MiddlewareFn }>((resolve) => {
+            server.listen(0, "127.0.0.1", () => resolve({ server, middleware }));
+        }) as any;
+    }
+
+    it("GET hashtag-commands returns empty array initially", async () => {
+        const { server } = await startPlugin();
+        const res = await request(server, "GET", INK_DEV_API_HASHTAG_COMMANDS);
+        expect(res.status).toBe(200);
+        expect(JSON.parse(res.body)).toEqual([]);
+    });
+
+    it("GET text-replaces returns empty array initially", async () => {
+        const { server } = await startPlugin();
+        const res = await request(server, "GET", INK_DEV_API_TEXT_REPLACES);
+        expect(res.status).toBe(200);
+        expect(JSON.parse(res.body)).toEqual([]);
+    });
+
+    it("POST hashtag-commands stores the data and GET returns it", async () => {
+        const { server } = await startPlugin();
+        const info: InkHashtagCommandInfo[] = [
+            { name: "navigate", description: "Navigate to a scene" },
+        ];
+        const postRes = await request(
+            server,
+            "POST",
+            INK_DEV_API_HASHTAG_COMMANDS,
+            JSON.stringify(info),
+        );
+        expect(postRes.status).toBe(204);
+
+        const getRes = await request(server, "GET", INK_DEV_API_HASHTAG_COMMANDS);
+        expect(JSON.parse(getRes.body)).toEqual(info);
+    });
+
+    it("POST text-replaces stores the data and GET returns it", async () => {
+        const { server } = await startPlugin();
+        const info: InkTextReplaceInfo[] = [
+            { name: "character-name", description: "Replace IDs with names", type: "after-translation" },
+        ];
+        const postRes = await request(
+            server,
+            "POST",
+            INK_DEV_API_TEXT_REPLACES,
+            JSON.stringify(info),
+        );
+        expect(postRes.status).toBe(204);
+
+        const getRes = await request(server, "GET", INK_DEV_API_TEXT_REPLACES);
+        expect(JSON.parse(getRes.body)).toEqual(info);
+    });
+
+    it("unrelated paths fall through to next", async () => {
+        const { server } = await startPlugin();
+        const res = await request(server, "GET", "/some-other-path");
+        expect(res.status).toBe(404);
     });
 });

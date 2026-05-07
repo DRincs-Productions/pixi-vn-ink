@@ -2,15 +2,49 @@ import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
+import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import type { Plugin, ResolvedConfig } from "vite";
 import { glob } from "tinyglobby";
+import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
 const DEFAULT_JSON_EXPORT_FILE_PATTERN = "[path][name].json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
+
+/**
+ * Dev-server endpoint that exposes and accepts the list of registered
+ * {@link HashtagCommands} handlers as {@link InkHashtagCommandInfo} objects.
+ *
+ * - `GET  /__pixi-vn-ink/hashtag-commands` – returns the stored `InkHashtagCommandInfo[]` as JSON.
+ * - `POST /__pixi-vn-ink/hashtag-commands` – replaces the stored list with the JSON body
+ *   (`InkHashtagCommandInfo[]`). Called automatically by {@link setupInkHmrListener} on
+ *   startup and after each HMR update.
+ *
+ * @example
+ * // VS Code extension reading the registered handlers
+ * const res = await fetch("http://localhost:5173/__pixi-vn-ink/hashtag-commands");
+ * const commands: InkHashtagCommandInfo[] = await res.json();
+ */
+export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
+
+/**
+ * Dev-server endpoint that exposes and accepts the list of registered
+ * {@link TextReplaces} handlers as {@link InkTextReplaceInfo} objects.
+ *
+ * - `GET  /__pixi-vn-ink/text-replaces` – returns the stored `InkTextReplaceInfo[]` as JSON.
+ * - `POST /__pixi-vn-ink/text-replaces` – replaces the stored list with the JSON body
+ *   (`InkTextReplaceInfo[]`). Called automatically by {@link setupInkHmrListener} on
+ *   startup and after each HMR update.
+ *
+ * @example
+ * // VS Code extension reading the registered text-replace handlers
+ * const res = await fetch("http://localhost:5173/__pixi-vn-ink/text-replaces");
+ * const replaces: InkTextReplaceInfo[] = await res.json();
+ */
+export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
 
 function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");
@@ -284,9 +318,22 @@ export interface VitePluginInkOptions {
  *
  * await Promise.all(stories.map((story) => importPixiVNJson(story)));
  */
+function readBody(req: IncomingMessage): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let body = "";
+        req.on("data", (chunk: Buffer) => {
+            body += chunk.toString();
+        });
+        req.on("end", () => resolve(body));
+        req.on("error", reject);
+    });
+}
+
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     const { inkGlob, inkJsonPublicDir, inkJsonOutputPattern } = options ?? {};
     let resolvedConfig: ResolvedConfig | undefined;
+    let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
+    let textReplacesStore: InkTextReplaceInfo[] = [];
 
     const exportInkJsonFiles = async () => {
         if (!resolvedConfig || !inkGlob) {
@@ -437,7 +484,54 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             await exportInkJsonFiles();
         },
 
-        configureServer() {
+        configureServer(server) {
+            server.middlewares.use(async (req, res, next) => {
+                const url = req.url;
+                const method = req.method;
+
+                if (url === INK_DEV_API_HASHTAG_COMMANDS) {
+                    if (method === "GET") {
+                        res.setHeader("Content-Type", "application/json");
+                        res.end(JSON.stringify(hashtagCommandsStore));
+                        return;
+                    }
+                    if (method === "POST") {
+                        try {
+                            const body = await readBody(req);
+                            hashtagCommandsStore = JSON.parse(body) as InkHashtagCommandInfo[];
+                            res.statusCode = 204;
+                            res.end();
+                        } catch {
+                            res.statusCode = 400;
+                            res.end();
+                        }
+                        return;
+                    }
+                }
+
+                if (url === INK_DEV_API_TEXT_REPLACES) {
+                    if (method === "GET") {
+                        res.setHeader("Content-Type", "application/json");
+                        res.end(JSON.stringify(textReplacesStore));
+                        return;
+                    }
+                    if (method === "POST") {
+                        try {
+                            const body = await readBody(req);
+                            textReplacesStore = JSON.parse(body) as InkTextReplaceInfo[];
+                            res.statusCode = 204;
+                            res.end();
+                        } catch {
+                            res.statusCode = 400;
+                            res.end();
+                        }
+                        return;
+                    }
+                }
+
+                next();
+            });
+
             void exportInkJsonFiles().catch((error) => {
                 const normalizedError =
                     error instanceof Error ? error : new Error(String(error));
