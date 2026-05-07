@@ -1,15 +1,18 @@
+import type {
+    HashtagHandler,
+    HashtagHandlerOptions,
+    MapperHandler,
+} from "@/handlers/interfaces/HashtagHandler";
+import { logger } from "@/utils/log-utility";
 import type { StepLabelPropsType } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
-    PixiVNJsonCanvasEffect,
-    PixiVNJsonCanvasShow,
     PixiVNJsonLabelStep,
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
-import { logger } from "../utils/log-utility";
-import type HashtagHandler from "./interfaces/HashtagHandler";
+import z, { ZodType } from "zod";
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -21,15 +24,30 @@ const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 /**
  * This is a container for the functions related to the Hashtag-Command, a system that allows to run custom operations from the Ink command using a special syntax. The Hashtag-Command is a string that starts with `#` and is followed by the operation type and its parameters. The system will interpret the Hashtag-Command and run the corresponding operation before running the step. The developer can also add custom handlers to run custom operations from the Hashtag-Command using the {@link add} function.
  */
-namespace HashtagCommands {
-    const handlers: Array<HashtagHandler> = [(_script: string[]) => false];
+export namespace HashtagCommands {
+    const handlers: { fn: HashtagHandler; opts: HashtagHandlerOptions }[] = [];
+    const mapperHandlers: { fn: MapperHandler; opts: HashtagHandlerOptions }[] = [];
     async function runCustomCommand(
         script: string[],
         props: StepLabelPropsType,
     ): Promise<boolean | string> {
         for (let i = 0; i < handlers.length; i++) {
             try {
-                const res = await handlers[i](script, props, convertListStringToObj);
+                const { validation } = handlers[i].opts;
+                // "all" → always invoke this handler
+                if (validation instanceof RegExp) {
+                    // RegExp → join tokens with a space and test against the pattern
+                    if (!validation.test(script.join(" "))) {
+                        continue;
+                    }
+                } else if (validation instanceof ZodType) {
+                    // Zod schema → validate the full string[] array
+                    const result = validation.safeParse(script);
+                    if (!result.success) {
+                        continue;
+                    }
+                }
+                const res = await handlers[i].fn(script, props, convertListStringToObj);
                 if (res === true || typeof res === "string") {
                     return res;
                 }
@@ -41,10 +59,15 @@ namespace HashtagCommands {
     }
 
     /**
+     * @deprecated Use the two-parameter overload with {@link HashtagHandlerOptions} instead.
+     */
+    export function add(handler: HashtagHandler): void;
+    /**
      * This function add a new handler (middleware) that will be called before the system interprets a possible Hashtag-Command that starts with `#`.
      * The developer can use this function to run a custom Hashtag-Command. If the function returns `true`, the system will not interpret the Hashtag-Command.
      * If returns a array of strings, the system will interpret the array as a new Hashtag-Command.
      * @param handler The handler to run a custom Hashtag-Command
+     * @param opts Configuration for this handler, including its name, optional description, and validation rule.
      * @example
      * ```ts
      * import { HashtagScript } from 'pixi-vn-ink'
@@ -60,11 +83,59 @@ namespace HashtagCommands {
      *        return true
      *    }
      *    return false
-     * })
+     * }, { name: "navigate-command", validation: /^navigate\b/ })
      * ```
      */
-    export function add(handler: HashtagHandler) {
-        handlers.push(handler);
+    export function add(handler: HashtagHandler, opts: HashtagHandlerOptions): void;
+    export function add(
+        handler: HashtagHandler,
+        opts: HashtagHandlerOptions = {
+            name: "custom-command",
+            validation: /^/,
+        },
+    ) {
+        handlers.push({ fn: handler, opts });
+    }
+
+    /**
+     * Registers a new mapper that converts a specific Hashtag-Command pattern into a
+     * {@link PixiVNJsonOperation}.
+     *
+     * Mappers are evaluated in registration order by
+     * {@link HashtagCommands.convertOperation} **before** the built-in `switch` table.  The
+     * first mapper whose {@link HashtagHandlerOptions.validation} matches the raw token list is
+     * called and its return value is used as the operation; subsequent mappers (and the built-in
+     * switch) are skipped.
+     *
+     * Use `addMapper` instead of {@link add} when you want to extend or override the built-in
+     * command → operation translation without intercepting the full handler pipeline.
+     *
+     * @param handler A {@link MapperHandler} that receives the full token list and the current
+     *   step, and returns either a {@link PixiVNJsonOperation} or `undefined`.
+     * @param opts Configuration including a name, optional description, and the validation rule
+     *   used to select this mapper.
+     *
+     * @example
+     * ```ts
+     * import { HashtagCommands } from 'pixi-vn-ink'
+     * import { z } from 'zod'
+     *
+     * // Handle: # navigate scene_name
+     * HashtagCommands.addMapper(
+     *     (list, step) => {
+     *         step.labelToOpen = { label: list[1], type: "jump" }
+     *         step.goNextStep = undefined
+     *         return undefined
+     *     },
+     *     {
+     *         name: "navigate-command",
+     *         validation: z.tuple([z.literal("navigate"), z.string()]),
+     *     },
+     * )
+     * ```
+     */
+    export function addMapper(handler: MapperHandler, opts: HashtagHandlerOptions) {
+        mapperHandlers.push({ fn: handler, opts });
     }
 
     /**
@@ -72,6 +143,16 @@ namespace HashtagCommands {
      */
     export function clear() {
         handlers.length = 0;
+    }
+
+    /**
+     * Removes all mapper handlers registered with {@link addMapper}.
+     *
+     * Useful in tests to reset the mapper state between test cases, or in applications that need
+     * to replace the default mappers with a custom set.
+     */
+    export function clearMappers() {
+        mapperHandlers.length = 0;
     }
 
     /**
@@ -97,7 +178,7 @@ namespace HashtagCommands {
                 if (customCommand.startsWith("#")) {
                     customCommand = customCommand.substring(1);
                 }
-                return HashtagCommands.run(customCommand, step, props);
+                return await HashtagCommands.run(customCommand, step, props);
             }
 
             return convertOperation(list, step);
@@ -159,417 +240,43 @@ namespace HashtagCommands {
                 .replaceAll(QUOTES_CONVERTER, "'")
                 .replaceAll(SPECIAL_QUOTES_CONVERTER, "`"),
         );
+        // find the { and } that are not between quotes and join only valid JSON-like blocks
+        // ["edit","image","bg","position","{",'"x":',"-20.5,",'"y":',"30,",'"test":','"test } \' test",','"test2":','"\'"',"}","visible","true","cursor",'"pointer"',"alpha","0.5",];
+        list = mergeJsonBlocks(list);
+        list = list.map((item) => {
+            if (
+                (item.startsWith('"') && item.endsWith('"')) ||
+                (item.startsWith("'") && item.endsWith("'")) ||
+                (item.startsWith("`") && item.endsWith("`"))
+            ) {
+                return item.slice(1, -1);
+            }
+            return item;
+        });
         return list;
     }
     export function convertOperation(
         list: string[],
         step: PixiVNJsonLabelStep,
     ): PixiVNJsonOperation | undefined {
-        const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
-        const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
-        switch (operationType) {
-            case "image":
-            case "imagecontainer":
-            case "canvaselement":
-            case "video":
-            case "text":
-                if (operationType === "video" && (type === "pause" || type === "resume")) {
-                    return {
-                        type: "video",
-                        operationType: type as any,
-                        alias: removeExtraDoubleQuotes(list[2]),
-                    };
-                } else {
-                    return getCanvasOperationFromComment(list, operationType);
-                }
-            case "sound":
-            case "channel":
-                return getSoundOperationFromComment(list, operationType);
-            case "input":
-                if (type === "request") {
-                    const op: PixiVNJsonOperation = {
-                        type: "input",
-                        operationType: "request",
-                    };
-                    if (list.length > 2) {
-                        try {
-                            const propList = list.slice(2);
-                            const props = convertListStringToObj(propList);
-                            if ("type" in props && typeof props.type === "string") {
-                                op.valueType = props.type;
-                            }
-                            if ("default" in props) {
-                                op.defaultValue = props.default;
-                            }
-                        } catch (_) {}
-                    }
-                    return op;
-                }
-                break;
-            case "assets":
-            case "bundle":
-                switch (type) {
-                    case "load":
-                    case "lazyload": {
-                        const op: PixiVNJsonOperation = {
-                            type: operationType,
-                            operationType: type,
-                            aliases: list.slice(2),
-                        };
-                        return op;
-                    }
-                }
-                break;
-            case "all":
-                if (list.length > 2) {
-                    switch (list[2]) {
-                        case "sounds":
-                        case "sound":
-                            switch (type) {
-                                case "pause":
-                                case "resume":
-                                case "stop":
-                                    return {
-                                        type: "all",
-                                        operationType: type,
-                                    };
-                            }
-                    }
-                }
-                break;
-            default:
-                if (operationType) {
-                    switch (type) {
-                        case "call":
-                        case "jump":
-                            step.labelToOpen = {
-                                label: operationType,
-                                type: type,
-                            };
-                            step.goNextStep = undefined;
-                            return;
-                        case "shake": {
-                            let propsEffect = {};
-                            if (list.length > 2) {
-                                try {
-                                    propsEffect = convertListStringToObj(list.slice(2));
-                                } catch (_) {}
-                            }
-                            const effect: PixiVNJsonCanvasEffect = {
-                                alias: operationType,
-                                type: type,
-                                props: propsEffect as any,
-                            };
-                            return effect;
-                        }
-                        case "animate": {
-                            let keyframes = {};
-                            let options = {};
-                            if (list.length > 2) {
-                                let keyframesList = list.slice(2);
-                                let optionsList: string[] = [];
-                                if (keyframesList.includes("options")) {
-                                    const optionsIndex = keyframesList.indexOf("options");
-                                    optionsList = keyframesList.slice(optionsIndex + 1);
-                                    keyframesList = keyframesList.slice(0, optionsIndex);
-                                }
-                                try {
-                                    keyframes = convertListStringToObj(keyframesList);
-                                } catch (_) {}
-                                if (optionsList.length > 0) {
-                                    try {
-                                        options = convertListStringToObj(optionsList);
-                                    } catch (_) {}
-                                }
-                            }
-                            const animate: PixiVNJsonCanvasAnimate = {
-                                alias: operationType,
-                                type: type,
-                                keyframes: keyframes,
-                                options: options,
-                            };
-                            return animate;
-                        }
-                    }
-                } else {
-                    switch (type) {
-                        case "pause":
-                            if ("dialogue" in step) {
-                                delete step.dialogue;
-                            }
-                            if ("goNextStep" in step) {
-                                delete step.goNextStep;
-                            }
-                            return {
-                                type: "dialogue",
-                                operationType: "clean",
-                            };
-                        case "continue":
-                            step.goNextStep = true;
-                            step.glueEnabled = false;
-                            return undefined;
-                    }
-                }
+        // Try each registered mapper whose validation matches the raw token list.
+        // The first match wins; its return value (including undefined) is used directly.
+        for (const mapper of mapperHandlers) {
+            const { validation } = mapper.opts;
+            let matches = false;
+            if (validation instanceof RegExp) {
+                matches = validation.test(list.join(" "));
+            } else if (validation instanceof ZodType) {
+                const result = validation.safeParse(list);
+                matches = result.success;
+            }
+            if (matches) {
+                return mapper.fn(list, step);
+            }
         }
+
         logger.error("The operation is not valid", list);
         return undefined;
-    }
-
-    function getCanvasOperationFromComment(
-        list: string[],
-        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement" | "text",
-    ): PixiVNJsonOperation | undefined {
-        const type = removeExtraDoubleQuotes(list[0]);
-        const imageId = removeExtraDoubleQuotes(list[2]);
-        const propsList = convertListStringToPropList(list.slice(3));
-        switch (type) {
-            case "show":
-                switch (typeCanvasElement) {
-                    case "image":
-                    case "video":
-                        return getImageOperationFromComment(typeCanvasElement, imageId, propsList);
-                    case "imagecontainer":
-                        return getContainerOperationFromComment(
-                            typeCanvasElement,
-                            imageId,
-                            propsList,
-                        );
-                    case "text":
-                        return getTextOperationFromComment(typeCanvasElement, imageId, propsList);
-                    default:
-                        logger.error(
-                            "This show operation is not valid for this type of element",
-                            typeCanvasElement,
-                        );
-                }
-                break;
-            case "edit": {
-                const editOp: PixiVNJsonOperation = {
-                    type: typeCanvasElement,
-                    operationType: "edit",
-                    alias: imageId,
-                    props: convertPropListStringToObj(propsList) as any,
-                };
-                return editOp;
-            }
-            case "remove": {
-                const removeOp: PixiVNJsonOperation = {
-                    type: typeCanvasElement,
-                    operationType: "remove",
-                    alias: imageId,
-                };
-                if (propsList.length > 1 && propsList[0] === "with") {
-                    const transitionType = list[list.indexOf("with") + 1];
-                    const transitionList = list.slice(list.indexOf("with") + 2);
-                    const transition = getTransition(transitionType, transitionList);
-                    if (transition !== undefined) {
-                        removeOp.transition = transition;
-                    }
-                }
-                return removeOp;
-            }
-            default:
-                logger.error("The operation type is not valid", type);
-        }
-        return undefined;
-    }
-    function getImageOperationFromComment(
-        typeCanvasElement: "image" | "video",
-        imageId: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        let url: string;
-        let propList: string[];
-        if (list.length % 2 === 0) {
-            url = imageId;
-            propList = list;
-        } else {
-            url = removeExtraDoubleQuotes(list[0]);
-            propList = list.slice(1);
-        }
-        const op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            url: url,
-        };
-        return setShowProps(op, propList);
-    }
-    function getTextOperationFromComment(
-        typeCanvasElement: "text",
-        imageId: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        let text: string;
-        let propList: string[];
-        if (list.length % 2 === 0) {
-            text = imageId;
-            propList = list;
-        } else {
-            text = removeExtraDoubleQuotes(list[0]);
-            propList = list.slice(1);
-        }
-        const op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            text: text,
-        };
-        return setShowProps(op, propList);
-    }
-    function getContainerOperationFromComment(
-        typeCanvasElement: "imagecontainer",
-        imageId: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
-        let urls = [];
-        const startIndex = list.findIndex((item) => item.startsWith("["));
-        const endIndex = list.findIndex((item) => item.endsWith("]"));
-        if (startIndex === -1 || endIndex === -1) {
-            logger.error("Show imagecontainer must have a list of image ulrs", list);
-            return undefined;
-        }
-        urls = list.slice(startIndex, endIndex + 1);
-        if (urls.length < 2) {
-            logger.error("Show imagecontainer must have a list of image ulrs", list);
-            return undefined;
-        }
-        if (urls[0] === "[") {
-            urls.shift();
-        } else {
-            urls[0] = urls[0].substring(1);
-        }
-        if (urls[urls.length - 1] === "]") {
-            urls.pop();
-        } else {
-            urls[urls.length - 1] = urls[urls.length - 1].substring(
-                0,
-                urls[urls.length - 1].length - 1,
-            );
-        }
-        const op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            urls: urls.map((item) => removeExtraDoubleQuotes(item)),
-        };
-        const propList = list.slice(endIndex + 1);
-        return setShowProps(op, propList);
-    }
-
-    function getSoundOperationFromComment(
-        list: string[],
-        operationType: "sound" | "channel",
-    ): PixiVNJsonOperation | undefined {
-        const type = removeExtraDoubleQuotes(list[0]);
-        const soundId = removeExtraDoubleQuotes(list[2]);
-        switch (type) {
-            case "play": {
-                const tempList = convertListStringToPropList(list.slice(3));
-                let url: string;
-                let propList: string[];
-                if (tempList.length % 2 === 0) {
-                    url = soundId;
-                    // # sound play soundId prop1 "value 1" prop2 "value 2"
-                    propList = tempList;
-                } else {
-                    url = removeExtraDoubleQuotes(tempList[0]);
-                    propList = tempList.slice(1);
-                }
-
-                const opplay: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "play",
-                    alias: soundId,
-                };
-                if (url) {
-                    opplay.url = url;
-                }
-                if (list.length > 3) {
-                    const props = convertListStringToObj(propList);
-                    if (props !== undefined) {
-                        opplay.props = props;
-                    }
-                }
-                return opplay;
-            }
-            case "pause":
-            case "resume": {
-                const oppause: PixiVNJsonOperation = {
-                    type: operationType,
-                    operationType: type as any,
-                    alias: soundId,
-                };
-                return oppause;
-            }
-            case "stop":
-            case "remove": {
-                const opremove: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "stop",
-                    alias: soundId,
-                };
-                return opremove;
-            }
-            case "edit": {
-                const opedit: PixiVNJsonOperation = {
-                    type: "sound",
-                    operationType: "edit",
-                    alias: soundId,
-                    props: convertListStringToObj(list.slice(3)),
-                };
-                return opedit;
-            }
-        }
-        return undefined;
-    }
-
-    function setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
-        if (propList.length > 0) {
-            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                const transitionType = propList[propList.indexOf("with") + 1];
-                const transitionList = propList.slice(propList.indexOf("with") + 2);
-                propList = propList.slice(0, propList.indexOf("with"));
-                const transition = getTransition(transitionType, transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
-                }
-            }
-            if (propList.length > 0) {
-                const props = convertPropListStringToObj(propList);
-                op.props = props as any;
-            }
-        }
-        return op;
-    }
-    function getTransition(
-        transitionType: string,
-        propsList: string[],
-    ): PixiVNJsonMediaTransiotions | undefined {
-        switch (transitionType) {
-            case "dissolve":
-            case "fade":
-            case "movein":
-            case "moveout":
-            case "zoomin":
-            case "zoomout":
-            case "pushin":
-            case "pushout":
-                break;
-            default:
-                return undefined;
-        }
-        const transition: PixiVNJsonMediaTransiotions = {
-            type: transitionType,
-        };
-        if (propsList.length > 0) {
-            try {
-                const props = convertPropListStringToObj(propsList);
-                transition.props = props;
-            } catch (_) {}
-        }
-        return transition;
     }
 
     /**
@@ -581,33 +288,91 @@ namespace HashtagCommands {
      * into object:
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
-    function convertListStringToObj(listParm: string[]): object {
-        const list: string[] = convertListStringToPropList(listParm);
-        return convertPropListStringToObj(list);
+    export function convertListStringToObj(listParm: string[]): object {
+        return convertPropListStringToObj(listParm);
     }
-    function convertListStringToPropList(listParm: string[]): string[] {
-        const list: string[] = [];
-        let curly_brackets = 0;
-        let temp = "";
-        for (let i = 0; i < listParm.length; i++) {
-            const item = listParm[i];
-            if (item.startsWith("{")) {
-                curly_brackets++;
-                temp += item;
-            } else if (item.endsWith("}") && curly_brackets > 0) {
-                curly_brackets--;
-                temp += item;
-                if (curly_brackets === 0) {
-                    list.push(temp);
-                    temp = "";
+
+    /**
+     * Merges valid JSON-like blocks delimited by { }
+     * into single strings.
+     *
+     * Rules:
+     * - Braces must be balanced.
+     * - Inner blocks are processed before parent blocks.
+     * - Every generated block is validated with JSON5.parse().
+     * - If a block is invalid:
+     *   - the block remains split
+     *   - all parent blocks also remain split
+     * - Unmatched braces are treated as normal strings.
+     */
+    export function mergeJsonBlocks(tokens: string[]): string[] {
+        return mergeJsonBlockRange(tokens).tokens;
+    }
+
+    function mergeJsonBlockRange(tokens: string[]): {
+        tokens: string[];
+        hasInvalidMatchedBlock: boolean;
+    } {
+        const result: string[] = [];
+        let hasInvalidMatchedBlock = false;
+
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+
+            if (token !== "{") {
+                result.push(token);
+                continue;
+            }
+
+            const currentClose = findMatchingClosingBrace(tokens, i);
+
+            if (currentClose === -1) {
+                result.push(token);
+                continue;
+            }
+
+            const innerBlock = mergeJsonBlockRange(tokens.slice(i + 1, currentClose));
+            const blockTokens = ["{", ...innerBlock.tokens, "}"];
+            const merged = blockTokens.join(" ");
+
+            if (!innerBlock.hasInvalidMatchedBlock) {
+                try {
+                    JSON5.parse(merged);
+                    result.push(merged);
+                    i = currentClose;
+                    continue;
+                } catch {
+                    // keep the block split below
                 }
-            } else if (curly_brackets > 0) {
-                temp += item;
-            } else {
-                list.push(item);
+            }
+
+            hasInvalidMatchedBlock = true;
+            result.push(...blockTokens);
+            i = currentClose;
+        }
+
+        return {
+            tokens: result,
+            hasInvalidMatchedBlock,
+        };
+    }
+
+    function findMatchingClosingBrace(tokens: string[], openIndex: number): number {
+        let depth = 0;
+
+        for (let i = openIndex; i < tokens.length; i++) {
+            if (tokens[i] === "{") {
+                depth++;
+            } else if (tokens[i] === "}") {
+                depth--;
+
+                if (depth === 0) {
+                    return i;
+                }
             }
         }
-        return list;
+
+        return -1;
     }
     function convertPropListStringToObj(list: string[]): object {
         if (list.length === 0) {
@@ -682,7 +447,6 @@ namespace HashtagCommands {
         return false;
     }
 }
-export default HashtagCommands;
 
 /**
  * @deprecated This function is deprecated, use {@link HashtagCommands.add} instead
@@ -690,3 +454,887 @@ export default HashtagCommands;
 export function onInkHashtagScript(runCustomHashtagScript: HashtagHandler) {
     HashtagCommands.add(runCustomHashtagScript);
 }
+
+// # jump label_name  →  jump to the label specified by the second token without returning
+HashtagCommands.addMapper(
+    (list: string[], step: PixiVNJsonLabelStep) => {
+        step.labelToOpen = {
+            label: list[1],
+            type: "call",
+        };
+        step.goNextStep = undefined;
+    },
+    {
+        name: "call",
+        description:
+            "Calls the label specified by the second token, then returns to the current position.",
+        validation: z.tuple([z.literal("call"), z.string()]),
+    },
+);
+
+// # jump label_name  →  jump to the label specified by the second token without returning
+HashtagCommands.addMapper(
+    (list: string[], step: PixiVNJsonLabelStep) => {
+        step.labelToOpen = {
+            label: list[1],
+            type: "jump",
+        };
+        step.goNextStep = undefined;
+    },
+    {
+        name: "jump",
+        description: "Jumps to the label specified by the second token without returning.",
+        validation: z.tuple([z.literal("jump"), z.string()]),
+    },
+);
+
+// # pause  →  clean the current dialogue and halt auto-advance
+HashtagCommands.addMapper(
+    (_list: string[], step: PixiVNJsonLabelStep) => {
+        if ("dialogue" in step) {
+            delete step.dialogue;
+        }
+        if ("goNextStep" in step) {
+            delete step.goNextStep;
+        }
+        return {
+            type: "dialogue",
+            operationType: "clean",
+        };
+    },
+    {
+        name: "pause",
+        description: "Clears the current dialogue and waits for user input before advancing.",
+        validation: z.tuple([z.literal("pause")]),
+    },
+);
+
+// # continue  →  force the step to auto-advance
+HashtagCommands.addMapper(
+    (_list: string[], step: PixiVNJsonLabelStep) => {
+        step.goNextStep = true;
+        step.glueEnabled = false;
+        return undefined;
+    },
+    {
+        name: "continue",
+        description: "Forces the story to proceed to the next step automatically.",
+        validation: z.tuple([z.literal("continue")]),
+    },
+);
+
+// # pause video <alias>  /  # resume video <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "video",
+        operationType: list[0] as "pause" | "resume",
+        alias: list[2],
+    }),
+    {
+        name: "video-pause-resume",
+        description: "Pauses or resumes a video canvas element identified by its alias.",
+        validation: z.tuple([z.enum(["pause", "resume"]), z.literal("video"), z.string()]),
+    },
+);
+
+// # load assets <alias...>  /  # lazyload assets <alias...>
+// # load bundle <alias...>  /  # lazyload bundle <alias...>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: list[1] as "assets" | "bundle",
+        operationType: list[0] as "load" | "lazyload",
+        aliases: list.slice(2),
+    }),
+    {
+        name: "assets-bundle-load",
+        description: "Loads (eagerly or lazily) a set of asset or bundle aliases.",
+        validation: z
+            .tuple([z.enum(["load", "lazyload"]), z.enum(["assets", "bundle"])])
+            .rest(z.string()),
+    },
+);
+
+// # pause all sounds  /  # resume all sounds  /  # stop all sounds
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "all",
+        operationType: list[0] as "pause" | "resume" | "stop",
+    }),
+    {
+        name: "all-sounds-pause-resume-stop",
+        description: "Pauses, resumes, or stops all active sounds at once.",
+        validation: z.tuple([
+            z.enum(["pause", "resume", "stop"]),
+            z.literal("all"),
+            z.enum(["sounds", "sound"]),
+        ]),
+    },
+);
+
+// # pause sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "pause",
+        alias: list[2],
+    }),
+    {
+        name: "pause-sound",
+        description: "Pauses the sound identified by its alias.",
+        validation: z.tuple([z.literal("pause"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # pause channel <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "channel",
+        operationType: "pause",
+        alias: list[2],
+    }),
+    {
+        name: "pause-channel",
+        description: "Pauses the audio channel identified by its alias.",
+        validation: z.tuple([z.literal("pause"), z.literal("channel"), z.string()]),
+    },
+);
+
+// # resume sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "resume",
+        alias: list[2],
+    }),
+    {
+        name: "resume-sound",
+        description: "Resumes the sound identified by its alias.",
+        validation: z.tuple([z.literal("resume"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # resume channel <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "channel",
+        operationType: "resume",
+        alias: list[2],
+    }),
+    {
+        name: "resume-channel",
+        description: "Resumes the audio channel identified by its alias.",
+        validation: z.tuple([z.literal("resume"), z.literal("channel"), z.string()]),
+    },
+);
+
+// # stop sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "stop",
+        alias: list[2],
+    }),
+    {
+        name: "stop-sound",
+        description: "Stops the sound identified by its alias.",
+        validation: z.tuple([z.literal("stop"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # remove sound <alias>
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "stop",
+        alias: list[2],
+    }),
+    {
+        name: "(deprecate) remove-sound",
+        description: "Removes (stops) the sound identified by its alias.",
+        validation: z.tuple([z.literal("remove"), z.literal("sound"), z.string()]),
+    },
+);
+
+// # edit sound <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "sound",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-sound",
+        description: "Edits the properties of a sound identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("sound"), z.string()])
+            .rest(z.string())
+            .refine((arr) => (arr.length - 3) % 2 === 0),
+    },
+);
+
+// # play sound <alias> [<key> <value> …]
+// The alias is also used as the URL when no explicit source is given (even number of extra tokens).
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "play",
+            alias,
+            url: alias,
+        };
+        if (list.length > 3) {
+            op.props = HashtagCommands.convertListStringToObj(list.slice(3));
+        }
+        return op;
+    },
+    {
+        name: "play-sound",
+        description:
+            "Plays a sound using its alias as the URL, with optional key/value properties.",
+        validation: z
+            .tuple([z.literal("play"), z.literal("sound"), z.string()])
+            .rest(z.string())
+            .refine((arr) => (arr.length - 3) % 2 === 0),
+    },
+);
+
+// # play sound <alias> <source> [<key> <value> …]
+// An explicit source URL is present when the number of extra tokens after the alias is odd.
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const url = list[3];
+        const op: PixiVNJsonOperation = {
+            type: "sound",
+            operationType: "play",
+            alias,
+            url,
+        };
+        if (list.length > 4) {
+            op.props = HashtagCommands.convertListStringToObj(list.slice(4));
+        }
+        return op;
+    },
+    {
+        name: "play-sound-with-source",
+        description: "Plays a sound with an explicit source URL and optional key/value properties.",
+        validation: z
+            .tuple([z.literal("play"), z.literal("sound"), z.string()])
+            .rest(z.string())
+            .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
+    },
+);
+function convertListStringToPropListForMapper(listParm: string[]): string[] {
+    const list: string[] = [];
+    let curlyBrackets = 0;
+    let temp = "";
+    for (const item of listParm) {
+        if (item.startsWith("{")) {
+            curlyBrackets++;
+            temp += item;
+        } else if (item.endsWith("}") && curlyBrackets > 0) {
+            curlyBrackets--;
+            temp += item;
+            if (curlyBrackets === 0) {
+                list.push(temp);
+                temp = "";
+            }
+        } else if (curlyBrackets > 0) {
+            temp += item;
+        } else {
+            list.push(item);
+        }
+    }
+    return list;
+}
+
+function getTransitionForMapper(
+    transitionType: string,
+    propsList: string[],
+): PixiVNJsonMediaTransiotions | undefined {
+    switch (transitionType) {
+        case "dissolve":
+        case "fade":
+        case "movein":
+        case "moveout":
+        case "zoomin":
+        case "zoomout":
+        case "pushin":
+        case "pushout":
+            break;
+        default:
+            return undefined;
+    }
+    const transition: PixiVNJsonMediaTransiotions = {
+        type: transitionType,
+    };
+    if (propsList.length > 0) {
+        try {
+            transition.props = HashtagCommands.convertListStringToObj(propsList);
+        } catch (_) {}
+    }
+    return transition;
+}
+
+function getImageOrVideoShowOperationForMapper(
+    type: "image" | "video",
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
+    let url: string;
+    let propList: string[];
+    if (list.length % 2 === 0) {
+        url = alias;
+        propList = list;
+    } else {
+        url = list[0];
+        propList = list.slice(1);
+    }
+    const op: PixiVNJsonOperation = {
+        type,
+        operationType: "show",
+        alias,
+        url,
+    };
+    if (propList.length > 0) {
+        if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+            const transitionType = propList[propList.indexOf("with") + 1];
+            const transitionList = propList.slice(propList.indexOf("with") + 2);
+            propList = propList.slice(0, propList.indexOf("with"));
+            const transition = getTransitionForMapper(transitionType, transitionList);
+            if (transition !== undefined) {
+                op.transition = transition;
+            }
+        }
+        if (propList.length > 0) {
+            op.props = HashtagCommands.convertListStringToObj(propList);
+        }
+    }
+    return op;
+}
+
+function getTextShowOperationForMapper(
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
+    let text: string;
+    let propList: string[];
+    if (list.length % 2 === 0) {
+        text = alias;
+        propList = list;
+    } else {
+        text = list[0];
+        propList = list.slice(1);
+    }
+    const op: PixiVNJsonOperation = {
+        type: "text",
+        operationType: "show",
+        alias,
+        text,
+    };
+    if (propList.length > 0) {
+        if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+            const transitionType = propList[propList.indexOf("with") + 1];
+            const transitionList = propList.slice(propList.indexOf("with") + 2);
+            propList = propList.slice(0, propList.indexOf("with"));
+            const transition = getTransitionForMapper(transitionType, transitionList);
+            if (transition !== undefined) {
+                op.transition = transition;
+            }
+        }
+        if (propList.length > 0) {
+            op.props = HashtagCommands.convertListStringToObj(propList);
+        }
+    }
+    return op;
+}
+
+function getCanvasRemoveOperationForMapper(
+    type: "image" | "video" | "canvaselement" | "text" | "imagecontainer",
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
+    const op: PixiVNJsonOperation = {
+        type,
+        operationType: "remove",
+        alias,
+    };
+    if (list.includes("with") && list.length > list.indexOf("with") + 1) {
+        const transitionType = list[list.indexOf("with") + 1];
+        const transitionList = list.slice(list.indexOf("with") + 2);
+        const transition = getTransitionForMapper(transitionType, transitionList);
+        if (transition !== undefined) {
+            op.transition = transition;
+        }
+    }
+    return op;
+}
+
+function getImageContainerShowOperationForMapper(
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
+    const removeExtraDoubleQuotesForMapper = (value: string): string => {
+        if (value.startsWith('"') && value.endsWith('"')) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("'") && value.endsWith("'")) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("`") && value.endsWith("`")) {
+            return value.substring(1, value.length - 1);
+        }
+        return value;
+    };
+    let urls = [];
+    const startIndex = list.findIndex((item) => item.startsWith("["));
+    const endIndex = list.findIndex((item) => item.endsWith("]"));
+    if (startIndex === -1 || endIndex === -1) {
+        logger.error("Show imagecontainer must have a list of image ulrs", list);
+        return undefined;
+    }
+    urls = list.slice(startIndex, endIndex + 1);
+    if (urls.length < 2) {
+        logger.error("Show imagecontainer must have a list of image ulrs", list);
+        return undefined;
+    }
+    if (urls[0] === "[") {
+        urls.shift();
+    } else {
+        urls[0] = urls[0].substring(1);
+    }
+    if (urls[urls.length - 1] === "]") {
+        urls.pop();
+    } else {
+        urls[urls.length - 1] = urls[urls.length - 1].substring(
+            0,
+            urls[urls.length - 1].length - 1,
+        );
+    }
+    const op: PixiVNJsonOperation = {
+        type: "imagecontainer",
+        operationType: "show",
+        alias,
+        urls: urls.map((item) => removeExtraDoubleQuotesForMapper(item)),
+    };
+    let propList = list.slice(endIndex + 1);
+    if (propList.length > 0) {
+        if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+            const transitionType = propList[propList.indexOf("with") + 1];
+            const transitionList = propList.slice(propList.indexOf("with") + 2);
+            propList = propList.slice(0, propList.indexOf("with"));
+            const transition = getTransitionForMapper(transitionType, transitionList);
+            if (transition !== undefined) {
+                op.transition = transition;
+            }
+        }
+        if (propList.length > 0) {
+            op.props = HashtagCommands.convertListStringToObj(propList);
+        }
+    }
+    return op;
+}
+
+function splitImageContainerShowListForValidation(
+    fullList: string[],
+): { beforeWith: string[]; afterWith: string[] } | undefined {
+    const commandList = fullList.slice(3);
+    const startIndex = commandList.findIndex((item) => item.startsWith("["));
+    const endIndex = commandList.findIndex((item) => item.endsWith("]"));
+    if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+        return undefined;
+    }
+    const propList = commandList.slice(endIndex + 1);
+    const withIndex = propList.indexOf("with");
+    if (withIndex === -1) {
+        return { beforeWith: propList, afterWith: [] };
+    }
+    return {
+        beforeWith: propList.slice(0, withIndex),
+        afterWith: propList.slice(withIndex + 1),
+    };
+}
+
+// # shake <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        alias: list[1],
+        type: "shake",
+        props: HashtagCommands.convertListStringToObj(list.slice(2)),
+    }),
+    {
+        name: "shake-effect",
+        description: "Applies shake effect to a canvas alias with optional key/value parameters.",
+        validation: z
+            .tuple([z.literal("shake"), z.string()])
+            .rest(z.string())
+            .refine((arr) => (arr.length - 2) % 2 === 0),
+    },
+);
+
+// # animate <alias> [<key> <value> …] [options <key> <value> …]
+HashtagCommands.addMapper(
+    (list) => {
+        const commandList = list.slice(2);
+        let keyframesList = commandList;
+        let optionsList: string[] = [];
+        if (commandList.includes("options")) {
+            const optionsIndex = commandList.indexOf("options");
+            keyframesList = commandList.slice(0, optionsIndex);
+            optionsList = commandList.slice(optionsIndex + 1);
+        }
+        const animate: PixiVNJsonCanvasAnimate = {
+            alias: list[1],
+            type: "animate",
+            keyframes: HashtagCommands.convertListStringToObj(keyframesList),
+            options: HashtagCommands.convertListStringToObj(optionsList),
+        };
+        return animate;
+    },
+    {
+        name: "animate-effect",
+        description:
+            "Animates a canvas alias with keyframes and optional options section, both in key/value pairs.",
+        validation: z
+            .tuple([z.literal("animate"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const commandList = arr.slice(2);
+                const optionsIndex = commandList.indexOf("options");
+                if (optionsIndex === -1) {
+                    return commandList.length % 2 === 0;
+                }
+                if (commandList.lastIndexOf("options") !== optionsIndex) {
+                    return false;
+                }
+                const keyframesList = commandList.slice(0, optionsIndex);
+                const optionsList = commandList.slice(optionsIndex + 1);
+                return keyframesList.length % 2 === 0 && optionsList.length % 2 === 0;
+            }),
+    },
+);
+
+// # show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getImageOrVideoShowOperationForMapper("image", alias, propsList);
+    },
+    {
+        name: "show-image",
+        description:
+            "Shows an image canvas element with optional source, properties, and transition.",
+        validation: z.tuple([z.literal("show"), z.literal("image"), z.string()]).rest(z.string()),
+    },
+);
+
+// # show imagecontainer <alias> [<list>] [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) =>
+        getImageContainerShowOperationForMapper(
+            list[2],
+            convertListStringToPropListForMapper(list.slice(3)),
+        ),
+    {
+        name: "show-imagecontainer",
+        description:
+            "Shows an image-container canvas element with list and optional key/value properties.",
+        validation: z
+            .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const split = splitImageContainerShowListForValidation(arr);
+                if (split === undefined) {
+                    return false;
+                }
+                return split.afterWith.length === 0 && split.beforeWith.length % 2 === 0;
+            }),
+    },
+);
+
+// # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition>
+HashtagCommands.addMapper(
+    (list) =>
+        getImageContainerShowOperationForMapper(
+            list[2],
+            convertListStringToPropListForMapper(list.slice(3)),
+        ),
+    {
+        name: "show-imagecontainer-with-transition",
+        description:
+            "Shows an image-container canvas element with list, optional properties, and transition.",
+        validation: z
+            .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const split = splitImageContainerShowListForValidation(arr);
+                if (split === undefined) {
+                    return false;
+                }
+                return split.afterWith.length === 1 && split.beforeWith.length % 2 === 0;
+            }),
+    },
+);
+
+// # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition> <key> <value> …
+HashtagCommands.addMapper(
+    (list) =>
+        getImageContainerShowOperationForMapper(
+            list[2],
+            convertListStringToPropListForMapper(list.slice(3)),
+        ),
+    {
+        name: "show-imagecontainer-with-transition-props",
+        description:
+            "Shows an image-container canvas element with list, optional properties, transition, and transition properties.",
+        validation: z
+            .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string())
+            .refine((arr) => {
+                const split = splitImageContainerShowListForValidation(arr);
+                if (split === undefined) {
+                    return false;
+                }
+                return (
+                    split.afterWith.length > 1 &&
+                    (split.afterWith.length - 1) % 2 === 0 &&
+                    split.beforeWith.length % 2 === 0
+                );
+            }),
+    },
+);
+
+// # show video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getImageOrVideoShowOperationForMapper("video", alias, propsList);
+    },
+    {
+        name: "show-video",
+        description:
+            "Shows a video canvas element with optional source, properties, and transition.",
+        validation: z.tuple([z.literal("show"), z.literal("video"), z.string()]).rest(z.string()),
+    },
+);
+
+// # show text <alias> [<text>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        return getTextShowOperationForMapper(alias, list.slice(3));
+    },
+    {
+        name: "show-text",
+        description: "Shows a text canvas element with optional text, properties, and transition.",
+        validation: z.tuple([z.literal("show"), z.literal("text"), z.string()]).rest(z.string()),
+    },
+);
+
+// # remove image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("image", alias, propsList);
+    },
+    {
+        name: "remove-image",
+        description:
+            "Removes an image canvas element with optional source/properties and transition.",
+        validation: z.tuple([z.literal("remove"), z.literal("image"), z.string()]).rest(z.string()),
+    },
+);
+
+// # remove video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("video", alias, propsList);
+    },
+    {
+        name: "remove-video",
+        description:
+            "Removes a video canvas element with optional source/properties and transition.",
+        validation: z.tuple([z.literal("remove"), z.literal("video"), z.string()]).rest(z.string()),
+    },
+);
+
+// # remove canvaselement <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("canvaselement", alias, propsList);
+    },
+    {
+        name: "remove-canvaselement",
+        description:
+            "Removes a canvas element with optional properties and optional transition params.",
+        validation: z
+            .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # remove text <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("text", alias, propsList);
+    },
+    {
+        name: "remove-text",
+        description: "Removes a text canvas element with optional properties and transition.",
+        validation: z.tuple([z.literal("remove"), z.literal("text"), z.string()]).rest(z.string()),
+    },
+);
+
+// # remove imagecontainer <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+HashtagCommands.addMapper(
+    (list) => {
+        const alias = list[2];
+        const propsList = convertListStringToPropListForMapper(list.slice(3));
+        return getCanvasRemoveOperationForMapper("imagecontainer", alias, propsList);
+    },
+    {
+        name: "remove-imagecontainer",
+        description:
+            "Removes an image-container canvas element with optional properties and transition.",
+        validation: z
+            .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit image <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "image",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-image",
+        description: "Edits the properties of an image canvas element identified by its alias.",
+        validation: z.tuple([z.literal("edit"), z.literal("image"), z.string()]).rest(z.string()),
+    },
+);
+
+// # edit imagecontainer <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "imagecontainer",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-imagecontainer",
+        description:
+            "Edits the properties of an image-container canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("imagecontainer"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit canvaselement <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "canvaselement",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-canvaselement",
+        description: "Edits the properties of a canvas element identified by its alias.",
+        validation: z
+            .tuple([z.literal("edit"), z.literal("canvaselement"), z.string()])
+            .rest(z.string()),
+    },
+);
+
+// # edit video <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "video",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-video",
+        description: "Edits the properties of a video canvas element identified by its alias.",
+        validation: z.tuple([z.literal("edit"), z.literal("video"), z.string()]).rest(z.string()),
+    },
+);
+
+// # edit text <alias> [<key> <value> …]
+HashtagCommands.addMapper(
+    (list) => ({
+        type: "text",
+        operationType: "edit",
+        alias: list[2],
+        props: HashtagCommands.convertListStringToObj(list.slice(3)),
+    }),
+    {
+        name: "edit-text",
+        description: "Edits the properties of a text canvas element identified by its alias.",
+        validation: z.tuple([z.literal("edit"), z.literal("text"), z.string()]).rest(z.string()),
+    },
+);
+
+// # request input
+HashtagCommands.addMapper(
+    (_list) => ({
+        type: "input",
+        operationType: "request",
+    }),
+    {
+        name: "request-input",
+        description: "Requests player input without any additional constraints.",
+        validation: z.tuple([z.literal("request"), z.literal("input")]),
+    },
+);
+
+// # request input <key> <value> [<key> <value> …]
+// e.g. # request input type number default 18
+HashtagCommands.addMapper(
+    (list) => {
+        const op: PixiVNJsonOperation = {
+            type: "input",
+            operationType: "request",
+        };
+        try {
+            const props = HashtagCommands.convertListStringToObj(list.slice(2)) as Record<
+                string,
+                unknown
+            >;
+            if ("type" in props && typeof props.type === "string") {
+                op.valueType = props.type;
+            }
+            if ("default" in props) {
+                op.defaultValue = props.default;
+            }
+        } catch (_) {}
+        return op;
+    },
+    {
+        name: "request-input-params",
+        description:
+            "Requests player input with optional key/value parameters (e.g. type, default).",
+        validation: z
+            .tuple([z.literal("request"), z.literal("input")])
+            .rest(z.string())
+            .refine((arr) => arr.length > 2 && (arr.length - 2) % 2 === 0),
+    },
+);

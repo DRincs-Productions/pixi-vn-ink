@@ -1,6 +1,22 @@
-import { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { PixiVNJsonLabelStep, PixiVNJsonOperation } from "@drincs/pixi-vn-json/schema";
+import type { ZodType } from "zod";
 
-type HashtagHandler = (
+/**
+ * A handler function invoked for each Hashtag-Command that passes the {@link HashtagHandlerOptions.validation} check.
+ *
+ * @param command The Hashtag-Command split into tokens. Corresponds to a line starting with `#`.
+ *   For example `# navigate scene_name "Hello World"` becomes `["navigate", "scene_name", "Hello World"]`.
+ *   Use `""` to embed a literal space inside a single token.
+ * @param props The properties of the current step.
+ * @param convertListStringToObj Utility function that converts an alternating key/value list into
+ *   a plain object. For example `["name", "John", "age", "20"]` → `{ name: "John", age: 20 }`.
+ * @returns
+ *   - `true` – the command was handled; stop processing further handlers and skip the default interpreter.
+ *   - A `string` – treat the returned value as a new Hashtag-Command and re-interpret it.
+ *   - `false` / `Promise<false>` – not handled; pass to the next registered handler.
+ */
+export type HashtagHandler = (
     /**
      * A Hashtag-Command to run. It corresponds to a line of code that starts with `#`.
      * This is an array of strings, it is the Hashtag-Command that was split by spaces. For add a space in a string, you need to use `""`.
@@ -19,4 +35,65 @@ type HashtagHandler = (
      */
     convertListStringToObj: (listParm: string[]) => object,
 ) => boolean | string | Promise<boolean | string>;
-export default HashtagHandler;
+
+/**
+ * A mapper function that converts a specific Hashtag-Command token list into a
+ * {@link PixiVNJsonOperation} (or `undefined` when the command only modifies the step without
+ * producing an operation, e.g. `call` / `jump`).
+ *
+ * Unlike {@link HashtagHandler}, a mapper is purely synchronous and is **selected** by its
+ * validation rule rather than deciding for itself whether to handle the command.  The selection
+ * logic in {@link HashtagCommands.convertOperation} tests each mapper's
+ * {@link HashtagHandlerOptions.validation} against the full token list; only the first matching
+ * mapper is called.
+ *
+ * @returns The {@link PixiVNJsonOperation} to enqueue, or `undefined` if the command only produces
+ *   side-effects on `step` (such as setting `labelToOpen`).
+ */
+export type MapperHandler = (
+    /**
+     * The full token list produced by parsing the Hashtag-Command (output of `convertTagTolist`).
+     * For example the tag `# pause video bg` produces `["pause", "video", "bg"]`.
+     */
+    list: string[],
+    /**
+     * The current label step. The mapper may mutate this (e.g. set `labelToOpen` or delete
+     * `goNextStep`) before returning the operation.
+     */
+    step: PixiVNJsonLabelStep,
+) => PixiVNJsonOperation | undefined;
+
+/**
+ * Configuration options for a Hashtag-Command handler registered via {@link HashtagCommands.add}.
+ */
+export interface HashtagHandlerOptions {
+    /**
+     * A unique name that identifies this handler.
+     * Used for documentation and debugging purposes.
+     */
+    name: string;
+    /**
+     * An optional human-readable description of what this handler does.
+     * Used for documentation purposes.
+     */
+    description?: string;
+    /**
+     * Determines whether this handler should be invoked for a given command.
+     *
+     * - `RegExp` – the command tokens are joined with a space (`script.join(" ")`) and tested
+     *   against the regular expression. The handler is invoked only if the regex matches.
+     * - `ZodType<string[]>` – the command token array is validated with
+     *   `schema.safeParse(script)`. The handler is invoked only if validation succeeds.
+     *
+     * @example
+     * ```ts
+     * // RegExp: only handle commands that start with "navigate"
+     * validation: /^navigate\b/
+     *
+     * // Zod: only handle commands whose first element is "navigate" and second is a non-empty string
+     * import { z } from "zod"
+     * validation: z.tuple([z.literal("navigate"), z.string().min(1)]).rest(z.string())
+     * ```
+     */
+    validation: RegExp | ZodType<string[]>;
+}

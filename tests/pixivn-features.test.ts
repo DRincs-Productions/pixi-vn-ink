@@ -1,7 +1,6 @@
-import { onReplaceTextAfterTranslation } from "@/functions";
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
-import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, translator } from "@drincs/pixi-vn-json";
+import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, TextReplaces, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
 
@@ -27,7 +26,7 @@ test("Assign dialogue to a character", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 alice: Hello, world!
 -> DONE
@@ -57,7 +56,7 @@ test("Assign dialogue to a character: double colons in a sentence", async () => 
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 james: Well, I mean, you are kinda acting like a father. Like, I can totally see it: I'm the daughter, and you as my father, you want to make sure I'm going out with the right guy... or something...
 -> DONE
@@ -318,7 +317,7 @@ test("show image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR duration = 3
 === start
 #show image alias
@@ -373,7 +372,7 @@ test("edit image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 #edit image bg position \\{ "x": -20.5, "y": 30, "test": "test \\\\\\} ' test", "test2": "'" \\} visible true   cursor "pointer" alpha 0.5 
 hello
@@ -387,6 +386,17 @@ test("remove image", async () => {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove image bg x 10 y 20",
+                        },
+                    ],
+                },
                 {
                     goNextStep: true,
                     operations: [
@@ -441,6 +451,23 @@ test("remove image", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 5,
+                                },
+                            },
+                            $origin: 'remove image bg "/image B.png" x 10 y 20 with dissolve duration 5',
+                        },
+                    ],
+                },
+                {
                     dialogue: "Hello",
                 },
                 {
@@ -450,12 +477,14 @@ test("remove image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
+#remove image bg x 10 y 20
 #remove image bg
 #remove image "bg 2"
 #remove image bg with dissolve
 #remove image bg with dissolve duration 3
+#remove image bg "/image B.png" x 10 y 20 with dissolve duration 5
 Hello
 -> DONE
 `);
@@ -525,12 +554,56 @@ test("effect image", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # shake bg
 # animate bg angle 90
 # animate bg x 100 y 200 options duration 3
 # pause
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+test("effect image with params", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "shake",
+                            props: { x: 10, y: 20 },
+                            $origin: "shake bg x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            alias: "bg",
+                            type: "animate",
+                            keyframes: {},
+                            options: { duration: 3 },
+                            $origin: "animate bg options duration 3",
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== start
+# shake bg x 10 y 20
+# animate bg options duration 3
 -> DONE
 `);
     expect(res).toEqual(expected);
@@ -590,6 +663,34 @@ test("video", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "video",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove video bg x 1 y 2",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "video",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: 'remove video bg "/video B.mp4" x 1 y 2 with dissolve duration 2',
+                        },
+                    ],
+                },
+                {
                     dialogue: "hello",
                 },
                 {
@@ -599,13 +700,79 @@ test("video", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # show video bg "/video A.mp4"
 # pause video bg
 # resume video bg
 # remove video bg
+# remove video bg x 1 y 2
+# remove video bg "/video B.mp4" x 1 y 2 with dissolve duration 2
 hello
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+test("remove canvaselement", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "canvaselement",
+                            operationType: "remove",
+                            alias: "box",
+                            $origin: "remove canvaselement box x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "canvaselement",
+                            operationType: "remove",
+                            alias: "box",
+                            transition: {
+                                type: "dissolve",
+                            },
+                            $origin: "remove canvaselement box x 10 y 20 with dissolve",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "canvaselement",
+                            operationType: "remove",
+                            alias: "box",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: "remove canvaselement box x 10 y 20 with dissolve duration 2",
+                        },
+                    ],
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== start
+# remove canvaselement box x 10 y 20
+# remove canvaselement box x 10 y 20 with dissolve
+# remove canvaselement box x 10 y 20 with dissolve duration 2
 -> DONE
 `);
     expect(res).toEqual(expected);
@@ -638,6 +805,34 @@ test("imagecontainer", async () => {
                             operationType: "remove",
                             alias: "bg",
                             $origin: "remove imagecontainer bg",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            $origin: "remove imagecontainer bg x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: "remove imagecontainer bg x 10 y 20 with dissolve duration 2",
                         },
                     ],
                 },
@@ -684,6 +879,32 @@ test("imagecontainer", async () => {
                     goNextStep: true,
                 },
                 {
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
+                    operations: [
+                        {
+                            type: "imagecontainer",
+                            operationType: "remove",
+                            alias: "bg",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                        },
+                    ],
+                    goNextStep: true,
+                },
+                {
                     dialogue: "hello",
                 },
                 {
@@ -693,10 +914,12 @@ test("imagecontainer", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve
 # remove imagecontainer bg
+# remove imagecontainer bg x 10 y 20
+# remove imagecontainer bg x 10 y 20 with dissolve duration 2
 hello
 -> DONE
 `);
@@ -713,6 +936,28 @@ test("text", async () => {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "show",
+                            alias: "myText",
+                            text: "myText",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 1,
+                                },
+                            },
+                            props: {
+                                x: 10,
+                                y: 20,
+                            },
+                            $origin: "show text myText x 10 y 20 with dissolve duration 1",
+                        },
+                    ],
+                },
                 {
                     goNextStep: true,
                     operations: [
@@ -763,6 +1008,34 @@ test("text", async () => {
                     ],
                 },
                 {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "remove",
+                            alias: "myText",
+                            $origin: "remove text myText x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "remove",
+                            alias: "myText",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 2,
+                                },
+                            },
+                            $origin: "remove text myText x 10 y 20 with dissolve duration 2",
+                        },
+                    ],
+                },
+                {
                     operations: [
                         {
                             type: "dialogue",
@@ -778,10 +1051,13 @@ test("text", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
+# show text myText x 10 y 20 with dissolve duration 1
 # show text myText "Hello world" x 10 y 20 style \\{ fontFamily: "Arial", dropShadow: \\{ alpha: 0.8, angle: 2.1, blur: 4, color: "0x111111", distance: 10, \\}, fill: "\\#ffffff", stroke: \\{ color: "\\#004620", width: 12, join: "round" \\}, fontSize: 60, fontWeight: "lighter" \\} with dissolve
 # remove text myText
+# remove text myText x 10 y 20
+# remove text myText x 10 y 20 with dissolve duration 2
 # pause
 -> DONE
 `);
@@ -917,7 +1193,7 @@ test("sound", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # play sound bird volume 100
 # play sound bird "bird 2" volume 100
@@ -963,7 +1239,7 @@ test("assets", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # load assets url1 url2
 hello
@@ -1032,7 +1308,7 @@ test("input", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 # request input
 # request input type number default 0
@@ -1048,13 +1324,17 @@ Hello
  * Replace
  */
 test("replace", async () => {
-    onReplaceTextAfterTranslation((key) => {
+    TextReplaces.add((key) => {
         if (key === "john") {
             return "John";
         }
         if (key === "alice") {
             return "Alice";
         }
+    }, {
+        name: "test replace",
+        // all
+        validation: "all",
     });
     const res = translator.translate(`Hello [john], my name is [alice]`);
     expect(res).toEqual(`Hello John, my name is Alice`);
@@ -1245,7 +1525,7 @@ test("markdown", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start
 \\# Markdown Test \\\\n<>
 Hello, this is a test of the markdown parser. Pixi'VN does not manage markdown, but you can implement a markdown parser to display text with markdown syntax. \\\\n<>
@@ -1394,7 +1674,7 @@ test("jump", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 Start
 # jump after // [!code focus]
@@ -1451,7 +1731,7 @@ test("continue", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === hurry_home ===
 We hurried home <># continue
 + [1]

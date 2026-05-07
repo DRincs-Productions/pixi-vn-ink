@@ -1,2 +1,2 @@
-export { default as HashtagCommands, onInkHashtagScript } from "./hashtag-commands";
-export { default as HashtagHandler } from "./interfaces/HashtagHandler";
+export { HashtagCommands, onInkHashtagScript } from "@/handlers/hashtag-commands";
+export { HashtagHandler } from "@/handlers/interfaces/HashtagHandler";

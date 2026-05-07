@@ -78,7 +78,8 @@
   "homepage": "https://pixi-vn.web.app/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "1.13.1"
+    "@drincs/pixi-vn-json": "1.13.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
@@ -90,12 +91,13 @@
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "^6.0.3",
-    "vite-tsconfig-paths": "^6.1.1",
     "vite": "^8.0.10",
+    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.5"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.8.0"
+    "@drincs/pixi-vn": ">=1.8.0",
+    "zod": ">=4.4.0"
   },
   "keywords": [
     "game",
