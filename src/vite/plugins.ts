@@ -9,6 +9,8 @@ import { glob } from "tinyglobby";
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
+const DEFAULT_JSON_EXPORT_FILE_PATTERN = "[path][name].json";
+const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
 
 function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");
@@ -48,6 +50,100 @@ function resolvePublicSubdirectory(publicDirectory: string, subdirectory: string
     return outputDirectory;
 }
 
+function resolveInkJsonOutputPattern(
+    root: string,
+    publicDirectory: string,
+    inkJsonPublicDir?: string,
+    inkJsonOutputPattern?: string,
+): string | undefined {
+    if (!inkJsonPublicDir && !inkJsonOutputPattern) {
+        return undefined;
+    }
+    if (inkJsonPublicDir && inkJsonOutputPattern) {
+        throw new Error(
+            "vitePluginInk options `inkJsonPublicDir` and `inkJsonOutputPattern` cannot be used together.",
+        );
+    }
+    if (inkJsonOutputPattern) {
+        const trimmedPattern = inkJsonOutputPattern.trim();
+        if (!trimmedPattern) {
+            throw new Error("vitePluginInk option `inkJsonOutputPattern` must not be empty.");
+        }
+        return path.isAbsolute(trimmedPattern)
+            ? path.normalize(trimmedPattern)
+            : path.resolve(root, trimmedPattern);
+    }
+    const outputDirectory = resolvePublicSubdirectory(publicDirectory, inkJsonPublicDir as string);
+    return path.join(outputDirectory, DEFAULT_JSON_EXPORT_FILE_PATTERN);
+}
+
+function getOutputBaseDirectory(outputPattern: string): string {
+    const firstPlaceholderIndex = outputPattern.search(INK_EXPORT_PLACEHOLDER_PATTERN);
+    if (firstPlaceholderIndex === -1) {
+        return path.dirname(outputPattern);
+    }
+
+    const staticPrefix = outputPattern
+        .slice(0, firstPlaceholderIndex)
+        .replace(/[\\/]+$/g, "");
+
+    if (!staticPrefix) {
+        throw new Error(
+            "vitePluginInk option `inkJsonOutputPattern` must start with a static directory before placeholders.",
+        );
+    }
+    return path.normalize(staticPrefix);
+}
+
+function isInsideDirectory(baseDirectory: string, targetPath: string): boolean {
+    const relativePath = path.relative(baseDirectory, targetPath);
+    return !relativePath.startsWith("..") && !path.isAbsolute(relativePath);
+}
+
+function renderInkJsonOutputFile(
+    outputPattern: string,
+    root: string,
+    inputBaseDirectory: string,
+    matchedFile: string,
+): string {
+    const relativeInputFile = normalizeSlashes(path.relative(inputBaseDirectory, matchedFile));
+    const inputFile = path.posix.parse(relativeInputFile);
+
+    const relativeRootFile = normalizeSlashes(path.relative(root, matchedFile));
+    const rootDir = path.posix.dirname(relativeRootFile);
+    const inputDir = path.posix.dirname(relativeInputFile);
+
+    const tokenMap: Record<string, string> = {
+        name: inputFile.name,
+        ext: inputFile.ext.startsWith(".") ? inputFile.ext.slice(1) : inputFile.ext,
+        extname: inputFile.ext,
+        file: relativeInputFile,
+        path: inputDir === "." ? "" : `${inputDir}/`,
+        dir: rootDir === "." ? "" : `${rootDir}/`,
+    };
+
+    const rendered = normalizeSlashes(outputPattern).replace(
+        INK_EXPORT_PLACEHOLDER_PATTERN,
+        (_match, token: keyof typeof tokenMap) => tokenMap[token] ?? "",
+    );
+    return path.normalize(rendered);
+}
+
+function getManifestEntry(
+    outputFile: string,
+    root: string,
+    publicDirectory: string,
+): string {
+    if (isInsideDirectory(publicDirectory, outputFile)) {
+        const publicRelativePath = normalizeSlashes(path.relative(publicDirectory, outputFile));
+        return `/${publicRelativePath}`;
+    }
+    if (isInsideDirectory(root, outputFile)) {
+        return normalizeSlashes(path.relative(root, outputFile));
+    }
+    return normalizeSlashes(outputFile);
+}
+
 /**
  * Options for {@link vitePluginInk}.
  */
@@ -80,6 +176,26 @@ export interface VitePluginInkOptions {
      * @example "ink-json"
      */
     inkJsonPublicDir?: string;
+    /**
+     * Output pattern for generated JSON files from matched `.ink` sources.
+     *
+     * When provided together with {@link VitePluginInkOptions.inkGlob}, each matched `.ink` file is
+     * converted with `convertInkToJson` and written to the rendered destination.
+     *
+     * Placeholders:
+     * - `[name]`: filename without extension
+     * - `[ext]`: source extension without dot
+     * - `[extname]`: source extension with dot
+     * - `[file]`: source path relative to the `inkGlob` static base
+     * - `[path]`: source directory relative to the `inkGlob` static base (with trailing slash)
+     * - `[dir]`: source directory relative to Vite `root` (with trailing slash)
+     *
+     * Relative values are resolved from Vite `root`.
+     *
+     * @example "./public/ink-json/[path][name].json"
+     * @example "/absolute/output/[dir][name].json"
+     */
+    inkJsonOutputPattern?: string;
 }
 
 /**
@@ -152,14 +268,23 @@ export interface VitePluginInkOptions {
  * await Promise.all(stories.map((story) => importPixiVNJson(story)));
  */
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
-    const { inkGlob, inkJsonPublicDir } = options ?? {};
+    const { inkGlob, inkJsonPublicDir, inkJsonOutputPattern } = options ?? {};
     let resolvedConfig: ResolvedConfig | undefined;
 
     const exportInkJsonFiles = async () => {
-        if (!resolvedConfig || !inkGlob || !inkJsonPublicDir) {
+        if (!resolvedConfig || !inkGlob) {
             return;
         }
-        const outputDirectory = resolvePublicSubdirectory(resolvedConfig.publicDir, inkJsonPublicDir);
+        const outputPattern = resolveInkJsonOutputPattern(
+            resolvedConfig.root,
+            resolvedConfig.publicDir,
+            inkJsonPublicDir,
+            inkJsonOutputPattern,
+        );
+        if (!outputPattern) {
+            return;
+        }
+        const outputDirectory = getOutputBaseDirectory(outputPattern);
         const inputBaseDirectory = getGlobBaseDirectory(resolvedConfig.root, inkGlob);
         const matchedFiles = await glob(inkGlob, {
             absolute: true,
@@ -187,9 +312,18 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 );
                 continue;
             }
-            const relativeInputFile = path.relative(inputBaseDirectory, matchedFile);
-            const relativeJsonFile = relativeInputFile.replace(/\.ink$/i, ".json");
-            const outputFile = path.join(outputDirectory, relativeJsonFile);
+            const outputFile = renderInkJsonOutputFile(
+                outputPattern,
+                resolvedConfig.root,
+                inputBaseDirectory,
+                matchedFile,
+            );
+            if (!isInsideDirectory(outputDirectory, outputFile)) {
+                resolvedConfig.logger.error(
+                    `[vite-plugin-ink] Output path "${outputFile}" escapes managed directory "${outputDirectory}".`,
+                );
+                continue;
+            }
             generatedJsonFiles.add(outputFile);
 
             if (!converted) {
@@ -200,10 +334,13 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             await fs.mkdir(path.dirname(outputFile), { recursive: true });
             await fs.writeFile(outputFile, `${JSON.stringify(converted, null, 2)}\n`, "utf-8");
 
-            const publicRelativePath = normalizeSlashes(
-                path.relative(resolvedConfig.publicDir, outputFile),
+            manifestUrls.push(
+                getManifestEntry(
+                    outputFile,
+                    resolvedConfig.root,
+                    resolvedConfig.publicDir,
+                ),
             );
-            manifestUrls.push(`/${publicRelativePath}`);
         }
 
         const manifestFile = path.join(outputDirectory, JSON_MANIFEST_FILE_NAME);
@@ -232,13 +369,27 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         configResolved(config) {
             resolvedConfig = config;
-            if (inkJsonPublicDir && !inkGlob) {
+            if ((inkJsonPublicDir || inkJsonOutputPattern) && !inkGlob) {
                 throw new Error(
-                    "vitePluginInk option `inkJsonPublicDir` requires `inkGlob` to be set.",
+                    "vitePluginInk options `inkJsonPublicDir` and `inkJsonOutputPattern` require `inkGlob` to be set.",
                 );
             }
-            if (inkJsonPublicDir) {
-                resolvePublicSubdirectory(config.publicDir, inkJsonPublicDir);
+            if (inkJsonPublicDir || inkJsonOutputPattern) {
+                const outputPattern = resolveInkJsonOutputPattern(
+                    config.root,
+                    config.publicDir,
+                    inkJsonPublicDir,
+                    inkJsonOutputPattern,
+                );
+                if (!outputPattern) {
+                    return;
+                }
+                const outputDirectory = getOutputBaseDirectory(outputPattern);
+                if (path.resolve(outputDirectory) === path.resolve(config.root)) {
+                    throw new Error(
+                        "vitePluginInk option `inkJsonOutputPattern` must target a directory different from Vite `root`.",
+                    );
+                }
             }
         },
 

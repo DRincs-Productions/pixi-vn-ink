@@ -106,4 +106,85 @@ describe("vitePluginInk", () => {
         await expect(fs.access(jsonPath)).rejects.toBeDefined();
         await expect(readJsonFile(manifestPath)).resolves.toEqual([]);
     });
+
+    it("exports json using a custom output pattern outside public", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink", "chapter-1"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\nHello world!\n",
+            "utf-8",
+        );
+        await fs.writeFile(
+            path.join(root, "ink", "chapter-1", "second.ink"),
+            "=== second ===\nAnother line.\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./generated/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+        } as ResolvedConfig);
+
+        await plugin.buildStart?.call(undefined);
+
+        const firstJsonPath = path.join(root, "generated", "ink-json", "start.json");
+        const secondJsonPath = path.join(
+            root,
+            "generated",
+            "ink-json",
+            "chapter-1",
+            "second.json",
+        );
+        const manifestPath = path.join(root, "generated", "ink-json", "manifest.json");
+
+        await expect(fs.access(firstJsonPath)).resolves.toBeUndefined();
+        await expect(fs.access(secondJsonPath)).resolves.toBeUndefined();
+        await expect(readJsonFile(manifestPath)).resolves.toEqual([
+            "generated/ink-json/chapter-1/second.json",
+            "generated/ink-json/start.json",
+        ]);
+    });
+
+    it("supports file and root-relative directory placeholders in output pattern", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink", "chapter-1"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "chapter-1", "second.ink"),
+            "=== second ===\nAnother line.\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./generated/by-file/[file]-from-[dir][name].json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+        } as ResolvedConfig);
+
+        await plugin.buildStart?.call(undefined);
+
+        const jsonPath = path.join(
+            root,
+            "generated",
+            "by-file",
+            "chapter-1",
+            "second.ink-from-ink/chapter-1/second.json",
+        );
+        await expect(fs.access(jsonPath)).resolves.toBeUndefined();
+    });
 });
