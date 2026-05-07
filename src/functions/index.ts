@@ -1,6 +1,6 @@
+export { TextReplaces } from "@drincs/pixi-vn-json";
 export {
     onReplaceTextAfterTranslation,
     onReplaceTextBeforeTranslation,
-    TextReplaces,
 } from "./replace";
 export { generateJsonInkTranslation, onInkTranslate } from "./translate";

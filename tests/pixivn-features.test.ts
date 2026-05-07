@@ -1,7 +1,6 @@
-import { TextReplaces } from "@/functions";
 import { convertInkToJson } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
-import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, translator } from "@drincs/pixi-vn-json";
+import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, TextReplaces, translator } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
 
