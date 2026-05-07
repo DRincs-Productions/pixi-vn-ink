@@ -173,7 +173,20 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         for (const matchedFile of matchedFiles) {
             const source = await fs.readFile(matchedFile, "utf-8");
-            const converted = convertInkToJson(source);
+            let converted: ReturnType<typeof convertInkToJson>;
+            try {
+                converted = convertInkToJson(source);
+            } catch (error) {
+                const normalizedError =
+                    error instanceof Error ? error : new Error(String(error));
+                resolvedConfig.logger.error(
+                    `[vite-plugin-ink] Failed to convert "${matchedFile}" to JSON.`,
+                    {
+                        error: normalizedError,
+                    },
+                );
+                continue;
+            }
             const relativeInputFile = path.relative(inputBaseDirectory, matchedFile);
             const relativeJsonFile = relativeInputFile.replace(/\.ink$/i, ".json");
             const outputFile = path.join(outputDirectory, relativeJsonFile);
@@ -201,7 +214,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         });
 
         for (const existingJsonFile of existingJsonFiles) {
-            if (existingJsonFile !== manifestFile && !generatedJsonFiles.has(existingJsonFile)) {
+            if (
+                path.basename(existingJsonFile) !== JSON_MANIFEST_FILE_NAME &&
+                !generatedJsonFiles.has(existingJsonFile)
+            ) {
                 await fs.rm(existingJsonFile, { force: true });
             }
         }
@@ -231,7 +247,13 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         },
 
         configureServer() {
-            void exportInkJsonFiles();
+            void exportInkJsonFiles().catch((error) => {
+                const normalizedError =
+                    error instanceof Error ? error : new Error(String(error));
+                resolvedConfig?.logger.error("[vite-plugin-ink] Failed to export Ink JSON files.", {
+                    error: normalizedError,
+                });
+            });
         },
 
         resolveId(id) {
