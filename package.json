@@ -96,7 +96,8 @@
     "vitest": "^4.1.5"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.8.0"
+    "@drincs/pixi-vn": ">=1.8.0",
+    "zod": ">=4.4.0"
   },
   "keywords": [
     "game",
