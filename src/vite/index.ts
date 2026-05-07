@@ -5,3 +5,4 @@ export {
     vitePluginInk as noHmrInkPlugin,
     vitePluginInk,
 } from "./plugins";
+export type { VitePluginInkOptions } from "./plugins";
