@@ -173,8 +173,11 @@ export interface VitePluginInkOptions {
      *
      * The pattern follows the standard glob format used by
      * [Vite's `import.meta.glob`](https://vite.dev/guide/features#glob-import).
+     * The plugin resolves it from Vite `root` and internally normalizes it to a root-absolute
+     * pattern for the generated virtual module.
      *
      * @example "./ink/**\/*.ink"
+     * @example "/src/stories/**\/*.ink"
      */
     inkGlob?: string;
     /**
