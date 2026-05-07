@@ -2,7 +2,6 @@ import type { StepLabelPropsType } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
     PixiVNJsonCanvasEffect,
-    PixiVNJsonCanvasShow,
     PixiVNJsonLabelStep,
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
@@ -280,11 +279,6 @@ export namespace HashtagCommands {
         const operationType = list.length > 1 ? removeExtraDoubleQuotes(list[1]) : "";
         const type = list.length > 0 ? removeExtraDoubleQuotes(list[0]) : "";
         switch (operationType) {
-            case "image":
-            case "canvaselement":
-            case "video":
-            case "text":
-                return getCanvasOperationFromComment(list, operationType);
             default:
                 if (operationType) {
                     switch (type) {
@@ -335,122 +329,6 @@ export namespace HashtagCommands {
         }
         logger.error("The operation is not valid", list);
         return undefined;
-    }
-
-    function getCanvasOperationFromComment(
-        list: string[],
-        typeCanvasElement: "image" | "video" | "imagecontainer" | "canvaselement" | "text",
-    ): PixiVNJsonOperation | undefined {
-        const type = removeExtraDoubleQuotes(list[0]);
-        const imageId = removeExtraDoubleQuotes(list[2]);
-        const propsList = convertListStringToPropList(list.slice(3));
-        switch (type) {
-            case "show":
-                switch (typeCanvasElement) {
-                    case "imagecontainer":
-                        return getContainerOperationFromComment(
-                            typeCanvasElement,
-                            imageId,
-                            propsList,
-                        );
-                    default:
-                        logger.error(
-                            "This show operation is not valid for this type of element",
-                            typeCanvasElement,
-                        );
-                }
-                break;
-            default:
-                logger.error("The operation type is not valid", type);
-        }
-        return undefined;
-    }
-    function getContainerOperationFromComment(
-        typeCanvasElement: "imagecontainer",
-        imageId: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        // show imagecontainer container1 [image1 image2 image3 ] x 0 with dissolve
-        let urls = [];
-        const startIndex = list.findIndex((item) => item.startsWith("["));
-        const endIndex = list.findIndex((item) => item.endsWith("]"));
-        if (startIndex === -1 || endIndex === -1) {
-            logger.error("Show imagecontainer must have a list of image ulrs", list);
-            return undefined;
-        }
-        urls = list.slice(startIndex, endIndex + 1);
-        if (urls.length < 2) {
-            logger.error("Show imagecontainer must have a list of image ulrs", list);
-            return undefined;
-        }
-        if (urls[0] === "[") {
-            urls.shift();
-        } else {
-            urls[0] = urls[0].substring(1);
-        }
-        if (urls[urls.length - 1] === "]") {
-            urls.pop();
-        } else {
-            urls[urls.length - 1] = urls[urls.length - 1].substring(
-                0,
-                urls[urls.length - 1].length - 1,
-            );
-        }
-        const op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            urls: urls.map((item) => removeExtraDoubleQuotes(item)),
-        };
-        const propList = list.slice(endIndex + 1);
-        return setShowProps(op, propList);
-    }
-
-    function setShowProps(op: PixiVNJsonCanvasShow, propList: string[]): PixiVNJsonCanvasShow {
-        if (propList.length > 0) {
-            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                const transitionType = propList[propList.indexOf("with") + 1];
-                const transitionList = propList.slice(propList.indexOf("with") + 2);
-                propList = propList.slice(0, propList.indexOf("with"));
-                const transition = getTransition(transitionType, transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
-                }
-            }
-            if (propList.length > 0) {
-                const props = convertPropListStringToObj(propList);
-                op.props = props;
-            }
-        }
-        return op;
-    }
-    function getTransition(
-        transitionType: string,
-        propsList: string[],
-    ): PixiVNJsonMediaTransiotions | undefined {
-        switch (transitionType) {
-            case "dissolve":
-            case "fade":
-            case "movein":
-            case "moveout":
-            case "zoomin":
-            case "zoomout":
-            case "pushin":
-            case "pushout":
-                break;
-            default:
-                return undefined;
-        }
-        const transition: PixiVNJsonMediaTransiotions = {
-            type: transitionType,
-        };
-        if (propsList.length > 0) {
-            try {
-                const props = convertPropListStringToObj(propsList);
-                transition.props = props;
-            } catch (_) {}
-        }
-        return transition;
     }
 
     /**
@@ -547,9 +425,6 @@ export namespace HashtagCommands {
         }
 
         return -1;
-    }
-    function convertListStringToPropList(listParm: string[]): string[] {
-        return mergeJsonBlocks(listParm);
     }
     function convertPropListStringToObj(list: string[]): object {
         if (list.length === 0) {
@@ -1085,7 +960,10 @@ function getImageContainerShowOperationForMapper(
     if (urls[urls.length - 1] === "]") {
         urls.pop();
     } else {
-        urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
+        urls[urls.length - 1] = urls[urls.length - 1].substring(
+            0,
+            urls[urls.length - 1].length - 1,
+        );
     }
     const op: PixiVNJsonOperation = {
         type: "imagecontainer",
@@ -1148,7 +1026,11 @@ HashtagCommands.addMapper(
 
 // # show imagecontainer <alias> [<list>] [<key> <value> …]
 HashtagCommands.addMapper(
-    (list) => getImageContainerShowOperationForMapper(list[2], convertListStringToPropListForMapper(list.slice(3))),
+    (list) =>
+        getImageContainerShowOperationForMapper(
+            list[2],
+            convertListStringToPropListForMapper(list.slice(3)),
+        ),
     {
         name: "show-imagecontainer",
         description:
@@ -1168,7 +1050,11 @@ HashtagCommands.addMapper(
 
 // # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition>
 HashtagCommands.addMapper(
-    (list) => getImageContainerShowOperationForMapper(list[2], convertListStringToPropListForMapper(list.slice(3))),
+    (list) =>
+        getImageContainerShowOperationForMapper(
+            list[2],
+            convertListStringToPropListForMapper(list.slice(3)),
+        ),
     {
         name: "show-imagecontainer-with-transition",
         description:
@@ -1188,7 +1074,11 @@ HashtagCommands.addMapper(
 
 // # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition> <key> <value> …
 HashtagCommands.addMapper(
-    (list) => getImageContainerShowOperationForMapper(list[2], convertListStringToPropListForMapper(list.slice(3))),
+    (list) =>
+        getImageContainerShowOperationForMapper(
+            list[2],
+            convertListStringToPropListForMapper(list.slice(3)),
+        ),
     {
         name: "show-imagecontainer-with-transition-props",
         description:
