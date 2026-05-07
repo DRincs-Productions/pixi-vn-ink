@@ -242,6 +242,19 @@ export namespace HashtagCommands {
                 .replaceAll(QUOTES_CONVERTER, "'")
                 .replaceAll(SPECIAL_QUOTES_CONVERTER, "`"),
         );
+        // find the { and } that are not between quotes and join only valid JSON-like blocks
+        // ["edit","image","bg","position","{",'"x":',"-20.5,",'"y":',"30,",'"test":','"test } \' test",','"test2":','"\'"',"}","visible","true","cursor",'"pointer"',"alpha","0.5",];
+        list = mergeJsonBlocks(list);
+        list = list.map((item) => {
+            if (
+                (item.startsWith('"') && item.endsWith('"')) ||
+                (item.startsWith("'") && item.endsWith("'")) ||
+                (item.startsWith("`") && item.endsWith("`"))
+            ) {
+                return item.slice(1, -1);
+            }
+            return item;
+        });
         return list;
     }
     export function convertOperation(
@@ -516,32 +529,93 @@ export namespace HashtagCommands {
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
     export function convertListStringToObj(listParm: string[]): object {
-        const list: string[] = convertListStringToPropList(listParm);
-        return convertPropListStringToObj(list);
+        return convertPropListStringToObj(listParm);
     }
-    function convertListStringToPropList(listParm: string[]): string[] {
-        const list: string[] = [];
-        let curly_brackets = 0;
-        let temp = "";
-        for (let i = 0; i < listParm.length; i++) {
-            const item = listParm[i];
-            if (item.startsWith("{")) {
-                curly_brackets++;
-                temp += item;
-            } else if (item.endsWith("}") && curly_brackets > 0) {
-                curly_brackets--;
-                temp += item;
-                if (curly_brackets === 0) {
-                    list.push(temp);
-                    temp = "";
+
+    /**
+     * Merges valid JSON-like blocks delimited by { }
+     * into single strings.
+     *
+     * Rules:
+     * - Braces must be balanced.
+     * - Inner blocks are processed before parent blocks.
+     * - Every generated block is validated with JSON5.parse().
+     * - If a block is invalid:
+     *   - the block remains split
+     *   - all parent blocks also remain split
+     * - Unmatched braces are treated as normal strings.
+     */
+    export function mergeJsonBlocks(tokens: string[]): string[] {
+        return mergeJsonBlockRange(tokens).tokens;
+    }
+
+    function mergeJsonBlockRange(tokens: string[]): {
+        tokens: string[];
+        hasInvalidMatchedBlock: boolean;
+    } {
+        const result: string[] = [];
+        let hasInvalidMatchedBlock = false;
+
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+
+            if (token !== "{") {
+                result.push(token);
+                continue;
+            }
+
+            const currentClose = findMatchingClosingBrace(tokens, i);
+
+            if (currentClose === -1) {
+                result.push(token);
+                continue;
+            }
+
+            const innerBlock = mergeJsonBlockRange(tokens.slice(i + 1, currentClose));
+            const blockTokens = ["{", ...innerBlock.tokens, "}"];
+            const merged = blockTokens.join(" ");
+
+            if (!innerBlock.hasInvalidMatchedBlock) {
+                try {
+                    JSON5.parse(merged);
+                    result.push(merged);
+                    i = currentClose;
+                    continue;
+                } catch {
+                    // keep the block split below
                 }
-            } else if (curly_brackets > 0) {
-                temp += item;
-            } else {
-                list.push(item);
+            }
+
+            hasInvalidMatchedBlock = true;
+            result.push(...blockTokens);
+            i = currentClose;
+        }
+
+        return {
+            tokens: result,
+            hasInvalidMatchedBlock,
+        };
+    }
+
+    function findMatchingClosingBrace(tokens: string[], openIndex: number): number {
+        let depth = 0;
+
+        for (let i = openIndex; i < tokens.length; i++) {
+            if (tokens[i] === "{") {
+                depth++;
+            } else if (tokens[i] === "}") {
+                depth--;
+
+                if (depth === 0) {
+                    return i;
+                }
             }
         }
-        return list;
+
+        return -1;
+    }
+    function convertListStringToPropList(listParm: string[]): string[] {
+        return mergeJsonBlocks(listParm);
     }
     function convertPropListStringToObj(list: string[]): object {
         if (list.length === 0) {
@@ -874,14 +948,7 @@ HashtagCommands.addMapper(
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
-        let url = list[3];
-        if (
-            (url.startsWith('"') && url.endsWith('"')) ||
-            (url.startsWith("'") && url.endsWith("'")) ||
-            (url.startsWith("`") && url.endsWith("`"))
-        ) {
-            url = url.slice(1, -1);
-        }
+        const url = list[3];
         const op: PixiVNJsonOperation = {
             type: "sound",
             operationType: "play",
@@ -982,6 +1049,7 @@ HashtagCommands.addMapper(
     },
 );
 
+// # request input
 HashtagCommands.addMapper(
     (_list) => ({
         type: "input",
