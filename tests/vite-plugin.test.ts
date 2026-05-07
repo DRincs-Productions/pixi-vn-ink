@@ -312,7 +312,7 @@ describe("vitePluginInk dev API", () => {
         servers.length = 0;
     });
 
-    function startPlugin(): { server: http.Server; middleware: MiddlewareFn } {
+    function startPlugin(): Promise<{ server: http.Server; middleware: MiddlewareFn }> {
         const plugin = vitePluginInk();
         let middleware!: MiddlewareFn;
 
@@ -330,7 +330,7 @@ describe("vitePluginInk dev API", () => {
         servers.push(server);
         return new Promise<{ server: http.Server; middleware: MiddlewareFn }>((resolve) => {
             server.listen(0, "127.0.0.1", () => resolve({ server, middleware }));
-        }) as any;
+        });
     }
 
     it("GET hashtag-commands returns empty array initially", async () => {

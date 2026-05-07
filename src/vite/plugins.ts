@@ -501,7 +501,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                             hashtagCommandsStore = JSON.parse(body) as InkHashtagCommandInfo[];
                             res.statusCode = 204;
                             res.end();
-                        } catch {
+                        } catch (error) {
+                            resolvedConfig?.logger.warn(
+                                `[vite-plugin-ink] Invalid JSON body for POST ${INK_DEV_API_HASHTAG_COMMANDS}: ${String(error)}`,
+                            );
                             res.statusCode = 400;
                             res.end();
                         }
@@ -521,7 +524,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                             textReplacesStore = JSON.parse(body) as InkTextReplaceInfo[];
                             res.statusCode = 204;
                             res.end();
-                        } catch {
+                        } catch (error) {
+                            resolvedConfig?.logger.warn(
+                                `[vite-plugin-ink] Invalid JSON body for POST ${INK_DEV_API_TEXT_REPLACES}: ${String(error)}`,
+                            );
                             res.statusCode = 400;
                             res.end();
                         }
