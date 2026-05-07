@@ -24,9 +24,23 @@ function serializeValidation(validation: unknown): InkValidationInfo {
             value: validation,
         };
     }
+    if (
+        validation &&
+        typeof validation === "object" &&
+        "_zod" in (validation as Record<string, unknown>)
+    ) {
+        try {
+            return {
+                type: "zod",
+                schema: z.toJSONSchema(validation as z.core.$ZodType),
+            };
+        } catch {
+            // Fall through to literal fallback
+        }
+    }
     return {
-        type: "zod",
-        schema: z.toJSONSchema(validation as z.core.$ZodType),
+        type: "literal",
+        value: String(validation),
     };
 }
 /**

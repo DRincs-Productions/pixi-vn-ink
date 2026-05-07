@@ -9,6 +9,7 @@
  * - `InkHashtagCommandInfo.validation` serializes the original validation rule:
  *   - `{ type: "regexp", source, flags }`
  *   - `{ type: "zod", schema }` (JSON Schema generated from Zod)
+ *   - `{ type: "literal", value }`
  *
  * @example
  * // VS Code extension reading the registered handlers
