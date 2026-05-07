@@ -1,4 +1,5 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
+import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
@@ -13,38 +14,6 @@ const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
 const DEFAULT_JSON_EXPORT_FILE_PATTERN = "[path][name].json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
-
-/**
- * Dev-server endpoint that exposes and accepts the list of registered
- * {@link HashtagCommands} handlers as {@link InkHashtagCommandInfo} objects.
- *
- * - `GET  /pixi-vn-ink/hashtag-commands` – returns the stored `InkHashtagCommandInfo[]` as JSON.
- * - `POST /pixi-vn-ink/hashtag-commands` – replaces the stored list with the JSON body
- *   (`InkHashtagCommandInfo[]`). Called automatically by {@link setupInkHmrListener} on
- *   startup and after each HMR update.
- *
- * @example
- * // VS Code extension reading the registered handlers
- * const res = await fetch("http://localhost:5173/pixi-vn-ink/hashtag-commands");
- * const commands: InkHashtagCommandInfo[] = await res.json();
- */
-export const INK_DEV_API_HASHTAG_COMMANDS = "/pixi-vn-ink/hashtag-commands";
-
-/**
- * Dev-server endpoint that exposes and accepts the list of registered
- * {@link TextReplaces} handlers as {@link InkTextReplaceInfo} objects.
- *
- * - `GET  /pixi-vn-ink/text-replaces` – returns the stored `InkTextReplaceInfo[]` as JSON.
- * - `POST /pixi-vn-ink/text-replaces` – replaces the stored list with the JSON body
- *   (`InkTextReplaceInfo[]`). Called automatically by {@link setupInkHmrListener} on
- *   startup and after each HMR update.
- *
- * @example
- * // VS Code extension reading the registered text-replace handlers
- * const res = await fetch("http://localhost:5173/pixi-vn-ink/text-replaces");
- * const replaces: InkTextReplaceInfo[] = await res.json();
- */
-export const INK_DEV_API_TEXT_REPLACES = "/pixi-vn-ink/text-replaces";
 
 function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");

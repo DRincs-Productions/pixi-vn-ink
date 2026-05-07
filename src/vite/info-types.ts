@@ -3,9 +3,9 @@
  * as exposed by the pixi-vn-ink Vite dev-server API.
  *
  * Instances of this type are returned by
- * `GET /pixi-vn-ink/hashtag-commands`
+ * `GET /__pixi-vn-ink/hashtag-commands`
  * and accepted by
- * `POST /pixi-vn-ink/hashtag-commands`.
+ * `POST /__pixi-vn-ink/hashtag-commands`.
  *
  * @see https://pixi-vn.web.app/ink#vite-plugin
  */
@@ -27,9 +27,9 @@ export interface InkHashtagCommandInfo {
  * as exposed by the pixi-vn-ink Vite dev-server API.
  *
  * Instances of this type are returned by
- * `GET /pixi-vn-ink/text-replaces`
+ * `GET /__pixi-vn-ink/text-replaces`
  * and accepted by
- * `POST /pixi-vn-ink/text-replaces`.
+ * `POST /__pixi-vn-ink/text-replaces`.
  *
  * @see https://pixi-vn.web.app/ink#vite-plugin
  */

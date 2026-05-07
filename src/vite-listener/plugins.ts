@@ -1,11 +1,9 @@
 /// <reference types="vite/client" />
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { importInkText } from "@/loader/importer";
+import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import { TextReplaces } from "@drincs/pixi-vn-json";
-
-const INK_DEV_API_HASHTAG_COMMANDS = "/pixi-vn-ink/hashtag-commands";
-const INK_DEV_API_TEXT_REPLACES = "/pixi-vn-ink/text-replaces";
 
 /**
  * Serializes the currently registered handler lists and POSTs them to the
