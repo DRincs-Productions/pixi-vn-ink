@@ -1,5 +1,5 @@
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import type { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
-import { HashtagCommands } from "../src/handlers/hashtag-commands";
 
 export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {

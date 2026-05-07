@@ -1,4 +1,3 @@
-export { TextReplaces } from "@drincs/pixi-vn-json";
 export {
     onReplaceTextAfterTranslation,
     onReplaceTextBeforeTranslation,
