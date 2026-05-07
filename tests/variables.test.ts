@@ -3467,3 +3467,520 @@ Variable: {Head} <># continue
     await convertOperation(res);
     expect(res).toEqual(expected);
 });
+
+/**
+ * 6) Constants
+ */
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#6-constants
+ * CONST values are inlined at compile time: they appear as literal values in the output
+ * and do NOT produce an entry in initialOperations.
+ */
+test("CONST keyword inlines value at compile time", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    dialogue: "The coin is worth ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: "4",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " coins.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+CONST GOLD_COIN_VALUE = 4
+
+=== start ===
+The coin is worth {GOLD_COIN_VALUE} coins.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#6-constants
+ * CONST values are substituted inline, so they appear as literal numbers in conditions.
+ */
+test("CONST used in conditional check", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "health",
+                value: 7,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: 10,
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "health",
+                            },
+                        },
+                        then: {
+                            dialogue: " Healthy! ",
+                        },
+                        else: {
+                            dialogue: " Low health. ",
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+CONST MAX_HEALTH = 10
+VAR health = 7
+=== start ===
+{ health > MAX_HEALTH: Healthy! | Low health. }
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#3-conditional-blocks-ifelse
+ * Multiline if/else block where each branch contains dialogue text.
+ */
+test("Multiline if/else block with text content", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "met_blofeld",
+                value: true,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "met_blofeld",
+                        },
+                        then: {
+                            dialogue: '"I saw him. Only for a moment."',
+                        },
+                        else: {
+                            dialogue: '"I missed him. Was he particularly evil?"',
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+VAR met_blofeld = true
+=== start ===
+{ met_blofeld:
+    "I saw him. Only for a moment."
+- else:
+    "I missed him. Was he particularly evil?"
+}
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#extended-ifelse-ifelse-blocks
+ * A switch-style block with value-based cases is converted to nested if/else chains.
+ */
+test("Switch block (value-based conditions)", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "x",
+                value: 1,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "compare",
+                            operator: "==",
+                            rightValue: 0,
+                            leftValue: {
+                                type: "value",
+                                storageOperationType: "get",
+                                storageType: "storage",
+                                key: "x",
+                            },
+                        },
+                        then: {
+                            dialogue: "zero",
+                        },
+                        else: {
+                            conditionalStep: {
+                                type: "ifelse",
+                                condition: {
+                                    type: "compare",
+                                    operator: "==",
+                                    rightValue: 1,
+                                    leftValue: {
+                                        type: "value",
+                                        storageOperationType: "get",
+                                        storageType: "storage",
+                                        key: "x",
+                                    },
+                                },
+                                then: {
+                                    dialogue: "one",
+                                },
+                                else: {
+                                    dialogue: "other",
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+VAR x = 1
+=== start ===
+{ x:
+- 0: zero
+- 1: one
+- else: other
+}
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#conditional-text
+ * Nested conditional text: one conditional inside the branch of another.
+ */
+test("Nested conditional text", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "met_blofeld",
+                value: true,
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "learned_his_name",
+                value: false,
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        condition: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "met_blofeld",
+                        },
+                        then: {
+                            type: "resulttocombine",
+                            combine: "cross",
+                            secondConditionalItem: [
+                                {
+                                    dialogue: ' "I saw him. His name was ',
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    conditionalStep: {
+                                        type: "ifelse",
+                                        condition: {
+                                            type: "value",
+                                            storageOperationType: "get",
+                                            storageType: "storage",
+                                            key: "learned_his_name",
+                                        },
+                                        then: {
+                                            dialogue: " Franz",
+                                        },
+                                        else: {
+                                            dialogue: "a secret",
+                                        },
+                                    },
+                                    glueEnabled: true,
+                                    goNextStep: true,
+                                },
+                                {
+                                    dialogue: '." ',
+                                },
+                            ],
+                        },
+                        else: {
+                            dialogue: ' "I missed him." ',
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+VAR met_blofeld = true
+VAR learned_his_name = false
+=== start ===
+{ met_blofeld: "I saw him. His name was {learned_his_name: Franz|a secret}." | "I missed him." }
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#turns
+ * TURNS() is an upcoming feature in PixiVN.
+ * TODO: TURNS() is not properly implemented – it renders as the string "undefined" instead of the turn count.
+ * See https://pixi-vn.web.app/ink#upcoming-features
+ */
+test("TURNS game query (upcoming feature)", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    dialogue: "You have taken ",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    // TODO: expected should be the actual turn count, not "undefined"
+                    dialogue: "undefined",
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " turns so far.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== start ===
+You have taken {TURNS()} turns so far.
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#turns_since-knot
+ * TURNS_SINCE() is an upcoming feature in PixiVN.
+ * TODO: TURNS_SINCE(-> knot) is not properly implemented – the left-hand side of the comparison
+ * is the knot name as a string instead of the actual turn count since visiting that knot.
+ * See https://pixi-vn.web.app/ink#upcoming-features
+ */
+test("TURNS_SINCE game query (upcoming feature)", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            sleeping: [
+                {
+                    dialogue: "You go to sleep.",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            start: [
+                {
+                    conditionalStep: {
+                        type: "ifelse",
+                        // TODO: leftValue should be the turns since visiting `sleeping`, not the string "sleeping"
+                        condition: {
+                            type: "compare",
+                            operator: ">",
+                            rightValue: 2,
+                            leftValue: "sleeping",
+                        },
+                        then: {
+                            dialogue: " You are well rested. ",
+                        },
+                        else: {
+                            dialogue: " You are tired. ",
+                        },
+                    },
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== sleeping ===
+You go to sleep.
+-> DONE
+=== start ===
+{ TURNS_SINCE(-> sleeping) > 2 : You are well rested. | You are tired. }
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
+ * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#choice_count
+ * CHOICE_COUNT() is an upcoming feature in PixiVN.
+ * TODO: CHOICE_COUNT() is not properly implemented – the condition value is the raw number 2
+ * instead of a runtime expression evaluating the count of visible choices.
+ * See https://pixi-vn.web.app/ink#upcoming-features
+ */
+test("CHOICE_COUNT game query (upcoming feature)", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            "start_|_c-0": [
+                {
+                    dialogue: "Option A",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                },
+            ],
+            "start_|_c-1": [
+                {
+                    dialogue: "Option B",
+                },
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                },
+            ],
+            "start_|_c-2": [
+                {
+                    labelToOpen: {
+                        label: "start_|_g-0",
+                        type: "jump",
+                    },
+                },
+            ],
+            "start_|_g-0": [
+                {
+                    dialogue: "End",
+                },
+                {
+                    end: "label_end",
+                    goNextStep: true,
+                },
+            ],
+            start: [
+                {
+                    choices: [
+                        {
+                            text: "Option A",
+                            label: "start_|_c-0",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            text: "Option B",
+                            label: "start_|_c-1",
+                            props: {},
+                            type: "call",
+                            oneTime: true,
+                        },
+                        {
+                            type: "ifelse",
+                            // TODO: condition should evaluate CHOICE_COUNT() == 2 at runtime,
+                            // but currently the condition is the raw number 2 (the CHOICE_COUNT return value is lost)
+                            condition: 2,
+                            then: {
+                                text: "Third option if two visible",
+                                label: "start_|_c-2",
+                                props: {},
+                                type: "call",
+                                oneTime: true,
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    const res = convertInkToJson(`
+=== start ===
+* Option A
+* Option B
+* { CHOICE_COUNT() == 2 } [Third option if two visible]
+- End
+-> DONE
+`);
+    expect(res).toEqual(expected);
+});
