@@ -1053,7 +1053,62 @@ function getImageContainerShowOperationForMapper(
     alias: string,
     list: string[],
 ): PixiVNJsonOperation | undefined {
-    return getContainerOperationFromComment("imagecontainer", alias, list);
+    const removeExtraDoubleQuotesForMapper = (value: string): string => {
+        if (value.startsWith('"') && value.endsWith('"')) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("'") && value.endsWith("'")) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("`") && value.endsWith("`")) {
+            return value.substring(1, value.length - 1);
+        }
+        return value;
+    };
+    let urls = [];
+    const startIndex = list.findIndex((item) => item.startsWith("["));
+    const endIndex = list.findIndex((item) => item.endsWith("]"));
+    if (startIndex === -1 || endIndex === -1) {
+        logger.error("Show imagecontainer must have a list of image ulrs", list);
+        return undefined;
+    }
+    urls = list.slice(startIndex, endIndex + 1);
+    if (urls.length < 2) {
+        logger.error("Show imagecontainer must have a list of image ulrs", list);
+        return undefined;
+    }
+    if (urls[0] === "[") {
+        urls.shift();
+    } else {
+        urls[0] = urls[0].substring(1);
+    }
+    if (urls[urls.length - 1] === "]") {
+        urls.pop();
+    } else {
+        urls[urls.length - 1] = urls[urls.length - 1].substring(0, urls[urls.length - 1].length - 1);
+    }
+    const op: PixiVNJsonOperation = {
+        type: "imagecontainer",
+        operationType: "show",
+        alias,
+        urls: urls.map((item) => removeExtraDoubleQuotesForMapper(item)),
+    };
+    let propList = list.slice(endIndex + 1);
+    if (propList.length > 0) {
+        if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+            const transitionType = propList[propList.indexOf("with") + 1];
+            const transitionList = propList.slice(propList.indexOf("with") + 2);
+            propList = propList.slice(0, propList.indexOf("with"));
+            const transition = getTransitionForMapper(transitionType, transitionList);
+            if (transition !== undefined) {
+                op.transition = transition;
+            }
+        }
+        if (propList.length > 0) {
+            op.props = HashtagCommands.convertListStringToObj(propList);
+        }
+    }
+    return op;
 }
 
 function splitImageContainerShowListForValidation(
