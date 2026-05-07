@@ -1107,8 +1107,7 @@ HashtagCommands.addMapper(
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
-        const propsList = convertListStringToPropListForMapper(list.slice(3));
-        return getTextShowOperationForMapper(alias, propsList);
+        return getTextShowOperationForMapper(alias, list.slice(3));
     },
     {
         name: "show-text",

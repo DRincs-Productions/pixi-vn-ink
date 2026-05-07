@@ -88,17 +88,6 @@ test("show image", async () => {
                     operations: [
                         {
                             type: "image",
-                            operationType: "remove",
-                            alias: "bg",
-                            $origin: "remove image bg x 10 y 20",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
-                            type: "image",
                             operationType: "show",
                             alias: "alias",
                             url: "alias",
@@ -405,6 +394,17 @@ test("remove image", async () => {
                             type: "image",
                             operationType: "remove",
                             alias: "bg",
+                            $origin: "remove image bg x 10 y 20",
+                        },
+                    ],
+                },
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "image",
+                            operationType: "remove",
+                            alias: "bg",
                             $origin: "remove image bg",
                         },
                     ],
@@ -683,28 +683,6 @@ test("imagecontainer", async () => {
                     goNextStep: true,
                     operations: [
                         {
-                            type: "text",
-                            operationType: "show",
-                            alias: "myText",
-                            text: "myText",
-                            transition: {
-                                type: "dissolve",
-                                props: {
-                                    duration: 1,
-                                },
-                            },
-                            props: {
-                                x: 10,
-                                y: 20,
-                            },
-                            $origin: "show text myText x 10 y 20 with dissolve duration 1",
-                        },
-                    ],
-                },
-                {
-                    goNextStep: true,
-                    operations: [
-                        {
                             type: "operationtoconvert",
                             values: [
                                 'show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve',
@@ -795,6 +773,28 @@ test("text", async () => {
         $schema: PIXIVNJSON_SCHEMA_URL,
         labels: {
             start: [
+                {
+                    goNextStep: true,
+                    operations: [
+                        {
+                            type: "text",
+                            operationType: "show",
+                            alias: "myText",
+                            text: "myText",
+                            transition: {
+                                type: "dissolve",
+                                props: {
+                                    duration: 1,
+                                },
+                            },
+                            props: {
+                                x: 10,
+                                y: 20,
+                            },
+                            $origin: "show text myText x 10 y 20 with dissolve duration 1",
+                        },
+                    ],
+                },
                 {
                     goNextStep: true,
                     operations: [
