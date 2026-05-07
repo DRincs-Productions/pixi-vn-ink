@@ -6,6 +6,9 @@
  * - `POST /__pixi-vn-ink/hashtag-commands` – replaces the stored list with the JSON body
  *   (`InkHashtagCommandInfo[]`). Called automatically by {@link setupInkHmrListener} on
  *   startup and after each HMR update.
+ * - `InkHashtagCommandInfo.validation` serializes the original validation rule:
+ *   - `{ type: "regexp", source, flags }`
+ *   - `{ type: "zod", schema }` (JSON Schema generated from Zod)
  *
  * @example
  * // VS Code extension reading the registered handlers
@@ -22,6 +25,10 @@ export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
  * - `POST /__pixi-vn-ink/text-replaces` – replaces the stored list with the JSON body
  *   (`InkTextReplaceInfo[]`). Called automatically by {@link setupInkHmrListener} on
  *   startup and after each HMR update.
+ * - `InkTextReplaceInfo.validation` serializes the original validation rule:
+ *   - `{ type: "regexp", source, flags }`
+ *   - `{ type: "zod", schema }` (JSON Schema generated from Zod)
+ *   - `{ type: "literal", value }` for string modes like `"all"` / `"characterId"`
  *
  * @example
  * // VS Code extension reading the registered text-replace handlers

@@ -2,9 +2,33 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { importInkText } from "@/loader/importer";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
-import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
+import type {
+    InkHashtagCommandInfo,
+    InkTextReplaceInfo,
+    InkValidationInfo,
+} from "@/vite/info-types";
 import { TextReplaces } from "@drincs/pixi-vn-json";
+import z from "zod";
 
+function serializeValidation(validation: unknown): InkValidationInfo {
+    if (validation instanceof RegExp) {
+        return {
+            type: "regexp",
+            source: validation.source,
+            flags: validation.flags,
+        };
+    }
+    if (typeof validation === "string") {
+        return {
+            type: "literal",
+            value: validation,
+        };
+    }
+    return {
+        type: "zod",
+        schema: z.toJSONSchema(validation as z.core.$ZodType),
+    };
+}
 /**
  * Serializes the currently registered handler lists and POSTs them to the
  * pixi-vn-ink Vite dev-server API so that external tools such as VS Code
@@ -19,17 +43,19 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     }
 
     const hashtagInfo: InkHashtagCommandInfo[] = HashtagCommands.info().map(
-        ({ name, description }) => ({
+        ({ name, description, validation }) => ({
             name,
             description,
+            validation: serializeValidation(validation),
         }),
     );
 
     const textReplaceInfo: InkTextReplaceInfo[] = TextReplaces.info().map(
-        ({ name, description, type }) => ({
+        ({ name, description, type, validation }) => ({
             name,
             description,
             type,
+            validation: serializeValidation(validation),
         }),
     );
 

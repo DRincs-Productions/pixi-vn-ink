@@ -1,4 +1,45 @@
 /**
+ * Serializable representation of a handler `validation` rule used by
+ * {@link HashtagCommands} and {@link TextReplaces}.
+ */
+export type InkValidationInfo =
+    | {
+          /**
+           * Validation based on regular expression.
+           */
+          type: "regexp";
+          /**
+           * The regex source pattern.
+           */
+          source: string;
+          /**
+           * Regex flags (for example `"i"` or `"gi"`).
+           */
+          flags: string;
+      }
+    | {
+          /**
+           * Validation based on a Zod schema serialized to JSON Schema.
+           */
+          type: "zod";
+          /**
+           * JSON Schema representation of the original Zod validation.
+           */
+          schema: Record<string, unknown>;
+      }
+    | {
+          /**
+           * Validation represented by a string literal value
+           * (e.g. `"all"` or `"characterId"`).
+           */
+          type: "literal";
+          /**
+           * The original literal validation value.
+           */
+          value: string;
+      };
+
+/**
  * Serializable representation of a registered {@link HashtagCommands} handler,
  * as exposed by the pixi-vn-ink Vite dev-server API.
  *
@@ -20,6 +61,10 @@ export interface InkHashtagCommandInfo {
      * Matches {@link HashtagHandlerOptions.description}.
      */
     description?: string;
+    /**
+     * Serializable form of {@link HashtagHandlerOptions.validation}.
+     */
+    validation: InkValidationInfo;
 }
 
 /**
@@ -44,6 +89,10 @@ export interface InkTextReplaceInfo {
      * Matches {@link ReplaceHandlerOptions.description}.
      */
     description?: string;
+    /**
+     * Serializable form of {@link ReplaceHandlerOptions.validation}.
+     */
+    validation: InkValidationInfo;
     /**
      * When the handler runs relative to the translation step.
      * Matches {@link ReplaceHandlerOptions.type}.

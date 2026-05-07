@@ -1,4 +1,5 @@
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES, vitePluginInk } from "@/vite/plugins";
+import { vitePluginInk } from "@/vite/plugins";
+import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import fs from "node:fs/promises";
 import http from "node:http";
@@ -350,7 +351,11 @@ describe("vitePluginInk dev API", () => {
     it("POST hashtag-commands stores the data and GET returns it", async () => {
         const { server } = await startPlugin();
         const info: InkHashtagCommandInfo[] = [
-            { name: "navigate", description: "Navigate to a scene" },
+            {
+                name: "navigate",
+                description: "Navigate to a scene",
+                validation: { type: "regexp", source: "^navigate\\b", flags: "" },
+            },
         ];
         const postRes = await request(
             server,
@@ -367,7 +372,12 @@ describe("vitePluginInk dev API", () => {
     it("POST text-replaces stores the data and GET returns it", async () => {
         const { server } = await startPlugin();
         const info: InkTextReplaceInfo[] = [
-            { name: "character-name", description: "Replace IDs with names", type: "after-translation" },
+            {
+                name: "character-name",
+                description: "Replace IDs with names",
+                type: "after-translation",
+                validation: { type: "literal", value: "characterId" },
+            },
         ];
         const postRes = await request(
             server,
