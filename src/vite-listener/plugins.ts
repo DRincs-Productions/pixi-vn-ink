@@ -4,8 +4,8 @@ import { importInkText } from "@/loader/importer";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import { TextReplaces } from "@drincs/pixi-vn-json";
 
-const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
-const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
+const INK_DEV_API_HASHTAG_COMMANDS = "/pixi-vn-ink/hashtag-commands";
+const INK_DEV_API_TEXT_REPLACES = "/pixi-vn-ink/text-replaces";
 
 /**
  * Serializes the currently registered handler lists and POSTs them to the
@@ -20,16 +20,20 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
         return;
     }
 
-    const hashtagInfo: InkHashtagCommandInfo[] = HashtagCommands.info().map(({ name, description }) => ({
-        name,
-        description,
-    }));
+    const hashtagInfo: InkHashtagCommandInfo[] = HashtagCommands.info().map(
+        ({ name, description }) => ({
+            name,
+            description,
+        }),
+    );
 
-    const textReplaceInfo: InkTextReplaceInfo[] = TextReplaces.info().map(({ name, description, type }) => ({
-        name,
-        description,
-        type,
-    }));
+    const textReplaceInfo: InkTextReplaceInfo[] = TextReplaces.info().map(
+        ({ name, description, type }) => ({
+            name,
+            description,
+            type,
+        }),
+    );
 
     await Promise.allSettled([
         fetch(INK_DEV_API_HASHTAG_COMMANDS, {

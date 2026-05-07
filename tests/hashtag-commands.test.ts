@@ -1,6 +1,6 @@
-import { expect, test } from "vitest";
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import type { PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
-import { HashtagCommands } from "../src/handlers/hashtag-commands";
+import { expect, test } from "vitest";
 import { z } from "zod";
 
 test("mergeJsonBlocks merges sibling JSON-like blocks", () => {

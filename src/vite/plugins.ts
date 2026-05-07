@@ -4,8 +4,8 @@ import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
-import type { Plugin, ResolvedConfig } from "vite";
 import { glob } from "tinyglobby";
+import type { Plugin, ResolvedConfig } from "vite";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
@@ -18,33 +18,33 @@ const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
  * Dev-server endpoint that exposes and accepts the list of registered
  * {@link HashtagCommands} handlers as {@link InkHashtagCommandInfo} objects.
  *
- * - `GET  /__pixi-vn-ink/hashtag-commands` – returns the stored `InkHashtagCommandInfo[]` as JSON.
- * - `POST /__pixi-vn-ink/hashtag-commands` – replaces the stored list with the JSON body
+ * - `GET  /pixi-vn-ink/hashtag-commands` – returns the stored `InkHashtagCommandInfo[]` as JSON.
+ * - `POST /pixi-vn-ink/hashtag-commands` – replaces the stored list with the JSON body
  *   (`InkHashtagCommandInfo[]`). Called automatically by {@link setupInkHmrListener} on
  *   startup and after each HMR update.
  *
  * @example
  * // VS Code extension reading the registered handlers
- * const res = await fetch("http://localhost:5173/__pixi-vn-ink/hashtag-commands");
+ * const res = await fetch("http://localhost:5173/pixi-vn-ink/hashtag-commands");
  * const commands: InkHashtagCommandInfo[] = await res.json();
  */
-export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
+export const INK_DEV_API_HASHTAG_COMMANDS = "/pixi-vn-ink/hashtag-commands";
 
 /**
  * Dev-server endpoint that exposes and accepts the list of registered
  * {@link TextReplaces} handlers as {@link InkTextReplaceInfo} objects.
  *
- * - `GET  /__pixi-vn-ink/text-replaces` – returns the stored `InkTextReplaceInfo[]` as JSON.
- * - `POST /__pixi-vn-ink/text-replaces` – replaces the stored list with the JSON body
+ * - `GET  /pixi-vn-ink/text-replaces` – returns the stored `InkTextReplaceInfo[]` as JSON.
+ * - `POST /pixi-vn-ink/text-replaces` – replaces the stored list with the JSON body
  *   (`InkTextReplaceInfo[]`). Called automatically by {@link setupInkHmrListener} on
  *   startup and after each HMR update.
  *
  * @example
  * // VS Code extension reading the registered text-replace handlers
- * const res = await fetch("http://localhost:5173/__pixi-vn-ink/text-replaces");
+ * const res = await fetch("http://localhost:5173/pixi-vn-ink/text-replaces");
  * const replaces: InkTextReplaceInfo[] = await res.json();
  */
-export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
+export const INK_DEV_API_TEXT_REPLACES = "/pixi-vn-ink/text-replaces";
 
 function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");
@@ -131,9 +131,7 @@ function getOutputBaseDirectory(outputPattern: string): string {
         return path.dirname(outputPattern);
     }
 
-    const staticPrefix = outputPattern
-        .slice(0, firstPlaceholderIndex)
-        .replace(/[\\/]+$/g, "");
+    const staticPrefix = outputPattern.slice(0, firstPlaceholderIndex).replace(/[\\/]+$/g, "");
 
     if (!staticPrefix) {
         throw new Error(
@@ -177,11 +175,7 @@ function resolveInkJsonOutputPath(
     return path.normalize(rendered);
 }
 
-function getManifestEntry(
-    outputFile: string,
-    root: string,
-    publicDirectory: string,
-): string {
+function getManifestEntry(outputFile: string, root: string, publicDirectory: string): string {
     if (isInsideDirectory(publicDirectory, outputFile)) {
         const publicRelativePath = normalizeSlashes(path.relative(publicDirectory, outputFile));
         return `/${publicRelativePath}`;
@@ -372,8 +366,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             try {
                 converted = convertInkToJson(source);
             } catch (error) {
-                const normalizedError =
-                    error instanceof Error ? error : new Error(String(error));
+                const normalizedError = error instanceof Error ? error : new Error(String(error));
                 resolvedConfig.logger.error(
                     `[vite-plugin-ink] Failed to convert "${matchedFile}" to JSON.`,
                     {
@@ -402,18 +395,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             }
 
             await fs.mkdir(path.dirname(outputFile), { recursive: true });
-            await fs.writeFile(
-                outputFile,
-                `${JSON.stringify(converted, null, 2)}\n`,
-                "utf-8",
-            );
+            await fs.writeFile(outputFile, `${JSON.stringify(converted, null, 2)}\n`, "utf-8");
 
             manifestUrls.push(
-                getManifestEntry(
-                    outputFile,
-                    resolvedConfig.root,
-                    resolvedConfig.publicDir,
-                ),
+                getManifestEntry(outputFile, resolvedConfig.root, resolvedConfig.publicDir),
             );
         }
 
@@ -434,11 +419,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
-        await fs.writeFile(
-            manifestFile,
-            `${JSON.stringify(manifestUrls, null, 2)}\n`,
-            "utf-8",
-        );
+        await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
     };
 
     return {
@@ -539,8 +520,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             });
 
             void exportInkJsonFiles().catch((error) => {
-                const normalizedError =
-                    error instanceof Error ? error : new Error(String(error));
+                const normalizedError = error instanceof Error ? error : new Error(String(error));
                 resolvedConfig?.logger.error(
                     "[vite-plugin-ink] Failed to export Ink JSON files during server initialization or restart.",
                     {
