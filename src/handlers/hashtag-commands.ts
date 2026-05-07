@@ -389,50 +389,6 @@ export namespace HashtagCommands {
         }
         return undefined;
     }
-    function getImageOperationFromComment(
-        typeCanvasElement: "image" | "video",
-        imageId: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        let url: string;
-        let propList: string[];
-        if (list.length % 2 === 0) {
-            url = imageId;
-            propList = list;
-        } else {
-            url = removeExtraDoubleQuotes(list[0]);
-            propList = list.slice(1);
-        }
-        const op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            url: url,
-        };
-        return setShowProps(op, propList);
-    }
-    function getTextOperationFromComment(
-        typeCanvasElement: "text",
-        imageId: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        let text: string;
-        let propList: string[];
-        if (list.length % 2 === 0) {
-            text = imageId;
-            propList = list;
-        } else {
-            text = removeExtraDoubleQuotes(list[0]);
-            propList = list.slice(1);
-        }
-        const op: PixiVNJsonOperation = {
-            type: typeCanvasElement,
-            operationType: "show",
-            alias: imageId,
-            text: text,
-        };
-        return setShowProps(op, propList);
-    }
     function getContainerOperationFromComment(
         typeCanvasElement: "imagecontainer",
         imageId: string,
@@ -1060,7 +1016,10 @@ function getImageOrVideoShowOperationForMapper(
     return op;
 }
 
-function getTextShowOperationForMapper(alias: string, list: string[]): PixiVNJsonOperation | undefined {
+function getTextShowOperationForMapper(
+    alias: string,
+    list: string[],
+): PixiVNJsonOperation | undefined {
     let text: string;
     let propList: string[];
     if (list.length % 2 === 0) {
@@ -1153,8 +1112,7 @@ HashtagCommands.addMapper(
     },
     {
         name: "show-text",
-        description:
-            "Shows a text canvas element with optional text, properties, and transition.",
+        description: "Shows a text canvas element with optional text, properties, and transition.",
         validation: z.tuple([z.literal("show"), z.literal("text"), z.string()]).rest(z.string()),
     },
 );
