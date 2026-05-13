@@ -463,7 +463,6 @@ export function onInkHashtagScript(runCustomHashtagScript: HashtagHandler) {
     HashtagCommands.add(runCustomHashtagScript);
 }
 
-// # jump label_name  →  jump to the label specified by the second token without returning
 HashtagCommands.addMapper(
     (list: string[], step: PixiVNJsonLabelStep) => {
         step.labelToOpen = {
@@ -474,13 +473,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "call",
-        description:
-            "Calls the label specified by the second token, then returns to the current position.",
+        description: `Calls the label specified by the second token, then returns to the current position.
+
+\`\`\`ink
+# call label_name
+\`\`\``,
         validation: z.tuple([z.literal("call"), z.string()]),
     },
 );
 
-// # jump label_name  →  jump to the label specified by the second token without returning
 HashtagCommands.addMapper(
     (list: string[], step: PixiVNJsonLabelStep) => {
         step.labelToOpen = {
@@ -491,12 +492,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "jump",
-        description: "Jumps to the label specified by the second token without returning.",
+        description: `Jumps to the label specified by the second token without returning.
+
+\`\`\`ink
+# jump label_name
+\`\`\``,
         validation: z.tuple([z.literal("jump"), z.string()]),
     },
 );
 
-// # pause  →  clean the current dialogue and halt auto-advance
 HashtagCommands.addMapper(
     (_list: string[], step: PixiVNJsonLabelStep) => {
         if ("dialogue" in step) {
@@ -512,12 +516,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "pause",
-        description: "Clears the current dialogue and waits for user input before advancing.",
+        description: `Clears the current dialogue and waits for user input before advancing.
+
+\`\`\`ink
+# pause
+\`\`\``,
         validation: z.tuple([z.literal("pause")]),
     },
 );
 
-// # continue  →  force the step to auto-advance
 HashtagCommands.addMapper(
     (_list: string[], step: PixiVNJsonLabelStep) => {
         step.goNextStep = true;
@@ -526,12 +533,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "continue",
-        description: "Forces the story to proceed to the next step automatically.",
+        description: `Forces the story to proceed to the next step automatically.
+
+\`\`\`ink
+# continue
+\`\`\``,
         validation: z.tuple([z.literal("continue")]),
     },
 );
 
-// # pause video <alias>  /  # resume video <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "video",
@@ -540,13 +550,16 @@ HashtagCommands.addMapper(
     }),
     {
         name: "video-pause-resume",
-        description: "Pauses or resumes a video canvas element identified by its alias.",
+        description: `Pauses or resumes a video canvas element identified by its alias.
+
+\`\`\`ink
+# pause video <alias>
+# resume video <alias>
+\`\`\``,
         validation: z.tuple([z.enum(["pause", "resume"]), z.literal("video"), z.string()]),
     },
 );
 
-// # load assets <alias...>  /  # lazyload assets <alias...>
-// # load bundle <alias...>  /  # lazyload bundle <alias...>
 HashtagCommands.addMapper(
     (list) => ({
         type: list[1] as "assets" | "bundle",
@@ -555,14 +568,20 @@ HashtagCommands.addMapper(
     }),
     {
         name: "assets-bundle-load",
-        description: "Loads (eagerly or lazily) a set of asset or bundle aliases.",
+        description: `Loads (eagerly or lazily) a set of asset or bundle aliases.
+
+\`\`\`ink
+# load assets <alias...>
+# lazyload assets <alias...>
+# load bundle <alias...>
+# lazyload bundle <alias...>
+\`\`\``,
         validation: z
             .tuple([z.enum(["load", "lazyload"]), z.enum(["assets", "bundle"])])
             .rest(z.string()),
     },
 );
 
-// # pause all sounds  /  # resume all sounds  /  # stop all sounds
 HashtagCommands.addMapper(
     (list) => ({
         type: "all",
@@ -570,7 +589,13 @@ HashtagCommands.addMapper(
     }),
     {
         name: "all-sounds-pause-resume-stop",
-        description: "Pauses, resumes, or stops all active sounds at once.",
+        description: `Pauses, resumes, or stops all active sounds at once.
+
+\`\`\`ink
+# pause all sounds
+# resume all sounds
+# stop all sounds
+\`\`\``,
         validation: z.tuple([
             z.enum(["pause", "resume", "stop"]),
             z.literal("all"),
@@ -579,7 +604,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # pause sound <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "sound",
@@ -588,12 +612,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "pause-sound",
-        description: "Pauses the sound identified by its alias.",
+        description: `Pauses the sound identified by its alias.
+
+\`\`\`ink
+# pause sound <alias>
+\`\`\``,
         validation: z.tuple([z.literal("pause"), z.literal("sound"), z.string()]),
     },
 );
 
-// # pause channel <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "channel",
@@ -602,12 +629,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "pause-channel",
-        description: "Pauses the audio channel identified by its alias.",
+        description: `Pauses the audio channel identified by its alias.
+
+\`\`\`ink
+# pause channel <alias>
+\`\`\``,
         validation: z.tuple([z.literal("pause"), z.literal("channel"), z.string()]),
     },
 );
 
-// # resume sound <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "sound",
@@ -616,12 +646,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "resume-sound",
-        description: "Resumes the sound identified by its alias.",
+        description: `Resumes the sound identified by its alias.
+
+\`\`\`ink
+# resume sound <alias>
+\`\`\``,
         validation: z.tuple([z.literal("resume"), z.literal("sound"), z.string()]),
     },
 );
 
-// # resume channel <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "channel",
@@ -630,12 +663,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "resume-channel",
-        description: "Resumes the audio channel identified by its alias.",
+        description: `Resumes the audio channel identified by its alias.
+
+\`\`\`ink
+# resume channel <alias>
+\`\`\``,
         validation: z.tuple([z.literal("resume"), z.literal("channel"), z.string()]),
     },
 );
 
-// # stop sound <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "sound",
@@ -644,12 +680,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "stop-sound",
-        description: "Stops the sound identified by its alias.",
+        description: `Stops the sound identified by its alias.
+
+\`\`\`ink
+# stop sound <alias>
+\`\`\``,
         validation: z.tuple([z.literal("stop"), z.literal("sound"), z.string()]),
     },
 );
 
-// # remove sound <alias>
 HashtagCommands.addMapper(
     (list) => ({
         type: "sound",
@@ -657,13 +696,17 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "(deprecate) remove-sound",
-        description: "Removes (stops) the sound identified by its alias.",
+        name: "remove-sound",
+        description: `Removes (stops) the sound identified by its alias.
+
+\`\`\`ink
+# remove sound <alias>
+\`\`\``,
+        deprecated: true,
         validation: z.tuple([z.literal("remove"), z.literal("sound"), z.string()]),
     },
 );
 
-// # edit sound <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         type: "sound",
@@ -673,7 +716,11 @@ HashtagCommands.addMapper(
     }),
     {
         name: "edit-sound",
-        description: "Edits the properties of a sound identified by its alias.",
+        description: `Edits the properties of a sound identified by its alias.
+
+\`\`\`ink
+# edit sound <alias> [<key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("edit"), z.literal("sound"), z.string()])
             .rest(z.string())
@@ -681,8 +728,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # play sound <alias> [<key> <value> …]
-// The alias is also used as the URL when no explicit source is given (even number of extra tokens).
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -699,8 +744,11 @@ HashtagCommands.addMapper(
     },
     {
         name: "play-sound",
-        description:
-            "Plays a sound using its alias as the URL, with optional key/value properties.",
+        description: `Plays a sound using its alias as the URL, with optional key/value properties.
+
+\`\`\`ink
+# play sound <alias> [<key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("play"), z.literal("sound"), z.string()])
             .rest(z.string())
@@ -708,8 +756,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # play sound <alias> <source> [<key> <value> …]
-// An explicit source URL is present when the number of extra tokens after the alias is odd.
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -727,7 +773,12 @@ HashtagCommands.addMapper(
     },
     {
         name: "play-sound-with-source",
-        description: "Plays a sound with an explicit source URL and optional key/value properties.",
+        description: `Plays a sound with an explicit source URL and optional key/value properties.
+        
+\`\`\`ink
+# play sound <alias> <source> [<key> <value> …]
+\`\`\`
+`,
         validation: z
             .tuple([z.literal("play"), z.literal("sound"), z.string()])
             .rest(z.string())
@@ -965,7 +1016,6 @@ function splitImageContainerShowListForValidation(
     };
 }
 
-// # shake <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         alias: list[1],
@@ -974,7 +1024,11 @@ HashtagCommands.addMapper(
     }),
     {
         name: "shake-effect",
-        description: "Applies shake effect to a canvas alias with optional key/value parameters.",
+        description: `Applies shake effect to a canvas alias with optional key/value parameters.
+
+\`\`\`ink
+# shake <alias> [<key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("shake"), z.string()])
             .rest(z.string())
@@ -982,7 +1036,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # animate <alias> [<key> <value> …] [options <key> <value> …]
 HashtagCommands.addMapper(
     (list) => {
         const commandList = list.slice(2);
@@ -1003,8 +1056,11 @@ HashtagCommands.addMapper(
     },
     {
         name: "animate-effect",
-        description:
-            "Animates a canvas alias with keyframes and optional options section, both in key/value pairs.",
+        description: `Animates a canvas alias with keyframes and optional options section, both in key/value pairs.
+
+\`\`\`ink
+# animate <alias> [<key> <value> …] [options <key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("animate"), z.string()])
             .rest(z.string())
@@ -1024,7 +1080,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1033,13 +1088,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "show-image",
-        description:
-            "Shows an image canvas element with optional source, properties, and transition.",
+        description: `Shows an image canvas element with optional source, properties, and transition.
+
+\`\`\`ink
+# show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z.tuple([z.literal("show"), z.literal("image"), z.string()]).rest(z.string()),
     },
 );
 
-// # show imagecontainer <alias> [<list>] [<key> <value> …]
 HashtagCommands.addMapper(
     (list) =>
         getImageContainerShowOperationForMapper(
@@ -1048,8 +1105,11 @@ HashtagCommands.addMapper(
         ),
     {
         name: "show-imagecontainer",
-        description:
-            "Shows an image-container canvas element with list and optional key/value properties.",
+        description: `Shows an image-container canvas element with list and optional key/value properties.
+
+\`\`\`ink
+# show imagecontainer <alias> [<list>] [<key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
             .rest(z.string())
@@ -1063,7 +1123,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition>
 HashtagCommands.addMapper(
     (list) =>
         getImageContainerShowOperationForMapper(
@@ -1072,8 +1131,11 @@ HashtagCommands.addMapper(
         ),
     {
         name: "show-imagecontainer-with-transition",
-        description:
-            "Shows an image-container canvas element with list, optional properties, and transition.",
+        description: `Shows an image-container canvas element with list, optional properties, and transition.
+
+\`\`\`ink
+# show imagecontainer <alias> [<list>] [<key> <value> …] with <transition>
+\`\`\``,
         validation: z
             .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
             .rest(z.string())
@@ -1087,7 +1149,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # show imagecontainer <alias> [<list>] [<key> <value> …] with <transition> <key> <value> …
 HashtagCommands.addMapper(
     (list) =>
         getImageContainerShowOperationForMapper(
@@ -1096,8 +1157,11 @@ HashtagCommands.addMapper(
         ),
     {
         name: "show-imagecontainer-with-transition-props",
-        description:
-            "Shows an image-container canvas element with list, optional properties, transition, and transition properties.",
+        description: `Shows an image-container canvas element with list, optional properties, transition, and transition properties.
+
+\`\`\`ink
+# show imagecontainer <alias> [<list>] [<key> <value> …] with <transition> <key> <value> …
+\`\`\``,
         validation: z
             .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
             .rest(z.string())
@@ -1115,7 +1179,6 @@ HashtagCommands.addMapper(
     },
 );
 
-// # show video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1124,13 +1187,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "show-video",
-        description:
-            "Shows a video canvas element with optional source, properties, and transition.",
+        description: `Shows a video canvas element with optional source, properties, and transition.
+
+\`\`\`ink
+# show video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z.tuple([z.literal("show"), z.literal("video"), z.string()]).rest(z.string()),
     },
 );
 
-// # show text <alias> [<text>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1138,12 +1203,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "show-text",
-        description: "Shows a text canvas element with optional text, properties, and transition.",
+        description: `Shows a text canvas element with optional text, properties, and transition.
+
+\`\`\`ink
+# show text <alias> [<text>] [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z.tuple([z.literal("show"), z.literal("text"), z.string()]).rest(z.string()),
     },
 );
 
-// # remove image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1152,13 +1220,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "remove-image",
-        description:
-            "Removes an image canvas element with optional source/properties and transition.",
+        description: `Removes an image canvas element with optional source/properties and transition.
+
+\`\`\`ink
+# remove image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z.tuple([z.literal("remove"), z.literal("image"), z.string()]).rest(z.string()),
     },
 );
 
-// # remove video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1167,13 +1237,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "remove-video",
-        description:
-            "Removes a video canvas element with optional source/properties and transition.",
+        description: `Removes a video canvas element with optional source/properties and transition.
+
+\`\`\`ink
+# remove video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z.tuple([z.literal("remove"), z.literal("video"), z.string()]).rest(z.string()),
     },
 );
 
-// # remove canvaselement <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1182,15 +1254,17 @@ HashtagCommands.addMapper(
     },
     {
         name: "remove-canvaselement",
-        description:
-            "Removes a canvas element with optional properties and optional transition params.",
+        description: `Removes a canvas element with optional properties and optional transition params.
+
+\`\`\`ink
+# remove canvaselement <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z
             .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
             .rest(z.string()),
     },
 );
 
-// # remove text <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1199,12 +1273,15 @@ HashtagCommands.addMapper(
     },
     {
         name: "remove-text",
-        description: "Removes a text canvas element with optional properties and transition.",
+        description: `Removes a text canvas element with optional properties and transition.
+
+\`\`\`ink
+# remove text <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z.tuple([z.literal("remove"), z.literal("text"), z.string()]).rest(z.string()),
     },
 );
 
-// # remove imagecontainer <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
 HashtagCommands.addMapper(
     (list) => {
         const alias = list[2];
@@ -1213,15 +1290,17 @@ HashtagCommands.addMapper(
     },
     {
         name: "remove-imagecontainer",
-        description:
-            "Removes an image-container canvas element with optional properties and transition.",
+        description: `Removes an image-container canvas element with optional properties and transition.
+
+\`\`\`ink
+# remove imagecontainer <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+\`\`\``,
         validation: z
             .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])
             .rest(z.string()),
     },
 );
 
-// # edit image <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         type: "image",
@@ -1231,12 +1310,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "edit-image",
-        description: "Edits the properties of an image canvas element identified by its alias.",
+        description: `Edits the properties of an image canvas element identified by its alias.
+
+\`\`\`ink
+# edit image <alias> [<key> <value> …]
+\`\`\``,
         validation: z.tuple([z.literal("edit"), z.literal("image"), z.string()]).rest(z.string()),
     },
 );
 
-// # edit imagecontainer <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         type: "imagecontainer",
@@ -1246,15 +1328,17 @@ HashtagCommands.addMapper(
     }),
     {
         name: "edit-imagecontainer",
-        description:
-            "Edits the properties of an image-container canvas element identified by its alias.",
+        description: `Edits the properties of an image-container canvas element identified by its alias.
+
+\`\`\`ink
+# edit imagecontainer <alias> [<key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("edit"), z.literal("imagecontainer"), z.string()])
             .rest(z.string()),
     },
 );
 
-// # edit canvaselement <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         type: "canvaselement",
@@ -1264,14 +1348,17 @@ HashtagCommands.addMapper(
     }),
     {
         name: "edit-canvaselement",
-        description: "Edits the properties of a canvas element identified by its alias.",
+        description: `Edits the properties of a canvas element identified by its alias.
+
+\`\`\`ink
+# edit canvaselement <alias> [<key> <value> …]
+\`\`\``,
         validation: z
             .tuple([z.literal("edit"), z.literal("canvaselement"), z.string()])
             .rest(z.string()),
     },
 );
 
-// # edit video <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         type: "video",
@@ -1281,12 +1368,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "edit-video",
-        description: "Edits the properties of a video canvas element identified by its alias.",
+        description: `Edits the properties of a video canvas element identified by its alias.
+
+\`\`\`ink
+# edit video <alias> [<key> <value> …]
+\`\`\``,
         validation: z.tuple([z.literal("edit"), z.literal("video"), z.string()]).rest(z.string()),
     },
 );
 
-// # edit text <alias> [<key> <value> …]
 HashtagCommands.addMapper(
     (list) => ({
         type: "text",
@@ -1296,12 +1386,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "edit-text",
-        description: "Edits the properties of a text canvas element identified by its alias.",
+        description: `Edits the properties of a text canvas element identified by its alias.
+
+\`\`\`ink
+# edit text <alias> [<key> <value> …]
+\`\`\``,
         validation: z.tuple([z.literal("edit"), z.literal("text"), z.string()]).rest(z.string()),
     },
 );
 
-// # request input
 HashtagCommands.addMapper(
     (_list) => ({
         type: "input",
@@ -1309,13 +1402,15 @@ HashtagCommands.addMapper(
     }),
     {
         name: "request-input",
-        description: "Requests player input without any additional constraints.",
+        description: `Requests player input without any additional constraints.
+
+\`\`\`ink
+# request input
+\`\`\``,
         validation: z.tuple([z.literal("request"), z.literal("input")]),
     },
 );
 
-// # request input <key> <value> [<key> <value> …]
-// e.g. # request input type number default 18
 HashtagCommands.addMapper(
     (list) => {
         const op: PixiVNJsonOperation = {
@@ -1338,8 +1433,12 @@ HashtagCommands.addMapper(
     },
     {
         name: "request-input-params",
-        description:
-            "Requests player input with optional key/value parameters (e.g. type, default).",
+        description: `Requests player input with optional key/value parameters (e.g. type, default).
+
+\`\`\`ink
+# request input <key> <value> [<key> <value> …]
+# request input type number default 18
+\`\`\``,
         validation: z
             .tuple([z.literal("request"), z.literal("input")])
             .rest(z.string())

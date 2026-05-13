@@ -74,7 +74,7 @@ export interface HashtagHandlerOptions {
     name: string;
     /**
      * An optional human-readable description of what this handler does.
-     * Used for documentation purposes.
+     * Used for documentation purposes. Supports multi-line descriptions.
      */
     description?: string;
     /**
@@ -96,4 +96,9 @@ export interface HashtagHandlerOptions {
      * ```
      */
     validation: RegExp | ZodType<string[]>;
+    /**
+     * Whether this handler is deprecated. Deprecated handlers should still function correctly
+     * but may be replaced by newer alternatives in the future.
+     */
+    deprecated?: boolean;
 }
