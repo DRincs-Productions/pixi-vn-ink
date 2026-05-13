@@ -217,7 +217,7 @@ function getHashtagCommands(source: string): HashtagCommandOccurrence[] {
 }
 
 function getCachedRegExp(source: string, flags: string): RegExp {
-    const cacheKey = `${flags}\0${source}`;
+    const cacheKey = JSON.stringify([flags, source]);
     const cached = HASHTAG_VALIDATION_REGEX_CACHE.get(cacheKey);
     if (cached) {
         return cached;
