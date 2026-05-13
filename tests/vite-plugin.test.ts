@@ -342,6 +342,18 @@ describe("vitePluginInk dev API", () => {
         });
     }
 
+    function createTransformContext(infos: string[]) {
+        return {
+            warn: () => {},
+            error: (message: string) => {
+                throw new Error(message);
+            },
+            info: (message: string) => {
+                infos.push(message);
+            },
+        };
+    }
+
     it("GET hashtag-commands returns empty array initially", async () => {
         const { server } = await startPlugin();
         const res = await request(server, "GET", INK_DEV_API_HASHTAG_COMMANDS);
@@ -416,15 +428,7 @@ describe("vitePluginInk dev API", () => {
 
         const infos: string[] = [];
         await plugin.transform?.call(
-            {
-                warn: () => {},
-                error: (message: string) => {
-                    throw new Error(message);
-                },
-                info: (message: string) => {
-                    infos.push(message);
-                },
-            } as any,
+            createTransformContext(infos) as any,
             "",
             inkPath,
         );
@@ -452,15 +456,7 @@ describe("vitePluginInk dev API", () => {
 
         const infos: string[] = [];
         await plugin.transform?.call(
-            {
-                warn: () => {},
-                error: (message: string) => {
-                    throw new Error(message);
-                },
-                info: (message: string) => {
-                    infos.push(message);
-                },
-            } as any,
+            createTransformContext(infos) as any,
             "",
             inkPath,
         );

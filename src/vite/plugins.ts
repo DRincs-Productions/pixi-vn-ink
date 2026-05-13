@@ -16,6 +16,7 @@ const JSON_MANIFEST_FILE_NAME = "manifest.json";
 const DEFAULT_JSON_EXPORT_FILE_PATTERN = "[path][name].json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
 const INK_HASHTAG_COMMAND_PATTERN = /(?:^|<>)\s*#\s*([^\r\n]+)/g;
+const HASHTAG_VALIDATION_REGEX_CACHE = new Map<string, RegExp>();
 
 interface HashtagCommandOccurrence {
     line: number;
@@ -188,7 +189,6 @@ function getHashtagCommands(source: string): HashtagCommandOccurrence[] {
     const commands: HashtagCommandOccurrence[] = [];
     for (let index = 0; index < lines.length; index++) {
         const line = lines[index];
-        INK_HASHTAG_COMMAND_PATTERN.lastIndex = 0;
         for (const match of line.matchAll(INK_HASHTAG_COMMAND_PATTERN)) {
             const cleanedCommand = stripTrailingLineComment(match[1] ?? "").trim();
             if (!cleanedCommand) {
@@ -203,6 +203,17 @@ function getHashtagCommands(source: string): HashtagCommandOccurrence[] {
         }
     }
     return commands;
+}
+
+function getCachedRegExp(source: string, flags: string): RegExp {
+    const cacheKey = `${flags}\0${source}`;
+    const cached = HASHTAG_VALIDATION_REGEX_CACHE.get(cacheKey);
+    if (cached) {
+        return cached;
+    }
+    const compiled = new RegExp(source, flags);
+    HASHTAG_VALIDATION_REGEX_CACHE.set(cacheKey, compiled);
+    return compiled;
 }
 
 function stringMatchesSchemaToken(token: string, schema: unknown): boolean {
@@ -317,7 +328,9 @@ function arrayMatchesSchemaTokens(tokens: string[], schema: unknown): boolean {
 
 function matchesHashtagValidation(tokens: string[], validation: InkValidationInfo): boolean {
     if (validation.type === "regexp") {
-        return new RegExp(validation.source, validation.flags).test(tokens.join(" "));
+        const expression = getCachedRegExp(validation.source, validation.flags);
+        expression.lastIndex = 0;
+        return expression.test(tokens.join(" "));
     }
     if (validation.type === "literal") {
         return tokens.join(" ") === validation.value;
