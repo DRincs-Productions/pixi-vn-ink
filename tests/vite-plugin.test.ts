@@ -313,7 +313,11 @@ describe("vitePluginInk dev API", () => {
         servers.length = 0;
     });
 
-    function startPlugin(): Promise<{ server: http.Server; middleware: MiddlewareFn }> {
+    function startPlugin(): Promise<{
+        server: http.Server;
+        middleware: MiddlewareFn;
+        plugin: ReturnType<typeof vitePluginInk>;
+    }> {
         const plugin = vitePluginInk();
         let middleware!: MiddlewareFn;
 
@@ -329,8 +333,12 @@ describe("vitePluginInk dev API", () => {
 
         const server = makeTestServer(middleware);
         servers.push(server);
-        return new Promise<{ server: http.Server; middleware: MiddlewareFn }>((resolve) => {
-            server.listen(0, "127.0.0.1", () => resolve({ server, middleware }));
+        return new Promise<{
+            server: http.Server;
+            middleware: MiddlewareFn;
+            plugin: ReturnType<typeof vitePluginInk>;
+        }>((resolve) => {
+            server.listen(0, "127.0.0.1", () => resolve({ server, middleware, plugin }));
         });
     }
 
@@ -389,6 +397,75 @@ describe("vitePluginInk dev API", () => {
 
         const getRes = await request(server, "GET", INK_DEV_API_TEXT_REPLACES);
         expect(JSON.parse(getRes.body)).toEqual(info);
+    });
+
+    it("transform logs info for unknown hashtag commands and suggests the dev API", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+        const inkPath = path.join(root, "story.ink");
+        await fs.writeFile(inkPath, "=== start ===\n# known one\n# unknown two\n", "utf-8");
+
+        const { server, plugin } = await startPlugin();
+        const info: InkHashtagCommandInfo[] = [
+            {
+                name: "known",
+                validation: { type: "regexp", source: "^known\\b", flags: "" },
+            },
+        ];
+        await request(server, "POST", INK_DEV_API_HASHTAG_COMMANDS, JSON.stringify(info));
+
+        const infos: string[] = [];
+        await plugin.transform?.call(
+            {
+                warn: () => {},
+                error: (message: string) => {
+                    throw new Error(message);
+                },
+                info: (message: string) => {
+                    infos.push(message);
+                },
+            } as any,
+            "",
+            inkPath,
+        );
+
+        expect(infos.some((message) => message.includes('Unknown hashtag command "# unknown two"'))).toBe(
+            true,
+        );
+        expect(infos.some((message) => message.includes(INK_DEV_API_HASHTAG_COMMANDS))).toBe(true);
+    });
+
+    it("transform does not log unknown-command info when every hashtag command is known", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+        const inkPath = path.join(root, "story-known.ink");
+        await fs.writeFile(inkPath, "=== start ===\n# known one\n", "utf-8");
+
+        const { server, plugin } = await startPlugin();
+        const info: InkHashtagCommandInfo[] = [
+            {
+                name: "known",
+                validation: { type: "regexp", source: "^known\\b", flags: "" },
+            },
+        ];
+        await request(server, "POST", INK_DEV_API_HASHTAG_COMMANDS, JSON.stringify(info));
+
+        const infos: string[] = [];
+        await plugin.transform?.call(
+            {
+                warn: () => {},
+                error: (message: string) => {
+                    throw new Error(message);
+                },
+                info: (message: string) => {
+                    infos.push(message);
+                },
+            } as any,
+            "",
+            inkPath,
+        );
+
+        expect(infos).toEqual([]);
     });
 
     it("unrelated paths fall through to next", async () => {
