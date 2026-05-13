@@ -169,7 +169,7 @@ function stripTrailingLineComment(command: string): string {
     for (let i = 0; i < command.length; i++) {
         const char = command[i];
         const nextChar = command[i + 1];
-        if ((char === '"' || char === "'" || char === "`") && command[i - 1] !== "\\") {
+        if ((char === '"' || char === "'" || char === "`") && !isEscapedCharacter(command, i)) {
             if (!quote) {
                 quote = char;
             } else if (quote === char) {
@@ -182,6 +182,17 @@ function stripTrailingLineComment(command: string): string {
         }
     }
     return command.trimEnd();
+}
+
+function isEscapedCharacter(value: string, index: number): boolean {
+    let backslashCount = 0;
+    for (let currentIndex = index - 1; currentIndex >= 0; currentIndex--) {
+        if (value[currentIndex] !== "\\") {
+            break;
+        }
+        backslashCount++;
+    }
+    return backslashCount % 2 === 1;
 }
 
 function getHashtagCommands(source: string): HashtagCommandOccurrence[] {
@@ -257,7 +268,7 @@ function stringMatchesSchemaToken(token: string, schema: unknown): boolean {
     }
     if (typeof typedSchema.pattern === "string") {
         try {
-            if (!new RegExp(typedSchema.pattern).test(token)) {
+            if (!getCachedRegExp(typedSchema.pattern, "").test(token)) {
                 return false;
             }
         } catch {
