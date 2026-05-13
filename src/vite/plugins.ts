@@ -339,9 +339,13 @@ function arrayMatchesSchemaTokens(tokens: string[], schema: unknown): boolean {
 
 function matchesHashtagValidation(tokens: string[], validation: InkValidationInfo): boolean {
     if (validation.type === "regexp") {
-        const expression = getCachedRegExp(validation.source, validation.flags);
-        expression.lastIndex = 0;
-        return expression.test(tokens.join(" "));
+        try {
+            const expression = getCachedRegExp(validation.source, validation.flags);
+            expression.lastIndex = 0;
+            return expression.test(tokens.join(" "));
+        } catch {
+            return false;
+        }
     }
     if (validation.type === "literal") {
         return tokens.join(" ") === validation.value;
