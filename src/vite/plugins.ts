@@ -164,51 +164,23 @@ function getManifestEntry(outputFile: string, root: string, publicDirectory: str
     return normalizeSlashes(outputFile);
 }
 
-function stripTrailingLineComment(command: string): string {
-    let quote: '"' | "'" | "`" | undefined;
-    for (let i = 0; i < command.length; i++) {
-        const char = command[i];
-        const nextChar = command[i + 1];
-        if ((char === '"' || char === "'" || char === "`") && !isEscapedCharacter(command, i)) {
-            if (!quote) {
-                quote = char;
-            } else if (quote === char) {
-                quote = undefined;
-            }
-            continue;
-        }
-        if (!quote && char === "/" && nextChar === "/") {
-            return command.slice(0, i).trimEnd();
-        }
-    }
-    return command.trimEnd();
-}
-
-function isEscapedCharacter(value: string, index: number): boolean {
-    let backslashCount = 0;
-    for (let currentIndex = index - 1; currentIndex >= 0; currentIndex--) {
-        if (value[currentIndex] !== "\\") {
-            break;
-        }
-        backslashCount++;
-    }
-    return backslashCount % 2 === 1;
-}
-
 function getHashtagCommands(source: string): HashtagCommandOccurrence[] {
     const lines = source.split(/\r?\n/);
     const commands: HashtagCommandOccurrence[] = [];
     for (let index = 0; index < lines.length; index++) {
         const line = lines[index];
         for (const match of line.matchAll(INK_HASHTAG_COMMAND_PATTERN)) {
-            const cleanedCommand = stripTrailingLineComment(match[1] ?? "").trim();
-            if (!cleanedCommand) {
+            const rawCommand = (match[1] ?? "").trim();
+            if (!rawCommand) {
                 continue;
             }
-            const tokens = HashtagCommands.convertTagTolist(cleanedCommand);
+            const tokens = HashtagCommands.convertTagTolist(rawCommand);
+            if (tokens.length === 0) {
+                continue;
+            }
             commands.push({
                 line: index + 1,
-                command: cleanedCommand,
+                command: rawCommand,
                 tokens,
             });
         }
