@@ -3,7 +3,7 @@ import type { PixiVNJsonLabelStep, PixiVNJsonOperation } from "@drincs/pixi-vn-j
 import type { ZodType } from "zod";
 
 /**
- * A handler function invoked for each Hashtag-Command that passes the {@link HashtagHandlerOptions.validation} check.
+ * A handler function invoked for each Hashtag-Command that passes the {@link validation} check.
  *
  * @param command The Hashtag-Command split into tokens. Corresponds to a line starting with `#`.
  *   For example `# navigate scene_name "Hello World"` becomes `["navigate", "scene_name", "Hello World"]`.
