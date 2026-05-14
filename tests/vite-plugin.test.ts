@@ -47,7 +47,7 @@ describe("vitePluginInk", () => {
 
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
-            inkJsonPublicDir: "ink-json",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
         plugin.configResolved?.({
@@ -88,7 +88,7 @@ describe("vitePluginInk", () => {
 
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
-            inkJsonPublicDir: "ink-json",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
         plugin.configResolved?.({
@@ -153,6 +153,42 @@ describe("vitePluginInk", () => {
         await expect(fs.access(secondJsonPath)).resolves.toBeUndefined();
         await expect(readJsonFile(manifestPath)).resolves.toEqual([
             "generated/ink-json/chapter-1/second.json",
+            "generated/ink-json/start.json",
+        ]);
+    });
+
+    it("saves manifest to a custom path when inkJsonManifestPath is provided", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\nHello world!\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./generated/ink-json/[path][name].json",
+            inkJsonManifestPath: "./public/ink-manifest.json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+        } as ResolvedConfig);
+
+        await plugin.buildStart?.call(undefined);
+
+        const jsonPath = path.join(root, "generated", "ink-json", "start.json");
+        const defaultManifestPath = path.join(root, "generated", "ink-json", "manifest.json");
+        const customManifestPath = path.join(root, "public", "ink-manifest.json");
+
+        await expect(fs.access(jsonPath)).resolves.toBeUndefined();
+        await expect(fs.access(defaultManifestPath)).rejects.toBeDefined();
+        await expect(readJsonFile(customManifestPath)).resolves.toEqual([
             "generated/ink-json/start.json",
         ]);
     });
