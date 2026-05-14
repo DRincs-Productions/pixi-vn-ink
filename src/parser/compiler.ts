@@ -1,6 +1,174 @@
-import type { CompileSharedType, IssueType } from "@/parser/types";
+import type { CompileSharedType, HashtagCommandOccurrence, InkHashtagCommandInfo, IssueType } from "@/parser/types";
+import { convertTagTolist } from "@/utils/hashtag-utility";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
+
+const INK_HASHTAG_COMMAND_PATTERN = /(?:^|<>)\s*#\s*([^\r\n]+)/g;
+const HASHTAG_VALIDATION_REGEX_CACHE = new Map<string, RegExp>();
+
+function getCachedRegExp(source: string, flags: string): RegExp {
+    const cacheKey = JSON.stringify([flags, source]);
+    const cached = HASHTAG_VALIDATION_REGEX_CACHE.get(cacheKey);
+    if (cached) {
+        return cached;
+    }
+    const compiled = new RegExp(source, flags);
+    HASHTAG_VALIDATION_REGEX_CACHE.set(cacheKey, compiled);
+    return compiled;
+}
+
+function stringMatchesSchemaToken(token: string, schema: unknown): boolean {
+    if (!schema || typeof schema !== "object") {
+        return false;
+    }
+    const typedSchema = schema as Record<string, unknown>;
+
+    const anyOf = typedSchema.anyOf;
+    if (Array.isArray(anyOf)) {
+        return anyOf.some((entry) => stringMatchesSchemaToken(token, entry));
+    }
+
+    const oneOf = typedSchema.oneOf;
+    if (Array.isArray(oneOf)) {
+        return oneOf.some((entry) => stringMatchesSchemaToken(token, entry));
+    }
+
+    const allOf = typedSchema.allOf;
+    if (Array.isArray(allOf)) {
+        return allOf.every((entry) => stringMatchesSchemaToken(token, entry));
+    }
+
+    if (typeof typedSchema.const === "string") {
+        return token === typedSchema.const;
+    }
+
+    if (Array.isArray(typedSchema.enum)) {
+        return typedSchema.enum.some((value) => typeof value === "string" && value === token);
+    }
+
+    if (typedSchema.type !== "string") {
+        return false;
+    }
+
+    if (typeof typedSchema.minLength === "number" && token.length < typedSchema.minLength) {
+        return false;
+    }
+    if (typeof typedSchema.maxLength === "number" && token.length > typedSchema.maxLength) {
+        return false;
+    }
+    if (typeof typedSchema.pattern === "string") {
+        try {
+            if (!getCachedRegExp(typedSchema.pattern, "").test(token)) {
+                return false;
+            }
+        } catch {
+            return false;
+        }
+    }
+    return true;
+}
+
+function arrayMatchesSchemaTokens(tokens: string[], schema: unknown): boolean {
+    if (!schema || typeof schema !== "object") {
+        return false;
+    }
+
+    const typedSchema = schema as Record<string, unknown>;
+    const anyOf = typedSchema.anyOf;
+    if (Array.isArray(anyOf)) {
+        return anyOf.some((entry) => arrayMatchesSchemaTokens(tokens, entry));
+    }
+
+    const oneOf = typedSchema.oneOf;
+    if (Array.isArray(oneOf)) {
+        return oneOf.some((entry) => arrayMatchesSchemaTokens(tokens, entry));
+    }
+
+    const allOf = typedSchema.allOf;
+    if (Array.isArray(allOf)) {
+        return allOf.every((entry) => arrayMatchesSchemaTokens(tokens, entry));
+    }
+
+    if (typedSchema.type !== "array") {
+        return false;
+    }
+
+    if (typeof typedSchema.minItems === "number" && tokens.length < typedSchema.minItems) {
+        return false;
+    }
+    if (typeof typedSchema.maxItems === "number" && tokens.length > typedSchema.maxItems) {
+        return false;
+    }
+
+    const prefixItems = Array.isArray(typedSchema.prefixItems) ? typedSchema.prefixItems : [];
+    if (tokens.length < prefixItems.length) {
+        return false;
+    }
+
+    for (let index = 0; index < prefixItems.length; index++) {
+        if (!stringMatchesSchemaToken(tokens[index], prefixItems[index])) {
+            return false;
+        }
+    }
+
+    if (tokens.length === prefixItems.length) {
+        return true;
+    }
+
+    if (typedSchema.items === false || typeof typedSchema.items === "undefined") {
+        return false;
+    }
+    if (typedSchema.items === true) {
+        return true;
+    }
+
+    return tokens
+        .slice(prefixItems.length)
+        .every((token) => stringMatchesSchemaToken(token, typedSchema.items));
+}
+
+function matchesHashtagValidation(
+    tokens: string[],
+    validation: InkHashtagCommandInfo["validation"],
+): boolean {
+    if (validation.type === "regexp") {
+        try {
+            const expression = getCachedRegExp(validation.source, validation.flags);
+            expression.lastIndex = 0;
+            return expression.test(tokens.join(" "));
+        } catch {
+            return false;
+        }
+    }
+    if (validation.type === "literal") {
+        return tokens.join(" ") === validation.value;
+    }
+    return arrayMatchesSchemaTokens(tokens, validation.schema);
+}
+
+function extractHashtagCommands(source: string): HashtagCommandOccurrence[] {
+    const lines = source.split(/\r?\n/);
+    const commands: HashtagCommandOccurrence[] = [];
+    for (let index = 0; index < lines.length; index++) {
+        const line = lines[index];
+        for (const match of line.matchAll(INK_HASHTAG_COMMAND_PATTERN)) {
+            const rawCommand = (match[1] ?? "").trim();
+            if (!rawCommand) {
+                continue;
+            }
+            const tokens = convertTagTolist(rawCommand);
+            if (tokens.length === 0) {
+                continue;
+            }
+            commands.push({
+                line: index + 1,
+                command: rawCommand,
+                tokens,
+            });
+        }
+    }
+    return commands;
+}
 
 export namespace InkCompiler {
     export function compile(
@@ -190,5 +358,30 @@ export namespace InkCompiler {
             return { issues };
         }
         return { issues };
+    }
+
+    /**
+     * Returns all hashtag commands in `source` that are not matched by any
+     * entry in `commands`.
+     *
+     * A command is considered "unknown" when none of the registered
+     * {@link InkHashtagCommandInfo} validations match its token list.
+     *
+     * @param source   Raw Ink source text to scan.
+     * @param commands List of known command descriptors (e.g. obtained from
+     *                 `GET /__pixi-vn-ink/hashtag-commands` or registered
+     *                 directly in a VS Code extension).
+     * @returns        Array of unrecognised {@link HashtagCommandOccurrence}
+     *                 objects, each carrying the 1-based `line`, the raw
+     *                 `command` string, and the parsed `tokens`.
+     */
+    export function getUnknownHashtagCommands(
+        source: string,
+        commands: InkHashtagCommandInfo[],
+    ): HashtagCommandOccurrence[] {
+        return extractHashtagCommands(source).filter(
+            ({ tokens }) =>
+                !commands.some(({ validation }) => matchesHashtagValidation(tokens, validation)),
+        );
     }
 }
