@@ -318,7 +318,7 @@ function getDialog(text: string): PixiVNJsonLabelStep {
         const parts = text.split(": ");
         const c = parts[0];
         const t = parts.slice(1).join(": ");
-        if (RegisteredCharacters.get(c)) {
+        if (RegisteredCharacters.has(c)) {
             character = c;
             text = t;
         }
