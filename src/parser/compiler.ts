@@ -1,5 +1,5 @@
 import type { CompileSharedType, HashtagCommandOccurrence, InkHashtagCommandInfo, IssueType } from "@/parser/types";
-import { convertTagTolist } from "@/utils/hashtag-utility";
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 
@@ -156,7 +156,7 @@ function extractHashtagCommands(source: string): HashtagCommandOccurrence[] {
             if (!rawCommand) {
                 continue;
             }
-            const tokens = convertTagTolist(rawCommand);
+            const tokens = HashtagCommands.convertTagTolist(rawCommand);
             if (tokens.length === 0) {
                 continue;
             }
