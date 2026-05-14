@@ -234,7 +234,7 @@ export namespace HashtagCommands {
         }
 
         list.forEach((item, index) => {
-            // if index is shots
+            // if index is odd
             if (index % 2 === 1) {
                 list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
             }
@@ -298,6 +298,79 @@ export namespace HashtagCommands {
      */
     export function convertListStringToObj(listParm: string[]): object {
         return convertPropListStringToObj(listParm);
+    }
+
+    function convertPropListStringToObj(list: string[]): object {
+        if (list.length === 0) {
+            return {};
+        }
+        if (list.length % 2 !== 0) {
+            logger.error("The props list must have a pair number of elements", list);
+            throw new Error("The props list must have a pair number of elements");
+        }
+        let objJson: string = "{";
+        list.forEach((item, index) => {
+            if (index % 2 === 0) {
+                objJson += `"${item}": `;
+            } else {
+                switch (item) {
+                    case "null":
+                    case "undefined":
+                    case "true":
+                    case "false":
+                        objJson += `${item}`;
+                        break;
+                    default:
+                        if (containExtraDoubleQuotes(item)) {
+                            item = removeExtraDoubleQuotes(item);
+                            objJson += `"${item}"`;
+                        } else if (item.startsWith("{") && item.endsWith("}")) {
+                            objJson += `${item}`;
+                        } else if (item.startsWith('"') && item.endsWith('"')) {
+                            objJson += `${item}`;
+                        } else if (!Number.isNaN(parseFloat(item))) {
+                            objJson += `${item}`;
+                        } else {
+                            objJson += `"${item}"`;
+                        }
+                }
+                if (index < list.length - 1) {
+                    objJson += ", ";
+                }
+            }
+        });
+        objJson += "}";
+        try {
+            return JSON5.parse(objJson);
+        } catch (e) {
+            logger.error("Error parsing ink json", objJson);
+            throw e;
+        }
+    }
+
+    function removeExtraDoubleQuotes(value: string): string {
+        if (value.startsWith('"') && value.endsWith('"')) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("'") && value.endsWith("'")) {
+            return value.substring(1, value.length - 1);
+        }
+        if (value.startsWith("`") && value.endsWith("`")) {
+            return value.substring(1, value.length - 1);
+        }
+        return value;
+    }
+    function containExtraDoubleQuotes(value: string): boolean {
+        if (value.startsWith('"') && value.endsWith('"')) {
+            return true;
+        }
+        if (value.startsWith("'") && value.endsWith("'")) {
+            return true;
+        }
+        if (value.startsWith("`") && value.endsWith("`")) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -381,78 +454,6 @@ export namespace HashtagCommands {
         }
 
         return -1;
-    }
-    function convertPropListStringToObj(list: string[]): object {
-        if (list.length === 0) {
-            return {};
-        }
-        if (list.length % 2 !== 0) {
-            logger.error("The props list must have a pair number of elements", list);
-            throw new Error("The props list must have a pair number of elements");
-        }
-        let objJson: string = "{";
-        list.forEach((item, index) => {
-            if (index % 2 === 0) {
-                objJson += `"${item}": `;
-            } else {
-                switch (item) {
-                    case "null":
-                    case "undefined":
-                    case "true":
-                    case "false":
-                        objJson += `${item}`;
-                        break;
-                    default:
-                        if (containExtraDoubleQuotes(item)) {
-                            item = removeExtraDoubleQuotes(item);
-                            objJson += `"${item}"`;
-                        } else if (item.startsWith("{") && item.endsWith("}")) {
-                            objJson += `${item}`;
-                        } else if (item.startsWith('"') && item.endsWith('"')) {
-                            objJson += `${item}`;
-                        } else if (!Number.isNaN(parseFloat(item))) {
-                            objJson += `${item}`;
-                        } else {
-                            objJson += `"${item}"`;
-                        }
-                }
-                if (index < list.length - 1) {
-                    objJson += ", ";
-                }
-            }
-        });
-        objJson += "}";
-        try {
-            return JSON5.parse(objJson);
-        } catch (e) {
-            logger.error("Error parsing ink json", objJson);
-            throw e;
-        }
-    }
-
-    function removeExtraDoubleQuotes(value: string): string {
-        if (value.startsWith('"') && value.endsWith('"')) {
-            return value.substring(1, value.length - 1);
-        }
-        if (value.startsWith("'") && value.endsWith("'")) {
-            return value.substring(1, value.length - 1);
-        }
-        if (value.startsWith("`") && value.endsWith("`")) {
-            return value.substring(1, value.length - 1);
-        }
-        return value;
-    }
-    function containExtraDoubleQuotes(value: string): boolean {
-        if (value.startsWith('"') && value.endsWith('"')) {
-            return true;
-        }
-        if (value.startsWith("'") && value.endsWith("'")) {
-            return true;
-        }
-        if (value.startsWith("`") && value.endsWith("`")) {
-            return true;
-        }
-        return false;
     }
 }
 
