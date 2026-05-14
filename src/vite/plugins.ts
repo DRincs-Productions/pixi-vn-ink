@@ -368,7 +368,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         for (const existingJsonFile of existingJsonFiles) {
             if (
-                existingJsonFile !== manifestFile &&
+                path.resolve(existingJsonFile) !== path.resolve(manifestFile) &&
                 !generatedJsonFiles.has(existingJsonFile)
             ) {
                 await fs.rm(existingJsonFile, { force: true });
