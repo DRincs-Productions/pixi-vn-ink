@@ -37,3 +37,21 @@ export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
  * const replaces: InkTextReplaceInfo[] = await res.json();
  */
 export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
+
+/**
+ * Dev-server endpoint that triggers the generation of JSON files from matched `.ink` sources.
+ *
+ * - `POST /__pixi-vn-ink/generate-json` – triggers the conversion of all matched `.ink` files
+ *   to JSON and writes them to the configured output directory. Before generating, the server
+ *   attempts to fetch `GET /__pixi-vn/characters` to register known characters so they are
+ *   properly recognised during conversion. If that endpoint does not exist or is unreachable,
+ *   it is silently ignored.
+ *
+ * Called automatically by {@link setupInkHmrListener} after all handlers have been registered,
+ * so that the generated JSON files reflect the fully-initialised application state.
+ *
+ * @example
+ * // Triggering JSON generation manually
+ * await fetch("http://localhost:5173/__pixi-vn-ink/generate-json", { method: "POST" });
+ */
+export const INK_DEV_API_GENERATE_JSON = "/__pixi-vn-ink/generate-json";

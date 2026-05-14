@@ -1,4 +1,5 @@
 export {
+    INK_DEV_API_GENERATE_JSON,
     INK_DEV_API_HASHTAG_COMMANDS,
     INK_DEV_API_TEXT_REPLACES,
 } from "@/vite/costants";

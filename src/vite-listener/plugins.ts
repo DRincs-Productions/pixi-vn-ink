@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { importInkText } from "@/loader/importer";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import { INK_DEV_API_GENERATE_JSON, INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type {
     InkHashtagCommandInfo,
     InkTextReplaceInfo,
@@ -88,6 +88,20 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
 }
 
 /**
+ * Calls the pixi-vn-ink Vite dev-server API to trigger the generation of JSON
+ * files from matched `.ink` sources. The server will first attempt to read
+ * registered characters via `GET /__pixi-vn/characters` before converting.
+ *
+ * Fire-and-forget; failures are silently ignored.
+ */
+async function triggerInkJsonGeneration(): Promise<void> {
+    if (!import.meta.hot) {
+        return;
+    }
+    await fetch(INK_DEV_API_GENERATE_JSON, { method: "POST" }).catch(() => undefined);
+}
+
+/**
  * Setup listener for ink updates via HMR
  * @see https://pixi-vn.web.app/ink#vite-plugin
  * @example
@@ -98,7 +112,7 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
  */
 export function setupInkHmrListener() {
     if (import.meta.hot) {
-        void syncHandlerInfoToDevServer();
+        void syncHandlerInfoToDevServer().then(() => triggerInkJsonGeneration());
 
         import.meta.hot.on("ink-updated", async (inkText) => {
             await importInkText(inkText);
