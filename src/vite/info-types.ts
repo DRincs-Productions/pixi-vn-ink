@@ -1,3 +1,5 @@
+import type { InkValidationInfo } from "@/parser/types";
+
 export type { InkHashtagCommandInfo, InkValidationInfo } from "@drincs/pixi-vn-ink/parser";
 
 /**
