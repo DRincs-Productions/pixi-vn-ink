@@ -48,50 +48,35 @@ function getGlobBaseDirectory(root: string, pattern: string): string {
     return path.resolve(root, ...staticSegments);
 }
 
-function resolvePublicSubdirectory(publicDirectory: string, subdirectory: string): string {
-    const trimmedSubdirectory = subdirectory.trim();
-    if (!trimmedSubdirectory) {
-        throw new Error("vitePluginInk option `inkJsonPublicDir` must not be empty.");
-    }
-    const outputDirectory = path.resolve(publicDirectory, trimmedSubdirectory);
-    const relativeToPublic = path.relative(publicDirectory, outputDirectory);
-    if (
-        outputDirectory === publicDirectory ||
-        relativeToPublic.startsWith("..") ||
-        path.isAbsolute(relativeToPublic)
-    ) {
-        throw new Error(
-            "vitePluginInk option `inkJsonPublicDir` must point to a subdirectory inside Vite `publicDir`.",
-        );
-    }
-    return outputDirectory;
-}
-
 function resolveInkJsonOutputPattern(
     root: string,
-    publicDirectory: string,
-    inkJsonPublicDir?: string,
     inkJsonOutputPattern?: string,
 ): string | undefined {
-    if (!inkJsonPublicDir && !inkJsonOutputPattern) {
+    if (!inkJsonOutputPattern) {
         return undefined;
     }
-    if (inkJsonPublicDir && inkJsonOutputPattern) {
-        throw new Error(
-            "vitePluginInk options `inkJsonPublicDir` and `inkJsonOutputPattern` cannot be used together.",
-        );
+    const trimmedPattern = inkJsonOutputPattern.trim();
+    if (!trimmedPattern) {
+        throw new Error("vitePluginInk option `inkJsonOutputPattern` must not be empty.");
     }
-    if (inkJsonOutputPattern) {
-        const trimmedPattern = inkJsonOutputPattern.trim();
-        if (!trimmedPattern) {
-            throw new Error("vitePluginInk option `inkJsonOutputPattern` must not be empty.");
-        }
-        return path.isAbsolute(trimmedPattern)
-            ? path.normalize(trimmedPattern)
-            : path.resolve(root, trimmedPattern);
+    return path.isAbsolute(trimmedPattern)
+        ? path.normalize(trimmedPattern)
+        : path.resolve(root, trimmedPattern);
+}
+
+function resolveInkJsonManifestPath(
+    root: string,
+    outputDirectory: string,
+    inkJsonManifestPath?: string,
+): string {
+    if (!inkJsonManifestPath) {
+        return path.join(outputDirectory, JSON_MANIFEST_FILE_NAME);
     }
-    const outputDirectory = resolvePublicSubdirectory(publicDirectory, inkJsonPublicDir as string);
-    return path.join(outputDirectory, DEFAULT_JSON_EXPORT_FILE_PATTERN);
+    const trimmed = inkJsonManifestPath.trim();
+    if (!trimmed) {
+        throw new Error("vitePluginInk option `inkJsonManifestPath` must not be empty.");
+    }
+    return path.isAbsolute(trimmed) ? path.normalize(trimmed) : path.resolve(root, trimmed);
 }
 
 function getOutputBaseDirectory(outputPattern: string): string {
@@ -178,19 +163,6 @@ export interface VitePluginInkOptions {
      */
     inkGlob?: string;
     /**
-     * Subdirectory inside Vite's `publicDir` where matched `.ink` files are exported as `.json`.
-     *
-     * When provided together with {@link VitePluginInkOptions.inkGlob}, each matched `.ink` file is
-     * converted with `convertInkToJson` and written into this subdirectory while preserving its
-     * relative folder structure. A `manifest.json` file is also generated in the same folder to
-     * simplify runtime bulk loading.
-     *
-     * The value must be a subdirectory name relative to `publicDir`, for example `ink-json`.
-     *
-     * @example "ink-json"
-     */
-    inkJsonPublicDir?: string;
-    /**
      * Output pattern for generated JSON files from matched `.ink` sources.
      *
      * When provided together with {@link VitePluginInkOptions.inkGlob}, each matched `.ink` file is
@@ -210,6 +182,20 @@ export interface VitePluginInkOptions {
      * @example "/absolute/output/[dir][name].json"
      */
     inkJsonOutputPattern?: string;
+    /**
+     * Custom path (including filename) for the manifest file generated alongside the exported JSON
+     * files.
+     *
+     * When {@link VitePluginInkOptions.inkJsonOutputPattern} is set, a `manifest.json` file listing
+     * all exported JSON URLs is written into the output base directory by default. Use this option
+     * to override the manifest file location and/or its name.
+     *
+     * Relative values are resolved from Vite `root`.
+     *
+     * @example "./public/ink-json/index.json"
+     * @example "./generated/manifest.json"
+     */
+    inkJsonManifestPath?: string;
 }
 
 /**
@@ -220,8 +206,8 @@ export interface VitePluginInkOptions {
  * - Optionally generates a virtual module `virtual:pixi-vn-ink` (when {@link VitePluginInkOptions.inkGlob}
  *   is provided) that exports all matched ink file contents as a `string[]`, removing the need
  *   to write a manual glob-import helper.
- * - Optionally exports the same matched `.ink` files as `.json` into a subdirectory of `public`
- *   (when {@link VitePluginInkOptions.inkJsonPublicDir} is provided), together with a
+ * - Optionally exports the same matched `.ink` files as `.json` to a configurable location
+ *   (when {@link VitePluginInkOptions.inkJsonOutputPattern} is provided), together with a
  *   `manifest.json` file for bulk runtime loading with `importPixiVNJson`.
  *
  * @param options - Optional plugin configuration.
@@ -262,7 +248,7 @@ export interface VitePluginInkOptions {
  *   plugins: [
  *     vitePluginInk({
  *       inkGlob: "./ink/**\/*.ink",
- *       inkJsonPublicDir: "ink-json",
+ *       inkJsonOutputPattern: "./public/ink-json/[path][name].json",
  *     }),
  *   ],
  * });
@@ -293,7 +279,7 @@ function readBody(req: IncomingMessage): Promise<string> {
 }
 
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
-    const { inkGlob, inkJsonPublicDir, inkJsonOutputPattern } = options ?? {};
+    const { inkGlob, inkJsonOutputPattern, inkJsonManifestPath } = options ?? {};
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
@@ -304,8 +290,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }
         const outputPattern = resolveInkJsonOutputPattern(
             resolvedConfig.root,
-            resolvedConfig.publicDir,
-            inkJsonPublicDir,
             inkJsonOutputPattern,
         );
         if (!outputPattern) {
@@ -371,7 +355,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             );
         }
 
-        const manifestFile = path.join(outputDirectory, JSON_MANIFEST_FILE_NAME);
+        const manifestFile = resolveInkJsonManifestPath(
+            resolvedConfig.root,
+            outputDirectory,
+            inkJsonManifestPath,
+        );
         const existingJsonFiles = await glob("**/*.json", {
             absolute: true,
             cwd: outputDirectory,
@@ -380,7 +368,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         for (const existingJsonFile of existingJsonFiles) {
             if (
-                path.basename(existingJsonFile) !== JSON_MANIFEST_FILE_NAME &&
+                path.resolve(existingJsonFile) !== path.resolve(manifestFile) &&
                 !generatedJsonFiles.has(existingJsonFile)
             ) {
                 await fs.rm(existingJsonFile, { force: true });
@@ -388,6 +376,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
+        await fs.mkdir(path.dirname(manifestFile), { recursive: true });
         await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
     };
 
@@ -406,16 +395,14 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     );
                 }
             }
-            if ((inkJsonPublicDir || inkJsonOutputPattern) && !inkGlob) {
+            if (inkJsonOutputPattern && !inkGlob) {
                 throw new Error(
-                    "vitePluginInk options `inkJsonPublicDir` and `inkJsonOutputPattern` require `inkGlob` to be set.",
+                    "vitePluginInk option `inkJsonOutputPattern` requires `inkGlob` to be set.",
                 );
             }
-            if (inkJsonPublicDir || inkJsonOutputPattern) {
+            if (inkJsonOutputPattern) {
                 const outputPattern = resolveInkJsonOutputPattern(
                     config.root,
-                    config.publicDir,
-                    inkJsonPublicDir,
                     inkJsonOutputPattern,
                 );
                 if (!outputPattern) {
