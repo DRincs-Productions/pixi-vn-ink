@@ -133,7 +133,7 @@ export function convertTagTolist(tag: string): string[] {
     }
 
     list.forEach((item, index) => {
-        // if index is shots
+        // if index is odd
         if (index % 2 === 1) {
             list[index] = item.replaceAll(" ", SPACE_SEPARATOR);
         }
