@@ -1,5 +1,5 @@
-import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { HashtagCommands } from "@/handlers/hashtag-commands";
+import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
@@ -13,7 +13,6 @@ import type { InkHashtagCommandInfo, InkTextReplaceInfo, InkValidationInfo } fro
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
-const DEFAULT_JSON_EXPORT_FILE_PATTERN = "[path][name].json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
 const INK_HASHTAG_COMMAND_PATTERN = /(?:^|<>)\s*#\s*([^\r\n]+)/g;
 const HASHTAG_VALIDATION_REGEX_CACHE = new Map<string, RegExp>();
