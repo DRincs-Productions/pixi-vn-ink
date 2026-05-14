@@ -1,4 +1,5 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
@@ -7,13 +8,21 @@ import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { glob } from "tinyglobby";
 import type { Plugin, ResolvedConfig } from "vite";
-import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
+import type { InkHashtagCommandInfo, InkTextReplaceInfo, InkValidationInfo } from "./info-types";
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
 const DEFAULT_JSON_EXPORT_FILE_PATTERN = "[path][name].json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
+const INK_HASHTAG_COMMAND_PATTERN = /(?:^|<>)\s*#\s*([^\r\n]+)/g;
+const HASHTAG_VALIDATION_REGEX_CACHE = new Map<string, RegExp>();
+
+interface HashtagCommandOccurrence {
+    line: number;
+    command: string;
+    tokens: string[];
+}
 
 function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");
@@ -138,6 +147,193 @@ function getManifestEntry(outputFile: string, root: string, publicDirectory: str
         return normalizeSlashes(path.relative(root, outputFile));
     }
     return normalizeSlashes(outputFile);
+}
+
+function getHashtagCommands(source: string): HashtagCommandOccurrence[] {
+    const lines = source.split(/\r?\n/);
+    const commands: HashtagCommandOccurrence[] = [];
+    for (let index = 0; index < lines.length; index++) {
+        const line = lines[index];
+        for (const match of line.matchAll(INK_HASHTAG_COMMAND_PATTERN)) {
+            const rawCommand = (match[1] ?? "").trim();
+            if (!rawCommand) {
+                continue;
+            }
+            const tokens = HashtagCommands.convertTagTolist(rawCommand);
+            if (tokens.length === 0) {
+                continue;
+            }
+            commands.push({
+                line: index + 1,
+                command: rawCommand,
+                tokens,
+            });
+        }
+    }
+    return commands;
+}
+
+function getCachedRegExp(source: string, flags: string): RegExp {
+    const cacheKey = JSON.stringify([flags, source]);
+    const cached = HASHTAG_VALIDATION_REGEX_CACHE.get(cacheKey);
+    if (cached) {
+        return cached;
+    }
+    const compiled = new RegExp(source, flags);
+    HASHTAG_VALIDATION_REGEX_CACHE.set(cacheKey, compiled);
+    return compiled;
+}
+
+function stringMatchesSchemaToken(token: string, schema: unknown): boolean {
+    if (!schema || typeof schema !== "object") {
+        return false;
+    }
+    const typedSchema = schema as Record<string, unknown>;
+
+    const anyOf = typedSchema.anyOf;
+    if (Array.isArray(anyOf)) {
+        return anyOf.some((entry) => stringMatchesSchemaToken(token, entry));
+    }
+
+    const oneOf = typedSchema.oneOf;
+    if (Array.isArray(oneOf)) {
+        return oneOf.some((entry) => stringMatchesSchemaToken(token, entry));
+    }
+
+    const allOf = typedSchema.allOf;
+    if (Array.isArray(allOf)) {
+        return allOf.every((entry) => stringMatchesSchemaToken(token, entry));
+    }
+
+    if (typeof typedSchema.const === "string") {
+        return token === typedSchema.const;
+    }
+
+    if (Array.isArray(typedSchema.enum)) {
+        return typedSchema.enum.some((value) => typeof value === "string" && value === token);
+    }
+
+    if (typedSchema.type !== "string") {
+        return false;
+    }
+
+    if (typeof typedSchema.minLength === "number" && token.length < typedSchema.minLength) {
+        return false;
+    }
+    if (typeof typedSchema.maxLength === "number" && token.length > typedSchema.maxLength) {
+        return false;
+    }
+    if (typeof typedSchema.pattern === "string") {
+        try {
+            if (!getCachedRegExp(typedSchema.pattern, "").test(token)) {
+                return false;
+            }
+        } catch {
+            return false;
+        }
+    }
+    return true;
+}
+
+function arrayMatchesSchemaTokens(tokens: string[], schema: unknown): boolean {
+    if (!schema || typeof schema !== "object") {
+        return false;
+    }
+
+    const typedSchema = schema as Record<string, unknown>;
+    const anyOf = typedSchema.anyOf;
+    if (Array.isArray(anyOf)) {
+        return anyOf.some((entry) => arrayMatchesSchemaTokens(tokens, entry));
+    }
+
+    const oneOf = typedSchema.oneOf;
+    if (Array.isArray(oneOf)) {
+        return oneOf.some((entry) => arrayMatchesSchemaTokens(tokens, entry));
+    }
+
+    const allOf = typedSchema.allOf;
+    if (Array.isArray(allOf)) {
+        return allOf.every((entry) => arrayMatchesSchemaTokens(tokens, entry));
+    }
+
+    if (typedSchema.type !== "array") {
+        return false;
+    }
+
+    if (typeof typedSchema.minItems === "number" && tokens.length < typedSchema.minItems) {
+        return false;
+    }
+    if (typeof typedSchema.maxItems === "number" && tokens.length > typedSchema.maxItems) {
+        return false;
+    }
+
+    const prefixItems = Array.isArray(typedSchema.prefixItems) ? typedSchema.prefixItems : [];
+    if (tokens.length < prefixItems.length) {
+        return false;
+    }
+
+    for (let index = 0; index < prefixItems.length; index++) {
+        if (!stringMatchesSchemaToken(tokens[index], prefixItems[index])) {
+            return false;
+        }
+    }
+
+    if (tokens.length === prefixItems.length) {
+        return true;
+    }
+
+    if (typedSchema.items === false || typeof typedSchema.items === "undefined") {
+        return false;
+    }
+    if (typedSchema.items === true) {
+        return true;
+    }
+
+    return tokens
+        .slice(prefixItems.length)
+        .every((token) => stringMatchesSchemaToken(token, typedSchema.items));
+}
+
+function matchesHashtagValidation(tokens: string[], validation: InkValidationInfo): boolean {
+    if (validation.type === "regexp") {
+        try {
+            const expression = getCachedRegExp(validation.source, validation.flags);
+            expression.lastIndex = 0;
+            return expression.test(tokens.join(" "));
+        } catch {
+            return false;
+        }
+    }
+    if (validation.type === "literal") {
+        return tokens.join(" ") === validation.value;
+    }
+    return arrayMatchesSchemaTokens(tokens, validation.schema);
+}
+
+function logUnknownHashtagCommands(
+    source: string,
+    filePath: string,
+    hashtagCommandsStore: InkHashtagCommandInfo[],
+    logInfo: (message: string) => void,
+): void {
+    const unknownCommands = getHashtagCommands(source).filter(
+        ({ tokens }) =>
+            !hashtagCommandsStore.some(({ validation }) =>
+                matchesHashtagValidation(tokens, validation),
+            ),
+    );
+
+    unknownCommands.forEach(({ command, line }) => {
+        logInfo(
+            `${filePath}:${line} Unknown hashtag command "# ${command}": no registered handler matched this command.`,
+        );
+    });
+
+    if (unknownCommands.length > 0) {
+        logInfo(
+            `${filePath}: Hashtag command metadata is available via ${INK_DEV_API_HASHTAG_COMMANDS}.`,
+        );
+    }
 }
 
 /**
@@ -523,6 +719,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         error = message;
                     }
                 });
+                logUnknownHashtagCommands(source, file, hashtagCommandsStore, (message) =>
+                    server.config.logger.info(message),
+                );
 
                 await exportInkJsonFiles();
 
@@ -570,6 +769,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     this.error(`${id}:${line} ${message}`);
                 }
             });
+            logUnknownHashtagCommands(source, id, hashtagCommandsStore, (message) =>
+                this.info(message),
+            );
 
             // esporta source
             return {
