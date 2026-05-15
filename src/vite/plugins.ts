@@ -1,12 +1,15 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
-import { INK_DEV_API_GENERATE_JSON, INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import {
+    INK_DEV_API_GENERATE_JSON,
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
-import type { CharacterInterface } from "@drincs/pixi-vn/characters";
-import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
+import { RegisteredCharacters, type CharacterInterface } from "@drincs/pixi-vn/characters";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
-import http from "node:http";
 import type { IncomingMessage } from "node:http";
+import http from "node:http";
 import path from "node:path";
 import { glob } from "tinyglobby";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
