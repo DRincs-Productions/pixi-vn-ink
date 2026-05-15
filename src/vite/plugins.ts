@@ -594,6 +594,21 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         },
 
         async handleHotUpdate({ file, server, read }) {
+            if (inkJsonOutputPattern) {
+                const outputPattern = resolveInkJsonOutputPattern(
+                    resolvedConfig?.root ?? "",
+                    inkJsonOutputPattern,
+                );
+                if (outputPattern) {
+                    const outputDirectory = getOutputBaseDirectory(outputPattern);
+                    if (isInsideDirectory(outputDirectory, file)) {
+                        // Suppress HMR for generated JSON files to avoid a generation loop:
+                        // ink file changed → generate JSON → JSON changed → HMR → generate JSON → …
+                        return [];
+                    }
+                }
+            }
+
             if (file.endsWith(".ink")) {
                 // Leggiamo il contenuto modificato
                 const source = await read();
