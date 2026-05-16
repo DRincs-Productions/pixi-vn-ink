@@ -11,6 +11,8 @@ import { TextReplaces } from "@drincs/pixi-vn-json";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import z from "zod";
 
+type InkJsonManifest = Record<string, string>;
+
 function serializeValidation(validation: unknown): InkValidationInfo {
     if (validation instanceof RegExp) {
         return {
@@ -88,31 +90,26 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
-async function importJsonFromManifest(): Promise<boolean> {
+async function importJsonFromManifest(inkJsonManifest?: InkJsonManifest): Promise<boolean> {
     if (!import.meta.hot) {
         return false;
     }
 
     try {
-        const virtualInkModule = (await import("virtual:pixi-vn-ink")) as {
-            inkJsonManifest?: unknown;
-        };
-        if (virtualInkModule.inkJsonManifest === undefined) {
+        if (inkJsonManifest === undefined) {
             return false;
         }
-        const inkJsonManifest = Array.isArray(virtualInkModule.inkJsonManifest)
-            ? virtualInkModule.inkJsonManifest.filter(
-                  (entry): entry is string => typeof entry === "string" && entry.length > 0,
-              )
-            : [];
+        const manifestPaths = Object.values(inkJsonManifest).filter(
+            (entry): entry is string => typeof entry === "string" && entry.length > 0,
+        );
 
-        if (inkJsonManifest.length === 0) {
+        if (manifestPaths.length === 0) {
             return true;
         }
 
         const loadedStories: PixiVNJson[] = (
             await Promise.all(
-                inkJsonManifest.map(async (url) => {
+                manifestPaths.map(async (url) => {
                     try {
                         const response = await fetch(url);
                         if (!response.ok) {
@@ -149,19 +146,23 @@ async function importJsonFromManifest(): Promise<boolean> {
 /**
  * Setup listener for ink updates via HMR
  * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @param inkJsonManifest Optional object map of generated Ink JSON paths.
  * @example
  * // In your main entry file (e.g., main.ts)
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite";
  *
- * setupInkHmrListener();
+ * setupInkHmrListener({
+ *   start: "/ink-json/start.json",
+ *   chapter1: "/ink-json/chapter1.json",
+ * });
  */
-export function setupInkHmrListener() {
+export function setupInkHmrListener(inkJsonManifest?: InkJsonManifest) {
     if (import.meta.hot) {
-        void importJsonFromManifest();
+        void importJsonFromManifest(inkJsonManifest);
         void syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (inkText) => {
-            const hasInkJsonManifest = await importJsonFromManifest();
+            const hasInkJsonManifest = await importJsonFromManifest(inkJsonManifest);
             if (!hasInkJsonManifest) {
                 await importInkText(inkText);
             }
