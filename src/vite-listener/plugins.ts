@@ -8,6 +8,7 @@ import type {
     InkValidationInfo,
 } from "@/vite/info-types";
 import { TextReplaces } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import z from "zod";
 
 function serializeValidation(validation: unknown): InkValidationInfo {
@@ -104,7 +105,7 @@ async function importJsonFromManifest(): Promise<void> {
         if (inkJsonManifest.length === 0) {
             return;
         }
-        const loadedStories = (
+        const loadedStories: PixiVNJson[] = (
             await Promise.allSettled(
                 inkJsonManifest.map(async (url) => {
                     const response = await fetch(url);
@@ -116,15 +117,19 @@ async function importJsonFromManifest(): Promise<void> {
                     return await response.json();
                 }),
             )
-        ).flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
+        )
+            .flatMap((result) => (result.status === "fulfilled" ? [result.value] : []))
+            .filter(
+                (story): story is PixiVNJson => typeof story === "object" && story !== null,
+            );
 
         if (loadedStories.length === 0) {
             return;
         }
 
-        await importJson(loadedStories as Parameters<typeof importJson>[0]);
-    } catch {
-        // Fail silently: missing virtual module or unavailable manifest data should not break runtime.
+        await importJson(loadedStories);
+    } catch (error) {
+        console.warn("[pixi-vn-ink] Failed to import Ink JSON from inkJsonManifest.", error);
     }
 }
 
