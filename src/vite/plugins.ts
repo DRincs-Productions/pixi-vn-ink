@@ -512,14 +512,55 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             }
         },
 
-        load(id) {
+        async load(id) {
             if (id === RESOLVED_VIRTUAL_MODULE_ID) {
                 if (!inkGlob) {
-                    return "export default [];";
+                    return ['export const inkJsonManifest = [];', "export default [];"].join("\n");
                 }
                 const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
+                let inkJsonManifest: string[] = [];
+
+                if (resolvedConfig) {
+                    const outputPattern = resolveInkJsonOutputPattern(
+                        resolvedConfig.root,
+                        inkJsonOutputPattern,
+                    );
+                    if (outputPattern) {
+                        const outputDirectory = getOutputBaseDirectory(outputPattern);
+                        const inputBaseDirectory = getGlobBaseDirectory(
+                            resolvedConfig.root,
+                            rootRelativeInkGlob,
+                        );
+                        const matchedFiles = await glob(rootRelativeInkGlob, {
+                            absolute: true,
+                            cwd: resolvedConfig.root,
+                            onlyFiles: true,
+                        });
+
+                        inkJsonManifest = matchedFiles
+                            .map((matchedFile) =>
+                                resolveInkJsonOutputPath(
+                                    outputPattern,
+                                    resolvedConfig.root,
+                                    inputBaseDirectory,
+                                    matchedFile,
+                                ),
+                            )
+                            .filter((outputFile) => isInsideDirectory(outputDirectory, outputFile))
+                            .map((outputFile) =>
+                                getManifestEntry(
+                                    outputFile,
+                                    resolvedConfig.root,
+                                    resolvedConfig.publicDir,
+                                ),
+                            )
+                            .sort((left, right) => left.localeCompare(right));
+                    }
+                }
+
                 return [
                     `const modules = import.meta.glob(${JSON.stringify(`/${rootRelativeInkGlob}`)}, { eager: true, import: 'default' });`,
+                    `export const inkJsonManifest = ${JSON.stringify(inkJsonManifest)};`,
                     "export default Object.values(modules);",
                 ].join("\n");
             }

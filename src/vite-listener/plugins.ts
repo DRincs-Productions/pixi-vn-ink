@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { HashtagCommands } from "@/handlers/hashtag-commands";
-import { importInkText } from "@/loader/importer";
+import { importInkText, importJson } from "@/loader/importer";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type {
     InkHashtagCommandInfo,
@@ -87,6 +87,47 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
+async function importJsonFromManifest(): Promise<void> {
+    if (!import.meta.hot) {
+        return;
+    }
+
+    try {
+        const virtualInkModule = (await import("virtual:pixi-vn-ink")) as {
+            inkJsonManifest?: unknown;
+        };
+        const inkJsonManifest = Array.isArray(virtualInkModule.inkJsonManifest)
+            ? virtualInkModule.inkJsonManifest.filter(
+                  (entry): entry is string => typeof entry === "string" && entry.length > 0,
+              )
+            : [];
+        if (inkJsonManifest.length === 0) {
+            return;
+        }
+        const loadedStories = (
+            await Promise.allSettled(
+                inkJsonManifest.map(async (url) => {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(
+                            `Failed to fetch Ink JSON from "${url}": HTTP ${response.status}`,
+                        );
+                    }
+                    return await response.json();
+                }),
+            )
+        ).flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
+
+        if (loadedStories.length === 0) {
+            return;
+        }
+
+        await importJson(loadedStories as Parameters<typeof importJson>[0]);
+    } catch {
+        // Fail silently: missing virtual module or unavailable manifest data should not break runtime.
+    }
+}
+
 /**
  * Setup listener for ink updates via HMR
  * @see https://pixi-vn.web.app/ink#vite-plugin
@@ -98,6 +139,7 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
  */
 export function setupInkHmrListener() {
     if (import.meta.hot) {
+        void importJsonFromManifest();
         void syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (inkText) => {

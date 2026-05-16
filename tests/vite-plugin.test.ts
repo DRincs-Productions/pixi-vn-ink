@@ -268,6 +268,39 @@ describe("vitePluginInk", () => {
         ).resolves.toBeUndefined();
     });
 
+    it("virtual module exports an empty inkJsonManifest when json export is disabled", async () => {
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+        });
+
+        const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
+
+        expect(loaded).toContain("export const inkJsonManifest = [];");
+    });
+
+    it("virtual module exports inkJsonManifest entries when json export is enabled", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(path.join(root, "ink", "start.ink"), "=== start ===\nHello world!\n", "utf-8");
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+        } as ResolvedConfig);
+
+        const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
+
+        expect(loaded).toContain('export const inkJsonManifest = ["/ink-json/start.json"];');
+    });
+
     it("rejects inkGlob patterns that escape project root", async () => {
         const plugin = vitePluginInk({
             inkGlob: "../**/*.ink",
