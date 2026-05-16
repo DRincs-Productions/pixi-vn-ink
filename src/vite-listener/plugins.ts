@@ -11,9 +11,9 @@ import { TextReplaces } from "@drincs/pixi-vn-json";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import z from "zod";
 
-type InkJsonManifest = Record<string, string>;
+type InkJsonManifestMap = Record<string, string>;
 type SetupInkHmrListenerOptions = {
-    inkJsonManifest?: InkJsonManifest;
+    inkJsonManifest?: InkJsonManifestMap;
 };
 
 function serializeValidation(validation: unknown): InkValidationInfo {
@@ -93,7 +93,7 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
-async function importJsonFromManifest(inkJsonManifest?: InkJsonManifest): Promise<boolean> {
+async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Promise<boolean> {
     if (!import.meta.hot) {
         return false;
     }
