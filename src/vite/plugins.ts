@@ -300,14 +300,15 @@ function readBody(req: IncomingMessage): Promise<string> {
 
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     const { inkGlob, inkJsonOutputPattern, inkJsonManifestPath } = options ?? {};
+    const hasInkJsonManifestMode = Boolean(inkJsonOutputPattern);
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
-    let virtualInkJsonManifest: string[] = [];
+    let virtualInkJsonManifest: string[] | undefined;
 
     const exportInkJsonFiles = async () => {
         if (!resolvedConfig || !inkGlob) {
-            virtualInkJsonManifest = [];
+            virtualInkJsonManifest = undefined;
             return;
         }
         const outputPattern = resolveInkJsonOutputPattern(
@@ -315,7 +316,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             inkJsonOutputPattern,
         );
         if (!outputPattern) {
-            virtualInkJsonManifest = [];
+            virtualInkJsonManifest = undefined;
             return;
         }
         const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
@@ -519,12 +520,16 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         load(id) {
             if (id === RESOLVED_VIRTUAL_MODULE_ID) {
                 if (!inkGlob) {
-                    return ['export const inkJsonManifest = [];', "export default [];"].join("\n");
+                    return ['export const inkJsonManifest = undefined;', "export default [];"].join(
+                        "\n",
+                    );
                 }
                 const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
                 return [
                     `const modules = import.meta.glob(${JSON.stringify(`/${rootRelativeInkGlob}`)}, { eager: true, import: 'default' });`,
-                    `export const inkJsonManifest = ${JSON.stringify(virtualInkJsonManifest)};`,
+                    `export const inkJsonManifest = ${JSON.stringify(
+                        hasInkJsonManifestMode ? (virtualInkJsonManifest ?? []) : undefined,
+                    )};`,
                     "export default Object.values(modules);",
                 ].join("\n");
             }

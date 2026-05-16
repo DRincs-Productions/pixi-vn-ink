@@ -25,6 +25,6 @@ declare module "virtual:pixi-vn-ink" {
      * Array of generated Ink JSON URLs (when `inkJsonOutputPattern` is configured in
      * `vitePluginInk`), suitable for bulk loading with `importJson`.
      */
-    export const inkJsonManifest: string[];
+    export const inkJsonManifest: string[] | undefined;
     export default inkTexts;
 }

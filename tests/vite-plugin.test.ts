@@ -268,14 +268,14 @@ describe("vitePluginInk", () => {
         ).resolves.toBeUndefined();
     });
 
-    it("virtual module exports an empty inkJsonManifest when json export is disabled", async () => {
+    it("virtual module exports undefined inkJsonManifest when json export is disabled", async () => {
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
         });
 
         const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
 
-        expect(loaded).toContain("export const inkJsonManifest = [];");
+        expect(loaded).toContain("export const inkJsonManifest = undefined;");
     });
 
     it("virtual module exports inkJsonManifest entries when json export is enabled", async () => {

@@ -88,23 +88,28 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
-async function importJsonFromManifest(): Promise<void> {
+async function importJsonFromManifest(): Promise<boolean> {
     if (!import.meta.hot) {
-        return;
+        return false;
     }
 
     try {
         const virtualInkModule = (await import("virtual:pixi-vn-ink")) as {
             inkJsonManifest?: unknown;
         };
+        if (virtualInkModule.inkJsonManifest === undefined) {
+            return false;
+        }
         const inkJsonManifest = Array.isArray(virtualInkModule.inkJsonManifest)
             ? virtualInkModule.inkJsonManifest.filter(
                   (entry): entry is string => typeof entry === "string" && entry.length > 0,
               )
             : [];
+
         if (inkJsonManifest.length === 0) {
-            return;
+            return true;
         }
+
         const loadedStories: PixiVNJson[] = (
             await Promise.all(
                 inkJsonManifest.map(async (url) => {
@@ -130,12 +135,14 @@ async function importJsonFromManifest(): Promise<void> {
             );
 
         if (loadedStories.length === 0) {
-            return;
+            return true;
         }
 
         await importJson(loadedStories);
+        return true;
     } catch (error) {
         console.warn("[pixi-vn-ink] Failed to import Ink JSON from inkJsonManifest.", error);
+        return false;
     }
 }
 
@@ -154,7 +161,10 @@ export function setupInkHmrListener() {
         void syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (inkText) => {
-            await importInkText(inkText);
+            const hasInkJsonManifest = await importJsonFromManifest();
+            if (!hasInkJsonManifest) {
+                await importInkText(inkText);
+            }
             void syncHandlerInfoToDevServer();
         });
     }
