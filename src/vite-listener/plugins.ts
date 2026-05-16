@@ -102,9 +102,7 @@ async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Pro
         if (inkJsonManifest === undefined) {
             return false;
         }
-        const manifestPaths = Object.values(inkJsonManifest).filter(
-            (entry): entry is string => typeof entry === "string" && entry.length > 0,
-        );
+        const manifestPaths = Object.values(inkJsonManifest).filter((entry) => entry.length > 0);
 
         if (manifestPaths.length === 0) {
             return true;
@@ -168,8 +166,8 @@ export function setupInkHmrListener(options?: SetupInkHmrListenerOptions) {
         void syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (inkText) => {
-            const hasInkJsonManifest = await importJsonFromManifest(inkJsonManifest);
-            if (!hasInkJsonManifest) {
+            const usedJsonImport = await importJsonFromManifest(inkJsonManifest);
+            if (!usedJsonImport) {
                 await importInkText(inkText);
             }
             void syncHandlerInfoToDevServer();
