@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { HashtagCommands } from "@/handlers/hashtag-commands";
-import { importInkText } from "@/loader/importer";
+import { importInkText, importJson } from "@/loader/importer";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type {
     InkHashtagCommandInfo,
@@ -8,7 +8,13 @@ import type {
     InkValidationInfo,
 } from "@/vite/info-types";
 import { TextReplaces } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import z from "zod";
+
+type InkJsonManifestMap = Record<string, string>;
+type SetupInkHmrListenerOptions = {
+    inkJsonManifest?: InkJsonManifestMap;
+};
 
 function serializeValidation(validation: unknown): InkValidationInfo {
     if (validation instanceof RegExp) {
@@ -87,21 +93,83 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
+async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Promise<boolean> {
+    if (!import.meta.hot) {
+        return false;
+    }
+
+    try {
+        if (inkJsonManifest === undefined) {
+            return false;
+        }
+        const manifestPaths = Object.values(inkJsonManifest).filter((entry) => entry.length > 0);
+
+        if (manifestPaths.length === 0) {
+            return true;
+        }
+
+        const loadedStories: PixiVNJson[] = (
+            await Promise.all(
+                manifestPaths.map(async (url) => {
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return await response.json();
+                    } catch (error) {
+                        console.warn(
+                            `[pixi-vn-ink] Failed to load Ink JSON "${url}" from inkJsonManifest.`,
+                            error,
+                        );
+                        return null;
+                    }
+                }),
+            )
+        )
+            .filter(
+                (story): story is PixiVNJson =>
+                    typeof story === "object" && story !== null && !Array.isArray(story),
+            );
+
+        if (loadedStories.length === 0) {
+            return true;
+        }
+
+        await importJson(loadedStories);
+        return true;
+    } catch (error) {
+        console.warn("[pixi-vn-ink] Failed to import Ink JSON from inkJsonManifest.", error);
+        return false;
+    }
+}
+
 /**
  * Setup listener for ink updates via HMR
  * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @param options Optional setup options.
  * @example
  * // In your main entry file (e.g., main.ts)
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite";
  *
- * setupInkHmrListener();
+ * setupInkHmrListener({
+ *   inkJsonManifest: {
+ *     start: "/ink-json/start.json",
+ *     chapter1: "/ink-json/chapter1.json",
+ *   },
+ * });
  */
-export function setupInkHmrListener() {
+export function setupInkHmrListener(options?: SetupInkHmrListenerOptions) {
+    const { inkJsonManifest } = options ?? {};
     if (import.meta.hot) {
+        void importJsonFromManifest(inkJsonManifest);
         void syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (inkText) => {
-            await importInkText(inkText);
+            const usedJsonImport = await importJsonFromManifest(inkJsonManifest);
+            if (!usedJsonImport) {
+                await importInkText(inkText);
+            }
             void syncHandlerInfoToDevServer();
         });
     }
