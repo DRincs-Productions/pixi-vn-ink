@@ -106,21 +106,27 @@ async function importJsonFromManifest(): Promise<void> {
             return;
         }
         const loadedStories: PixiVNJson[] = (
-            await Promise.allSettled(
+            await Promise.all(
                 inkJsonManifest.map(async (url) => {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        throw new Error(
-                            `Failed to fetch Ink JSON from "${url}": HTTP ${response.status}`,
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return await response.json();
+                    } catch (error) {
+                        console.warn(
+                            `[pixi-vn-ink] Failed to load Ink JSON "${url}" from inkJsonManifest.`,
+                            error,
                         );
+                        return null;
                     }
-                    return await response.json();
                 }),
             )
         )
-            .flatMap((result) => (result.status === "fulfilled" ? [result.value] : []))
             .filter(
-                (story): story is PixiVNJson => typeof story === "object" && story !== null,
+                (story): story is PixiVNJson =>
+                    typeof story === "object" && story !== null && !Array.isArray(story),
             );
 
         if (loadedStories.length === 0) {

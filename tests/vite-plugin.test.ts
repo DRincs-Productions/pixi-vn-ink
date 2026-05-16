@@ -296,6 +296,7 @@ describe("vitePluginInk", () => {
             publicDir: path.join(root, "public"),
         } as ResolvedConfig);
 
+        await plugin.buildStart?.call(undefined);
         const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
 
         expect(loaded).toContain('export const inkJsonManifest = ["/ink-json/start.json"];');
