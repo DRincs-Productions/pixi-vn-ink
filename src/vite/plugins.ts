@@ -521,19 +521,17 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 let inkJsonManifest: string[] = [];
 
                 if (resolvedConfig) {
+                    const config = resolvedConfig;
                     const outputPattern = resolveInkJsonOutputPattern(
-                        resolvedConfig.root,
+                        config.root,
                         inkJsonOutputPattern,
                     );
                     if (outputPattern) {
                         const outputDirectory = getOutputBaseDirectory(outputPattern);
-                        const inputBaseDirectory = getGlobBaseDirectory(
-                            resolvedConfig.root,
-                            rootRelativeInkGlob,
-                        );
+                        const inputBaseDirectory = getGlobBaseDirectory(config.root, rootRelativeInkGlob);
                         const matchedFiles = await glob(rootRelativeInkGlob, {
                             absolute: true,
-                            cwd: resolvedConfig.root,
+                            cwd: config.root,
                             onlyFiles: true,
                         });
 
@@ -541,18 +539,14 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                             .map((matchedFile) =>
                                 resolveInkJsonOutputPath(
                                     outputPattern,
-                                    resolvedConfig.root,
+                                    config.root,
                                     inputBaseDirectory,
                                     matchedFile,
                                 ),
                             )
                             .filter((outputFile) => isInsideDirectory(outputDirectory, outputFile))
                             .map((outputFile) =>
-                                getManifestEntry(
-                                    outputFile,
-                                    resolvedConfig.root,
-                                    resolvedConfig.publicDir,
-                                ),
+                                getManifestEntry(outputFile, config.root, config.publicDir),
                             )
                             .sort((left, right) => left.localeCompare(right));
                     }
