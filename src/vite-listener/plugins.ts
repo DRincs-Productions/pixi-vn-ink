@@ -12,6 +12,9 @@ import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import z from "zod";
 
 type InkJsonManifest = Record<string, string>;
+type SetupInkHmrListenerOptions = {
+    inkJsonManifest?: InkJsonManifest;
+};
 
 function serializeValidation(validation: unknown): InkValidationInfo {
     if (validation instanceof RegExp) {
@@ -146,17 +149,20 @@ async function importJsonFromManifest(inkJsonManifest?: InkJsonManifest): Promis
 /**
  * Setup listener for ink updates via HMR
  * @see https://pixi-vn.web.app/ink#vite-plugin
- * @param inkJsonManifest Optional object map of generated Ink JSON paths.
+ * @param options Optional setup options.
  * @example
  * // In your main entry file (e.g., main.ts)
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite";
  *
  * setupInkHmrListener({
- *   start: "/ink-json/start.json",
- *   chapter1: "/ink-json/chapter1.json",
+ *   inkJsonManifest: {
+ *     start: "/ink-json/start.json",
+ *     chapter1: "/ink-json/chapter1.json",
+ *   },
  * });
  */
-export function setupInkHmrListener(inkJsonManifest?: InkJsonManifest) {
+export function setupInkHmrListener(options?: SetupInkHmrListenerOptions) {
+    const { inkJsonManifest } = options ?? {};
     if (import.meta.hot) {
         void importJsonFromManifest(inkJsonManifest);
         void syncHandlerInfoToDevServer();
