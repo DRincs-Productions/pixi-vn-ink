@@ -37,3 +37,12 @@ export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
  * const replaces: InkTextReplaceInfo[] = await res.json();
  */
 export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
+
+/**
+ * Dev-server endpoint used by {@link setupInkHmrListener} to trigger Ink JSON
+ * generation on demand after runtime metadata (handlers/characters) is ready.
+ *
+ * - `POST /__pixi-vn-ink/generate-json` – refreshes generated Ink JSON files
+ *   and the virtual `inkJsonManifest` when JSON export mode is enabled.
+ */
+export const INK_DEV_API_GENERATE_JSON = "/__pixi-vn-ink/generate-json";

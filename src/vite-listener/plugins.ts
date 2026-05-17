@@ -1,7 +1,11 @@
 /// <reference types="vite/client" />
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { importInkText, importJson } from "@/loader/importer";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import {
+    INK_DEV_API_GENERATE_JSON,
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
 import type {
     InkHashtagCommandInfo,
     InkTextReplaceInfo,
@@ -93,6 +97,17 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
+async function triggerInkJsonGeneration(): Promise<void> {
+    if (!import.meta.hot) {
+        return;
+    }
+    await Promise.allSettled([
+        fetch(INK_DEV_API_GENERATE_JSON, {
+            method: "POST",
+        }),
+    ]);
+}
+
 async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Promise<boolean> {
     if (!import.meta.hot) {
         return false;
@@ -162,15 +177,23 @@ async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Pro
 export function setupInkHmrListener(options?: SetupInkHmrListenerOptions) {
     const { inkJsonManifest } = options ?? {};
     if (import.meta.hot) {
-        void importJsonFromManifest(inkJsonManifest);
-        void syncHandlerInfoToDevServer();
+        void (async () => {
+            await syncHandlerInfoToDevServer();
+            await triggerInkJsonGeneration();
+            await importJsonFromManifest(inkJsonManifest);
+        })();
 
         import.meta.hot.on("ink-updated", async (inkText) => {
+            await syncHandlerInfoToDevServer();
+            await triggerInkJsonGeneration();
             const usedJsonImport = await importJsonFromManifest(inkJsonManifest);
             if (!usedJsonImport) {
                 await importInkText(inkText);
             }
-            void syncHandlerInfoToDevServer();
+        });
+
+        import.meta.hot.on("ink-json-updated", async () => {
+            await importJsonFromManifest(inkJsonManifest);
         });
     }
 }

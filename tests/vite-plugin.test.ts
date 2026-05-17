@@ -1,5 +1,9 @@
 import { vitePluginInk } from "@/vite/plugins";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import {
+    INK_DEV_API_GENERATE_JSON,
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import fs from "node:fs/promises";
 import http from "node:http";
@@ -302,6 +306,43 @@ describe("vitePluginInk", () => {
         expect(loaded).toContain('export const inkJsonManifest = ["/ink-json/start.json"];');
     });
 
+    it("skips page reload for managed ink json updates", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+            inkJsonManifestPath: "./public/ink-manifest.json",
+        });
+
+        plugin.configResolved?.({
+            command: "serve",
+            root,
+            publicDir: path.join(root, "public"),
+        } as ResolvedConfig);
+
+        const sentMessages: Array<Record<string, unknown>> = [];
+        const result = await plugin.handleHotUpdate?.({
+            file: path.join(root, "public", "ink-manifest.json"),
+            server: {
+                ws: {
+                    send(message: Record<string, unknown>) {
+                        sentMessages.push(message);
+                    },
+                },
+            } as any,
+            read: async () => "",
+        } as any);
+
+        expect(result).toEqual([]);
+        expect(sentMessages).toContainEqual({
+            type: "custom",
+            event: "ink-json-updated",
+        });
+    });
+
     it("rejects inkGlob patterns that escape project root", async () => {
         const plugin = vitePluginInk({
             inkGlob: "../**/*.ink",
@@ -383,12 +424,15 @@ describe("vitePluginInk dev API", () => {
         servers.length = 0;
     });
 
-    function startPlugin(): Promise<{
+    function startPlugin(
+        options?: Parameters<typeof vitePluginInk>[0],
+        config?: Partial<ResolvedConfig>,
+    ): Promise<{
         server: http.Server;
         middleware: MiddlewareFn;
         plugin: ReturnType<typeof vitePluginInk>;
     }> {
-        const plugin = vitePluginInk();
+        const plugin = vitePluginInk(options);
         let middleware!: MiddlewareFn;
 
         // Capture the middleware registered via server.middlewares.use(fn)
@@ -399,6 +443,9 @@ describe("vitePluginInk dev API", () => {
                 },
             },
         };
+        if (config) {
+            plugin.configResolved?.(config as ResolvedConfig);
+        }
         plugin.configureServer?.(fakeServer as any);
 
         const server = makeTestServer(middleware);
@@ -479,6 +526,34 @@ describe("vitePluginInk dev API", () => {
 
         const getRes = await request(server, "GET", INK_DEV_API_TEXT_REPLACES);
         expect(JSON.parse(getRes.body)).toEqual(info);
+    });
+
+    it("POST generate-json exports ink JSON in serve mode only when called", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(path.join(root, "ink", "start.ink"), "=== start ===\nHello world!\n", "utf-8");
+
+        const { server } = await startPlugin(
+            {
+                inkGlob: "./ink/**/*.ink",
+                inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+            },
+            {
+                command: "serve",
+                root,
+                publicDir: path.join(root, "public"),
+            },
+        );
+
+        const jsonPath = path.join(root, "public", "ink-json", "start.json");
+        await expect(fs.access(jsonPath)).rejects.toBeDefined();
+
+        const postRes = await request(server, "POST", INK_DEV_API_GENERATE_JSON);
+        expect(postRes.status).toBe(204);
+
+        await expect(fs.access(jsonPath)).resolves.toBeUndefined();
     });
 
     it("transform logs info for unknown hashtag commands and suggests the dev API", async () => {
