@@ -101,11 +101,13 @@ async function triggerInkJsonGeneration(): Promise<void> {
     if (!import.meta.hot) {
         return;
     }
-    await Promise.allSettled([
-        fetch(INK_DEV_API_GENERATE_JSON, {
+    try {
+        await fetch(INK_DEV_API_GENERATE_JSON, {
             method: "POST",
-        }),
-    ]);
+        });
+    } catch {
+        // Keep listener resilient when the dev API is unavailable.
+    }
 }
 
 async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Promise<boolean> {
