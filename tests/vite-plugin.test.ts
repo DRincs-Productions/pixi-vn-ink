@@ -70,10 +70,7 @@ describe("vitePluginInk", () => {
 
         expect(firstJson).toBeTypeOf("object");
         expect(secondJson).toBeTypeOf("object");
-        expect(manifest).toEqual([
-            "/ink-json/chapter-1/second.json",
-            "/ink-json/start.json",
-        ]);
+        expect(manifest).toEqual(["/ink-json/chapter-1/second.json", "/ink-json/start.json"]);
     });
 
     it("removes stale exported json files when an ink file becomes invalid", async () => {
@@ -140,13 +137,7 @@ describe("vitePluginInk", () => {
         await plugin.buildStart?.call(undefined);
 
         const firstJsonPath = path.join(root, "generated", "ink-json", "start.json");
-        const secondJsonPath = path.join(
-            root,
-            "generated",
-            "ink-json",
-            "chapter-1",
-            "second.json",
-        );
+        const secondJsonPath = path.join(root, "generated", "ink-json", "chapter-1", "second.json");
         const manifestPath = path.join(root, "generated", "ink-json", "manifest.json");
 
         await expect(fs.access(firstJsonPath)).resolves.toBeUndefined();
@@ -235,7 +226,11 @@ describe("vitePluginInk", () => {
         await fs.mkdir(path.join(root, "src", "stories"), { recursive: true });
         await fs.mkdir(path.join(root, "public", "stories"), { recursive: true });
 
-        await fs.writeFile(path.join(root, "ink", "from-ink.ink"), "=== start ===\nInk.\n", "utf-8");
+        await fs.writeFile(
+            path.join(root, "ink", "from-ink.ink"),
+            "=== start ===\nInk.\n",
+            "utf-8",
+        );
         await fs.writeFile(
             path.join(root, "src", "stories", "from-src.ink"),
             "=== start ===\nSrc.\n",
@@ -259,7 +254,9 @@ describe("vitePluginInk", () => {
 
         await plugin.buildStart?.call(undefined);
 
-        await expect(fs.access(path.join(root, "generated", "ink", "from-ink.json"))).resolves.toBeUndefined();
+        await expect(
+            fs.access(path.join(root, "generated", "ink", "from-ink.json")),
+        ).resolves.toBeUndefined();
         await expect(
             fs.access(path.join(root, "generated", "src", "stories", "from-src.json")),
         ).resolves.toBeUndefined();
@@ -284,7 +281,11 @@ describe("vitePluginInk", () => {
 
         await fs.mkdir(path.join(root, "ink"), { recursive: true });
         await fs.mkdir(path.join(root, "public"), { recursive: true });
-        await fs.writeFile(path.join(root, "ink", "start.ink"), "=== start ===\nHello world!\n", "utf-8");
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\nHello world!\n",
+            "utf-8",
+        );
 
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
@@ -448,16 +449,13 @@ function request(
 ): Promise<{ status: number; body: string }> {
     return new Promise((resolve, reject) => {
         const addr = server.address() as { port: number };
-        const req = http.request(
-            { host: "127.0.0.1", port: addr.port, method, path },
-            (res) => {
-                let data = "";
-                res.on("data", (chunk: Buffer) => {
-                    data += chunk.toString();
-                });
-                res.on("end", () => resolve({ status: res.statusCode ?? 0, body: data }));
-            },
-        );
+        const req = http.request({ host: "127.0.0.1", port: addr.port, method, path }, (res) => {
+            let data = "";
+            res.on("data", (chunk: Buffer) => {
+                data += chunk.toString();
+            });
+            res.on("end", () => resolve({ status: res.statusCode ?? 0, body: data }));
+        });
         req.on("error", reject);
         if (body !== undefined) {
             req.write(body);
@@ -595,15 +593,11 @@ describe("vitePluginInk dev API", () => {
         await request(server, "POST", INK_DEV_API_HASHTAG_COMMANDS, JSON.stringify(info));
 
         const infos: string[] = [];
-        await plugin.transform?.call(
-            createTransformContext(infos) as any,
-            "",
-            inkPath,
-        );
+        await plugin.transform?.call(createTransformContext(infos) as any, "", inkPath);
 
-        expect(infos.some((message) => message.includes('Unknown hashtag command "# unknown two"'))).toBe(
-            true,
-        );
+        expect(
+            infos.some((message) => message.includes('Unknown hashtag command "# unknown two"')),
+        ).toBe(true);
         expect(infos.some((message) => message.includes(INK_DEV_API_HASHTAG_COMMANDS))).toBe(true);
     });
 
@@ -623,11 +617,7 @@ describe("vitePluginInk dev API", () => {
         await request(server, "POST", INK_DEV_API_HASHTAG_COMMANDS, JSON.stringify(info));
 
         const infos: string[] = [];
-        await plugin.transform?.call(
-            createTransformContext(infos) as any,
-            "",
-            inkPath,
-        );
+        await plugin.transform?.call(createTransformContext(infos) as any, "", inkPath);
 
         expect(infos).toEqual([]);
     });

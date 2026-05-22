@@ -1,5 +1,10 @@
-import type { CompileSharedType, HashtagCommandOccurrence, InkHashtagCommandInfo, IssueType } from "@/parser/types";
 import { HashtagCommands } from "@/handlers/hashtag-commands";
+import type {
+    CompileSharedType,
+    HashtagCommandOccurrence,
+    InkHashtagCommandInfo,
+    IssueType,
+} from "@/parser/types";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 

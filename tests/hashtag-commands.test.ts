@@ -22,40 +22,20 @@ test("mergeJsonBlocks merges sibling JSON-like blocks", () => {
 
 test("mergeJsonBlocks merges nested valid blocks", () => {
     expect(
-        HashtagCommands.mergeJsonBlocks([
-            "{",
-            "x:",
-            "1,",
-            "nested:",
-            "{",
-            "y:",
-            "2",
-            "}",
-            "}",
-        ]),
+        HashtagCommands.mergeJsonBlocks(["{", "x:", "1,", "nested:", "{", "y:", "2", "}", "}"]),
     ).toEqual(["{ x: 1, nested: { y: 2 } }"]);
 });
 
 test("mergeJsonBlocks keeps an invalid parent split while preserving valid children", () => {
     expect(
-        HashtagCommands.mergeJsonBlocks([
-            "{",
-            "x:",
-            "1",
-            "nested:",
-            "{",
-            "y:",
-            "2",
-            "}",
-            "}",
-        ]),
+        HashtagCommands.mergeJsonBlocks(["{", "x:", "1", "nested:", "{", "y:", "2", "}", "}"]),
     ).toEqual(["{", "x:", "1", "nested:", "{ y: 2 }", "}"]);
 });
 
 test("convertTagTolist uses mergeJsonBlocks for repeated JSON-like props", () => {
     expect(
         HashtagCommands.convertTagTolist(
-            'edit image bg position { x: 1 } anchor { y: 2 } visible true',
+            "edit image bg position { x: 1 } anchor { y: 2 } visible true",
         ),
     ).toEqual([
         "edit",
@@ -100,7 +80,10 @@ test("convertOperation maps shake with quoted-string alias", () => {
 test("convertOperation maps shake with string and boolean values", () => {
     const step = {} as unknown as PixiVNJsonLabelStep;
     expect(
-        HashtagCommands.convertOperation(["shake", "bg", "intensity", "high", "enabled", "true"], step),
+        HashtagCommands.convertOperation(
+            ["shake", "bg", "intensity", "high", "enabled", "true"],
+            step,
+        ),
     ).toEqual({
         alias: "bg",
         type: "shake",
@@ -150,7 +133,9 @@ test("convertOperation maps animate with only keyframes, no options section", ()
 
 test("convertOperation maps animate with empty keyframes and options keyword", () => {
     const step = {} as unknown as PixiVNJsonLabelStep;
-    expect(HashtagCommands.convertOperation(["animate", "bg", "options", "duration", "3"], step)).toEqual({
+    expect(
+        HashtagCommands.convertOperation(["animate", "bg", "options", "duration", "3"], step),
+    ).toEqual({
         alias: "bg",
         type: "animate",
         keyframes: {},
@@ -162,7 +147,18 @@ test("convertOperation rejects animate with duplicate options keyword", () => {
     const step = {} as unknown as PixiVNJsonLabelStep;
     expect(
         HashtagCommands.convertOperation(
-            ["animate", "bg", "x", "100", "options", "duration", "3", "options", "easing", "linear"],
+            [
+                "animate",
+                "bg",
+                "x",
+                "100",
+                "options",
+                "duration",
+                "3",
+                "options",
+                "easing",
+                "linear",
+            ],
             step,
         ),
     ).toBeUndefined();

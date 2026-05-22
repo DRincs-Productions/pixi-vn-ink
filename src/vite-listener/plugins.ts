@@ -9,6 +9,7 @@ import type {
 } from "@/vite/info-types";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { TextReplaces } from "@drincs/pixi-vn-json";
+import { inkJsonManifest as virtualInkJsonManifest } from "virtual:pixi-vn-ink";
 import z from "zod";
 
 type InkJsonManifest = string[] | Record<string, string>;
@@ -20,10 +21,6 @@ type InkUpdatedPayload = {
 type InkUpdatedPayloadHandlers = {
     importJsonFromManifest: (inkJsonManifest?: InkJsonManifest) => Promise<boolean>;
     importInkText: (inkText: string) => Promise<unknown>;
-};
-
-type SetupInkHmrListenerOptions = {
-    inkJsonManifest?: InkJsonManifest;
 };
 
 function serializeValidation(validation: unknown): InkValidationInfo {
@@ -190,24 +187,26 @@ export async function handleInkUpdatedPayload(
  * @param options Optional setup options.
  * @example
  * // In your main entry file (e.g., main.ts)
+ * import { setupPixivnViteData } from "@drincs/pixi-vn/vite";
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite";
  *
- * setupInkHmrListener({
+ * await setupPixivnViteData();
+ * await setupInkHmrListener({
  *   inkJsonManifest: {
  *     start: "/ink-json/start.json",
  *     chapter1: "/ink-json/chapter1.json",
  *   },
  * });
  */
-export function setupInkHmrListener(options?: SetupInkHmrListenerOptions) {
-    const { inkJsonManifest } = options ?? {};
+export async function setupInkHmrListener() {
+    const inkJsonManifest = virtualInkJsonManifest;
     if (import.meta.hot) {
-        void importJsonFromManifest(inkJsonManifest);
-        void syncHandlerInfoToDevServer();
+        await importJsonFromManifest(inkJsonManifest);
+        await syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
             await handleInkUpdatedPayload(payload, inkJsonManifest);
-            void syncHandlerInfoToDevServer();
+            await syncHandlerInfoToDevServer();
         });
     }
 }

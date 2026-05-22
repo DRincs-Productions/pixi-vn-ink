@@ -1,6 +1,11 @@
 import { convertInkToJson } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
-import { type PixiVNJson, PIXIVNJSON_SCHEMA_URL, TextReplaces, translator } from "@drincs/pixi-vn-json";
+import {
+    type PixiVNJson,
+    PIXIVNJSON_SCHEMA_URL,
+    TextReplaces,
+    translator,
+} from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
 
@@ -463,7 +468,8 @@ test("remove image", async () => {
                                     duration: 5,
                                 },
                             },
-                            $origin: 'remove image bg "/image B.png" x 10 y 20 with dissolve duration 5',
+                            $origin:
+                                'remove image bg "/image B.png" x 10 y 20 with dissolve duration 5',
                         },
                     ],
                 },
@@ -686,7 +692,8 @@ test("video", async () => {
                                     duration: 2,
                                 },
                             },
-                            $origin: 'remove video bg "/video B.mp4" x 1 y 2 with dissolve duration 2',
+                            $origin:
+                                'remove video bg "/video B.mp4" x 1 y 2 with dissolve duration 2',
                         },
                     ],
                 },
@@ -1324,18 +1331,21 @@ Hello
  * Replace
  */
 test("replace", async () => {
-    TextReplaces.add((key) => {
-        if (key === "john") {
-            return "John";
-        }
-        if (key === "alice") {
-            return "Alice";
-        }
-    }, {
-        name: "test replace",
-        // all
-        validation: "all",
-    });
+    TextReplaces.add(
+        (key) => {
+            if (key === "john") {
+                return "John";
+            }
+            if (key === "alice") {
+                return "Alice";
+            }
+        },
+        {
+            name: "test replace",
+            // all
+            validation: "all",
+        },
+    );
     const res = translator.translate(`Hello [john], my name is [alice]`);
     expect(res).toEqual(`Hello John, my name is Alice`);
 });
