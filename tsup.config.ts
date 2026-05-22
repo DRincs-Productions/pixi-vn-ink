@@ -41,7 +41,12 @@ export default defineConfig((options) => {
             minify: true,
             skipNodeModulesBundle: false,
             noExternal: ["@drincs/pixi-vn-json"],
-            external: ["vite", "@drincs/pixi-vn-ink/parser", "@drincs/pixi-vn-ink/mapper", "virtual:pixi-vn-ink"],
+            external: [
+                "vite",
+                "@drincs/pixi-vn-ink/parser",
+                "@drincs/pixi-vn-ink/mapper",
+                "virtual:pixi-vn-ink",
+            ],
             outExtension({ format }) {
                 return {
                     js: format === "esm" ? ".mjs" : ".cjs",

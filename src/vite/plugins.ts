@@ -1,13 +1,19 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@/parser";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import {
+    INK_DEV_API_CHARACTERS,
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { CharacterInterface } from "@drincs/pixi-vn/characters";
+import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { glob } from "tinyglobby";
-import type { Plugin, ResolvedConfig } from "vite";
+import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
@@ -305,9 +311,12 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
+    let charactersStore: CharacterInterface[] = [];
     let virtualInkJsonData: PixiVNJson[] | undefined;
     let managedInkJsonOutputDirectory: string | undefined;
     let managedInkJsonManifestPath: string | undefined;
+    let devServer: ViteDevServer | undefined;
+    let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
     const isManagedInkJsonFile = (targetPath: string): boolean => {
         if (!hasInkJsonManifestMode || !managedInkJsonOutputDirectory) {
@@ -318,6 +327,35 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             return true;
         }
         return isInsideDirectory(managedInkJsonOutputDirectory, normalizedTargetPath);
+    };
+
+    const scheduleReexport = () => {
+        if (debounceTimer !== undefined) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            debounceTimer = undefined;
+            void exportInkJsonFiles()
+                .then(() => {
+                    const mod = devServer?.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID);
+                    if (mod) devServer?.moduleGraph.invalidateModule(mod);
+                    devServer?.ws.send({
+                        type: "custom",
+                        event: "ink-updated",
+                        data: {
+                            inkJson: hasInkJsonManifestMode
+                                ? (virtualInkJsonData ?? [])
+                                : undefined,
+                        },
+                    });
+                })
+                .catch((error) => {
+                    const normalizedError =
+                        error instanceof Error ? error : new Error(String(error));
+                    resolvedConfig?.logger.error(
+                        "[vite-plugin-ink] Failed to re-export Ink JSON files after characters update.",
+                        { error: normalizedError },
+                    );
+                });
+        }, 150);
     };
 
     const exportInkJsonFiles = async () => {
@@ -335,6 +373,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             managedInkJsonManifestPath = undefined;
             return;
         }
+        RegisteredCharacters.add(charactersStore);
+
         const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
         const outputDirectory = getOutputBaseDirectory(outputPattern);
         managedInkJsonOutputDirectory = path.resolve(outputDirectory);
@@ -473,6 +513,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         },
 
         configureServer(server) {
+            devServer = server;
             server.middlewares.use(async (req, res, next) => {
                 const url = req.url;
                 const method = req.method;
@@ -521,6 +562,37 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         }
                         return;
                     }
+                }
+
+                if (url === INK_DEV_API_CHARACTERS && method === "POST") {
+                    try {
+                        const body = await readBody(req);
+                        const incoming = JSON.parse(body) as CharacterInterface[];
+                        const incomingIds = incoming.map((c) => c.id).join(", ") || "(none)";
+                        resolvedConfig?.logger.info(
+                            `[vite-plugin-ink] Received characters: [${incomingIds}]`,
+                        );
+                        if (JSON.stringify(incoming) !== JSON.stringify(charactersStore)) {
+                            charactersStore = incoming;
+                            resolvedConfig?.logger.info(
+                                "[vite-plugin-ink] Characters changed — scheduling JSON re-export.",
+                            );
+                            scheduleReexport();
+                        } else {
+                            resolvedConfig?.logger.info(
+                                "[vite-plugin-ink] Characters unchanged — skipping re-export.",
+                            );
+                        }
+                        res.statusCode = 204;
+                        res.end();
+                    } catch (error) {
+                        resolvedConfig?.logger.warn(
+                            `[vite-plugin-ink] Invalid JSON body for POST ${INK_DEV_API_CHARACTERS}: ${String(error)}`,
+                        );
+                        res.statusCode = 400;
+                        res.end();
+                    }
+                    return;
                 }
 
                 next();

@@ -1,13 +1,18 @@
 /// <reference types="vite/client" />
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { importInkText, importJson } from "@/loader/importer";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import {
+    INK_DEV_API_CHARACTERS,
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
 import type {
     InkHashtagCommandInfo,
     InkTextReplaceInfo,
     InkValidationInfo,
 } from "@/vite/info-types";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVN_DEV_API_CHARACTERS } from "@drincs/pixi-vn/vite";
 import { TextReplaces } from "@drincs/pixi-vn-json";
 import { inkJsons } from "virtual:pixi-vn-ink";
 import z from "zod";
@@ -55,6 +60,23 @@ function serializeValidation(validation: unknown): InkValidationInfo {
         value: String(validation),
     };
 }
+async function syncCharactersToDevServer(): Promise<void> {
+    if (!import.meta.hot) return;
+    try {
+        const response = await fetch(PIXIVN_DEV_API_CHARACTERS);
+        if (response.ok) {
+            const characters = await response.json();
+            await fetch(INK_DEV_API_CHARACTERS, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(characters),
+            });
+        }
+    } catch {
+        // silently ignore
+    }
+}
+
 /**
  * Serializes the currently registered handler lists and POSTs them to the
  * pixi-vn-ink Vite dev-server API so that external tools such as VS Code
@@ -102,7 +124,9 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
 export async function handleInkUpdatedPayload(
     payload: string | InkUpdatedPayload,
     handlers: InkUpdatedPayloadHandlers = {
-        importJson: async (data) => { await importJson(data); },
+        importJson: async (data) => {
+            await importJson(data);
+        },
         importInkText,
     },
 ): Promise<void> {
@@ -145,6 +169,7 @@ export async function setupInkHmrListener() {
             await importJson(inkJsons);
         }
         await syncHandlerInfoToDevServer();
+        await syncCharactersToDevServer();
 
         import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
             await handleInkUpdatedPayload(payload);
