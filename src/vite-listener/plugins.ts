@@ -7,13 +7,23 @@ import type {
     InkTextReplaceInfo,
     InkValidationInfo,
 } from "@/vite/info-types";
-import { TextReplaces } from "@drincs/pixi-vn-json";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { TextReplaces } from "@drincs/pixi-vn-json";
 import z from "zod";
 
-type InkJsonManifestMap = Record<string, string>;
+type InkJsonManifest = string[] | Record<string, string>;
+type InkUpdatedPayload = {
+    inkText?: string;
+    inkJsonManifest?: string[];
+};
+
+type InkUpdatedPayloadHandlers = {
+    importJsonFromManifest: (inkJsonManifest?: InkJsonManifest) => Promise<boolean>;
+    importInkText: (inkText: string) => Promise<unknown>;
+};
+
 type SetupInkHmrListenerOptions = {
-    inkJsonManifest?: InkJsonManifestMap;
+    inkJsonManifest?: InkJsonManifest;
 };
 
 function serializeValidation(validation: unknown): InkValidationInfo {
@@ -93,16 +103,26 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
-async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Promise<boolean> {
+function getManifestEntries(inkJsonManifest?: InkJsonManifest): string[] {
+    if (inkJsonManifest === undefined) {
+        return [];
+    }
+    if (Array.isArray(inkJsonManifest)) {
+        return inkJsonManifest.filter((entry) => entry.length > 0);
+    }
+    return Object.values(inkJsonManifest).filter((entry) => entry.length > 0);
+}
+
+async function importJsonFromManifest(inkJsonManifest?: InkJsonManifest): Promise<boolean> {
     if (!import.meta.hot) {
         return false;
     }
 
     try {
+        const manifestPaths = getManifestEntries(inkJsonManifest);
         if (inkJsonManifest === undefined) {
             return false;
         }
-        const manifestPaths = Object.values(inkJsonManifest).filter((entry) => entry.length > 0);
 
         if (manifestPaths.length === 0) {
             return true;
@@ -126,11 +146,10 @@ async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Pro
                     }
                 }),
             )
-        )
-            .filter(
-                (story): story is PixiVNJson =>
-                    typeof story === "object" && story !== null && !Array.isArray(story),
-            );
+        ).filter(
+            (story): story is PixiVNJson =>
+                typeof story === "object" && story !== null && !Array.isArray(story),
+        );
 
         if (loadedStories.length === 0) {
             return true;
@@ -141,6 +160,29 @@ async function importJsonFromManifest(inkJsonManifest?: InkJsonManifestMap): Pro
     } catch (error) {
         console.warn("[pixi-vn-ink] Failed to import Ink JSON from inkJsonManifest.", error);
         return false;
+    }
+}
+
+export async function handleInkUpdatedPayload(
+    payload: string | InkUpdatedPayload,
+    fallbackManifest: InkJsonManifest | undefined,
+    handlers: InkUpdatedPayloadHandlers = {
+        importJsonFromManifest,
+        importInkText,
+    },
+): Promise<void> {
+    const hmrManifest =
+        payload && typeof payload === "object" && "inkJsonManifest" in payload
+            ? payload.inkJsonManifest
+            : undefined;
+    const inkText =
+        payload && typeof payload === "object" && "inkText" in payload
+            ? payload.inkText
+            : payload;
+
+    const usedJsonImport = await handlers.importJsonFromManifest(hmrManifest ?? fallbackManifest);
+    if (!usedJsonImport && typeof inkText === "string") {
+        await handlers.importInkText(inkText);
     }
 }
 
@@ -165,11 +207,8 @@ export function setupInkHmrListener(options?: SetupInkHmrListenerOptions) {
         void importJsonFromManifest(inkJsonManifest);
         void syncHandlerInfoToDevServer();
 
-        import.meta.hot.on("ink-updated", async (inkText) => {
-            const usedJsonImport = await importJsonFromManifest(inkJsonManifest);
-            if (!usedJsonImport) {
-                await importInkText(inkText);
-            }
+        import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
+            await handleInkUpdatedPayload(payload, inkJsonManifest);
             void syncHandlerInfoToDevServer();
         });
     }
