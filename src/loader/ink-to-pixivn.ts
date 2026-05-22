@@ -1,9 +1,9 @@
 import type InkStoryType from "@/interfaces/InkStoryType";
 import type { LoaderSharedType } from "@/loader/type";
+import { InkMapper } from "@/mapper";
+import { InkCompiler } from "@/parser";
 import type { CompileSharedType } from "@/parser/types";
 import { logger } from "@/utils/log-utility";
-import { InkMapper } from "@drincs/pixi-vn-ink/mapper";
-import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";

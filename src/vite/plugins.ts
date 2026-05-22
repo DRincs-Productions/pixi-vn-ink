@@ -1,6 +1,6 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
+import { InkCompiler } from "@/parser";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
-import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
