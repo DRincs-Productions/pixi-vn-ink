@@ -7,8 +7,8 @@ RegisteredCharacters.add({
     id: "alice",
 });
 
-setupPixivnViteData();
-setupInkHmrListener();
+await setupPixivnViteData();
+await setupInkHmrListener();
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
