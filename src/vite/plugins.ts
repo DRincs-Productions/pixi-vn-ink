@@ -463,6 +463,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         virtualInkJsonData = localJsonData;
         await fs.mkdir(path.dirname(manifestFile), { recursive: true });
         await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
+        resolvedConfig.logger.info(
+            `[vite-plugin-ink] ${localJsonData.length} JSON file${localJsonData.length !== 1 ? "s" : ""} exported.`,
+        );
     };
 
     return {
@@ -574,9 +577,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         );
                         if (JSON.stringify(incoming) !== JSON.stringify(charactersStore)) {
                             charactersStore = incoming;
-                            resolvedConfig?.logger.info(
-                                "[vite-plugin-ink] Characters changed — scheduling JSON re-export.",
-                            );
                             scheduleReexport();
                         } else {
                             resolvedConfig?.logger.info(
@@ -737,14 +737,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 code: `export default ${JSON.stringify(source)};`,
                 map: null,
             };
-
-            // * Convert ink to PixiVNJson during build (disabled for now because not used the browser environment, so don't know the pixi-vn character set, etc.)
-            // return {
-            //     code: `import { convertInkToJson } from "@drincs/pixi-vn-ink"; export default convertInkToJson(${JSON.stringify(
-            //         source
-            //     )});`,
-            //     map: null,
-            // };
         },
     };
 }
