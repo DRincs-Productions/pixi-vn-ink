@@ -1,3 +1,4 @@
+import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import { vitePluginInk } from "@/vite/plugins";
@@ -265,27 +266,24 @@ describe("vitePluginInk", () => {
         ).resolves.toBeUndefined();
     });
 
-    it("virtual module exports undefined inkJsonManifest when json export is disabled", async () => {
+    it("virtual module exports undefined inkJsons when json export is disabled", async () => {
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
         });
 
         const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
 
-        expect(loaded).toContain("export const inkJsonManifest = undefined;");
+        expect(loaded).toContain("export const inkJsons = undefined;");
     });
 
-    it("virtual module exports inkJsonManifest entries when json export is enabled", async () => {
+    it("virtual module exports inkJsons entries when json export is enabled", async () => {
         const root = await createTempProject();
         tempDirectories.push(root);
 
+        const inkSource = "=== start ===\nHello world!\n";
         await fs.mkdir(path.join(root, "ink"), { recursive: true });
         await fs.mkdir(path.join(root, "public"), { recursive: true });
-        await fs.writeFile(
-            path.join(root, "ink", "start.ink"),
-            "=== start ===\nHello world!\n",
-            "utf-8",
-        );
+        await fs.writeFile(path.join(root, "ink", "start.ink"), inkSource, "utf-8");
 
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
@@ -300,7 +298,10 @@ describe("vitePluginInk", () => {
         await plugin.buildStart?.call(undefined);
         const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
 
-        expect(loaded).toContain('export const inkJsonManifest = ["/ink-json/start.json"];');
+        const expectedJson = convertInkToJson(inkSource);
+        expect(loaded).toContain(
+            `export const inkJsons = ${JSON.stringify([expectedJson])};`,
+        );
     });
 
     it("rejects inkGlob patterns that escape project root", async () => {
@@ -317,101 +318,90 @@ describe("vitePluginInk", () => {
         ).toThrow("must be rooted in Vite `root`");
     });
 
-    it("handleHotUpdate for .ink includes inkJsonManifest in payload when json export is enabled", async () => {
+    it("hotUpdate for .ink includes inkJson in payload when json export is enabled", async () => {
         const root = await createTempProject();
         tempDirectories.push(root);
 
+        const inkSource = "=== start ===\nHello world!\n";
         await fs.mkdir(path.join(root, "ink"), { recursive: true });
         await fs.mkdir(path.join(root, "public"), { recursive: true });
 
         const inkFile = path.join(root, "ink", "start.ink");
-        await fs.writeFile(inkFile, "=== start ===\nHello world!\n", "utf-8");
+        await fs.writeFile(inkFile, inkSource, "utf-8");
 
         const wsSend = vi.fn();
-        const logger = {
-            warn: () => {},
-            error: () => {},
-            info: () => {},
-        };
+        const logger = { warn: () => {}, error: () => {}, info: () => {} };
 
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
             inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-            logger,
-        } as ResolvedConfig);
-        await plugin.buildStart?.call(undefined);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (plugin.configResolved as any)?.({ root, publicDir: path.join(root, "public"), logger });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (plugin.buildStart as any)?.call(undefined);
 
-        const result = await plugin.handleHotUpdate?.({
+        const hotUpdateHook = plugin.hotUpdate as { handler: Function };
+        const result = await hotUpdateHook.handler({
+            type: "update",
             file: inkFile,
-            server: {
-                config: { logger },
-                ws: { send: wsSend },
-            },
-            read: async () => "=== start ===\nHello world!\n",
-        } as any);
+            modules: [],
+            timestamp: Date.now(),
+            server: { config: { logger }, ws: { send: wsSend } },
+            read: async () => inkSource,
+        });
 
+        const expectedJson = convertInkToJson(inkSource);
         expect(result).toEqual([]);
         expect(wsSend).toHaveBeenCalledWith({
             type: "custom",
             event: "ink-updated",
-            data: {
-                inkText: "=== start ===\nHello world!\n",
-                inkJsonManifest: ["/ink-json/start.json"],
-            },
+            data: { inkText: inkSource, inkJson: [expectedJson] },
         });
     });
 
-    it("handleHotUpdate for managed .json emits ink-updated without reloading", async () => {
+    it("hotUpdate for managed .json emits ink-updated without reloading", async () => {
         const root = await createTempProject();
         tempDirectories.push(root);
 
+        const inkSource = "=== start ===\nHello world!\n";
         await fs.mkdir(path.join(root, "ink"), { recursive: true });
         await fs.mkdir(path.join(root, "public"), { recursive: true });
 
         const inkFile = path.join(root, "ink", "start.ink");
-        await fs.writeFile(inkFile, "=== start ===\nHello world!\n", "utf-8");
+        await fs.writeFile(inkFile, inkSource, "utf-8");
 
         const wsSend = vi.fn();
-        const logger = {
-            warn: () => {},
-            error: () => {},
-            info: () => {},
-        };
+        const logger = { warn: () => {}, error: () => {}, info: () => {} };
 
         const plugin = vitePluginInk({
             inkGlob: "./ink/**/*.ink",
             inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-            logger,
-        } as ResolvedConfig);
-        await plugin.buildStart?.call(undefined);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (plugin.configResolved as any)?.({ root, publicDir: path.join(root, "public"), logger });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (plugin.buildStart as any)?.call(undefined);
 
         const jsonFile = path.join(root, "public", "ink-json", "start.json");
-        const result = await plugin.handleHotUpdate?.({
+        const hotUpdateHook = plugin.hotUpdate as { handler: Function };
+        const result = await hotUpdateHook.handler({
+            type: "update",
             file: jsonFile,
-            server: {
-                config: { logger },
-                ws: { send: wsSend },
-            },
+            modules: [],
+            timestamp: Date.now(),
+            server: { config: { logger }, ws: { send: wsSend } },
             read: async () => "",
-        } as any);
+        });
 
+        const expectedJson = convertInkToJson(inkSource);
         expect(result).toEqual([]);
         expect(wsSend).toHaveBeenCalledWith({
             type: "custom",
             event: "ink-updated",
-            data: {
-                inkJsonManifest: ["/ink-json/start.json"],
-            },
+            data: { inkJson: [expectedJson] },
         });
     });
 });

@@ -1,6 +1,7 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@/parser";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
@@ -304,7 +305,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
-    let virtualInkJsonManifest: string[] | undefined;
+    let virtualInkJsonData: PixiVNJson[] | undefined;
     let managedInkJsonOutputDirectory: string | undefined;
     let managedInkJsonManifestPath: string | undefined;
 
@@ -321,7 +322,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
     const exportInkJsonFiles = async () => {
         if (!resolvedConfig || !inkGlob) {
-            virtualInkJsonManifest = undefined;
+            virtualInkJsonData = undefined;
             return;
         }
         const outputPattern = resolveInkJsonOutputPattern(
@@ -329,7 +330,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             inkJsonOutputPattern,
         );
         if (!outputPattern) {
-            virtualInkJsonManifest = undefined;
+            virtualInkJsonData = undefined;
             managedInkJsonOutputDirectory = undefined;
             managedInkJsonManifestPath = undefined;
             return;
@@ -349,6 +350,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             onlyFiles: true,
         });
         const manifestUrls: string[] = [];
+        const localJsonData: PixiVNJson[] = [];
         const generatedJsonFiles = new Set<string>();
 
         await fs.mkdir(outputDirectory, { recursive: true });
@@ -387,6 +389,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 continue;
             }
 
+            localJsonData.push(converted);
             await fs.mkdir(path.dirname(outputFile), { recursive: true });
             await fs.writeFile(outputFile, `${JSON.stringify(converted, null, 2)}\n`, "utf-8");
 
@@ -417,7 +420,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
-        virtualInkJsonManifest = [...manifestUrls];
+        virtualInkJsonData = localJsonData;
         await fs.mkdir(path.dirname(manifestFile), { recursive: true });
         await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
     };
@@ -543,90 +546,99 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         load(id) {
             if (id === RESOLVED_VIRTUAL_MODULE_ID) {
                 if (!inkGlob) {
-                    return ["export const inkJsonManifest = undefined;", "export default [];"].join(
-                        "\n",
-                    );
+                    return ["export const inkJsons = undefined;", "export default [];"].join("\n");
                 }
                 const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
                 return [
                     `const modules = import.meta.glob(${JSON.stringify(`/${rootRelativeInkGlob}`)}, { eager: true, import: 'default' });`,
-                    `export const inkJsonManifest = ${JSON.stringify(
-                        hasInkJsonManifestMode ? (virtualInkJsonManifest ?? []) : undefined,
+                    `export const inkJsons = ${JSON.stringify(
+                        hasInkJsonManifestMode ? (virtualInkJsonData ?? []) : undefined,
                     )};`,
                     "export default Object.values(modules);",
                 ].join("\n");
             }
         },
 
-        async handleHotUpdate({ file, server, read }) {
-            if (file.endsWith(".ink")) {
-                // Leggiamo il contenuto modificato
-                const source = await read();
-                const { issues } = InkCompiler.compile(source);
+        hotUpdate: {
+            // Run after Vite's importGlobPlugin so we can suppress the virtual-module
+            // reload it would otherwise add when a new .ink file is created.
+            order: "post",
+            async handler({ type, file, server, read }) {
+                if (file.endsWith(".ink")) {
+                    if (type !== "delete") {
+                        const source = await read();
+                        const { issues } = InkCompiler.compile(source);
 
-                let error: undefined | string;
+                        let error: undefined | string;
 
-                // Logghiamo eventuali warning/errori al terminale
-                issues.forEach(({ line, message, type }) => {
-                    if (type === ErrorType.Warning) {
-                        server.config.logger.warn(`${file}:${line} ${message}`);
+                        issues.forEach(({ line, message, type: issueType }) => {
+                            if (issueType === ErrorType.Warning) {
+                                server.config.logger.warn(`${file}:${line} ${message}`);
+                            } else {
+                                server.config.logger.error(`${file}:${line} ${message}`);
+                                error = message;
+                            }
+                        });
+                        logUnknownHashtagCommands(source, file, hashtagCommandsStore, (message) =>
+                            server.config.logger.info(message),
+                        );
+
+                        await exportInkJsonFiles();
+
+                        if (error) {
+                            server.ws.send({
+                                type: "error",
+                                err: {
+                                    message: error,
+                                    stack: file,
+                                    plugin: "vite-plugin-ink",
+                                },
+                            });
+                        } else {
+                            server.ws.send({
+                                type: "custom",
+                                event: "ink-error-cleared",
+                                data: {},
+                            });
+                            server.ws.send({
+                                type: "custom",
+                                event: "ink-updated",
+                                data: {
+                                    inkText: source,
+                                    inkJson: hasInkJsonManifestMode
+                                        ? (virtualInkJsonData ?? [])
+                                        : undefined,
+                                },
+                            });
+                        }
                     } else {
-                        // Se è un errore, blocchiamo
-                        server.config.logger.error(`${file}:${line} ${message}`);
-                        error = message;
+                        await exportInkJsonFiles();
+                        server.ws.send({
+                            type: "custom",
+                            event: "ink-updated",
+                            data: {
+                                inkJson: hasInkJsonManifestMode
+                                    ? (virtualInkJsonData ?? [])
+                                    : undefined,
+                            },
+                        });
                     }
-                });
-                logUnknownHashtagCommands(source, file, hashtagCommandsStore, (message) =>
-                    server.config.logger.info(message),
-                );
 
-                await exportInkJsonFiles();
+                    return [];
+                }
 
-                // Mostra overlay per errori
-                if (error) {
-                    server.ws.send({
-                        type: "error",
-                        err: {
-                            message: error,
-                            stack: file,
-                            plugin: "vite-plugin-ink",
-                        },
-                    });
-                } else {
-                    // close server.hmr.overlay
-                    server.ws.send({
-                        type: "error",
-                        err: null as any,
-                    });
-
+                if (file.endsWith(".json") && isManagedInkJsonFile(file)) {
                     server.ws.send({
                         type: "custom",
                         event: "ink-updated",
                         data: {
-                            inkText: source,
-                            inkJsonManifest: hasInkJsonManifestMode
-                                ? (virtualInkJsonManifest ?? [])
-                                : undefined,
+                            inkJson: virtualInkJsonData ?? [],
                         },
                     });
+
+                    return [];
                 }
-
-                // NON restituiamo nulla => Vite non fa reload automatico della pagina
-                return [];
-            }
-
-            if (file.endsWith(".json") && isManagedInkJsonFile(file)) {
-                server.ws.send({
-                    type: "custom",
-                    event: "ink-updated",
-                    data: {
-                        inkJsonManifest: virtualInkJsonManifest ?? [],
-                    },
-                });
-
-                // NON restituiamo nulla => Vite non fa reload automatico della pagina
-                return [];
-            }
+            },
         },
         async transform(_code, id) {
             if (!id.endsWith(".ink")) return null;

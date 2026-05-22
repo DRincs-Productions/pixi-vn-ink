@@ -9,17 +9,16 @@ import type {
 } from "@/vite/info-types";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { TextReplaces } from "@drincs/pixi-vn-json";
-import { inkJsonManifest } from "virtual:pixi-vn-ink";
+import { inkJsons } from "virtual:pixi-vn-ink";
 import z from "zod";
 
-type InkJsonManifest = string[] | Record<string, string>;
 type InkUpdatedPayload = {
     inkText?: string;
-    inkJsonManifest?: string[];
+    inkJson?: PixiVNJson[];
 };
 
 type InkUpdatedPayloadHandlers = {
-    importJsonFromManifest: (inkJsonManifest?: InkJsonManifest) => Promise<boolean>;
+    importJson: (inkJson: PixiVNJson[]) => Promise<void>;
     importInkText: (inkText: string) => Promise<unknown>;
 };
 
@@ -100,83 +99,31 @@ async function syncHandlerInfoToDevServer(): Promise<void> {
     ]);
 }
 
-function getManifestEntries(inkJsonManifest?: InkJsonManifest): string[] {
-    if (inkJsonManifest === undefined) {
-        return [];
-    }
-    if (Array.isArray(inkJsonManifest)) {
-        return inkJsonManifest.filter((entry) => entry.length > 0);
-    }
-    return Object.values(inkJsonManifest).filter((entry) => entry.length > 0);
-}
-
-async function importJsonFromManifest(inkJsonManifest?: InkJsonManifest): Promise<boolean> {
-    if (!import.meta.hot) {
-        return false;
-    }
-
-    try {
-        const manifestPaths = getManifestEntries(inkJsonManifest);
-        if (inkJsonManifest === undefined) {
-            return false;
-        }
-
-        if (manifestPaths.length === 0) {
-            return true;
-        }
-
-        const loadedStories: PixiVNJson[] = (
-            await Promise.all(
-                manifestPaths.map(async (url) => {
-                    try {
-                        const response = await fetch(url);
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}`);
-                        }
-                        return await response.json();
-                    } catch (error) {
-                        console.warn(
-                            `[pixi-vn-ink] Failed to load Ink JSON "${url}" from inkJsonManifest.`,
-                            error,
-                        );
-                        return null;
-                    }
-                }),
-            )
-        ).filter(
-            (story): story is PixiVNJson =>
-                typeof story === "object" && story !== null && !Array.isArray(story),
-        );
-
-        if (loadedStories.length === 0) {
-            return true;
-        }
-
-        await importJson(loadedStories);
-        return true;
-    } catch (error) {
-        console.warn("[pixi-vn-ink] Failed to import Ink JSON from inkJsonManifest.", error);
-        return false;
-    }
-}
-
 export async function handleInkUpdatedPayload(
     payload: string | InkUpdatedPayload,
-    fallbackManifest: InkJsonManifest | undefined,
     handlers: InkUpdatedPayloadHandlers = {
-        importJsonFromManifest,
+        importJson: async (data) => { await importJson(data); },
         importInkText,
     },
 ): Promise<void> {
-    const hmrManifest =
-        payload && typeof payload === "object" && "inkJsonManifest" in payload
-            ? payload.inkJsonManifest
+    const inkJson =
+        payload && typeof payload === "object" && "inkJson" in payload
+            ? payload.inkJson
             : undefined;
-    const inkText =
-        payload && typeof payload === "object" && "inkText" in payload ? payload.inkText : payload;
 
-    const usedJsonImport = await handlers.importJsonFromManifest(hmrManifest ?? fallbackManifest);
-    if (!usedJsonImport && typeof inkText === "string") {
+    if (inkJson && inkJson.length > 0) {
+        await handlers.importJson(inkJson);
+        return;
+    }
+
+    const inkText =
+        payload && typeof payload === "object" && "inkText" in payload
+            ? payload.inkText
+            : typeof payload === "string"
+              ? payload
+              : undefined;
+
+    if (typeof inkText === "string") {
         await handlers.importInkText(inkText);
     }
 }
@@ -184,27 +131,23 @@ export async function handleInkUpdatedPayload(
 /**
  * Setup listener for ink updates via HMR
  * @see https://pixi-vn.web.app/ink#vite-plugin
- * @param options Optional setup options.
  * @example
  * // In your main entry file (e.g., main.ts)
  * import { setupPixivnViteData } from "@drincs/pixi-vn/vite";
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite";
  *
  * await setupPixivnViteData();
- * await setupInkHmrListener({
- *   inkJsonManifest: {
- *     start: "/ink-json/start.json",
- *     chapter1: "/ink-json/chapter1.json",
- *   },
- * });
+ * await setupInkHmrListener();
  */
 export async function setupInkHmrListener() {
     if (import.meta.hot) {
-        await importJsonFromManifest(inkJsonManifest);
+        if (inkJsons && inkJsons.length > 0) {
+            await importJson(inkJsons);
+        }
         await syncHandlerInfoToDevServer();
 
         import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
-            await handleInkUpdatedPayload(payload, inkJsonManifest);
+            await handleInkUpdatedPayload(payload);
             await syncHandlerInfoToDevServer();
         });
 

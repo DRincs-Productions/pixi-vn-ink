@@ -9,6 +9,8 @@
  * ```
  */
 declare module "virtual:pixi-vn-ink" {
+    import type { PixiVNJson } from "@drincs/pixi-vn-json";
+
     /**
      * Array of raw `.ink` file contents matched by the `inkGlob` option of `vitePluginInk`.
      *
@@ -21,9 +23,22 @@ declare module "virtual:pixi-vn-ink" {
      * ```
      */
     export const inkTexts: string[];
+
     /**
-     * Array of generated Ink JSON URLs (when `inkJsonOutputPattern` is configured in
-     * `vitePluginInk`), suitable for bulk loading with `importJson`.
+     * Array of pre-compiled Ink story objects (when `inkJsonOutputPattern` is configured in
+     * `vitePluginInk`). Each entry is a {@link PixiVNJson} ready to be passed directly to
+     * `importJson` — no extra HTTP fetch required.
+     *
+     * `undefined` when `inkJsonOutputPattern` is not set.
+     *
+     * `setupInkHmrListener` uses this automatically for the initial load; you only need to
+     * import it directly if you are managing story loading yourself:
+     * ```ts
+     * import { importJson } from "@drincs/pixi-vn-ink";
+     * import { inkJsons } from "virtual:pixi-vn-ink";
+     *
+     * if (inkJsons) await importJson(inkJsons);
+     * ```
      */
-    export const inkJsonManifest: string[] | undefined;
+    export const inkJsons: PixiVNJson[] | undefined;
 }
