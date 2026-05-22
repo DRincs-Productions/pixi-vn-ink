@@ -176,9 +176,7 @@ export async function handleInkUpdatedPayload(
             ? payload.inkJsonManifest
             : undefined;
     const inkText =
-        payload && typeof payload === "object" && "inkText" in payload
-            ? payload.inkText
-            : payload;
+        payload && typeof payload === "object" && "inkText" in payload ? payload.inkText : payload;
 
     const usedJsonImport = await handlers.importJsonFromManifest(hmrManifest ?? fallbackManifest);
     if (!usedJsonImport && typeof inkText === "string") {
