@@ -1,3 +1,3 @@
 === start ===
-Hello from ink test project!
+alice: Hello from ink test project!
 -> END

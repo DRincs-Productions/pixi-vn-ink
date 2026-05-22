@@ -1,7 +1,12 @@
+import { RegisteredCharacters } from "@drincs/pixi-vn";
 import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";
 import { setupPixivnViteData } from "@drincs/pixi-vn/vite-listener";
 import inkTexts from "virtual:pixi-vn-ink";
 import inkJsonManifest from "./assets/ink-manifest.gen.json";
+
+RegisteredCharacters.add({
+    id: "alice",
+});
 
 setupPixivnViteData();
 setupInkHmrListener();

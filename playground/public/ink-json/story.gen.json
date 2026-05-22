@@ -3,7 +3,7 @@
   "labels": {
     "start": [
       {
-        "dialogue": "Hello from ink test project!"
+        "dialogue": "alice: Hello from ink test project!"
       },
       {
         "end": "game_end"
