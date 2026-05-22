@@ -305,6 +305,19 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
     let virtualInkJsonManifest: string[] | undefined;
+    let managedInkJsonOutputDirectory: string | undefined;
+    let managedInkJsonManifestPath: string | undefined;
+
+    const isManagedInkJsonFile = (targetPath: string): boolean => {
+        if (!hasInkJsonManifestMode || !managedInkJsonOutputDirectory) {
+            return false;
+        }
+        const normalizedTargetPath = path.resolve(targetPath);
+        if (managedInkJsonManifestPath && normalizedTargetPath === managedInkJsonManifestPath) {
+            return true;
+        }
+        return isInsideDirectory(managedInkJsonOutputDirectory, normalizedTargetPath);
+    };
 
     const exportInkJsonFiles = async () => {
         if (!resolvedConfig || !inkGlob) {
@@ -317,10 +330,13 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         );
         if (!outputPattern) {
             virtualInkJsonManifest = undefined;
+            managedInkJsonOutputDirectory = undefined;
+            managedInkJsonManifestPath = undefined;
             return;
         }
         const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
         const outputDirectory = getOutputBaseDirectory(outputPattern);
+        managedInkJsonOutputDirectory = path.resolve(outputDirectory);
         const inputBaseDirectory = getGlobBaseDirectory(resolvedConfig.root, rootRelativeInkGlob);
         if (!isInsideDirectory(resolvedConfig.root, inputBaseDirectory)) {
             throw new Error(
@@ -384,6 +400,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             outputDirectory,
             inkJsonManifestPath,
         );
+        managedInkJsonManifestPath = path.resolve(manifestFile);
         const existingJsonFiles = await glob("**/*.json", {
             absolute: true,
             cwd: outputDirectory,
@@ -411,6 +428,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         configResolved(config) {
             resolvedConfig = config;
+            managedInkJsonOutputDirectory = undefined;
+            managedInkJsonManifestPath = undefined;
             const rootRelativeInkGlob = inkGlob ? getRootRelativeInkGlob(inkGlob) : undefined;
             if (rootRelativeInkGlob) {
                 const inputBaseDirectory = getGlobBaseDirectory(config.root, rootRelativeInkGlob);
@@ -434,6 +453,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     return;
                 }
                 const outputDirectory = getOutputBaseDirectory(outputPattern);
+                managedInkJsonOutputDirectory = path.resolve(outputDirectory);
+                managedInkJsonManifestPath = path.resolve(
+                    resolveInkJsonManifestPath(config.root, outputDirectory, inkJsonManifestPath),
+                );
                 if (path.resolve(outputDirectory) === path.resolve(config.root)) {
                     throw new Error(
                         "vitePluginInk option `inkJsonOutputPattern` must target a directory different from Vite `root`.",
@@ -520,7 +543,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         load(id) {
             if (id === RESOLVED_VIRTUAL_MODULE_ID) {
                 if (!inkGlob) {
-                    return ['export const inkJsonManifest = undefined;', "export default [];"].join(
+                    return ["export const inkJsonManifest = undefined;", "export default [];"].join(
                         "\n",
                     );
                 }
@@ -579,9 +602,27 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     server.ws.send({
                         type: "custom",
                         event: "ink-updated",
-                        data: source,
+                        data: {
+                            inkText: source,
+                            inkJsonManifest: hasInkJsonManifestMode
+                                ? (virtualInkJsonManifest ?? [])
+                                : undefined,
+                        },
                     });
                 }
+
+                // NON restituiamo nulla => Vite non fa reload automatico della pagina
+                return [];
+            }
+
+            if (file.endsWith(".json") && isManagedInkJsonFile(file)) {
+                server.ws.send({
+                    type: "custom",
+                    event: "ink-updated",
+                    data: {
+                        inkJsonManifest: virtualInkJsonManifest ?? [],
+                    },
+                });
 
                 // NON restituiamo nulla => Vite non fa reload automatico della pagina
                 return [];

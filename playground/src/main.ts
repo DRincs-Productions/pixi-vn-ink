@@ -20,8 +20,16 @@ app.innerHTML = `
   <h1>Vite Plugin Ink Test</h1>
     <p>Ink files found: <strong>${inkTexts.length}</strong></p>
     <p>Also check <code>public/ink-json</code> and <code>src/assets/ink-manifest.gen.json</code>.</p>
+    <p>Labels registered in Pixi’VN engine:</p>
+    <ul>
+        ${RegisteredLabels.values()
+            .map((label) => `<li><code>${label.id}</code></li>`)
+            .join("")}
+    </ul>
+    <p>Characters registered in Pixi’VN engine:</p>
+    <ul>
+        ${RegisteredCharacters.values()
+            .map((char) => `<li><code>${char.id}</code></li>`)
+            .join("")}
+    </ul>
 `;
-
-RegisteredLabels.values().forEach((label) => {
-    console.log(`Label "${label.id}"`);
-});

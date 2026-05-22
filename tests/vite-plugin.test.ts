@@ -1,12 +1,12 @@
-import { vitePluginInk } from "@/vite/plugins";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
+import { vitePluginInk } from "@/vite/plugins";
 import fs from "node:fs/promises";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import type { ResolvedConfig } from "vite";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 async function createTempProject(): Promise<string> {
     return await fs.mkdtemp(path.join(os.tmpdir(), "pixi-vn-ink-vite-plugin-"));
@@ -314,6 +314,104 @@ describe("vitePluginInk", () => {
                 publicDir: "/tmp/project/public",
             } as ResolvedConfig),
         ).toThrow("must be rooted in Vite `root`");
+    });
+
+    it("handleHotUpdate for .ink includes inkJsonManifest in payload when json export is enabled", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+
+        const inkFile = path.join(root, "ink", "start.ink");
+        await fs.writeFile(inkFile, "=== start ===\nHello world!\n", "utf-8");
+
+        const wsSend = vi.fn();
+        const logger = {
+            warn: () => {},
+            error: () => {},
+            info: () => {},
+        };
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+            logger,
+        } as ResolvedConfig);
+        await plugin.buildStart?.call(undefined);
+
+        const result = await plugin.handleHotUpdate?.({
+            file: inkFile,
+            server: {
+                config: { logger },
+                ws: { send: wsSend },
+            },
+            read: async () => "=== start ===\nHello world!\n",
+        } as any);
+
+        expect(result).toEqual([]);
+        expect(wsSend).toHaveBeenCalledWith({
+            type: "custom",
+            event: "ink-updated",
+            data: {
+                inkText: "=== start ===\nHello world!\n",
+                inkJsonManifest: ["/ink-json/start.json"],
+            },
+        });
+    });
+
+    it("handleHotUpdate for managed .json emits ink-updated without reloading", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+
+        const inkFile = path.join(root, "ink", "start.ink");
+        await fs.writeFile(inkFile, "=== start ===\nHello world!\n", "utf-8");
+
+        const wsSend = vi.fn();
+        const logger = {
+            warn: () => {},
+            error: () => {},
+            info: () => {},
+        };
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.({
+            root,
+            publicDir: path.join(root, "public"),
+            logger,
+        } as ResolvedConfig);
+        await plugin.buildStart?.call(undefined);
+
+        const jsonFile = path.join(root, "public", "ink-json", "start.json");
+        const result = await plugin.handleHotUpdate?.({
+            file: jsonFile,
+            server: {
+                config: { logger },
+                ws: { send: wsSend },
+            },
+            read: async () => "",
+        } as any);
+
+        expect(result).toEqual([]);
+        expect(wsSend).toHaveBeenCalledWith({
+            type: "custom",
+            event: "ink-updated",
+            data: {
+                inkJsonManifest: ["/ink-json/start.json"],
+            },
+        });
     });
 });
 
