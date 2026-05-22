@@ -20,11 +20,10 @@ declare module "virtual:pixi-vn-ink" {
      * await importInkText(inkTexts);
      * ```
      */
-    const inkTexts: string[];
+    export const inkTexts: string[];
     /**
      * Array of generated Ink JSON URLs (when `inkJsonOutputPattern` is configured in
      * `vitePluginInk`), suitable for bulk loading with `importJson`.
      */
     export const inkJsonManifest: string[] | undefined;
-    export default inkTexts;
 }

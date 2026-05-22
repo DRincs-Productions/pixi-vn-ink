@@ -9,7 +9,7 @@ import type {
 } from "@/vite/info-types";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { TextReplaces } from "@drincs/pixi-vn-json";
-import { inkJsonManifest as virtualInkJsonManifest } from "virtual:pixi-vn-ink";
+import { inkJsonManifest } from "virtual:pixi-vn-ink";
 import z from "zod";
 
 type InkJsonManifest = string[] | Record<string, string>;
@@ -199,7 +199,6 @@ export async function handleInkUpdatedPayload(
  * });
  */
 export async function setupInkHmrListener() {
-    const inkJsonManifest = virtualInkJsonManifest;
     if (import.meta.hot) {
         await importJsonFromManifest(inkJsonManifest);
         await syncHandlerInfoToDevServer();
@@ -207,6 +206,12 @@ export async function setupInkHmrListener() {
         import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
             await handleInkUpdatedPayload(payload, inkJsonManifest);
             await syncHandlerInfoToDevServer();
+        });
+
+        import.meta.hot.on("ink-error-cleared", () => {
+            document.querySelectorAll("vite-error-overlay").forEach((el) => {
+                (el as HTMLElement & { close(): void }).close();
+            });
         });
     }
 }
