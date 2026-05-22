@@ -1,7 +1,7 @@
 import { RegisteredCharacters, RegisteredLabels } from "@drincs/pixi-vn";
+import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";
 import { setupPixivnViteData } from "@drincs/pixi-vn/vite-listener";
 import inkTexts from "virtual:pixi-vn-ink";
-import { setupInkHmrListener } from "../../src/vite-listener/index.ts";
 
 RegisteredCharacters.add({
     id: "alice",
