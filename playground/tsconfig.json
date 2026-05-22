@@ -18,6 +18,8 @@
       "@/*": ["../src/*"],
       "@drincs/pixi-vn-ink": ["../src/index.ts"],
       "@drincs/pixi-vn-ink/*": ["../src/*"],
+      "@drincs/pixi-vn-ink/parser": ["./src/parser/index.ts"],
+      "@drincs/pixi-vn-ink/mapper": ["./src/mapper/index.ts"],
       "@drincs/pixi-vn-ink/vite-listener": ["../src/vite-listener/index.ts"],
       "@drincs/pixi-vn-ink/vite": ["../src/vite/index.ts"]
     }
