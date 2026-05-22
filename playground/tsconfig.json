@@ -4,10 +4,12 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "baseUrl": ".",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+    "ignoreDeprecations": "6.0",
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
@@ -15,6 +17,7 @@
     "paths": {
       "@/*": ["../src/*"],
       "@drincs/pixi-vn-ink": ["../src/index.ts"],
+      "@drincs/pixi-vn-ink/*": ["../src/*"],
       "@drincs/pixi-vn-ink/vite-listener": ["../src/vite-listener/index.ts"],
       "@drincs/pixi-vn-ink/vite": ["../src/vite/index.ts"]
     }
