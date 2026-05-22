@@ -1,0 +1,13 @@
+{
+  "$schema": "https://pixi-vn.web.app/schemas/1.13.2/schema.json",
+  "labels": {
+    "start": [
+      {
+        "dialogue": "Hello from ink test project!"
+      },
+      {
+        "end": "game_end"
+      }
+    ]
+  }
+}

@@ -2,6 +2,9 @@
   "name": "@drincs/pixi-vn-ink",
   "version": "1.0.1",
   "type": "module",
+  "workspaces": [
+    "playground"
+  ],
   "description": "Pixi'VN gives you the ability to write your own narrative using Ink",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -13,6 +16,9 @@
     "dev": "tsup --watch",
     "build": "tsup --config tsup.config.ts",
     "postbuild": "node -e \"const fs=require('fs');fs.mkdirSync('dist/vite',{recursive:true});fs.copyFileSync('src/vite/client.d.ts','dist/vite/client.d.ts')\"",
+    "playground:install": "npm install -w playground",
+    "playground:dev": "npm run dev -w playground",
+    "playground:preview": "npm run build -w playground && npm run preview -w playground",
     "lint": "biome lint",
     "check": "biome check",
     "format": "biome format --write",

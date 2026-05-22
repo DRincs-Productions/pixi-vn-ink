@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "paths": {
+      "@/*": ["../src/*"],
+      "@drincs/pixi-vn-ink": ["../src/index.ts"],
+      "@drincs/pixi-vn-ink/vite-listener": ["../src/vite-listener/index.ts"],
+      "@drincs/pixi-vn-ink/vite": ["../src/vite/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}
