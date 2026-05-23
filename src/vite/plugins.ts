@@ -1,12 +1,15 @@
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@/parser";
+import type { InkValidationInfo } from "@/parser/types";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import { TextReplaces, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { glob } from "tinyglobby";
+import { ZodType, toJSONSchema } from "zod";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
 
@@ -14,6 +17,20 @@ const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
+
+function serializeValidation(validation: RegExp | ZodType | string): InkValidationInfo {
+    if (typeof validation === "string") {
+        return { type: "literal", value: validation };
+    }
+    if (validation instanceof RegExp) {
+        return { type: "regexp", source: validation.source, flags: validation.flags };
+    }
+    try {
+        return { type: "zod", schema: toJSONSchema(validation) as Record<string, unknown> };
+    } catch {
+        return { type: "literal", value: "" };
+    }
+}
 
 function normalizeSlashes(value: string): string {
     return value.replaceAll("\\", "/");
@@ -311,6 +328,20 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let devServer: ViteDevServer | undefined;
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
+    const syncStores = () => {
+        hashtagCommandsStore = HashtagCommands.info().map(({ name, description, validation }) => ({
+            name,
+            description,
+            validation: serializeValidation(validation),
+        }));
+        textReplacesStore = TextReplaces.info().map(({ name, description, validation, type }) => ({
+            name,
+            description,
+            validation: serializeValidation(validation),
+            type,
+        }));
+    };
+
     const isManagedInkJsonFile = (targetPath: string): boolean => {
         if (!hasInkJsonManifestMode || !managedInkJsonOutputDirectory) {
             return false;
@@ -514,6 +545,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             const contentLoaded = (pixivnPlugin as { api?: { contentLoaded?: Promise<void> } })?.api
                 ?.contentLoaded;
             if (contentLoaded) await contentLoaded;
+            syncStores();
             await exportInkJsonFiles();
         },
 
@@ -579,7 +611,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 ?.contentLoaded;
 
             void (contentLoaded ?? Promise.resolve())
-                .then(() => exportInkJsonFiles())
+                .then(() => {
+                    syncStores();
+                    return exportInkJsonFiles();
+                })
                 .catch((error) => {
                     const normalizedError =
                         error instanceof Error ? error : new Error(String(error));
@@ -591,7 +626,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
             const onReload = (pixivnPlugin as { api?: { onReload?: (cb: () => void) => void } })
                 ?.api?.onReload;
-            if (onReload) onReload(scheduleReexport);
+            if (onReload) onReload(() => {
+                syncStores();
+                scheduleReexport();
+            });
         },
 
         resolveId(id) {
