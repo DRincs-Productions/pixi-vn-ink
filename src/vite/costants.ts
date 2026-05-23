@@ -37,13 +37,3 @@ export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
  * const replaces: InkTextReplaceInfo[] = await res.json();
  */
 export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
-
-/**
- * Dev-server endpoint that receives the list of registered characters from the client.
- *
- * - `POST /__pixi-vn-ink/characters` – called by {@link setupInkHmrListener} with the current
- *   `CharacterInterface[]`. When the list differs from the previously stored one, `vitePluginInk`
- *   debounces a re-export of the Ink JSON files so the compiled output reflects the correct
- *   character set.
- */
-export const INK_DEV_API_CHARACTERS = "/__pixi-vn-ink/characters";

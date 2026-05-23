@@ -1,10 +1,6 @@
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@/parser";
-import {
-    INK_DEV_API_CHARACTERS,
-    INK_DEV_API_HASHTAG_COMMANDS,
-    INK_DEV_API_TEXT_REPLACES,
-} from "@/vite/costants";
+import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import type { CharacterInterface } from "@drincs/pixi-vn/characters";
 import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
@@ -311,7 +307,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
-    let charactersStore: CharacterInterface[] = [];
+    const charactersStore: CharacterInterface[] = [];
     let virtualInkJsonData: PixiVNJson[] | undefined;
     let managedInkJsonOutputDirectory: string | undefined;
     let managedInkJsonManifestPath: string | undefined;
@@ -572,34 +568,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         }
                         return;
                     }
-                }
-
-                if (url === INK_DEV_API_CHARACTERS && method === "POST") {
-                    try {
-                        const body = await readBody(req);
-                        const incoming = JSON.parse(body) as CharacterInterface[];
-                        const incomingIds = incoming.map((c) => c.id).join(", ") || "(none)";
-                        resolvedConfig?.logger.info(
-                            `[vite-plugin-ink] Received characters: [${incomingIds}]`,
-                        );
-                        if (JSON.stringify(incoming) !== JSON.stringify(charactersStore)) {
-                            charactersStore = incoming;
-                            scheduleReexport();
-                        } else {
-                            resolvedConfig?.logger.info(
-                                "[vite-plugin-ink] Characters unchanged — skipping re-export.",
-                            );
-                        }
-                        res.statusCode = 204;
-                        res.end();
-                    } catch (error) {
-                        resolvedConfig?.logger.warn(
-                            `[vite-plugin-ink] Invalid JSON body for POST ${INK_DEV_API_CHARACTERS}: ${String(error)}`,
-                        );
-                        res.statusCode = 400;
-                        res.end();
-                    }
-                    return;
                 }
 
                 next();
