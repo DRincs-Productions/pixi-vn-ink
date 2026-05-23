@@ -2,8 +2,6 @@ import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@/parser";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
-import type { CharacterInterface } from "@drincs/pixi-vn/characters";
-import { RegisteredCharacters } from "@drincs/pixi-vn/characters";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
@@ -307,7 +305,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
     let textReplacesStore: InkTextReplaceInfo[] = [];
-    const charactersStore: CharacterInterface[] = [];
     let virtualInkJsonData: PixiVNJson[] | undefined;
     let managedInkJsonOutputDirectory: string | undefined;
     let managedInkJsonManifestPath: string | undefined;
@@ -369,11 +366,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             managedInkJsonManifestPath = undefined;
             return;
         }
-        const pixivnPlugin = resolvedConfig.plugins.find((p) => p.name === "vite-plugin-pixi-vn");
-        const ssrCharacters =
-            (pixivnPlugin as { api?: { characters?: CharacterInterface[] } })?.api?.characters ??
-            [];
-        RegisteredCharacters.add([...ssrCharacters, ...charactersStore]);
 
         const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
         const outputDirectory = getOutputBaseDirectory(outputPattern);
