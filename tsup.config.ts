@@ -46,6 +46,8 @@ export default defineConfig((options) => {
                 "@drincs/pixi-vn-ink/parser",
                 "@drincs/pixi-vn-ink/mapper",
                 "virtual:pixi-vn-ink",
+                "@drincs/pixi-vn",
+                "zod",
             ],
             outExtension({ format }) {
                 return {
