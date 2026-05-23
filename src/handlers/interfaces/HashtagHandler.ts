@@ -1,4 +1,4 @@
-import type { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { StepLabelProps } from "@drincs/pixi-vn";
 import type { PixiVNJsonLabelStep, PixiVNJsonOperation } from "@drincs/pixi-vn-json/schema";
 import type { ZodType } from "zod";
 
@@ -26,7 +26,7 @@ export type HashtagHandler = (
     /**
      * The properties of the step. It is an object that contains the properties of the step.
      */
-    props: StepLabelPropsType,
+    props: StepLabelProps,
     /**
      * It is often useful after writing a basic Hashtag-Command to add parameters with the following logic: "field name" "value".
      * Furthermore, these parameters can be written in a different order, to simplify writing.

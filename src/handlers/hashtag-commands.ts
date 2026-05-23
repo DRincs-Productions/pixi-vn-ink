@@ -4,7 +4,7 @@ import type {
     MapperHandler,
 } from "@/handlers/interfaces/HashtagHandler";
 import { logger } from "@/utils/log-utility";
-import type { StepLabelPropsType } from "@drincs/pixi-vn";
+import type { StepLabelProps } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
     PixiVNJsonLabelStep,
@@ -29,7 +29,7 @@ export namespace HashtagCommands {
     const mapperHandlers: { fn: MapperHandler; opts: HashtagHandlerOptions }[] = [];
     async function runCustomCommand(
         script: string[],
-        props: StepLabelPropsType,
+        props: StepLabelProps,
     ): Promise<boolean | string> {
         for (let i = 0; i < handlers.length; i++) {
             try {
@@ -173,7 +173,7 @@ export namespace HashtagCommands {
     export async function run(
         tag: string,
         step: PixiVNJsonLabelStep,
-        props: StepLabelPropsType,
+        props: StepLabelProps,
     ): Promise<PixiVNJsonOperation | undefined> {
         try {
             const list = convertTagTolist(tag);
