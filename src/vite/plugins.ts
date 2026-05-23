@@ -9,8 +9,8 @@ import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
 import { glob } from "tinyglobby";
-import { ZodType, toJSONSchema } from "zod";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import { toJSONSchema, type ZodType } from "zod";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
@@ -328,13 +328,41 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let devServer: ViteDevServer | undefined;
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-    const syncStores = () => {
-        hashtagCommandsStore = HashtagCommands.info().map(({ name, description, validation }) => ({
+    type SsrHandlerInfo = {
+        name: string;
+        description?: string;
+        validation: RegExp | ZodType | string;
+    };
+    type SsrReplaceInfo = SsrHandlerInfo & { type?: "before-translation" | "after-translation" };
+    type SsrInkModule = {
+        HashtagCommands: { info(): SsrHandlerInfo[] };
+        TextReplaces: { info(): SsrReplaceInfo[] };
+    };
+
+    const syncStores = async () => {
+        let hashtagInfo: SsrHandlerInfo[];
+        let textReplaceInfo: SsrReplaceInfo[];
+
+        if (devServer) {
+            try {
+                const mod = (await devServer.ssrLoadModule("@drincs/pixi-vn-ink")) as SsrInkModule;
+                hashtagInfo = mod.HashtagCommands.info();
+                textReplaceInfo = mod.TextReplaces.info();
+            } catch {
+                hashtagInfo = HashtagCommands.info();
+                textReplaceInfo = TextReplaces.info() as SsrReplaceInfo[];
+            }
+        } else {
+            hashtagInfo = HashtagCommands.info();
+            textReplaceInfo = TextReplaces.info() as SsrReplaceInfo[];
+        }
+
+        hashtagCommandsStore = hashtagInfo.map(({ name, description, validation }) => ({
             name,
             description,
             validation: serializeValidation(validation),
         }));
-        textReplacesStore = TextReplaces.info().map(({ name, description, validation, type }) => ({
+        textReplacesStore = textReplaceInfo.map(({ name, description, validation, type }) => ({
             name,
             description,
             validation: serializeValidation(validation),
@@ -545,7 +573,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             const contentLoaded = (pixivnPlugin as { api?: { contentLoaded?: Promise<void> } })?.api
                 ?.contentLoaded;
             if (contentLoaded) await contentLoaded;
-            syncStores();
+            await syncStores();
             await exportInkJsonFiles();
         },
 
@@ -611,8 +639,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 ?.contentLoaded;
 
             void (contentLoaded ?? Promise.resolve())
-                .then(() => {
-                    syncStores();
+                .then(async () => {
+                    await syncStores();
                     return exportInkJsonFiles();
                 })
                 .catch((error) => {
@@ -626,10 +654,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
             const onReload = (pixivnPlugin as { api?: { onReload?: (cb: () => void) => void } })
                 ?.api?.onReload;
-            if (onReload) onReload(() => {
-                syncStores();
-                scheduleReexport();
-            });
+            if (onReload)
+                onReload(() => {
+                    void syncStores().then(() => scheduleReexport());
+                });
         },
 
         resolveId(id) {
