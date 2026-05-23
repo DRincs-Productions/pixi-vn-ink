@@ -16,7 +16,11 @@ export default defineConfig({
         ],
     },
     plugins: [
-        vitePluginPixivn(),
+        vitePluginPixivn({
+            content: "./src/content/index.ts",
+            characters: "./src/content/characters.ts",
+            labels: "./src/content/*.label.ts",
+        }),
         vitePluginInk({
             inkGlob: "./ink/**/*.ink",
             inkJsonOutputPattern: "./public/ink-json/[path][name].gen.json",

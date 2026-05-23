@@ -15,6 +15,7 @@
     "jsx": "react-jsx",
     "strict": true,
     "paths": {
+      "vite": ["../node_modules/vite/dist/node/index.d.ts"],
       "@/*": ["../src/*"],
       "@drincs/pixi-vn-ink": ["../src/index.ts"],
       "@drincs/pixi-vn-ink/*": ["../src/*"],

@@ -2,10 +2,7 @@ import { RegisteredCharacters, RegisteredLabels } from "@drincs/pixi-vn";
 import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";
 import { setupPixivnViteData } from "@drincs/pixi-vn/vite-listener";
 
-RegisteredCharacters.add({
-    id: "alice",
-});
-
+await Promise.all([import("./content")]);
 await setupPixivnViteData();
 await setupInkHmrListener();
 
