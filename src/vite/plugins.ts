@@ -8,10 +8,13 @@ import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
 import path from "node:path";
+import pc from "picocolors";
 import { glob } from "tinyglobby";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { toJSONSchema, type ZodType } from "zod";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
+
+const PLUGIN_PREFIX = pc.cyan("(pixi-vn-ink)");
 
 const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
@@ -403,8 +406,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     const normalizedError =
                         error instanceof Error ? error : new Error(String(error));
                     resolvedConfig?.logger.error(
-                        "[vite-plugin-ink] Failed to re-export Ink JSON files after characters update.",
-                        { error: normalizedError },
+                        `${PLUGIN_PREFIX} Failed to re-export Ink JSON files after characters update.`,
+                        { error: normalizedError, timestamp: true },
                     );
                 });
         }, 150);
@@ -454,10 +457,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             } catch (error) {
                 const normalizedError = error instanceof Error ? error : new Error(String(error));
                 resolvedConfig.logger.error(
-                    `[vite-plugin-ink] Failed to convert "${matchedFile}" to JSON.`,
-                    {
-                        error: normalizedError,
-                    },
+                    `${PLUGIN_PREFIX} Failed to convert "${matchedFile}" to JSON.`,
+                    { error: normalizedError, timestamp: true },
                 );
                 continue;
             }
@@ -469,7 +470,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             );
             if (!isInsideDirectory(outputDirectory, outputFile)) {
                 resolvedConfig.logger.error(
-                    `[vite-plugin-ink] Output path "${outputFile}" escapes managed directory "${outputDirectory}".`,
+                    `${PLUGIN_PREFIX} Output path "${outputFile}" escapes managed directory "${outputDirectory}".`,
+                    { timestamp: true },
                 );
                 continue;
             }
@@ -517,7 +519,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             0,
         );
         resolvedConfig.logger.info(
-            `[vite-plugin-ink] ${matchedFiles.length} file(s) exported: ${totalLabels} label(s), ${hashtagCommandsStore.length} hashtag-command(s), ${textReplacesStore.length} text-replace(s)`,
+            `${PLUGIN_PREFIX} ${pc.dim(`${matchedFiles.length} file(s) exported: ${totalLabels} label(s), ${hashtagCommandsStore.length} hashtag-command(s), ${textReplacesStore.length} text-replace(s)`)}`,
+            { timestamp: true },
         );
         await fs.mkdir(path.dirname(manifestFile), { recursive: true });
         await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
@@ -597,7 +600,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                             res.end();
                         } catch (error) {
                             resolvedConfig?.logger.warn(
-                                `[vite-plugin-ink] Invalid JSON body for POST ${INK_DEV_API_HASHTAG_COMMANDS}: ${String(error)}`,
+                                `${PLUGIN_PREFIX} Invalid JSON body for POST ${INK_DEV_API_HASHTAG_COMMANDS}: ${String(error)}`,
+                                { timestamp: true },
                             );
                             res.statusCode = 400;
                             res.end();
@@ -620,7 +624,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                             res.end();
                         } catch (error) {
                             resolvedConfig?.logger.warn(
-                                `[vite-plugin-ink] Invalid JSON body for POST ${INK_DEV_API_TEXT_REPLACES}: ${String(error)}`,
+                                `${PLUGIN_PREFIX} Invalid JSON body for POST ${INK_DEV_API_TEXT_REPLACES}: ${String(error)}`,
+                                { timestamp: true },
                             );
                             res.statusCode = 400;
                             res.end();
@@ -647,8 +652,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     const normalizedError =
                         error instanceof Error ? error : new Error(String(error));
                     resolvedConfig?.logger.error(
-                        "[vite-plugin-ink] Failed to export Ink JSON files during server initialization or restart.",
-                        { error: normalizedError },
+                        `${PLUGIN_PREFIX} Failed to export Ink JSON files during server initialization or restart.`,
+                        { error: normalizedError, timestamp: true },
                     );
                 });
 
@@ -696,14 +701,18 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
                         issues.forEach(({ line, message, type: issueType }) => {
                             if (issueType === ErrorType.Warning) {
-                                server.config.logger.warn(`${file}:${line} ${message}`);
+                                server.config.logger.warn(`${file}:${line} ${message}`, {
+                                    timestamp: true,
+                                });
                             } else {
-                                server.config.logger.error(`${file}:${line} ${message}`);
+                                server.config.logger.error(`${file}:${line} ${message}`, {
+                                    timestamp: true,
+                                });
                                 error = message;
                             }
                         });
                         logUnknownHashtagCommands(source, file, hashtagCommandsStore, (message) =>
-                            server.config.logger.info(message),
+                            server.config.logger.info(message, { timestamp: true }),
                         );
 
                         await exportInkJsonFiles();
