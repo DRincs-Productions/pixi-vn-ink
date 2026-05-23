@@ -512,6 +512,12 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         },
 
         async buildStart() {
+            const pixivnPlugin = resolvedConfig?.plugins.find(
+                (p) => p.name === "vite-plugin-pixi-vn",
+            );
+            const contentLoaded = (pixivnPlugin as { api?: { contentLoaded?: Promise<void> } })?.api
+                ?.contentLoaded;
+            if (contentLoaded) await contentLoaded;
             await exportInkJsonFiles();
         },
 
@@ -598,15 +604,22 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 next();
             });
 
-            void exportInkJsonFiles().catch((error) => {
-                const normalizedError = error instanceof Error ? error : new Error(String(error));
-                resolvedConfig?.logger.error(
-                    "[vite-plugin-ink] Failed to export Ink JSON files during server initialization or restart.",
-                    {
-                        error: normalizedError,
-                    },
-                );
-            });
+            const pixivnPlugin = server.config.plugins.find(
+                (p) => p.name === "vite-plugin-pixi-vn",
+            );
+            const contentLoaded = (pixivnPlugin as { api?: { contentLoaded?: Promise<void> } })?.api
+                ?.contentLoaded;
+
+            void (contentLoaded ?? Promise.resolve())
+                .then(() => exportInkJsonFiles())
+                .catch((error) => {
+                    const normalizedError =
+                        error instanceof Error ? error : new Error(String(error));
+                    resolvedConfig?.logger.error(
+                        "[vite-plugin-ink] Failed to export Ink JSON files during server initialization or restart.",
+                        { error: normalizedError },
+                    );
+                });
         },
 
         resolveId(id) {
