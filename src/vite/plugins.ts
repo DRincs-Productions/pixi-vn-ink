@@ -461,6 +461,13 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
         virtualInkJsonData = localJsonData;
+        const totalLabels = localJsonData.reduce(
+            (sum, json) => sum + Object.keys(json.labels ?? {}).length,
+            0,
+        );
+        resolvedConfig.logger.info(
+            `[vite-plugin-ink] ${matchedFiles.length} file(s) exported: ${totalLabels} label(s), ${hashtagCommandsStore.length} hashtag-command(s), ${textReplacesStore.length} text-replace(s)`,
+        );
         await fs.mkdir(path.dirname(manifestFile), { recursive: true });
         await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
     };
@@ -589,6 +596,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         { error: normalizedError },
                     );
                 });
+
+            const onReload = (pixivnPlugin as { api?: { onReload?: (cb: () => void) => void } })
+                ?.api?.onReload;
+            if (onReload) onReload(scheduleReexport);
         },
 
         resolveId(id) {
