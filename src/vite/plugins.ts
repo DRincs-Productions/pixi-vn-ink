@@ -373,7 +373,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             managedInkJsonManifestPath = undefined;
             return;
         }
-        RegisteredCharacters.add(charactersStore);
+        const pixivnPlugin = resolvedConfig.plugins.find((p) => p.name === "vite-plugin-pixi-vn");
+        const ssrCharacters =
+            (pixivnPlugin as { api?: { characters?: CharacterInterface[] } })?.api?.characters ??
+            [];
+        RegisteredCharacters.add([...ssrCharacters, ...charactersStore]);
 
         const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
         const outputDirectory = getOutputBaseDirectory(outputPattern);
@@ -463,9 +467,6 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         virtualInkJsonData = localJsonData;
         await fs.mkdir(path.dirname(manifestFile), { recursive: true });
         await fs.writeFile(manifestFile, `${JSON.stringify(manifestUrls, null, 2)}\n`, "utf-8");
-        resolvedConfig.logger.info(
-            `[vite-plugin-ink] ${localJsonData.length} JSON file${localJsonData.length !== 1 ? "s" : ""} exported.`,
-        );
     };
 
     return {
