@@ -19,6 +19,7 @@ const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
 const QUOTES_CONVERTER = "§QUOTES§";
 const SPECIAL_QUOTES_CONVERTER = "SPECIAL_§QUOTES§";
 const CURLY_BRACKETS_CONVERTER1 = "§CURLY_BRACKETS1§";
+const INK_VARIABLE_CONVERTER = "§INK_VAR§";
 const CURLY_BRACKETS_CONVERTER2 = "§CURLY_BRACKETS2§";
 
 /**
@@ -195,12 +196,25 @@ export namespace HashtagCommands {
             throw e;
         }
     }
-    export function convertTagTolist(tag: string): string[] {
+    export function convertTagTolist(
+        tag: string,
+        options?: { mergeInkVariables?: boolean },
+    ): string[] {
         tag = tag.replaceAll('\\"', DOUBLE_QUOTES_CONVERTER);
         tag = tag.replaceAll("\\'", QUOTES_CONVERTER);
         tag = tag.replaceAll("\\`", SPECIAL_QUOTES_CONVERTER);
         tag = tag.replaceAll("\\{", CURLY_BRACKETS_CONVERTER1);
         tag = tag.replaceAll("\\}", CURLY_BRACKETS_CONVERTER2);
+        // At this point \{ and \} are placeholders; bare { } are Ink variable interpolations.
+        // When requested (Vite plugin build path), collapse { ... } groups into a single token
+        // so validators see them as one string instead of three separate tokens.
+        if (options?.mergeInkVariables) {
+            let prev: string;
+            do {
+                prev = tag;
+                tag = tag.replace(/\{[^{}:]*\}/g, INK_VARIABLE_CONVERTER);
+            } while (tag !== prev);
+        }
         tag = tag.replaceAll("{", " { ");
         tag = tag.replaceAll("}", " } ");
         tag = tag.replaceAll(CURLY_BRACKETS_CONVERTER1, "{");

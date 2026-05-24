@@ -1,4 +1,6 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
+import { InkCompiler } from "@/parser";
+import type { InkHashtagCommandInfo } from "@/parser/types";
 import type { PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { z } from "zod";
@@ -276,4 +278,96 @@ test("addMapper: last registered mapper runs first", () => {
 
     expect((result as { alias: string }).alias).toBe("second");
     HashtagCommands.clearMappers();
+});
+
+// ── mergeInkVariables (Vite plugin path) ────────────────────────────────────
+
+test("convertTagTolist mergeInkVariables: { varname } becomes a single token", () => {
+    expect(
+        HashtagCommands.convertTagTolist("pause sound { myvalue }", {
+            mergeInkVariables: true,
+        }),
+    ).toEqual(["pause", "sound", "§INK_VAR§"]);
+});
+
+test("convertTagTolist mergeInkVariables: nested Ink variable becomes a single token", () => {
+    expect(
+        HashtagCommands.convertTagTolist("pause sound { obj.{ nested } }", {
+            mergeInkVariables: true,
+        }),
+    ).toEqual(["pause", "sound", "§INK_VAR§"]);
+});
+
+test("convertTagTolist mergeInkVariables: escaped \\{ \\} are NOT merged", () => {
+    // \{ and \} are escaped: they should stay as literal { and } chars
+    // inside their token, not be collapsed into a single placeholder
+    const withMerge = HashtagCommands.convertTagTolist("pause sound \\{ myvalue \\}", {
+        mergeInkVariables: true,
+    });
+    const withoutMerge = HashtagCommands.convertTagTolist("pause sound \\{ myvalue \\}");
+    expect(withMerge).toEqual(withoutMerge);
+});
+
+test("convertTagTolist mergeInkVariables: valid JSON object is still merged by mergeJsonBlocks", () => {
+    // { "x": 1 } is valid JSON5, mergeJsonBlocks handles it before mergeInkVariables runs
+    expect(
+        HashtagCommands.convertTagTolist('edit image bg position { "x": 1 }', {
+            mergeInkVariables: true,
+        }),
+    ).toEqual(["edit", "image", "bg", "position", '{ "x": 1 }']);
+});
+
+test("convertTagTolist without mergeInkVariables: { varname } stays split (runtime behavior unchanged)", () => {
+    expect(HashtagCommands.convertTagTolist("pause sound { myvalue }")).toEqual([
+        "pause",
+        "sound",
+        "{",
+        "myvalue",
+        "}",
+    ]);
+});
+
+// ── getUnknownHashtagCommands with Ink variables ─────────────────────────────
+
+const pauseSoundCommand: InkHashtagCommandInfo = {
+    name: "pause-sound",
+    validation: {
+        type: "zod",
+        schema: {
+            type: "array",
+            prefixItems: [
+                { type: "string", const: "pause" },
+                { type: "string", const: "sound" },
+                { type: "string" },
+            ],
+            minItems: 3,
+            maxItems: 3,
+            items: false,
+        },
+    },
+};
+
+test("getUnknownHashtagCommands: pause sound { varname } is not unknown", () => {
+    const source = "=== start ===\n# pause sound { myvalue }\n";
+    const unknown = InkCompiler.getUnknownHashtagCommands(source, [pauseSoundCommand]);
+    expect(unknown).toHaveLength(0);
+});
+
+test("getUnknownHashtagCommands: pause sound { obj.field } is not unknown", () => {
+    const source = "=== start ===\n# pause sound { obj.field }\n";
+    const unknown = InkCompiler.getUnknownHashtagCommands(source, [pauseSoundCommand]);
+    expect(unknown).toHaveLength(0);
+});
+
+test("getUnknownHashtagCommands: pause sound static_alias is not unknown", () => {
+    const source = "=== start ===\n# pause sound my_sound\n";
+    const unknown = InkCompiler.getUnknownHashtagCommands(source, [pauseSoundCommand]);
+    expect(unknown).toHaveLength(0);
+});
+
+test("getUnknownHashtagCommands: unregistered command is still reported as unknown", () => {
+    const source = "=== start ===\n# pause sound { myvalue }\n";
+    const unknown = InkCompiler.getUnknownHashtagCommands(source, []);
+    expect(unknown).toHaveLength(1);
+    expect(unknown[0].command).toBe("pause sound { myvalue }");
 });

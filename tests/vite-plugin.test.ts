@@ -496,7 +496,9 @@ describe("vitePluginInk dev API", () => {
 
     function createTransformContext(infos: string[]) {
         return {
-            warn: () => {},
+            warn: (msg: string | { message: string }) => {
+                infos.push(typeof msg === "string" ? msg : msg.message);
+            },
             error: (message: string) => {
                 throw new Error(message);
             },
@@ -605,7 +607,7 @@ describe("vitePluginInk dev API", () => {
         const infos: string[] = [];
         await plugin.transform?.call(createTransformContext(infos) as any, "", inkPath);
 
-        expect(infos).toEqual([]);
+        expect(infos.some((m) => m.includes("Unknown hashtag command"))).toBe(false);
     });
 
     it("unrelated paths fall through to next", async () => {

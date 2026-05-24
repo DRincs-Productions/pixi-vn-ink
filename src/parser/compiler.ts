@@ -161,7 +161,9 @@ function extractHashtagCommands(source: string): HashtagCommandOccurrence[] {
             if (!rawCommand) {
                 continue;
             }
-            const tokens = HashtagCommands.convertTagTolist(rawCommand);
+            const tokens = HashtagCommands.convertTagTolist(rawCommand, {
+                mergeInkVariables: true,
+            });
             if (tokens.length === 0) {
                 continue;
             }
