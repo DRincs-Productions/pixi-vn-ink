@@ -94,7 +94,7 @@ export namespace HashtagCommands {
             validation: /^/,
         },
     ) {
-        handlers.push({ fn: handler, opts });
+        handlers.unshift({ fn: handler, opts });
     }
 
     /**
@@ -143,7 +143,7 @@ export namespace HashtagCommands {
      * ```
      */
     export function addMapper(handler: MapperHandler, opts: HashtagHandlerOptions) {
-        mapperHandlers.push({ fn: handler, opts });
+        mapperHandlers.unshift({ fn: handler, opts });
     }
 
     /**

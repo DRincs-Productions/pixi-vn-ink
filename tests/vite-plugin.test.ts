@@ -13,6 +13,18 @@ async function createTempProject(): Promise<string> {
     return await fs.mkdtemp(path.join(os.tmpdir(), "pixi-vn-ink-vite-plugin-"));
 }
 
+function makeLogger() {
+    return { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+}
+
+function makeResolvedConfig(
+    root: string,
+    publicDir: string,
+    logger = makeLogger(),
+): ResolvedConfig {
+    return { root, publicDir, plugins: [], logger } as unknown as ResolvedConfig;
+}
+
 async function readJsonFile(filePath: string) {
     return JSON.parse(await fs.readFile(filePath, "utf-8"));
 }
@@ -51,10 +63,7 @@ describe("vitePluginInk", () => {
             inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
 
@@ -89,10 +98,7 @@ describe("vitePluginInk", () => {
             inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
 
@@ -130,10 +136,7 @@ describe("vitePluginInk", () => {
             inkJsonOutputPattern: "./generated/ink-json/[path][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
 
@@ -167,10 +170,7 @@ describe("vitePluginInk", () => {
             inkJsonManifestPath: "./public/ink-manifest.json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
 
@@ -202,10 +202,7 @@ describe("vitePluginInk", () => {
             inkJsonOutputPattern: "./generated/by-file/[file]-from-[dir][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
 
@@ -248,10 +245,7 @@ describe("vitePluginInk", () => {
             inkJsonOutputPattern: "./generated/[dir][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
 
@@ -290,10 +284,7 @@ describe("vitePluginInk", () => {
             inkJsonOutputPattern: "./public/ink-json/[path][name].json",
         });
 
-        plugin.configResolved?.({
-            root,
-            publicDir: path.join(root, "public"),
-        } as ResolvedConfig);
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
 
         await plugin.buildStart?.call(undefined);
         const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
@@ -338,7 +329,7 @@ describe("vitePluginInk", () => {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (plugin.configResolved as any)?.({ root, publicDir: path.join(root, "public"), logger });
+        (plugin.configResolved as any)?.(makeResolvedConfig(root, path.join(root, "public"), logger as any));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (plugin.buildStart as any)?.call(undefined);
 
@@ -381,7 +372,7 @@ describe("vitePluginInk", () => {
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (plugin.configResolved as any)?.({ root, publicDir: path.join(root, "public"), logger });
+        (plugin.configResolved as any)?.(makeResolvedConfig(root, path.join(root, "public"), logger as any));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (plugin.buildStart as any)?.call(undefined);
 
@@ -484,6 +475,11 @@ describe("vitePluginInk dev API", () => {
                     middleware = fn;
                 },
             },
+            config: { plugins: [] },
+            ssrLoadModule: async () => ({
+                HashtagCommands: { info: () => [] },
+                TextReplaces: { info: () => [] },
+            }),
         };
         plugin.configureServer?.(fakeServer as any);
 

@@ -233,3 +233,47 @@ test("run custom handler supports deprecated add(handler) overload", async () =>
     expect(called).toBe(1);
     HashtagCommands.clear();
 });
+
+test("add: last registered handler runs first", async () => {
+    HashtagCommands.clear();
+    const order: string[] = [];
+    HashtagCommands.add(
+        () => {
+            order.push("first");
+            return false;
+        },
+        { name: "first", validation: /^ping\b/ },
+    );
+    HashtagCommands.add(
+        () => {
+            order.push("second");
+            return true;
+        },
+        { name: "second", validation: /^ping\b/ },
+    );
+
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    await HashtagCommands.run("ping", step, {});
+
+    expect(order).toEqual(["second"]);
+    HashtagCommands.clear();
+});
+
+test("addMapper: last registered mapper runs first", () => {
+    HashtagCommands.clearMappers();
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    HashtagCommands.addMapper(
+        () => ({ type: "image", operationType: "edit", alias: "first" }),
+        { name: "mapper-first", validation: z.tuple([z.literal("testmapper"), z.string()]) },
+    );
+    HashtagCommands.addMapper(
+        () => ({ type: "image", operationType: "edit", alias: "second" }),
+        { name: "mapper-second", validation: z.tuple([z.literal("testmapper"), z.string()]) },
+    );
+
+    const result = HashtagCommands.convertOperation(["testmapper", "bg"], step);
+
+    expect((result as { alias: string }).alias).toBe("second");
+    HashtagCommands.clearMappers();
+});
