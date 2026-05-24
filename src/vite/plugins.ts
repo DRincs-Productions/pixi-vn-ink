@@ -162,22 +162,20 @@ function getManifestEntry(outputFile: string, root: string, publicDirectory: str
 
 function logUnknownHashtagCommands(
     source: string,
-    filePath: string,
     hashtagCommandsStore: InkHashtagCommandInfo[],
-    logInfo: (message: string) => void,
+    logWarning: (message: string, line?: number) => void,
 ): void {
     const unknownCommands = InkCompiler.getUnknownHashtagCommands(source, hashtagCommandsStore);
 
     unknownCommands.forEach(({ command, line }) => {
-        logInfo(
-            `${filePath}:${line} Unknown hashtag command "# ${command}": no registered handler matched this command.`,
+        logWarning(
+            `Unknown hashtag command "# ${command}": no registered handler matched this command.`,
+            line,
         );
     });
 
     if (unknownCommands.length > 0) {
-        logInfo(
-            `${filePath}: Hashtag command metadata is available via ${INK_DEV_API_HASHTAG_COMMANDS}.`,
-        );
+        logWarning(`Hashtag command metadata is available via ${INK_DEV_API_HASHTAG_COMMANDS}.`);
     }
 }
 
@@ -711,8 +709,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                                 error = message;
                             }
                         });
-                        logUnknownHashtagCommands(source, file, hashtagCommandsStore, (message) =>
-                            server.config.logger.info(message, { timestamp: true }),
+                        logUnknownHashtagCommands(source, hashtagCommandsStore, (message, line) =>
+                            server.config.logger.warn(
+                                `${line !== undefined ? `${file}:${line}` : file}: ${message}`,
+                                { timestamp: true },
+                            ),
                         );
 
                         await exportInkJsonFiles();
@@ -788,8 +789,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     this.error(`${id}:${line} ${message}`);
                 }
             });
-            logUnknownHashtagCommands(source, id, hashtagCommandsStore, (message) =>
-                this.info(message),
+            logUnknownHashtagCommands(source, hashtagCommandsStore, (message, line) =>
+                this.warn({ message, loc: line !== undefined ? { line, column: 0 } : undefined }),
             );
 
             // esporta source
