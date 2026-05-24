@@ -28,18 +28,8 @@ Programming a game narrative in **Javascript/Typescript** has the advantage of h
 
 To install the package, run the following command in your project:
 
-```bash
-# npm
+```npm
 npm install @drincs/pixi-vn-ink
-
-# yarn
-yarn add @drincs/pixi-vn-ink
-
-# pnpm
-pnpm add @drincs/pixi-vn-ink
-
-# bun
-bun add @drincs/pixi-vn-ink
 ```
 
 ## Start using _ink_ in Pixi’VN
