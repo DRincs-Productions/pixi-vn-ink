@@ -44,7 +44,7 @@ test("Translate test - after-translation with i18nInterpolation", async () => {
     RegisteredCharacters.add(sly);
 
     const fn = (key: string) => RegisteredCharacters.get<CharacterBaseModel>(key)?.name;
-    TextReplaces.add((key: string) => RegisteredCharacters.get<CharacterBaseModel>(key)?.name, {
+    TextReplaces.add(fn, {
         name: "character name",
         validation: "characterId",
         type: "after-translation",
