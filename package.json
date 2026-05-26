@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "workspaces": [
     "playground"
@@ -91,8 +91,7 @@
   "homepage": "https://pixi-vn.com/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "1.13.4",
-    "zod": "^4.4.3"
+    "@drincs/pixi-vn-json": "^1.13.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.14",
