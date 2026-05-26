@@ -54,7 +54,7 @@ export async function handleInkUpdatedPayload(
  *
  * @see https://pixi-vn.web.app/ink#vite-plugin
  * @example
- * ```typescript
+ * ```ts title="main.ts"
  * // main.ts
  * import { setupPixivnViteData } from "@drincs/pixi-vn/vite-listener";
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";

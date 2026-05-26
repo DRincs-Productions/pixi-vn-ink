@@ -237,6 +237,17 @@ export interface VitePluginInkOptions {
     inkJsonManifestPath?: string;
 }
 
+function readBody(req: IncomingMessage): Promise<string> {
+    return new Promise((resolve, reject) => {
+        let body = "";
+        req.on("data", (chunk: Buffer) => {
+            body += chunk.toString();
+        });
+        req.on("end", () => resolve(body));
+        req.on("error", reject);
+    });
+}
+
 /**
  * Creates a Vite plugin that:
  * - Prevents Hot Module Replacement (HMR) for `.ink` files and instead sends an `ink-updated`
@@ -253,6 +264,7 @@ export interface VitePluginInkOptions {
  * @returns A Vite plugin.
  * @see https://pixi-vn.web.app/ink#vite-plugin
  * @example
+ * ```ts title="vite.config.ts"
  * // vite.config.ts – without inkGlob (manual loading)
  * import { defineConfig } from "vite";
  * import { vitePluginInk } from "@drincs/pixi-vn-ink/vite";
@@ -260,8 +272,10 @@ export interface VitePluginInkOptions {
  * export default defineConfig({
  *   plugins: [vitePluginInk()],
  * });
+ * ```
  *
  * @example
+ * ```ts title="vite.config.ts"
  * // vite.config.ts – with inkGlob (automatic loading via virtual module)
  * import { defineConfig } from "vite";
  * import { vitePluginInk } from "@drincs/pixi-vn-ink/vite";
@@ -269,7 +283,9 @@ export interface VitePluginInkOptions {
  * export default defineConfig({
  *   plugins: [vitePluginInk({ inkGlob: "./ink/**\/*.ink" })],
  * });
+ * ```
  *
+ * ```ts title="main.ts"
  * // main.ts
  * import { importInkText } from "@drincs/pixi-vn-ink";
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";
@@ -277,8 +293,10 @@ export interface VitePluginInkOptions {
  *
  * await importInkText(inkTexts);
  * setupInkHmrListener();
+ * ```
  *
  * @example
+ * ```ts title="vite.config.ts"
  * // vite.config.ts – generate JSON files in public/ink-json too
  * import { defineConfig } from "vite";
  * import { vitePluginInk } from "@drincs/pixi-vn-ink/vite";
@@ -291,8 +309,10 @@ export interface VitePluginInkOptions {
  *     }),
  *   ],
  * });
+ * ```
  *
  * @example
+ * ```ts title="main.ts"
  * // Bulk-load the generated JSON files at runtime
  * import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
  *
@@ -305,18 +325,8 @@ export interface VitePluginInkOptions {
  * );
  *
  * await Promise.all(stories.map((story) => importPixiVNJson(story)));
+ * ```
  */
-function readBody(req: IncomingMessage): Promise<string> {
-    return new Promise((resolve, reject) => {
-        let body = "";
-        req.on("data", (chunk: Buffer) => {
-            body += chunk.toString();
-        });
-        req.on("end", () => resolve(body));
-        req.on("error", reject);
-    });
-}
-
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     const { inkGlob, inkJsonOutputPattern, inkJsonManifestPath } = options ?? {};
     const hasInkJsonManifestMode = Boolean(inkJsonOutputPattern);

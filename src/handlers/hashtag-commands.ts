@@ -70,10 +70,10 @@ export namespace HashtagCommands {
      * @param handler The handler to run a custom Hashtag-Command
      * @param opts Configuration for this handler, including its name, optional description, and validation rule.
      * @example
-     * ```ts
-     * import { HashtagScript } from 'pixi-vn-ink'
+     * ```ts title="content/ink/hashtag-commands.ts"
+     * import { HashtagCommands } from 'pixi-vn-ink'
      *
-     * HashtagScript.add((script, props, convertListStringToObj) => {
+     * HashtagCommands.add((script, props, convertListStringToObj) => {
      *    // script: # navigate scene_name prop1 "value 1" prop2 "value 2"
      *    if (script[0] === "navigate" && script.length > 1) {
      *        let prop = undefined
@@ -125,7 +125,7 @@ export namespace HashtagCommands {
      *   used to select this mapper.
      *
      * @example
-     * ```ts
+     * ```ts title="content/ink/hashtag-commands.ts"
      * import { HashtagCommands } from 'pixi-vn-ink'
      * import { z } from 'zod'
      *

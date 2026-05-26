@@ -7,7 +7,7 @@ import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
 /**
  * This function imports string or array of strings written in ink language into the Pixi’VN engine.
  * @example
- * ```ts
+ * ```ts title="main.ts"
  * import { importInkText } from 'pixi-vn'
  * importInkText(`
  * === back_in_london ===

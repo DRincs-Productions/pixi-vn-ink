@@ -12,9 +12,11 @@
  *   - `{ type: "literal", value }`
  *
  * @example
+ * ```ts
  * // VS Code extension reading the registered handlers
  * const res = await fetch("http://localhost:5173/__pixi-vn-ink/hashtag-commands");
  * const commands: InkHashtagCommandInfo[] = await res.json();
+ * ```
  */
 export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
 
@@ -32,8 +34,10 @@ export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
  *   - `{ type: "literal", value }` for string modes like `"all"` / `"characterId"`
  *
  * @example
+ * ```ts
  * // VS Code extension reading the registered text-replace handlers
  * const res = await fetch("http://localhost:5173/__pixi-vn-ink/text-replaces");
  * const replaces: InkTextReplaceInfo[] = await res.json();
+ * ```
  */
 export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";

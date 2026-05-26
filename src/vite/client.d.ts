@@ -15,7 +15,7 @@ declare module "virtual:pixi-vn-ink" {
      * Array of raw `.ink` file contents matched by the `inkGlob` option of `vitePluginInk`.
      *
      * Import this in your entry file and pass it to `importInkText`:
-     * ```ts
+     * ```ts title="main.ts"
      * import { importInkText } from "@drincs/pixi-vn-ink";
      * import inkTexts from "virtual:pixi-vn-ink";
      *
