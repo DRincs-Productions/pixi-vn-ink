@@ -113,6 +113,11 @@
     "@drincs/pixi-vn": ">=1.8.0",
     "zod": ">=4.4.0"
   },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
   "keywords": [
     "game",
     "ink",
