@@ -106,7 +106,7 @@ test("exterlan temp variable", async () => {
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#seed_random
  * SEED_RANDOM() is silently ignored by PixiVN – it is syntax that PixiVN does not need.
- * See https://pixi-vn.web.app/ink#syntax-ignored-by-pixivn
+ * See https://pixi-vn.com/ink#syntax-ignored-by-pixivn
  */
 test("SEED_RANDOM is silently ignored", async () => {
     const expected: PixiVNJson = {

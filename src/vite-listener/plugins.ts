@@ -52,7 +52,7 @@ export async function handleInkUpdatedPayload(
  * is handled server-side by `vitePluginPixivn`'s `content` / `characters` /
  * `labels` options — no browser POSTs are needed.
  *
- * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @see https://pixi-vn.com/ink#vite-plugin
  * @example
  * ```ts title="main.ts"
  * // main.ts

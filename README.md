@@ -34,7 +34,7 @@ npm install @drincs/pixi-vn-ink
 
 ## Start using _ink_ in Pixi’VN
 
-If you have not created a project yet then it is recommended to use the [template](https://pixi-vn.web.app/start/getting-started.html#project-initialization) to start your project with **_ink_**.
+If you have not created a project yet then it is recommended to use the [template](https://pixi-vn.com/start/getting-started.html#project-initialization) to start your project with **_ink_**.
 
 After installing the package you need to use the `importInkText()` function to import the **_ink_ script** into your project.
 

@@ -262,7 +262,7 @@ function readBody(req: IncomingMessage): Promise<string> {
  *
  * @param options - Optional plugin configuration.
  * @returns A Vite plugin.
- * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @see https://pixi-vn.com/ink#vite-plugin
  * @example
  * ```ts title="vite.config.ts"
  * // vite.config.ts – without inkGlob (manual loading)

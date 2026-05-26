@@ -11,7 +11,7 @@ export type { InkHashtagCommandInfo, InkValidationInfo } from "@drincs/pixi-vn-i
  * and accepted by
  * `POST /__pixi-vn-ink/text-replaces`.
  *
- * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @see https://pixi-vn.com/ink#vite-plugin
  */
 export interface InkTextReplaceInfo {
     /**

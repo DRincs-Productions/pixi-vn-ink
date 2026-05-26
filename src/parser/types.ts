@@ -58,7 +58,7 @@ export type InkValidationInfo =
  * Serializable representation of a registered {@link HashtagCommands} handler,
  * as exposed by the pixi-vn-ink Vite dev-server API.
  *
- * @see https://pixi-vn.web.app/ink#vite-plugin
+ * @see https://pixi-vn.com/ink#vite-plugin
  */
 export interface InkHashtagCommandInfo {
     /**

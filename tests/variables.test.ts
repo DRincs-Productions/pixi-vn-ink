@@ -3796,7 +3796,7 @@ VAR learned_his_name = false
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#turns
  * TURNS() is an upcoming feature in PixiVN.
  * TODO: TURNS() is not properly implemented – it renders as the string "undefined" instead of the turn count.
- * See https://pixi-vn.web.app/ink#upcoming-features
+ * See https://pixi-vn.com/ink#upcoming-features
  */
 test("TURNS game query (upcoming feature)", async () => {
     const expected: PixiVNJson = {
@@ -3837,7 +3837,7 @@ You have taken {TURNS()} turns so far.
  * TURNS_SINCE() is an upcoming feature in PixiVN.
  * TODO: TURNS_SINCE(-> knot) is not properly implemented – the left-hand side of the comparison
  * is the knot name as a string instead of the actual turn count since visiting that knot.
- * See https://pixi-vn.web.app/ink#upcoming-features
+ * See https://pixi-vn.com/ink#upcoming-features
  */
 test("TURNS_SINCE game query (upcoming feature)", async () => {
     const expected: PixiVNJson = {
@@ -3894,7 +3894,7 @@ You go to sleep.
  * CHOICE_COUNT() is an upcoming feature in PixiVN.
  * TODO: CHOICE_COUNT() is not properly implemented – the condition value is the raw number 2
  * instead of a runtime expression evaluating the count of visible choices.
- * See https://pixi-vn.web.app/ink#upcoming-features
+ * See https://pixi-vn.com/ink#upcoming-features
  */
 test("CHOICE_COUNT game query (upcoming feature)", async () => {
     const expected: PixiVNJson = {
