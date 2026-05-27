@@ -82,6 +82,7 @@ test("Translate test - before-translation", async () => {
         validation: "characterId",
         type: "before-translation",
         description: "Replaces a character ID with the character's name in the game.",
+        i18nInterpolation: true,
     });
 
     const input: PixiVNJson = {
@@ -95,7 +96,7 @@ test("Translate test - before-translation", async () => {
         },
     };
     const expected = {
-        "Sly thrusts her hand out to shake mine.": "{{Sly}} thrusts her hand out to shake mine.",
+        "[sly] thrusts her hand out to shake mine.": "{{Sly}} thrusts her hand out to shake mine.",
     };
     const res = {};
     await generateJsonInkTranslation(input, res);
