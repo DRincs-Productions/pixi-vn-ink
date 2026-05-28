@@ -9,7 +9,7 @@ export default defineConfig((options) => {
 
     return [
         createConfig({
-            target: "es2020",
+            target: "es2022",
             entry: {
                 parser: "src/parser/index.ts",
                 mapper: "src/mapper/index.ts",
@@ -27,7 +27,7 @@ export default defineConfig((options) => {
             },
         }),
         createConfig({
-            target: "es2020",
+            target: "es2022",
             entry: {
                 index: "src/index.ts",
                 vite: "src/vite/index.ts",
@@ -54,7 +54,7 @@ export default defineConfig((options) => {
             },
         }),
         createConfig({
-            target: "es2020",
+            target: "es2022",
             entry: {
                 parser: "src/parser/index.ts",
                 mapper: "src/mapper/index.ts",
