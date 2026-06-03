@@ -47,7 +47,9 @@ export async function handleInkUpdatedPayload(
 /**
  * Sets up HMR listeners for live ink story reloading in the browser.
  *
- * Call this once in your app entry file, **after** `setupPixivnViteData()`.
+ * Call this once in your app entry file.
+ * If available in your `@drincs/pixi-vn` version, call `setupPixivnViteData()`
+ * before this function; otherwise you can safely skip that step.
  * Handler registration (hashtag commands, text replaces, characters, labels)
  * is handled server-side by `vitePluginPixivn`'s `content` / `characters` /
  * `labels` options — no browser POSTs are needed.
@@ -56,10 +58,12 @@ export async function handleInkUpdatedPayload(
  * @example
  * ```ts title="main.ts"
  * // main.ts
- * import { setupPixivnViteData } from "@drincs/pixi-vn/vite-listener";
  * import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";
  *
- * await setupPixivnViteData();
+ * const pixivnViteListener = await import("@drincs/pixi-vn/vite-listener").catch(
+ *   () => undefined,
+ * );
+ * await pixivnViteListener?.setupPixivnViteData?.();
  * await setupInkHmrListener();
  * ```
  */

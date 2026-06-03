@@ -1,9 +1,13 @@
 import { RegisteredCharacters, RegisteredLabels } from "@drincs/pixi-vn";
 import { setupInkHmrListener } from "@drincs/pixi-vn-ink/vite-listener";
-import { setupPixivnViteData } from "@drincs/pixi-vn/vite-listener";
 
 await Promise.all([import("./content")]);
-await setupPixivnViteData();
+const pixivnViteListener = await import("@drincs/pixi-vn/vite-listener").catch(
+    () => undefined,
+);
+if (pixivnViteListener?.setupPixivnViteData) {
+    await pixivnViteListener.setupPixivnViteData();
+}
 await setupInkHmrListener();
 
 const app = document.querySelector<HTMLDivElement>("#app");
