@@ -20,6 +20,22 @@ const VIRTUAL_MODULE_ID = "virtual:pixi-vn-ink";
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`;
 const JSON_MANIFEST_FILE_NAME = "manifest.json";
 const INK_EXPORT_PLACEHOLDER_PATTERN = /\[(name|ext|extname|file|path|dir)\]/g;
+const INK_EXTERNAL_LABELS_PROVIDER_ID = "ink";
+
+type PixivnPluginApi = {
+    contentLoaded?: Promise<void>;
+    onReload?: (cb: () => void) => void;
+    setExternalLabels?: (
+        providerId: string,
+        labels: string[],
+    ) => void | Promise<void>;
+    clearExternalLabels?: (providerId: string) => void | Promise<void>;
+};
+
+type PixivnPlugin = {
+    name: string;
+    api?: PixivnPluginApi;
+};
 
 function serializeValidation(validation: RegExp | ZodType | string): InkValidationInfo {
     if (typeof validation === "string") {
@@ -336,6 +352,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let virtualInkJsonData: PixiVNJson[] | undefined;
     let managedInkJsonOutputDirectory: string | undefined;
     let managedInkJsonManifestPath: string | undefined;
+    let externalInkLabelIdsStore: string[] = [];
+    let lastSyncedExternalLabelHash: string | undefined;
     let devServer: ViteDevServer | undefined;
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -381,6 +399,35 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }));
     };
 
+    const getPixivnPlugin = (plugins?: readonly Plugin[]): PixivnPlugin | undefined =>
+        plugins?.find((p) => p.name === "vite-plugin-pixi-vn") as PixivnPlugin | undefined;
+
+    const syncExternalLabelsToPixivn = async (pixivnPlugin: PixivnPlugin | undefined) => {
+        const api = pixivnPlugin?.api;
+        if (!api) return;
+
+        const labels = externalInkLabelIdsStore;
+        const labelHash = JSON.stringify(labels);
+        if (labelHash === lastSyncedExternalLabelHash) return;
+
+        try {
+            if (labels.length === 0 && api.clearExternalLabels) {
+                await api.clearExternalLabels(INK_EXTERNAL_LABELS_PROVIDER_ID);
+            } else if (api.setExternalLabels) {
+                await api.setExternalLabels(INK_EXTERNAL_LABELS_PROVIDER_ID, labels);
+            } else {
+                return;
+            }
+            lastSyncedExternalLabelHash = labelHash;
+        } catch (error) {
+            const normalizedError = error instanceof Error ? error : new Error(String(error));
+            resolvedConfig?.logger.error(
+                `${PLUGIN_PREFIX} Failed to sync Ink labels with vite-plugin-pixi-vn.`,
+                { error: normalizedError, timestamp: true },
+            );
+        }
+    };
+
     const isManagedInkJsonFile = (targetPath: string): boolean => {
         if (!hasInkJsonManifestMode || !managedInkJsonOutputDirectory) {
             return false;
@@ -397,7 +444,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         debounceTimer = setTimeout(() => {
             debounceTimer = undefined;
             void exportInkJsonFiles()
-                .then(() => {
+                .then(async () => {
+                    await syncExternalLabelsToPixivn(getPixivnPlugin(devServer?.config.plugins));
                     const mod = devServer?.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID);
                     if (mod) devServer?.moduleGraph.invalidateModule(mod);
                     devServer?.ws.send({
@@ -424,6 +472,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     const exportInkJsonFiles = async () => {
         if (!resolvedConfig || !inkGlob) {
             virtualInkJsonData = undefined;
+            externalInkLabelIdsStore = [];
             return;
         }
         const outputPattern = resolveInkJsonOutputPattern(
@@ -432,6 +481,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         );
         if (!outputPattern) {
             virtualInkJsonData = undefined;
+            externalInkLabelIdsStore = [];
             managedInkJsonOutputDirectory = undefined;
             managedInkJsonManifestPath = undefined;
             return;
@@ -522,10 +572,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
         virtualInkJsonData = localJsonData;
-        const totalLabels = localJsonData.reduce(
-            (sum, json) => sum + Object.keys(json.labels ?? {}).length,
-            0,
+        const allLabelIds = localJsonData.flatMap((json) => Object.keys(json.labels ?? {}));
+        externalInkLabelIdsStore = Array.from(new Set(allLabelIds)).sort((left, right) =>
+            left.localeCompare(right),
         );
+        const totalLabels = allLabelIds.length;
         resolvedConfig.logger.info(
             `${PLUGIN_PREFIX} ${pc.dim(`${matchedFiles.length} file(s) exported: ${totalLabels} label(s), ${hashtagCommandsStore.length} hashtag-command(s), ${textReplacesStore.length} text-replace(s)`)}`,
             { timestamp: true },
@@ -578,14 +629,12 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         },
 
         async buildStart() {
-            const pixivnPlugin = resolvedConfig?.plugins.find(
-                (p) => p.name === "vite-plugin-pixi-vn",
-            );
-            const contentLoaded = (pixivnPlugin as { api?: { contentLoaded?: Promise<void> } })?.api
-                ?.contentLoaded;
+            const pixivnPlugin = getPixivnPlugin(resolvedConfig?.plugins);
+            const contentLoaded = pixivnPlugin?.api?.contentLoaded;
             if (contentLoaded) await contentLoaded;
             await syncStores();
             await exportInkJsonFiles();
+            await syncExternalLabelsToPixivn(pixivnPlugin);
         },
 
         configureServer(server) {
@@ -645,16 +694,14 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 next();
             });
 
-            const pixivnPlugin = server.config.plugins.find(
-                (p) => p.name === "vite-plugin-pixi-vn",
-            );
-            const contentLoaded = (pixivnPlugin as { api?: { contentLoaded?: Promise<void> } })?.api
-                ?.contentLoaded;
+            const pixivnPlugin = getPixivnPlugin(server.config.plugins);
+            const contentLoaded = pixivnPlugin?.api?.contentLoaded;
 
             void (contentLoaded ?? Promise.resolve())
                 .then(async () => {
                     await syncStores();
-                    return exportInkJsonFiles();
+                    await exportInkJsonFiles();
+                    await syncExternalLabelsToPixivn(pixivnPlugin);
                 })
                 .catch((error) => {
                     const normalizedError =
@@ -665,8 +712,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     );
                 });
 
-            const onReload = (pixivnPlugin as { api?: { onReload?: (cb: () => void) => void } })
-                ?.api?.onReload;
+            const onReload = pixivnPlugin?.api?.onReload;
             if (onReload)
                 onReload(() => {
                     void syncStores().then(() => scheduleReexport());
@@ -727,6 +773,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         );
 
                         await exportInkJsonFiles();
+                        await syncExternalLabelsToPixivn(
+                            getPixivnPlugin(server.config.plugins),
+                        );
 
                         if (error) {
                             server.ws.send({
@@ -756,6 +805,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         }
                     } else {
                         await exportInkJsonFiles();
+                        await syncExternalLabelsToPixivn(
+                            getPixivnPlugin(server.config.plugins),
+                        );
                         server.ws.send({
                             type: "custom",
                             event: "ink-updated",
@@ -771,6 +823,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 }
 
                 if (file.endsWith(".json") && isManagedInkJsonFile(file)) {
+                    await syncExternalLabelsToPixivn(getPixivnPlugin(server.config.plugins));
                     server.ws.send({
                         type: "custom",
                         event: "ink-updated",

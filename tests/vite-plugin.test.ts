@@ -21,8 +21,9 @@ function makeResolvedConfig(
     root: string,
     publicDir: string,
     logger = makeLogger(),
+    plugins: unknown[] = [],
 ): ResolvedConfig {
-    return { root, publicDir, plugins: [], logger } as unknown as ResolvedConfig;
+    return { root, publicDir, plugins, logger } as unknown as ResolvedConfig;
 }
 
 async function readJsonFile(filePath: string) {
@@ -394,6 +395,75 @@ describe("vitePluginInk", () => {
             event: "ink-updated",
             data: { inkJson: [expectedJson] },
         });
+    });
+
+    it("syncs external ink labels to vite-plugin-pixi-vn after buildStart", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        const inkSource = "=== start ===\nHello world!\n";
+        const updatedInkSource = "=== second ===\nUpdated.\n";
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(path.join(root, "ink", "start.ink"), inkSource, "utf-8");
+
+        const setExternalLabels = vi.fn();
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.(
+            makeResolvedConfig(root, path.join(root, "public"), makeLogger(), [
+                {
+                    name: "vite-plugin-pixi-vn",
+                    api: {
+                        contentLoaded: Promise.resolve(),
+                        setExternalLabels,
+                    },
+                },
+            ]),
+        );
+
+        await plugin.buildStart?.call(undefined);
+        await plugin.buildStart?.call(undefined);
+        await fs.writeFile(path.join(root, "ink", "start.ink"), updatedInkSource, "utf-8");
+        await plugin.buildStart?.call(undefined);
+
+        expect(setExternalLabels).toHaveBeenCalledTimes(2);
+        expect(setExternalLabels).toHaveBeenNthCalledWith(1, "ink", ["start"]);
+        expect(setExternalLabels).toHaveBeenNthCalledWith(2, "ink", ["second"]);
+    });
+
+    it("clears external ink labels when no labels are exported", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+
+        const clearExternalLabels = vi.fn();
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.(
+            makeResolvedConfig(root, path.join(root, "public"), makeLogger(), [
+                {
+                    name: "vite-plugin-pixi-vn",
+                    api: {
+                        contentLoaded: Promise.resolve(),
+                        clearExternalLabels,
+                    },
+                },
+            ]),
+        );
+
+        await plugin.buildStart?.call(undefined);
+
+        expect(clearExternalLabels).toHaveBeenCalledTimes(1);
+        expect(clearExternalLabels).toHaveBeenCalledWith("ink");
     });
 });
 
