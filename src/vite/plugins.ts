@@ -399,7 +399,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }));
     };
 
-    const getPixivnPlugin = (plugins?: Plugin[]): PixivnPlugin | undefined =>
+    const getPixivnPlugin = (plugins?: readonly Plugin[]): PixivnPlugin | undefined =>
         plugins?.find((p) => p.name === "vite-plugin-pixi-vn") as PixivnPlugin | undefined;
 
     const syncExternalLabelsToPixivn = async (pixivnPlugin: PixivnPlugin | undefined) => {
@@ -407,7 +407,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         if (!api) return;
 
         const labels = externalInkLabelIdsStore;
-        const labelHash = labels.join("\u0000");
+        const labelHash = JSON.stringify(labels);
         if (labelHash === lastSyncedExternalLabelHash) return;
 
         try {
@@ -572,13 +572,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         manifestUrls.sort((left, right) => left.localeCompare(right));
         virtualInkJsonData = localJsonData;
-        externalInkLabelIdsStore = Array.from(
-            new Set(localJsonData.flatMap((json) => Object.keys(json.labels ?? {}))),
-        ).sort((left, right) => left.localeCompare(right));
-        const totalLabels = localJsonData.reduce(
-            (sum, json) => sum + Object.keys(json.labels ?? {}).length,
-            0,
+        const allLabelIds = localJsonData.flatMap((json) => Object.keys(json.labels ?? {}));
+        externalInkLabelIdsStore = Array.from(new Set(allLabelIds)).sort((left, right) =>
+            left.localeCompare(right),
         );
+        const totalLabels = allLabelIds.length;
         resolvedConfig.logger.info(
             `${PLUGIN_PREFIX} ${pc.dim(`${matchedFiles.length} file(s) exported: ${totalLabels} label(s), ${hashtagCommandsStore.length} hashtag-command(s), ${textReplacesStore.length} text-replace(s)`)}`,
             { timestamp: true },

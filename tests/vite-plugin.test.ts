@@ -402,6 +402,7 @@ describe("vitePluginInk", () => {
         tempDirectories.push(root);
 
         const inkSource = "=== start ===\nHello world!\n";
+        const updatedInkSource = "=== second ===\nUpdated.\n";
         await fs.mkdir(path.join(root, "ink"), { recursive: true });
         await fs.mkdir(path.join(root, "public"), { recursive: true });
         await fs.writeFile(path.join(root, "ink", "start.ink"), inkSource, "utf-8");
@@ -426,9 +427,12 @@ describe("vitePluginInk", () => {
 
         await plugin.buildStart?.call(undefined);
         await plugin.buildStart?.call(undefined);
+        await fs.writeFile(path.join(root, "ink", "start.ink"), updatedInkSource, "utf-8");
+        await plugin.buildStart?.call(undefined);
 
-        expect(setExternalLabels).toHaveBeenCalledTimes(1);
-        expect(setExternalLabels).toHaveBeenCalledWith("ink", ["start"]);
+        expect(setExternalLabels).toHaveBeenCalledTimes(2);
+        expect(setExternalLabels).toHaveBeenNthCalledWith(1, "ink", ["start"]);
+        expect(setExternalLabels).toHaveBeenNthCalledWith(2, "ink", ["second"]);
     });
 
     it("clears external ink labels when no labels are exported", async () => {
