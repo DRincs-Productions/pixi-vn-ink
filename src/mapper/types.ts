@@ -11,4 +11,6 @@ export type MapperSharedType = {
     preDialog: { [label: string]: { text: string; glue: boolean } };
     du?: NativeFunctions | ReadCount;
     params?: object;
+    /** Known character ids, checked alongside `RegisteredCharacters` when splitting `id: text` speakers. */
+    characterIds?: ReadonlySet<string>;
 };

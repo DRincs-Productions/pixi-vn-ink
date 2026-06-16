@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import { importInkText, importJson } from "@/loader/importer";
+import type { CharacterIdSource } from "@/loader/type";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { inkJsons } from "virtual:pixi-vn-ink";
 
@@ -13,22 +14,33 @@ type InkUpdatedPayloadHandlers = {
     importInkText: (inkText: string) => Promise<unknown>;
 };
 
+/** Options for the Ink HMR listener helpers. */
+export type InkHmrListenerOptions = {
+    /**
+     * Characters forwarded to {@link importInkText} when an update re-imports raw Ink text (the path
+     * used without `inkJsonOutputPattern`), so `characterId: text` speakers resolve at reload time.
+     */
+    characters?: readonly CharacterIdSource[];
+};
+
 export async function handleInkUpdatedPayload(
     payload: string | InkUpdatedPayload,
-    handlers: InkUpdatedPayloadHandlers = {
+    handlers?: InkUpdatedPayloadHandlers,
+    options: InkHmrListenerOptions = {},
+): Promise<void> {
+    const resolvedHandlers: InkUpdatedPayloadHandlers = handlers ?? {
         importJson: async (data) => {
             await importJson(data);
         },
-        importInkText,
-    },
-): Promise<void> {
+        importInkText: (inkText) => importInkText(inkText, { characters: options.characters }),
+    };
     const inkJson =
         payload && typeof payload === "object" && "inkJson" in payload
             ? payload.inkJson
             : undefined;
 
     if (inkJson && inkJson.length > 0) {
-        await handlers.importJson(inkJson);
+        await resolvedHandlers.importJson(inkJson);
         return;
     }
 
@@ -40,7 +52,7 @@ export async function handleInkUpdatedPayload(
               : undefined;
 
     if (typeof inkText === "string") {
-        await handlers.importInkText(inkText);
+        await resolvedHandlers.importInkText(inkText);
     }
 }
 
@@ -54,6 +66,8 @@ export async function handleInkUpdatedPayload(
  * is handled server-side by `vitePluginPixivn`'s `content` / `characters` /
  * `labels` options — no browser POSTs are needed.
  *
+ * @param options.characters characters forwarded to {@link importInkText} on the raw-text reload
+ * path (see {@link InkHmrListenerOptions})
  * @see https://pixi-vn.com/ink#vite-plugin
  * @example
  * ```ts title="main.ts"
@@ -77,14 +91,14 @@ export async function handleInkUpdatedPayload(
  * await setupInkHmrListener();
  * ```
  */
-export async function setupInkHmrListener() {
+export async function setupInkHmrListener(options: InkHmrListenerOptions = {}) {
     if (import.meta.hot) {
         if (inkJsons && inkJsons.length > 0) {
             await importJson(inkJsons);
         }
 
         import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
-            await handleInkUpdatedPayload(payload);
+            await handleInkUpdatedPayload(payload, undefined, options);
         });
 
         import.meta.hot.on("ink-error-cleared", () => {

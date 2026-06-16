@@ -1,5 +1,5 @@
 import type InkStoryType from "@/interfaces/InkStoryType";
-import type { LoaderSharedType } from "@/loader/type";
+import type { CharacterIdSource, LoaderSharedType } from "@/loader/type";
 import { InkMapper } from "@/mapper";
 import { InkCompiler } from "@/parser";
 import type { CompileSharedType } from "@/parser/types";
@@ -7,6 +7,23 @@ import { logger } from "@/utils/log-utility";
 import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
+
+/** Normalises character sources (ids or `{ id }` objects) into a set of ids, or `undefined` if empty. */
+export function normalizeCharacterIds(
+    characters?: readonly CharacterIdSource[],
+): ReadonlySet<string> | undefined {
+    if (!characters || characters.length === 0) {
+        return undefined;
+    }
+    const ids = new Set<string>();
+    for (const character of characters) {
+        const id = typeof character === "string" ? character : character?.id;
+        if (typeof id === "string" && id.length > 0) {
+            ids.add(id);
+        }
+    }
+    return ids.size > 0 ? ids : undefined;
+}
 
 /**
  * This function converts string written in ink language into the LabelJsonType.
@@ -46,5 +63,8 @@ export function convertInkToJson(
         return;
     }
     shared.enums = obj.listDefs || {};
-    return InkMapper.inkToJson(obj, shared);
+    return InkMapper.inkToJson(obj, {
+        ...shared,
+        characterIds: normalizeCharacterIds(options.characters),
+    });
 }

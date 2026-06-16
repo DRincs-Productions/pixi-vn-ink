@@ -31,6 +31,7 @@ export namespace InkMapper {
             enums = {},
             functions = [],
             preDialog = {},
+            characterIds,
         } = shared;
         const result: PixiVNJson = {
             $schema: PIXIVNJSON_SCHEMA_URL,
@@ -41,6 +42,7 @@ export namespace InkMapper {
             enums,
             functions,
             preDialog,
+            characterIds,
         });
         if (result.labels && GLOBAL_DECL in result.labels) {
             const global = result.labels[GLOBAL_DECL];
