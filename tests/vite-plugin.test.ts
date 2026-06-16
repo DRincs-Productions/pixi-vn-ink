@@ -296,6 +296,76 @@ describe("vitePluginInk", () => {
         );
     });
 
+    // Regression for #123: the build/dev converter resolves `characterId: text` speakers from
+    // `vite-plugin-pixi-vn` `api.characters` and the `characters` option. Asserted via the in-memory
+    // virtual module (load) to stay independent of on-disk JSON output.
+    it("resolves characterId speakers from vite-plugin-pixi-vn api.characters at build time", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\nbob: Hi\n-> DONE\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        plugin.configResolved?.(
+            makeResolvedConfig(root, path.join(root, "public"), makeLogger(), [
+                {
+                    name: "vite-plugin-pixi-vn",
+                    api: {
+                        contentLoaded: Promise.resolve(),
+                        characters: [{ id: "bob" }],
+                    },
+                },
+            ]),
+        );
+
+        await plugin.buildStart?.call(undefined);
+        const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
+
+        expect(loaded).toContain('"character":"bob"');
+        expect(loaded).toContain('"text":"Hi"');
+        // The literal "bob: Hi" prefix must NOT be baked into the dialogue text.
+        expect(loaded).not.toContain("bob: Hi");
+    });
+
+    it("resolves characterId speakers from the explicit characters option at build time", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\nbob: Hi\n-> DONE\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+            characters: ["bob"],
+        });
+
+        // No vite-plugin-pixi-vn present: the explicit option is the only character source.
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public")));
+
+        await plugin.buildStart?.call(undefined);
+        const loaded = await plugin.load?.("\0virtual:pixi-vn-ink");
+
+        expect(loaded).toContain('"character":"bob"');
+        expect(loaded).toContain('"text":"Hi"');
+        expect(loaded).not.toContain("bob: Hi");
+    });
+
     it("rejects inkGlob patterns that escape project root", async () => {
         const plugin = vitePluginInk({
             inkGlob: "../**/*.ink",

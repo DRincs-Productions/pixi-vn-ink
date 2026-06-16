@@ -1,1 +1,1 @@
-export { setupInkHmrListener } from "./plugins";
+export { type InkHmrListenerOptions, setupInkHmrListener } from "./plugins";

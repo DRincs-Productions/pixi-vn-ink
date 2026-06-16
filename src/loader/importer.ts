@@ -1,6 +1,6 @@
 import { HashtagCommands } from "@/handlers";
 import { convertInkToJson } from "@/loader/ink-to-pixivn";
-import type { LoaderSharedType } from "@/loader/type";
+import type { CharacterIdSource, LoaderSharedType } from "@/loader/type";
 import { init, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
 
@@ -17,9 +17,14 @@ import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
  * })
  * ```
  * @param texts string or array of strings written in ink language
+ * @param options.characters characters recognised when splitting `characterId: text` speakers, in
+ * addition to `RegisteredCharacters` (pass when importing before characters are registered)
  * @returns
  */
-export async function importInkText(texts: string | string[]): Promise<string[]> {
+export async function importInkText(
+    texts: string | string[],
+    options: { characters?: readonly CharacterIdSource[] } = {},
+): Promise<string[]> {
     if (!Array.isArray(texts)) {
         texts = [texts];
     }
@@ -27,6 +32,7 @@ export async function importInkText(texts: string | string[]): Promise<string[]>
     const shared: LoaderSharedType = {
         functions: [],
         enums: {},
+        characters: options.characters,
     };
     const promises = texts.map(async (text) => {
         const data = convertInkToJson(text, shared);

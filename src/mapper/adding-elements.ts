@@ -170,7 +170,7 @@ function addConditionalElementStep(
             list[list.length - 1] = prevItem;
         }
         if (typeof item === "string") {
-            list.push(getDialog(getText(item)));
+            list.push(getDialog(getText(item), shared.characterIds));
         } else {
             list.push({
                 dialogue: item,
@@ -312,13 +312,13 @@ function addConditionalElementStep(
     }
 }
 
-function getDialog(text: string): PixiVNJsonLabelStep {
+function getDialog(text: string, characterIds?: ReadonlySet<string>): PixiVNJsonLabelStep {
     let character: string | undefined;
     if (text.includes(": ")) {
         const parts = text.split(": ");
         const c = parts[0];
         const t = parts.slice(1).join(": ");
-        if (RegisteredCharacters.has(c)) {
+        if (characterIds?.has(c) || RegisteredCharacters.has(c)) {
             character = c;
             text = t;
         }

@@ -24,6 +24,8 @@ const INK_EXTERNAL_LABELS_PROVIDER_ID = "ink";
 
 type PixivnPluginApi = {
     contentLoaded?: Promise<void>;
+    /** Characters registered by `vite-plugin-pixi-vn`, populated after {@link contentLoaded}. */
+    characters?: readonly { id: string }[];
     onReload?: (cb: () => void) => void;
     setExternalLabels?: (
         providerId: string,
@@ -251,6 +253,14 @@ export interface VitePluginInkOptions {
      * @example "./generated/manifest.json"
      */
     inkJsonManifestPath?: string;
+    /**
+     * Character ids to recognise when splitting `characterId: text` speakers in `.ink` files.
+     * Characters from `vite-plugin-pixi-vn` (its `api.characters`) are picked up automatically;
+     * use this to supply ids explicitly when it is not present.
+     *
+     * @example ["alice", "james"]
+     */
+    characters?: readonly string[];
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
@@ -344,7 +354,7 @@ function readBody(req: IncomingMessage): Promise<string> {
  * ```
  */
 export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
-    const { inkGlob, inkJsonOutputPattern, inkJsonManifestPath } = options ?? {};
+    const { inkGlob, inkJsonOutputPattern, inkJsonManifestPath, characters } = options ?? {};
     const hasInkJsonManifestMode = Boolean(inkJsonOutputPattern);
     let resolvedConfig: ResolvedConfig | undefined;
     let hashtagCommandsStore: InkHashtagCommandInfo[] = [];
@@ -505,13 +515,21 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         const localJsonData: PixiVNJson[] = [];
         const generatedJsonFiles = new Set<string>();
 
+        // Character ids known at conversion time: the `characters` option plus those exposed by
+        // `vite-plugin-pixi-vn` via `api.characters`.
+        const pixivnCharacters = getPixivnPlugin(resolvedConfig.plugins)?.api?.characters ?? [];
+        const knownCharacters: (string | { id: string })[] = [
+            ...(characters ?? []),
+            ...pixivnCharacters,
+        ];
+
         await fs.mkdir(outputDirectory, { recursive: true });
 
         for (const matchedFile of matchedFiles) {
             const source = await fs.readFile(matchedFile, "utf-8");
             let converted: ReturnType<typeof convertInkToJson>;
             try {
-                converted = convertInkToJson(source);
+                converted = convertInkToJson(source, { characters: knownCharacters });
             } catch (error) {
                 const normalizedError = error instanceof Error ? error : new Error(String(error));
                 resolvedConfig.logger.error(
