@@ -487,7 +487,7 @@ HashtagCommands.addMapper(
         step.goNextStep = undefined;
     },
     {
-        name: "call",
+        name: "Call",
         description: `Calls the label specified by the second token, then returns to the current position.
 
 \`\`\`ink
@@ -506,7 +506,7 @@ HashtagCommands.addMapper(
         step.goNextStep = undefined;
     },
     {
-        name: "jump",
+        name: "Jump",
         description: `Jumps to the label specified by the second token without returning.
 
 \`\`\`ink
@@ -530,7 +530,7 @@ HashtagCommands.addMapper(
         };
     },
     {
-        name: "pause",
+        name: "Pause",
         description: `Clears the current dialogue and waits for user input before advancing.
 
 \`\`\`ink
@@ -547,7 +547,7 @@ HashtagCommands.addMapper(
         return undefined;
     },
     {
-        name: "continue",
+        name: "Continue",
         description: `Forces the story to proceed to the next step automatically.
 
 \`\`\`ink
@@ -564,7 +564,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "video-pause-resume",
+        name: "Pause/Resume video",
         description: `Pauses or resumes a video canvas element identified by its alias.
 
 \`\`\`ink
@@ -582,7 +582,7 @@ HashtagCommands.addMapper(
         aliases: list.slice(2),
     }),
     {
-        name: "assets-bundle-load",
+        name: "Load assets/bundle",
         description: `Loads (eagerly or lazily) a set of asset or bundle aliases.
 
 \`\`\`ink
@@ -603,7 +603,7 @@ HashtagCommands.addMapper(
         operationType: list[0] as "pause" | "resume" | "stop",
     }),
     {
-        name: "all-sounds-pause-resume-stop",
+        name: "Pause/Resume/Stop all sounds",
         description: `Pauses, resumes, or stops all active sounds at once.
 
 \`\`\`ink
@@ -626,7 +626,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "pause-sound",
+        name: "Pause sound",
         description: `Pauses the sound identified by its alias.
 
 \`\`\`ink
@@ -643,7 +643,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "pause-channel",
+        name: "Pause channel",
         description: `Pauses the audio channel identified by its alias.
 
 \`\`\`ink
@@ -660,7 +660,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "resume-sound",
+        name: "Resume sound",
         description: `Resumes the sound identified by its alias.
 
 \`\`\`ink
@@ -677,7 +677,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "resume-channel",
+        name: "Resume channel",
         description: `Resumes the audio channel identified by its alias.
 
 \`\`\`ink
@@ -694,7 +694,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "stop-sound",
+        name: "Stop sound",
         description: `Stops the sound identified by its alias.
 
 \`\`\`ink
@@ -711,7 +711,7 @@ HashtagCommands.addMapper(
         alias: list[2],
     }),
     {
-        name: "remove-sound",
+        name: "Remove sound",
         description: `Removes (stops) the sound identified by its alias.
 
 \`\`\`ink
@@ -730,7 +730,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(3)),
     }),
     {
-        name: "edit-sound",
+        name: "Edit sound",
         description: `Edits the properties of a sound identified by its alias.
 
 \`\`\`ink
@@ -758,7 +758,7 @@ HashtagCommands.addMapper(
         return op;
     },
     {
-        name: "play-sound",
+        name: "Play sound",
         description: `Plays a sound using its alias as the URL, with optional key/value properties.
 
 \`\`\`ink
@@ -787,7 +787,7 @@ HashtagCommands.addMapper(
         return op;
     },
     {
-        name: "play-sound-with-source",
+        name: "Play sound with source",
         description: `Plays a sound with an explicit source URL and optional key/value properties.
         
 \`\`\`ink
@@ -1038,7 +1038,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(2)),
     }),
     {
-        name: "shake-effect",
+        name: "Shake",
         description: `Applies shake effect to a canvas alias with optional key/value parameters.
 
 \`\`\`ink
@@ -1070,7 +1070,7 @@ HashtagCommands.addMapper(
         return animate;
     },
     {
-        name: "animate-effect",
+        name: "Animate",
         description: `Animates a canvas alias with keyframes and optional options section, both in key/value pairs.
 
 \`\`\`ink
@@ -1102,11 +1102,11 @@ HashtagCommands.addMapper(
         return getImageOrVideoShowOperationForMapper("image", alias, propsList);
     },
     {
-        name: "show-image",
-        description: `Shows an image canvas element with optional source, properties, and transition.
+        name: "Show image",
+        description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
-# show image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+# show image <alias> [<source>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z.tuple([z.literal("show"), z.literal("image"), z.string()]).rest(z.string()),
     },
@@ -1119,11 +1119,11 @@ HashtagCommands.addMapper(
             convertListStringToPropListForMapper(list.slice(3)),
         ),
     {
-        name: "show-imagecontainer",
-        description: `Shows an image-container canvas element with list and optional key/value properties.
+        name: "Show imagecontainer",
+        description: `Shows an image-container canvas element with a list of image URLs and optional key/value properties.
 
 \`\`\`ink
-# show imagecontainer <alias> [<list>] [<key> <value> …]
+# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …]
 \`\`\``,
         validation: z
             .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
@@ -1145,11 +1145,11 @@ HashtagCommands.addMapper(
             convertListStringToPropListForMapper(list.slice(3)),
         ),
     {
-        name: "show-imagecontainer-with-transition",
-        description: `Shows an image-container canvas element with list, optional properties, and transition.
+        name: "Show imagecontainer with transition",
+        description: `Shows an image-container canvas element with a list of image URLs, optional properties, and a transition effect.
 
 \`\`\`ink
-# show imagecontainer <alias> [<list>] [<key> <value> …] with <transition>
+# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout
 \`\`\``,
         validation: z
             .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
@@ -1171,11 +1171,11 @@ HashtagCommands.addMapper(
             convertListStringToPropListForMapper(list.slice(3)),
         ),
     {
-        name: "show-imagecontainer-with-transition-props",
-        description: `Shows an image-container canvas element with list, optional properties, transition, and transition properties.
+        name: "Show imagecontainer with transition and props",
+        description: `Shows an image-container canvas element with a list of image URLs, optional properties, a transition effect, and transition key/value properties.
 
 \`\`\`ink
-# show imagecontainer <alias> [<list>] [<key> <value> …] with <transition> <key> <value> …
+# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout <key> <value> …
 \`\`\``,
         validation: z
             .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
@@ -1201,11 +1201,11 @@ HashtagCommands.addMapper(
         return getImageOrVideoShowOperationForMapper("video", alias, propsList);
     },
     {
-        name: "show-video",
-        description: `Shows a video canvas element with optional source, properties, and transition.
+        name: "Show video",
+        description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
-# show video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+# show video <alias> [<source>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z.tuple([z.literal("show"), z.literal("video"), z.string()]).rest(z.string()),
     },
@@ -1217,11 +1217,11 @@ HashtagCommands.addMapper(
         return getTextShowOperationForMapper(alias, list.slice(3));
     },
     {
-        name: "show-text",
-        description: `Shows a text canvas element with optional text, properties, and transition.
+        name: "Show text",
+        description: `Shows a text canvas element with optional text content, key/value properties, and transition effect.
 
 \`\`\`ink
-# show text <alias> [<text>] [<key> <value> …] [with <transition> [<key> <value> …]]
+# show text <alias> [<text>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z.tuple([z.literal("show"), z.literal("text"), z.string()]).rest(z.string()),
     },
@@ -1234,11 +1234,11 @@ HashtagCommands.addMapper(
         return getCanvasRemoveOperationForMapper("image", alias, propsList);
     },
     {
-        name: "remove-image",
-        description: `Removes an image canvas element with optional source/properties and transition.
+        name: "Remove image",
+        description: `Removes an image canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove image <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+# remove image <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z.tuple([z.literal("remove"), z.literal("image"), z.string()]).rest(z.string()),
     },
@@ -1251,11 +1251,11 @@ HashtagCommands.addMapper(
         return getCanvasRemoveOperationForMapper("video", alias, propsList);
     },
     {
-        name: "remove-video",
-        description: `Removes a video canvas element with optional source/properties and transition.
+        name: "Remove video",
+        description: `Removes a video canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove video <alias> [<source>] [<key> <value> …] [with <transition> [<key> <value> …]]
+# remove video <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z.tuple([z.literal("remove"), z.literal("video"), z.string()]).rest(z.string()),
     },
@@ -1268,11 +1268,11 @@ HashtagCommands.addMapper(
         return getCanvasRemoveOperationForMapper("canvaselement", alias, propsList);
     },
     {
-        name: "remove-canvaselement",
-        description: `Removes a canvas element with optional properties and optional transition params.
+        name: "Remove canvas element",
+        description: `Removes a canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove canvaselement <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+# remove canvaselement <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z
             .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
@@ -1287,11 +1287,11 @@ HashtagCommands.addMapper(
         return getCanvasRemoveOperationForMapper("text", alias, propsList);
     },
     {
-        name: "remove-text",
-        description: `Removes a text canvas element with optional properties and transition.
+        name: "Remove text",
+        description: `Removes a text canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove text <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+# remove text <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z.tuple([z.literal("remove"), z.literal("text"), z.string()]).rest(z.string()),
     },
@@ -1304,11 +1304,11 @@ HashtagCommands.addMapper(
         return getCanvasRemoveOperationForMapper("imagecontainer", alias, propsList);
     },
     {
-        name: "remove-imagecontainer",
-        description: `Removes an image-container canvas element with optional properties and transition.
+        name: "Remove imagecontainer",
+        description: `Removes an image-container canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove imagecontainer <alias> [<key> <value> …] [with <transition> [<key> <value> …]]
+# remove imagecontainer <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
         validation: z
             .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])
@@ -1324,7 +1324,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(3)),
     }),
     {
-        name: "edit-image",
+        name: "Edit image",
         description: `Edits the properties of an image canvas element identified by its alias.
 
 \`\`\`ink
@@ -1342,7 +1342,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(3)),
     }),
     {
-        name: "edit-imagecontainer",
+        name: "Edit imagecontainer",
         description: `Edits the properties of an image-container canvas element identified by its alias.
 
 \`\`\`ink
@@ -1362,7 +1362,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(3)),
     }),
     {
-        name: "edit-canvaselement",
+        name: "Edit canvas element",
         description: `Edits the properties of a canvas element identified by its alias.
 
 \`\`\`ink
@@ -1382,7 +1382,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(3)),
     }),
     {
-        name: "edit-video",
+        name: "Edit video",
         description: `Edits the properties of a video canvas element identified by its alias.
 
 \`\`\`ink
@@ -1400,7 +1400,7 @@ HashtagCommands.addMapper(
         props: HashtagCommands.convertListStringToObj(list.slice(3)),
     }),
     {
-        name: "edit-text",
+        name: "Edit text",
         description: `Edits the properties of a text canvas element identified by its alias.
 
 \`\`\`ink
@@ -1416,7 +1416,7 @@ HashtagCommands.addMapper(
         operationType: "request",
     }),
     {
-        name: "request-input",
+        name: "Request input",
         description: `Requests player input without any additional constraints.
 
 \`\`\`ink
@@ -1447,7 +1447,7 @@ HashtagCommands.addMapper(
         return op;
     },
     {
-        name: "request-input-params",
+        name: "Request input with params",
         description: `Requests player input with optional key/value parameters (e.g. type, default).
 
 \`\`\`ink
