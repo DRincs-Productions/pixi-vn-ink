@@ -76,6 +76,21 @@ export interface InkHashtagCommandInfo {
 }
 
 /**
+ * Represents a single divert occurrence found in an Ink source file whose target
+ * could not be resolved locally or against the known external label pool.
+ */
+export interface DivertOccurrence {
+    /**
+     * 1-based line number where the divert appears.
+     */
+    line: number;
+    /**
+     * The raw divert target as written in the source (e.g. `"myKnot"` or `"myKnot.myStitch"`).
+     */
+    target: string;
+}
+
+/**
  * Represents a single hashtag command occurrence found in an Ink source file.
  */
 export interface HashtagCommandOccurrence {

@@ -32,6 +32,8 @@ type PixivnPluginApi = {
         labels: string[],
     ) => void | Promise<void>;
     clearExternalLabels?: (providerId: string) => void | Promise<void>;
+    /** All label ids known to `vite-plugin-pixi-vn` (from every provider), populated after {@link contentLoaded}. */
+    labels?: readonly string[];
 };
 
 type PixivnPlugin = {
@@ -195,6 +197,18 @@ function logUnknownHashtagCommands(
     if (unknownCommands.length > 0) {
         logWarning(`Hashtag command metadata is available via ${INK_DEV_API_HASHTAG_COMMANDS}.`);
     }
+}
+
+function logUnknownDivertTargets(
+    source: string,
+    knownLabels: readonly string[],
+    logWarning: (message: string, line?: number) => void,
+): void {
+    if (knownLabels.length === 0) return;
+    const unknownTargets = InkCompiler.getUnknownDivertTargets(source, knownLabels);
+    unknownTargets.forEach(({ target, line }) => {
+        logWarning(`Divert target "${target}" not found in any known label source.`, line);
+    });
 }
 
 /**
@@ -789,6 +803,17 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                                 { timestamp: true },
                             ),
                         );
+                        const pixivnLabelsHU =
+                            getPixivnPlugin(server.config.plugins)?.api?.labels ?? [];
+                        logUnknownDivertTargets(
+                            source,
+                            [...externalInkLabelIdsStore, ...pixivnLabelsHU],
+                            (message, line) =>
+                                server.config.logger.warn(
+                                    `${line !== undefined ? `${file}:${line}` : file}: ${message}`,
+                                    { timestamp: true },
+                                ),
+                        );
 
                         await exportInkJsonFiles();
                         await syncExternalLabelsToPixivn(
@@ -872,6 +897,16 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             });
             logUnknownHashtagCommands(source, hashtagCommandsStore, (message, line) =>
                 this.warn({ message, loc: line !== undefined ? { line, column: 0 } : undefined }),
+            );
+            const pixivnLabelsT = getPixivnPlugin(resolvedConfig?.plugins)?.api?.labels ?? [];
+            logUnknownDivertTargets(
+                source,
+                [...externalInkLabelIdsStore, ...pixivnLabelsT],
+                (message, line) =>
+                    this.warn({
+                        message,
+                        loc: line !== undefined ? { line, column: 0 } : undefined,
+                    }),
             );
 
             // esporta source

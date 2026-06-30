@@ -1,6 +1,7 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import type {
     CompileSharedType,
+    DivertOccurrence,
     HashtagCommandOccurrence,
     InkHashtagCommandInfo,
     IssueType,
@@ -9,6 +10,10 @@ import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 
 const INK_HASHTAG_COMMAND_PATTERN = /(?:^|<>)\s*#\s*([^\r\n]+)/g;
+const INK_LOCAL_LABEL_PATTERN = /^=+[ \t]+(?:function[ \t]+)?(\w+)/gm;
+const INK_BUILT_IN_DIVERT_TARGETS = new Set(["DONE", "END"]);
+// Maps ink dot notation (myKnot.myStitch) to the pixi-vn label separator used in compiled JSON.
+const INK_LABEL_SEPARATOR = "_|_";
 const HASHTAG_VALIDATION_REGEX_CACHE = new Map<string, RegExp>();
 
 function getCachedRegExp(source: string, flags: string): RegExp {
@@ -390,5 +395,61 @@ export namespace InkCompiler {
             ({ tokens }) =>
                 !commands.some(({ validation }) => matchesHashtagValidation(tokens, validation)),
         );
+    }
+
+    /**
+     * Returns all `-> target` diverts in `source` whose target cannot be resolved
+     * locally (knots / stitches defined in the same file) and is not present in
+     * `knownLabels` (labels collected from other ink files or from
+     * `vite-plugin-pixi-vn`).
+     *
+     * Built-in ink targets (`DONE`, `END`) are always considered valid.
+     *
+     * @param source      Raw Ink source text to scan.
+     * @param knownLabels Flat list of label ids known at build / dev-server time.
+     * @returns           Array of {@link DivertOccurrence} objects, each with the
+     *                    1-based `line` and the raw `target` string. Each distinct
+     *                    target is reported only once.
+     */
+    export function getUnknownDivertTargets(
+        source: string,
+        knownLabels: readonly string[],
+    ): DivertOccurrence[] {
+        // Collect knots and stitches defined locally in this file.
+        const localLabels = new Set<string>();
+        for (const match of source.matchAll(INK_LOCAL_LABEL_PATTERN)) {
+            if (match[1]) localLabels.add(match[1]);
+        }
+
+        const knownLabelsSet = new Set(knownLabels);
+        const reported = new Set<string>();
+        const lines = source.split(/\r?\n/);
+        const unknown: DivertOccurrence[] = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            // Strip single-line comments before scanning for diverts.
+            const lineText = (lines[i] ?? "").replace(/\/\/.*$/, "");
+            for (const match of lineText.matchAll(/->[ \t]+(\w[\w.]*)/g)) {
+                const target = match[1];
+                if (!target) continue;
+                const topLevel = target.split(".")[0] ?? target;
+                if (
+                    INK_BUILT_IN_DIVERT_TARGETS.has(topLevel) ||
+                    localLabels.has(topLevel) ||
+                    knownLabelsSet.has(target) ||
+                    // ink uses dot notation (myKnot.myStitch); pixi-vn JSON uses "_|_"
+                    knownLabelsSet.has(target.replaceAll(".", INK_LABEL_SEPARATOR)) ||
+                    knownLabelsSet.has(topLevel)
+                ) {
+                    continue;
+                }
+                if (!reported.has(target)) {
+                    reported.add(target);
+                    unknown.push({ line: i + 1, target });
+                }
+            }
+        }
+
+        return unknown;
     }
 }
