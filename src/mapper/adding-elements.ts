@@ -133,7 +133,14 @@ function addConditionalElementStep(
                     ) {
                         const i = item[0];
                         const list = HashtagCommands.convertTagTolist(i);
-                        const res = HashtagCommands.convertOperation(list, currentstep);
+                        // Speculative probe of the built-in mapper table only: a miss here is
+                        // expected and handled below via the `operationtoconvert` deferral,
+                        // which resolves through the full `run()` pipeline (custom `.add()`
+                        // handlers included) later. Silence the mapper-miss log so custom
+                        // hashtag commands don't get a false "not valid" error on every parse.
+                        const res = HashtagCommands.convertOperation(list, currentstep, {
+                            silent: true,
+                        });
                         if (res) {
                             res.$origin = i;
                             op.push(res);

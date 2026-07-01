@@ -280,6 +280,19 @@ export namespace HashtagCommands {
     export function convertOperation(
         list: string[],
         step: PixiVNJsonLabelStep,
+        options?: {
+            /**
+             * When `true`, suppresses the "The operation is not valid" error log on a mapper
+             * miss. Callers that only speculatively probe the built-in `.addMapper()` table —
+             * e.g. to decide whether a hashtag script can be resolved eagerly at parse time,
+             * before falling back to a deferred `operationtoconvert` step that will later be
+             * resolved through the full {@link run} pipeline (custom `.add()` handlers included)
+             * — should pass `silent: true`. Otherwise every hashtag command registered only via
+             * `.add()` (never a mapper) would log a false "not valid" error on every parse, even
+             * though it resolves correctly once `run()` reaches it.
+             */
+            silent?: boolean;
+        },
     ): PixiVNJsonOperation | undefined {
         // Try each registered mapper whose validation matches the raw token list.
         // The first match wins; its return value (including undefined) is used directly.
@@ -297,7 +310,9 @@ export namespace HashtagCommands {
             }
         }
 
-        logger.error("The operation is not valid", list);
+        if (!options?.silent) {
+            logger.error("The operation is not valid", list);
+        }
         return undefined;
     }
 

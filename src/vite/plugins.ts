@@ -387,28 +387,21 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         validation: RegExp | ZodType | string;
     };
     type SsrReplaceInfo = SsrHandlerInfo & { type?: "before-translation" | "after-translation" };
-    type SsrInkModule = {
-        HashtagCommands: { info(): SsrHandlerInfo[] };
-        TextReplaces: { info(): SsrReplaceInfo[] };
-    };
 
     const syncStores = async () => {
-        let hashtagInfo: SsrHandlerInfo[];
-        let textReplaceInfo: SsrReplaceInfo[];
-
-        if (devServer) {
-            try {
-                const mod = (await devServer.ssrLoadModule("@drincs/pixi-vn-ink")) as SsrInkModule;
-                hashtagInfo = mod.HashtagCommands.info();
-                textReplaceInfo = mod.TextReplaces.info();
-            } catch {
-                hashtagInfo = HashtagCommands.info();
-                textReplaceInfo = TextReplaces.info() as SsrReplaceInfo[];
-            }
-        } else {
-            hashtagInfo = HashtagCommands.info();
-            textReplaceInfo = TextReplaces.info() as SsrReplaceInfo[];
-        }
+        // `@drincs/pixi-vn-ink` is never added to `ssr.noExternal` by this plugin (or by
+        // `vite-plugin-pixi-vn` / `vite-plugin-nqtr`), so content files always import it via
+        // Node's native module resolution — the exact same resolution this plugin's own
+        // top-level `HashtagCommands`/`TextReplaces` imports go through. Re-fetching it via
+        // `devServer.ssrLoadModule` instead resolves a *different*, always-empty-of-custom-
+        // registrations instance (Vite's SSR loader does not guarantee identity with a plain
+        // Node import for an externalized dependency — in practice it lands on the separate CJS
+        // build). That mismatch is invisible for `HashtagCommands` (its 36+ built-in
+        // `.addMapper()` translators still show up, masking the missing custom `.add()` ones)
+        // but made `TextReplaces` — which has no built-in entries at all — always report 0,
+        // even when text replaces were registered and used correctly for JSON export.
+        const hashtagInfo: SsrHandlerInfo[] = HashtagCommands.info();
+        const textReplaceInfo: SsrReplaceInfo[] = TextReplaces.info() as SsrReplaceInfo[];
 
         hashtagCommandsStore = hashtagInfo.map(({ name, description, validation }) => ({
             name,
@@ -425,6 +418,21 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
     const getPixivnPlugin = (plugins?: readonly Plugin[]): PixivnPlugin | undefined =>
         plugins?.find((p) => p.name === "vite-plugin-pixi-vn") as PixivnPlugin | undefined;
+
+    /**
+     * `vite-plugin-nqtr` (from `@drincs/nqtr/vite`), when present, exposes a `contentLoaded`
+     * promise just like `vite-plugin-pixi-vn`. Content files often read NQTR's generated id
+     * arrays/enums (e.g. to build `createNqtrHandler` validators), so JSON export must not run
+     * until both plugins have finished writing their generated files — not just pixi-vn's.
+     */
+    const getContentLoadedPromises = (plugins?: readonly Plugin[]): Promise<unknown>[] => {
+        const nqtrPlugin = plugins?.find((p) => p.name === "vite-plugin-nqtr") as
+            | (Plugin & { api?: { contentLoaded?: Promise<void> } })
+            | undefined;
+        return [getPixivnPlugin(plugins)?.api?.contentLoaded, nqtrPlugin?.api?.contentLoaded].filter(
+            (p): p is Promise<void> => Boolean(p),
+        );
+    };
 
     const syncExternalLabelsToPixivn = async (pixivnPlugin: PixivnPlugin | undefined) => {
         const api = pixivnPlugin?.api;
@@ -539,8 +547,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         await fs.mkdir(outputDirectory, { recursive: true });
 
+        const sourceByFile = new Map<string, string>();
+
         for (const matchedFile of matchedFiles) {
             const source = await fs.readFile(matchedFile, "utf-8");
+            sourceByFile.set(matchedFile, source);
             let converted: ReturnType<typeof convertInkToJson>;
             try {
                 converted = convertInkToJson(source, { characters: knownCharacters });
@@ -609,6 +620,28 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             left.localeCompare(right),
         );
         const totalLabels = allLabelIds.length;
+
+        // Surface unknown hashtag commands / divert targets at export time (dev-server startup,
+        // every rebuild, and `vite build`) — not just on the next HMR edit of that specific file.
+        // Without this, a typo like `# navigat ...` only ever gets reported once the file is
+        // saved again; a fresh `npm run dev` (or CI build) would stay silent about it.
+        const pixivnLabelsForExport = getPixivnPlugin(resolvedConfig.plugins)?.api?.labels ?? [];
+        const knownLabelsForExport = [...externalInkLabelIdsStore, ...pixivnLabelsForExport];
+        for (const [matchedFile, source] of sourceByFile) {
+            logUnknownHashtagCommands(source, hashtagCommandsStore, (message, line) =>
+                resolvedConfig!.logger.warn(
+                    `${line !== undefined ? `${matchedFile}:${line}` : matchedFile}: ${message}`,
+                    { timestamp: true },
+                ),
+            );
+            logUnknownDivertTargets(source, knownLabelsForExport, (message, line) =>
+                resolvedConfig!.logger.warn(
+                    `${line !== undefined ? `${matchedFile}:${line}` : matchedFile}: ${message}`,
+                    { timestamp: true },
+                ),
+            );
+        }
+
         resolvedConfig.logger.info(
             `${PLUGIN_PREFIX} ${pc.dim(`${matchedFiles.length} file(s) exported: ${totalLabels} label(s), ${hashtagCommandsStore.length} hashtag-command(s), ${textReplacesStore.length} text-replace(s)`)}`,
             { timestamp: true },
@@ -662,8 +695,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         async buildStart() {
             const pixivnPlugin = getPixivnPlugin(resolvedConfig?.plugins);
-            const contentLoaded = pixivnPlugin?.api?.contentLoaded;
-            if (contentLoaded) await contentLoaded;
+            await Promise.all(getContentLoadedPromises(resolvedConfig?.plugins));
             await syncStores();
             await exportInkJsonFiles();
             await syncExternalLabelsToPixivn(pixivnPlugin);
@@ -727,9 +759,8 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
             });
 
             const pixivnPlugin = getPixivnPlugin(server.config.plugins);
-            const contentLoaded = pixivnPlugin?.api?.contentLoaded;
 
-            void (contentLoaded ?? Promise.resolve())
+            void Promise.all(getContentLoadedPromises(server.config.plugins))
                 .then(async () => {
                     await syncStores();
                     await exportInkJsonFiles();

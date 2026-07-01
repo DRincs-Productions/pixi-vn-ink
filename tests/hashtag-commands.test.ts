@@ -1,8 +1,9 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
+import { convertInkToJson } from "@/loader";
 import { InkCompiler } from "@/parser";
 import type { InkHashtagCommandInfo } from "@/parser/types";
 import type { PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
-import { expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 test("mergeJsonBlocks merges sibling JSON-like blocks", () => {
@@ -91,6 +92,41 @@ test("convertOperation maps shake with string and boolean values", () => {
         type: "shake",
         props: { intensity: "high", enabled: true },
     });
+});
+
+afterEach(() => {
+    vi.restoreAllMocks();
+});
+
+test("convertOperation logs 'not valid' on a mapper miss by default", () => {
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    expect(HashtagCommands.convertOperation(["totally-unknown-command"], step)).toBeUndefined();
+
+    expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("The operation is not valid"),
+        ["totally-unknown-command"],
+    );
+});
+
+test("convertOperation with { silent: true } suppresses the 'not valid' log on a mapper miss", () => {
+    // Regression test: `adding-elements.ts` speculatively calls `convertOperation` to see if a
+    // hashtag script resolves via the built-in mapper table, before falling back to a deferred
+    // `operationtoconvert` step resolved later through the full `run()` pipeline (which also
+    // checks custom `.add()`-registered handlers). Without `silent: true`, every command
+    // registered only via `.add()` — e.g. app-specific commands, or `createNqtrHandler`'s
+    // room/quest/activity commands — would log a false "not valid" error on every single parse,
+    // even though it resolves correctly once `run()` reaches it.
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = HashtagCommands.convertOperation(["enter", "room", "mc_room"], step, {
+        silent: true,
+    });
+
+    expect(result).toBeUndefined();
+    expect(errorSpy).not.toHaveBeenCalled();
 });
 
 test("convertOperation rejects shake with odd params", () => {
@@ -370,4 +406,30 @@ test("getUnknownHashtagCommands: unregistered command is still reported as unkno
     const unknown = InkCompiler.getUnknownHashtagCommands(source, []);
     expect(unknown).toHaveLength(1);
     expect(unknown[0].command).toBe("pause sound { myvalue }");
+});
+
+test("converting a `.ink` script does not log a false 'not valid' error for a command registered only via HashtagCommands.add", () => {
+    // End-to-end regression test for the bug where every custom hashtag command (registered via
+    // `.add()`, e.g. app-specific commands or `createNqtrHandler`'s room/quest/activity
+    // commands) logged a spurious "The operation is not valid" error on every single `.ink`
+    // parse — even though the command works perfectly once actually run. The parser
+    // speculatively checks the built-in mapper table before deferring to `operationtoconvert`
+    // (resolved later via the full `run()` pipeline, which does check `.add()` handlers); that
+    // speculative check must stay silent on a miss.
+    HashtagCommands.add(
+        () => true,
+        { name: "enter-room-test", validation: z.tuple([z.literal("enter"), z.literal("room"), z.string()]) },
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+        convertInkToJson("=== start ===\n# enter room mc_room\nHello!\n");
+    } finally {
+        HashtagCommands.clear();
+    }
+
+    expect(errorSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining("The operation is not valid"),
+        expect.anything(),
+    );
 });
