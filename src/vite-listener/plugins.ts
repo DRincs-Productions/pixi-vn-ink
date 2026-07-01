@@ -92,11 +92,16 @@ export async function handleInkUpdatedPayload(
  * ```
  */
 export async function setupInkHmrListener(options: InkHmrListenerOptions = {}) {
-    if (import.meta.hot) {
-        if (inkJsons && inkJsons.length > 0) {
-            await importJson(inkJsons);
-        }
+    // Load the initial ink JSON unconditionally: this is needed in every mode, not just dev.
+    // `import.meta.hot` is only defined while a Vite dev server is attached (never in a
+    // production build or `vite preview`) — gating this import behind it meant a deployed build
+    // never loaded any ink-derived content (labels, steps, ...) at all, since nothing else in a
+    // typical app calls `importJson` for these files.
+    if (inkJsons && inkJsons.length > 0) {
+        await importJson(inkJsons);
+    }
 
+    if (import.meta.hot) {
         import.meta.hot.on("ink-updated", async (payload: string | InkUpdatedPayload) => {
             await handleInkUpdatedPayload(payload, undefined, options);
         });
