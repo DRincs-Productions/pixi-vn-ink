@@ -27,10 +27,7 @@ type PixivnPluginApi = {
     /** Characters registered by `vite-plugin-pixi-vn`, populated after {@link contentLoaded}. */
     characters?: readonly { id: string }[];
     onReload?: (cb: () => void) => void;
-    setExternalLabels?: (
-        providerId: string,
-        labels: string[],
-    ) => void | Promise<void>;
+    setExternalLabels?: (providerId: string, labels: string[]) => void | Promise<void>;
     clearExternalLabels?: (providerId: string) => void | Promise<void>;
     /** All label ids known to `vite-plugin-pixi-vn` (from every provider), populated after {@link contentLoaded}. */
     labels?: readonly string[];
@@ -429,9 +426,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         const nqtrPlugin = plugins?.find((p) => p.name === "vite-plugin-nqtr") as
             | (Plugin & { api?: { contentLoaded?: Promise<void> } })
             | undefined;
-        return [getPixivnPlugin(plugins)?.api?.contentLoaded, nqtrPlugin?.api?.contentLoaded].filter(
-            (p): p is Promise<void> => Boolean(p),
-        );
+        return [
+            getPixivnPlugin(plugins)?.api?.contentLoaded,
+            nqtrPlugin?.api?.contentLoaded,
+        ].filter((p): p is Promise<void> => Boolean(p));
     };
 
     const syncExternalLabelsToPixivn = async (pixivnPlugin: PixivnPlugin | undefined) => {
@@ -847,9 +845,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         );
 
                         await exportInkJsonFiles();
-                        await syncExternalLabelsToPixivn(
-                            getPixivnPlugin(server.config.plugins),
-                        );
+                        await syncExternalLabelsToPixivn(getPixivnPlugin(server.config.plugins));
 
                         if (error) {
                             server.ws.send({
@@ -879,9 +875,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                         }
                     } else {
                         await exportInkJsonFiles();
-                        await syncExternalLabelsToPixivn(
-                            getPixivnPlugin(server.config.plugins),
-                        );
+                        await syncExternalLabelsToPixivn(getPixivnPlugin(server.config.plugins));
                         server.ws.send({
                             type: "custom",
                             event: "ink-updated",

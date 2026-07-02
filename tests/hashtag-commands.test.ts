@@ -1,4 +1,4 @@
-import { HashtagCommands } from "@/handlers/hashtag-commands";
+import { addBaseHashtagCommands, HashtagCommands } from "@/handlers/hashtag-commands";
 import { convertInkToJson } from "@/loader";
 import { InkCompiler } from "@/parser";
 import type { InkHashtagCommandInfo } from "@/parser/types";
@@ -313,6 +313,54 @@ test("addMapper: last registered mapper runs first", () => {
     const result = HashtagCommands.convertOperation(["testmapper", "bg"], step);
 
     expect((result as { alias: string }).alias).toBe("second");
+    HashtagCommands.clearMappers();
+});
+
+// ── addBaseHashtagCommands(options) — bundleIds/assetAliasIds validation ───
+
+test("addBaseHashtagCommands restricts 'load assets'/'load bundle' aliases to the known ids when provided", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ bundleIds: ["intro"], assetAliasIds: ["alice"] });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toEqual({
+        type: "assets",
+        operationType: "load",
+        aliases: ["alice"],
+    });
+    expect(HashtagCommands.convertOperation(["lazyload", "bundle", "intro"], step)).toEqual({
+        type: "bundle",
+        operationType: "lazyload",
+        aliases: ["intro"],
+    });
+
+    // An id outside the known list matches neither union branch, so the mapper misses entirely.
+    expect(
+        HashtagCommands.convertOperation(["load", "assets", "unknown"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(
+        HashtagCommands.convertOperation(["load", "bundle", "unknown"], step, { silent: true }),
+    ).toBeUndefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands accepts any alias when bundleIds/assetAliasIds are not provided", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(HashtagCommands.convertOperation(["load", "assets", "anything"], step)).toEqual({
+        type: "assets",
+        operationType: "load",
+        aliases: ["anything"],
+    });
+    expect(HashtagCommands.convertOperation(["load", "bundle", "anything"], step)).toEqual({
+        type: "bundle",
+        operationType: "load",
+        aliases: ["anything"],
+    });
+
     HashtagCommands.clearMappers();
 });
 
