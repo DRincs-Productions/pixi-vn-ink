@@ -456,6 +456,36 @@ test("getUnknownHashtagCommands: unregistered command is still reported as unkno
     expect(unknown[0].command).toBe("pause sound { myvalue }");
 });
 
+// ── regression: `# rename <id> { _input_value_ }` (Ink variable as 3rd token) ─
+
+test("convertTagTolist mergeInkVariables: { _input_value_ } collapses to a single token", () => {
+    // This mirrors `# rename mc { _input_value_ }`, where `{ _input_value_ }` is an Ink
+    // variable interpolation resolved by inkjs at runtime, not yet evaluated when the raw
+    // source is statically scanned for unknown hashtag commands.
+    expect(
+        HashtagCommands.convertTagTolist("rename mc { _input_value_ }", {
+            mergeInkVariables: true,
+        }),
+    ).toEqual(["rename", "mc", "§INK_VAR§"]);
+});
+
+test("getUnknownHashtagCommands: `rename <enum-id> { _input_value_ }` is not unknown", () => {
+    // Same shape as the app-level "character rename" command:
+    // zod.tuple([zod.literal("rename"), zod.enum(characterIds), zod.string()])
+    const renameCommand: InkHashtagCommandInfo = {
+        name: "character rename",
+        validation: {
+            type: "zod",
+            schema: z.toJSONSchema(
+                z.tuple([z.literal("rename"), z.enum(["mc", "james"]), z.string()]),
+            ) as Record<string, unknown>,
+        },
+    };
+    const source = "=== start ===\n# rename mc { _input_value_ }\n";
+    const unknown = InkCompiler.getUnknownHashtagCommands(source, [renameCommand]);
+    expect(unknown).toHaveLength(0);
+});
+
 test("converting a `.ink` script does not log a false 'not valid' error for a command registered only via HashtagCommands.add", () => {
     // End-to-end regression test for the bug where every custom hashtag command (registered via
     // `.add()`, e.g. app-specific commands or `createNqtrHandler`'s room/quest/activity
