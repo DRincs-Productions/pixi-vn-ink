@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "workspaces": [
     "playground"
@@ -91,7 +91,7 @@
   "homepage": "https://pixi-vn.com/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "^1.13.11",
+    "@drincs/pixi-vn-json": "^1.13.12",
     "ajv": "^8.20.0"
   },
   "devDependencies": {
