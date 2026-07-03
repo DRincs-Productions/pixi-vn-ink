@@ -7,7 +7,7 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import type { ResolvedConfig } from "vite";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 async function createTempProject(): Promise<string> {
     return await fs.mkdtemp(path.join(os.tmpdir(), "pixi-vn-ink-vite-plugin-"));
@@ -32,7 +32,19 @@ async function readJsonFile(filePath: string) {
 
 const tempDirectories: string[] = [];
 
+// The exported JSON's `$schema` points at a real, live `https://pixi-vn.com/...` URL. Stub
+// `fetch` so the test suite doesn't depend on network access; an always-valid `{}` schema keeps
+// every existing test's behavior unchanged, and individual tests can override this stub to
+// exercise the schema-validation-warning path itself.
+beforeEach(() => {
+    vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => new Response(JSON.stringify({}), { status: 200 })),
+    );
+});
+
 afterEach(async () => {
+    vi.unstubAllGlobals();
     await Promise.all(
         tempDirectories.map(async (directory) => {
             await fs.rm(directory, { recursive: true, force: true });
@@ -832,5 +844,192 @@ describe("vitePluginInk dev API", () => {
         const { server } = await startPlugin();
         const res = await request(server, "GET", "/some-other-path");
         expect(res.status).toBe(404);
+    });
+
+    it("warns with the ink $origin when exported JSON fails schema validation", async () => {
+        // Regression coverage for schema-drift detection: after export, the JSON is validated
+        // against the schema its own `$schema` field points at. A mismatch is expected to
+        // usually live inside an `operations` entry (e.g. a hashtag command producing a
+        // slightly-off shape), so the warning must surface that operation's `$origin` — the
+        // original `# ...` ink source line — not just an opaque JSON pointer.
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\n# lazyload assets myAlias\nHello world!\n-> DONE\n",
+            "utf-8",
+        );
+
+        // A schema that's intentionally stricter than reality: it requires every operation's
+        // `aliases` field to be a string, while the real converted operation always emits an
+        // array of strings — guaranteeing a validation failure to assert against.
+        const strictSchema = {
+            type: "object",
+            properties: {
+                labels: {
+                    type: "object",
+                    additionalProperties: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                operations: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            aliases: { type: "string" },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+        vi.stubGlobal(
+            "fetch",
+            vi.fn(async () => new Response(JSON.stringify(strictSchema), { status: 200 })),
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        const logger = makeLogger();
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public"), logger));
+
+        await plugin.buildStart?.call(undefined);
+
+        const warnedMessage = logger.warn.mock.calls
+            .map(([message]) => String(message))
+            .find((message) => message.includes("schema validation failed"));
+
+        expect(warnedMessage).toBeDefined();
+        expect(warnedMessage).toContain("aliases");
+        expect(warnedMessage).toContain('from ink source: "lazyload assets myAlias"');
+    });
+
+    it("collapses a widely-fanned-out anyOf failure into one specific warning per field", async () => {
+        // A schema this recursive reports one error per rejected anyOf branch, several levels
+        // deep — a single bad value can fan out into dozens of "must have required property X"
+        // complaints about branches that were never the intended shape. Only the specific,
+        // actionable complaint about the field that's actually wrong should survive, once per
+        // field (not once per branch/nesting level it happened to be re-checked at).
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\n# lazyload assets myAlias\nHello world!\n-> DONE\n",
+            "utf-8",
+        );
+
+        // A deliberately wide union (mirroring how a real operation type is one of many in the
+        // real schema) where every branch requires a distinct field the real operation doesn't
+        // have, plus one branch with a genuinely specific, actionable mismatch on `aliases`.
+        const wideUnionSchema = {
+            type: "object",
+            properties: {
+                labels: {
+                    type: "object",
+                    additionalProperties: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                operations: {
+                                    type: "array",
+                                    items: {
+                                        anyOf: [
+                                            { type: "object", required: ["notAField1"] },
+                                            { type: "object", required: ["notAField2"] },
+                                            { type: "object", required: ["notAField3"] },
+                                            {
+                                                type: "object",
+                                                properties: { aliases: { type: "string" } },
+                                                required: ["aliases"],
+                                            },
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        };
+        vi.stubGlobal(
+            "fetch",
+            vi.fn(async () => new Response(JSON.stringify(wideUnionSchema), { status: 200 })),
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        const logger = makeLogger();
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public"), logger));
+
+        await plugin.buildStart?.call(undefined);
+
+        const schemaWarnings = logger.warn.mock.calls
+            .map(([message]) => String(message))
+            .filter((message) => message.includes("schema validation failed"));
+
+        expect(schemaWarnings).toHaveLength(1);
+        expect(schemaWarnings[0]).toContain("aliases");
+        expect(schemaWarnings.some((message) => message.includes("notAField"))).toBe(false);
+        expect(schemaWarnings.some((message) => message.includes("anyOf"))).toBe(false);
+    });
+
+    it("reports an unreachable schema URL once and skips validation entirely", async () => {
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\nHello world!\n-> DONE\n",
+            "utf-8",
+        );
+
+        vi.stubGlobal(
+            "fetch",
+            vi.fn(async () => {
+                throw new TypeError("fetch failed");
+            }),
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        const logger = makeLogger();
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public"), logger));
+
+        await plugin.buildStart?.call(undefined);
+
+        const warnings = logger.warn.mock.calls.map(([message]) => String(message));
+        expect(
+            warnings.some(
+                (message) =>
+                    message.includes("Could not load/compile JSON schema") &&
+                    message.includes("Skipping schema validation"),
+            ),
+        ).toBe(true);
+        expect(warnings.some((message) => message.includes("schema validation failed"))).toBe(
+            false,
+        );
     });
 });

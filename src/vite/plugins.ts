@@ -4,6 +4,7 @@ import { InkCompiler } from "@/parser";
 import type { InkValidationInfo } from "@/parser/types";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import { TextReplaces, type PixiVNJson } from "@drincs/pixi-vn-json";
+import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
@@ -209,6 +210,159 @@ function logUnknownDivertTargets(
 }
 
 /**
+ * Compiled Ajv validators, cached by the `$schema` URL they were fetched from — the URL embeds
+ * the `@drincs/pixi-vn-json` version (e.g. `.../schemas/1.13.10/schema.json`), so every exported
+ * file within a build shares one cached fetch+compile instead of re-fetching per file/per edit.
+ * `undefined` means the fetch or compile failed (already warned once) and is cached too, so a
+ * broken/offline schema URL doesn't retry (and re-warn) on every keystroke.
+ * One instance lives per {@link vitePluginInk} call (passed in), not at module scope, so
+ * separate plugin instances (and tests) don't share a fetch cache.
+ */
+type SchemaValidatorCache = Map<string, Promise<ValidateFunction | undefined>>;
+
+async function getSchemaValidator(
+    schemaUrl: string,
+    cache: SchemaValidatorCache,
+    logWarning: (message: string) => void,
+): Promise<ValidateFunction | undefined> {
+    let cached = cache.get(schemaUrl);
+    if (!cached) {
+        cached = (async () => {
+            try {
+                const response = await fetch(schemaUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                }
+                const schema = await response.json();
+                const ajv = new Ajv({ strict: false, allErrors: true });
+                return ajv.compile(schema);
+            } catch (error) {
+                logWarning(
+                    `Could not load/compile JSON schema from "${schemaUrl}" (${
+                        error instanceof Error ? error.message : String(error)
+                    }). Skipping schema validation.`,
+                );
+                return undefined;
+            }
+        })();
+        cache.set(schemaUrl, cached);
+    }
+    return cached;
+}
+
+/**
+ * Walks a JSON Pointer (Ajv's `instancePath`, e.g. `/labels/talk_alice/2/operations/0/value`)
+ * down from `root`, remembering the `$origin` of the deepest node that has one. Operations
+ * converted from a `#` hashtag command carry `$origin` (the raw ink source line) — so a schema
+ * error nested inside one (e.g. a bad `value`) still resolves back to the line that produced it,
+ * even though the error itself points at a plain field with no `$origin` of its own.
+ */
+function findNearestOrigin(root: unknown, instancePath: string): string | undefined {
+    const segments = instancePath
+        .split("/")
+        .filter(Boolean)
+        .map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
+
+    let node: unknown = root;
+    let nearestOrigin: string | undefined;
+    const captureOrigin = (candidate: unknown) => {
+        if (
+            candidate &&
+            typeof candidate === "object" &&
+            typeof (candidate as Record<string, unknown>).$origin === "string"
+        ) {
+            nearestOrigin = (candidate as Record<string, unknown>).$origin as string;
+        }
+    };
+
+    captureOrigin(node);
+    for (const segment of segments) {
+        if (node === null || typeof node !== "object") break;
+        node = (node as Record<string, unknown>)[segment];
+        captureOrigin(node);
+    }
+    return nearestOrigin;
+}
+
+/**
+ * Ajv's `anyOf`/`oneOf` reports one error per *rejected* branch, plus a summary error for the
+ * union itself — for a schema this recursive (a switch's `condition`/`then`/`else` all resolve
+ * through the same wide unions, several levels deep), that fans out into dozens of "must have
+ * required property X" complaints about branches that were never the intended shape to begin
+ * with (e.g. checking a comparison's `rightValue` against the arithmetic-operation branch). None
+ * of that is actionable, so it's trimmed down to what the failing *value* is actually missing:
+ *
+ * 1. Keep only "leaf" errors — drop any error whose `instancePath` is an ancestor of another
+ *    error's, since the deeper one is strictly more specific about what's actually wrong.
+ * 2. At each remaining path, prefer a concrete reason (`type`, `const`, `enum`, ...) over the
+ *    bare "must match a schema in anyOf"/"oneOf" summary, when one is available.
+ * 3. Collapse repeats of the same complaint on the same field across sibling branches (e.g. one
+ *    per switch case) into a single warning.
+ */
+function simplifySchemaErrors(errors: ErrorObject[]): ErrorObject[] {
+    const instancePaths = errors.map((error) => error.instancePath);
+    const isAncestorOfAnother = (path: string) =>
+        instancePaths.some((other) => other !== path && other.startsWith(`${path}/`));
+    const leaves = errors.filter((error) => !isAncestorOfAnother(error.instancePath));
+
+    const byPath = new Map<string, ErrorObject[]>();
+    for (const error of leaves) {
+        const group = byPath.get(error.instancePath) ?? [];
+        group.push(error);
+        byPath.set(error.instancePath, group);
+    }
+
+    const specificOverUnionWrapper: ErrorObject[] = [];
+    for (const group of byPath.values()) {
+        const specific = group.filter(
+            (error) => error.keyword !== "anyOf" && error.keyword !== "oneOf",
+        );
+        specificOverUnionWrapper.push(...(specific.length > 0 ? specific : group));
+    }
+
+    const seen = new Set<string>();
+    return specificOverUnionWrapper.filter((error) => {
+        const field = error.instancePath.split("/").pop() ?? error.instancePath;
+        const key = `${field}|${error.message}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+/**
+ * Validates an exported `PixiVNJson` payload against the JSON Schema referenced by its own
+ * `$schema` field, and reports any mismatch as a warning (never blocks export/build — a schema
+ * drift shouldn't be fatal). Mismatches are expected to mostly land inside `operations` (e.g. a
+ * custom hashtag-command handler returning a slightly malformed operation), so each warning
+ * includes the nearest `$origin` — the original `# ...` ink source line — to make it findable.
+ */
+async function validatePixiVNJsonAgainstSchema(
+    data: PixiVNJson,
+    fileLabel: string,
+    cache: SchemaValidatorCache,
+    logWarning: (message: string) => void,
+): Promise<void> {
+    const schemaUrl = data.$schema;
+    if (!schemaUrl) return;
+
+    const validate = await getSchemaValidator(schemaUrl, cache, logWarning);
+    if (!validate) return;
+
+    const valid = validate(data);
+    if (valid) return;
+
+    for (const error of simplifySchemaErrors(validate.errors ?? [])) {
+        const origin = findNearestOrigin(data, error.instancePath);
+        const location = error.instancePath || "(root)";
+        const originSuffix = origin ? ` — from ink source: "${origin}"` : "";
+        logWarning(
+            `${fileLabel}: schema validation failed at "${location}": ${error.message ?? "invalid value"}${originSuffix}`,
+        );
+    }
+}
+
+/**
  * Options for {@link vitePluginInk}.
  */
 export interface VitePluginInkOptions {
@@ -377,6 +531,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
     let lastSyncedExternalLabelHash: string | undefined;
     let devServer: ViteDevServer | undefined;
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+    const schemaValidatorCache: SchemaValidatorCache = new Map();
 
     type SsrHandlerInfo = {
         name: string;
@@ -587,6 +742,16 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
             manifestUrls.push(
                 getManifestEntry(outputFile, resolvedConfig.root, resolvedConfig.publicDir),
+            );
+
+            await validatePixiVNJsonAgainstSchema(
+                converted,
+                matchedFile,
+                schemaValidatorCache,
+                (message) =>
+                    resolvedConfig!.logger.warn(`${PLUGIN_PREFIX} ${message}`, {
+                        timestamp: true,
+                    }),
             );
         }
 

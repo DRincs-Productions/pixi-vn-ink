@@ -138,11 +138,18 @@ export function getConditionalValue<T>(
         data.shift();
         data.push("nop" as any);
         data = [{ b: data } as any];
+        // Ink compiles a multi-way value switch (`{ x: -0:.. -1:.. -2:.. }`) into a flat
+        // chain of sibling equality-check blocks, all at the same container depth — unlike
+        // real nested `{cond: A - else: {cond2: B}}` syntax, which produces genuinely nested
+        // containers. Continuing this chain doesn't add a real container level, so the
+        // labelKey (used to resolve `.^` divert targets back to an absolute label) must stay
+        // unchanged here; appending `_|_else` on every remaining case desynced it from the
+        // divert's fixed up-count and left stray "else" segments in resolved labels.
         elseThen = getThen<T>(
             data as any,
             addSwitchElemen,
             addLabels,
-            `${labelKey}${CHOISE_LABEL_KEY_SEPARATOR}else`,
+            labelKey,
             shareData,
             paramNames,
             `${nestedId || ""}else`,
