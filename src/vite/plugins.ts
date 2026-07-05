@@ -654,6 +654,43 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         }, 150);
     };
 
+    /**
+     * Computes the current set of Ink-derived label ids without writing any JSON files to disk
+     * and without waiting for `vite-plugin-pixi-vn` (or `vite-plugin-nqtr`)'s `contentLoaded`.
+     *
+     * `vite-plugin-pixi-vn` can take a while to resolve `contentLoaded` during `vite build`
+     * (it spins up a whole secondary Vite server just to load content files via SSR), and a
+     * build-time type-checker (e.g. `vite-plugin-checker`) can run its one-shot check well
+     * before that resolves — failing (and, in practice, aborting the whole build) on a label
+     * that `syncExternalLabelsToPixivn` was about to register a moment later. Since label ids
+     * are structural (derived from knot/stitch/choice names) and don't depend on character
+     * data, they can be resolved eagerly here and synced immediately, so `vite-plugin-pixi-vn`
+     * already knows about every Ink label by the time anything else has a chance to check
+     * against it. The full, character-aware conversion (and JSON export) still only runs after
+     * `contentLoaded`, exactly as before.
+     */
+    const computeInkLabelIdsFast = async (): Promise<string[]> => {
+        if (!resolvedConfig || !inkGlob) return [];
+        const rootRelativeInkGlob = getRootRelativeInkGlob(inkGlob);
+        const matchedFiles = await glob(rootRelativeInkGlob, {
+            absolute: true,
+            cwd: resolvedConfig.root,
+            onlyFiles: true,
+        });
+        const allLabelIds: string[] = [];
+        for (const matchedFile of matchedFiles) {
+            try {
+                const source = await fs.readFile(matchedFile, "utf-8");
+                const converted = convertInkToJson(source, { characters: characters ?? [] });
+                if (converted) allLabelIds.push(...Object.keys(converted.labels ?? {}));
+            } catch {
+                // Ignore parse errors here; the full export pass (after `contentLoaded`) already
+                // reports them properly via `resolvedConfig.logger.error`.
+            }
+        }
+        return Array.from(new Set(allLabelIds)).sort((left, right) => left.localeCompare(right));
+    };
+
     const exportInkJsonFiles = async () => {
         if (!resolvedConfig || !inkGlob) {
             virtualInkJsonData = undefined;
@@ -858,6 +895,10 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
 
         async buildStart() {
             const pixivnPlugin = getPixivnPlugin(resolvedConfig?.plugins);
+
+            externalInkLabelIdsStore = await computeInkLabelIdsFast();
+            await syncExternalLabelsToPixivn(pixivnPlugin);
+
             await Promise.all(getContentLoadedPromises(resolvedConfig?.plugins));
             await syncStores();
             await exportInkJsonFiles();
