@@ -797,10 +797,18 @@ test("imagecontainer", async () => {
                     goNextStep: true,
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: [
-                                'show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve',
-                            ],
+                            type: "imagecontainer",
+                            operationType: "show",
+                            alias: "bg",
+                            urls: ["/image A.png", "image"],
+                            transition: {
+                                type: "dissolve",
+                            },
+                            props: {
+                                x: 10,
+                                y: 20,
+                            },
+                            $origin: 'show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve',
                         },
                     ],
                 },
@@ -933,6 +941,34 @@ hello
     expect(res).toEqual(expected1);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+});
+
+/**
+ * Regression test: hashtag commands whose syntax legitimately contains literal `[`/`]`
+ * tokens (e.g. `show imagecontainer`'s url list) must be resolved eagerly into a normal
+ * operation with `$origin`, exactly like bracket-free commands (e.g. `show text`). They must
+ * NOT be deferred as `operationtoconvert`, which previously happened because the eager-probe
+ * guard mistook the command's structural brackets for legacy `[key]` text-replacement syntax.
+ */
+test("show imagecontainer is resolved eagerly with $origin, not deferred as operationtoconvert", async () => {
+    const res = convertInkToJson(`
+=== start
+# show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1
+-> DONE
+`);
+    const step = res.labels.start[0];
+    expect(step.operations?.[0]).toEqual({
+        type: "imagecontainer",
+        operationType: "show",
+        alias: "james",
+        urls: ["m01-body", "m01-eyes-smile", "m01-mouth-neutral01"],
+        props: {
+            xAlign: 0.5,
+            yAlign: 1,
+        },
+        $origin:
+            "show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1",
+    });
 });
 
 /**

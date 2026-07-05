@@ -895,10 +895,16 @@ test("start_|_s", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: [
+                            $origin:
                                 "show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1",
-                            ],
+                            alias: "james",
+                            operationType: "show",
+                            type: "imagecontainer",
+                            urls: ["m01-body", "m01-eyes-smile", "m01-mouth-neutral01"],
+                            props: {
+                                xAlign: 0.5,
+                                yAlign: 1,
+                            },
                         },
                     ],
                     goNextStep: true,
@@ -944,10 +950,12 @@ test("start_|_s", async () => {
                 {
                     operations: [
                         {
-                            type: "operationtoconvert",
-                            values: [
+                            $origin:
                                 "show imagecontainer steph [fm02-body fm02-eyes-wow fm02-mouth-nervous00]",
-                            ],
+                            alias: "steph",
+                            operationType: "show",
+                            type: "imagecontainer",
+                            urls: ["fm02-body", "fm02-eyes-wow", "fm02-mouth-nervous00"],
                         },
                     ],
                     goNextStep: true,

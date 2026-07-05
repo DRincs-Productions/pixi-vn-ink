@@ -1,4 +1,4 @@
-import { CHOISE_LABEL_KEY_SEPARATOR, TEXT_TO_REPLACE_REGEX } from "@/constant";
+import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
 import { HashtagCommands } from "@/handlers";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
@@ -126,11 +126,7 @@ function addConditionalElementStep(
                 };
                 const op: PixiVNJsonConditionalOperation[] = [];
                 try {
-                    if (
-                        item.length === 1 &&
-                        typeof item[0] === "string" &&
-                        !item[0].match(TEXT_TO_REPLACE_REGEX)
-                    ) {
+                    if (item.length === 1 && typeof item[0] === "string") {
                         const i = item[0];
                         const list = HashtagCommands.convertTagTolist(i);
                         // Speculative probe of the built-in mapper table only: a miss here is
