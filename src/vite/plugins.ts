@@ -4,7 +4,7 @@ import { InkCompiler } from "@/parser";
 import type { InkValidationInfo } from "@/parser/types";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import { TextReplaces, type PixiVNJson } from "@drincs/pixi-vn-json";
-import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
+import type { ValidateFunction } from "ajv";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
 import type { IncomingMessage } from "node:http";
@@ -217,10 +217,14 @@ function logUnknownDivertTargets(
  * broken/offline schema URL doesn't retry (and re-warn) on every keystroke.
  * One instance lives per {@link vitePluginInk} call (passed in), not at module scope, so
  * separate plugin instances (and tests) don't share a fetch cache.
+ *
+ * Fetching and caching is this plugin's own responsibility, not `InkCompiler`'s: a different
+ * caller (e.g. a VS Code extension) may need a completely different strategy — reading a schema
+ * bundled offline, caching to disk across editor sessions, etc.
  */
 type SchemaValidatorCache = Map<string, Promise<ValidateFunction | undefined>>;
 
-async function getSchemaValidator(
+async function getCachedSchemaValidator(
     schemaUrl: string,
     cache: SchemaValidatorCache,
     logWarning: (message: string) => void,
@@ -234,8 +238,7 @@ async function getSchemaValidator(
                     throw new Error(`HTTP ${response.status} ${response.statusText}`);
                 }
                 const schema = await response.json();
-                const ajv = new Ajv({ strict: false, allErrors: true });
-                return ajv.compile(schema);
+                return InkCompiler.getSchemaValidator(schema);
             } catch (error) {
                 logWarning(
                     `Could not load/compile JSON schema from "${schemaUrl}" (${
@@ -251,91 +254,12 @@ async function getSchemaValidator(
 }
 
 /**
- * Walks a JSON Pointer (Ajv's `instancePath`, e.g. `/labels/talk_alice/2/operations/0/value`)
- * down from `root`, remembering the `$origin` of the deepest node that has one. Operations
- * converted from a `#` hashtag command carry `$origin` (the raw ink source line) — so a schema
- * error nested inside one (e.g. a bad `value`) still resolves back to the line that produced it,
- * even though the error itself points at a plain field with no `$origin` of its own.
- */
-function findNearestOrigin(root: unknown, instancePath: string): string | undefined {
-    const segments = instancePath
-        .split("/")
-        .filter(Boolean)
-        .map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
-
-    let node: unknown = root;
-    let nearestOrigin: string | undefined;
-    const captureOrigin = (candidate: unknown) => {
-        if (
-            candidate &&
-            typeof candidate === "object" &&
-            typeof (candidate as Record<string, unknown>).$origin === "string"
-        ) {
-            nearestOrigin = (candidate as Record<string, unknown>).$origin as string;
-        }
-    };
-
-    captureOrigin(node);
-    for (const segment of segments) {
-        if (node === null || typeof node !== "object") break;
-        node = (node as Record<string, unknown>)[segment];
-        captureOrigin(node);
-    }
-    return nearestOrigin;
-}
-
-/**
- * Ajv's `anyOf`/`oneOf` reports one error per *rejected* branch, plus a summary error for the
- * union itself — for a schema this recursive (a switch's `condition`/`then`/`else` all resolve
- * through the same wide unions, several levels deep), that fans out into dozens of "must have
- * required property X" complaints about branches that were never the intended shape to begin
- * with (e.g. checking a comparison's `rightValue` against the arithmetic-operation branch). None
- * of that is actionable, so it's trimmed down to what the failing *value* is actually missing:
- *
- * 1. Keep only "leaf" errors — drop any error whose `instancePath` is an ancestor of another
- *    error's, since the deeper one is strictly more specific about what's actually wrong.
- * 2. At each remaining path, prefer a concrete reason (`type`, `const`, `enum`, ...) over the
- *    bare "must match a schema in anyOf"/"oneOf" summary, when one is available.
- * 3. Collapse repeats of the same complaint on the same field across sibling branches (e.g. one
- *    per switch case) into a single warning.
- */
-function simplifySchemaErrors(errors: ErrorObject[]): ErrorObject[] {
-    const instancePaths = errors.map((error) => error.instancePath);
-    const isAncestorOfAnother = (path: string) =>
-        instancePaths.some((other) => other !== path && other.startsWith(`${path}/`));
-    const leaves = errors.filter((error) => !isAncestorOfAnother(error.instancePath));
-
-    const byPath = new Map<string, ErrorObject[]>();
-    for (const error of leaves) {
-        const group = byPath.get(error.instancePath) ?? [];
-        group.push(error);
-        byPath.set(error.instancePath, group);
-    }
-
-    const specificOverUnionWrapper: ErrorObject[] = [];
-    for (const group of byPath.values()) {
-        const specific = group.filter(
-            (error) => error.keyword !== "anyOf" && error.keyword !== "oneOf",
-        );
-        specificOverUnionWrapper.push(...(specific.length > 0 ? specific : group));
-    }
-
-    const seen = new Set<string>();
-    return specificOverUnionWrapper.filter((error) => {
-        const field = error.instancePath.split("/").pop() ?? error.instancePath;
-        const key = `${field}|${error.message}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-    });
-}
-
-/**
  * Validates an exported `PixiVNJson` payload against the JSON Schema referenced by its own
- * `$schema` field, and reports any mismatch as a warning (never blocks export/build — a schema
- * drift shouldn't be fatal). Mismatches are expected to mostly land inside `operations` (e.g. a
- * custom hashtag-command handler returning a slightly malformed operation), so each warning
- * includes the nearest `$origin` — the original `# ...` ink source line — to make it findable.
+ * `$schema` field (via {@link InkCompiler.validateAgainstJsonSchema}), and reports any mismatch
+ * as a warning (never blocks export/build — a schema drift shouldn't be fatal). Mismatches are
+ * expected to mostly land inside `operations` (e.g. a custom hashtag-command handler returning a
+ * slightly malformed operation), so each warning includes the nearest `$origin` — the original
+ * `# ...` ink source line — to make it findable.
  */
 async function validatePixiVNJsonAgainstSchema(
     data: PixiVNJson,
@@ -346,18 +270,14 @@ async function validatePixiVNJsonAgainstSchema(
     const schemaUrl = data.$schema;
     if (!schemaUrl) return;
 
-    const validate = await getSchemaValidator(schemaUrl, cache, logWarning);
+    const validate = await getCachedSchemaValidator(schemaUrl, cache, logWarning);
     if (!validate) return;
 
-    const valid = validate(data);
-    if (valid) return;
-
-    for (const error of simplifySchemaErrors(validate.errors ?? [])) {
-        const origin = findNearestOrigin(data, error.instancePath);
-        const location = error.instancePath || "(root)";
-        const originSuffix = origin ? ` — from ink source: "${origin}"` : "";
+    const issues = InkCompiler.validateAgainstJsonSchema(data, validate);
+    for (const issue of issues) {
+        const originSuffix = issue.origin ? ` — from ink source: "${issue.origin}"` : "";
         logWarning(
-            `${fileLabel}: schema validation failed at "${location}": ${error.message ?? "invalid value"}${originSuffix}`,
+            `${fileLabel}: schema validation failed at "${issue.instancePath}": ${issue.message}${originSuffix}`,
         );
     }
 }

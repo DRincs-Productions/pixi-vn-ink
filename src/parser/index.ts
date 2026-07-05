@@ -4,4 +4,5 @@ export type {
     HashtagCommandOccurrence,
     InkHashtagCommandInfo,
     InkValidationInfo,
+    SchemaValidationIssue,
 } from "@/parser/types";

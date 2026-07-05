@@ -107,3 +107,30 @@ export interface HashtagCommandOccurrence {
      */
     tokens: string[];
 }
+
+/**
+ * Represents a single JSON Schema mismatch found while validating an exported
+ * `PixiVNJson` payload, as reported by {@link InkCompiler.validateAgainstJsonSchema}.
+ */
+export interface SchemaValidationIssue {
+    /**
+     * JSON Pointer (Ajv's `instancePath`) to the invalid value, or `"(root)"`
+     * when the error applies to the whole document.
+     */
+    instancePath: string;
+    /**
+     * Name of the invalid field/element — e.g. `"x"` when `x` was assigned a
+     * string but the schema only accepts a number. For a missing required
+     * property, this is the name of that property.
+     */
+    element: string;
+    /**
+     * Human-readable reason the value doesn't match the schema.
+     */
+    message: string;
+    /**
+     * Nearest ink source line (a converted operation's `$origin`) that produced
+     * the invalid value, when one could be traced.
+     */
+    origin?: string;
+}

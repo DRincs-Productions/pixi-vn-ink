@@ -5,7 +5,9 @@ import type {
     HashtagCommandOccurrence,
     InkHashtagCommandInfo,
     IssueType,
+    SchemaValidationIssue,
 } from "@/parser/types";
+import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 
@@ -180,6 +182,99 @@ function extractHashtagCommands(source: string): HashtagCommandOccurrence[] {
         }
     }
     return commands;
+}
+
+/**
+ * Name of the invalid field/element an Ajv error is about — e.g. `"x"` when `x` was assigned a
+ * string but the schema only accepts a number. For a `required` error this is the *missing*
+ * property (from `error.params.missingProperty`), since `instancePath` there points at the
+ * parent object, not the absent field. Falls back to the last segment of `instancePath`, or
+ * `"(root)"` for an error on the whole document.
+ */
+function getInvalidElement(error: ErrorObject): string {
+    if (error.keyword === "required" && typeof error.params?.missingProperty === "string") {
+        return error.params.missingProperty;
+    }
+    return error.instancePath.split("/").pop() || "(root)";
+}
+
+/**
+ * Walks a JSON Pointer (Ajv's `instancePath`, e.g. `/labels/talk_alice/2/operations/0/value`)
+ * down from `root`, remembering the `$origin` of the deepest node that has one. Operations
+ * converted from a `#` hashtag command carry `$origin` (the raw ink source line) — so a schema
+ * error nested inside one (e.g. a bad `value`) still resolves back to the line that produced it,
+ * even though the error itself points at a plain field with no `$origin` of its own.
+ */
+function findNearestOrigin(root: unknown, instancePath: string): string | undefined {
+    const segments = instancePath
+        .split("/")
+        .filter(Boolean)
+        .map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
+
+    let node: unknown = root;
+    let nearestOrigin: string | undefined;
+    const captureOrigin = (candidate: unknown) => {
+        if (
+            candidate &&
+            typeof candidate === "object" &&
+            typeof (candidate as Record<string, unknown>).$origin === "string"
+        ) {
+            nearestOrigin = (candidate as Record<string, unknown>).$origin as string;
+        }
+    };
+
+    captureOrigin(node);
+    for (const segment of segments) {
+        if (node === null || typeof node !== "object") break;
+        node = (node as Record<string, unknown>)[segment];
+        captureOrigin(node);
+    }
+    return nearestOrigin;
+}
+
+/**
+ * Ajv's `anyOf`/`oneOf` reports one error per *rejected* branch, plus a summary error for the
+ * union itself — for a schema this recursive (a switch's `condition`/`then`/`else` all resolve
+ * through the same wide unions, several levels deep), that fans out into dozens of "must have
+ * required property X" complaints about branches that were never the intended shape to begin
+ * with (e.g. checking a comparison's `rightValue` against the arithmetic-operation branch). None
+ * of that is actionable, so it's trimmed down to what the failing *value* is actually missing:
+ *
+ * 1. Keep only "leaf" errors — drop any error whose `instancePath` is an ancestor of another
+ *    error's, since the deeper one is strictly more specific about what's actually wrong.
+ * 2. At each remaining path, prefer a concrete reason (`type`, `const`, `enum`, ...) over the
+ *    bare "must match a schema in anyOf"/"oneOf" summary, when one is available.
+ * 3. Collapse repeats of the same complaint on the same field across sibling branches (e.g. one
+ *    per switch case) into a single warning.
+ */
+function simplifySchemaErrors(errors: ErrorObject[]): ErrorObject[] {
+    const instancePaths = errors.map((error) => error.instancePath);
+    const isAncestorOfAnother = (path: string) =>
+        instancePaths.some((other) => other !== path && other.startsWith(`${path}/`));
+    const leaves = errors.filter((error) => !isAncestorOfAnother(error.instancePath));
+
+    const byPath = new Map<string, ErrorObject[]>();
+    for (const error of leaves) {
+        const group = byPath.get(error.instancePath) ?? [];
+        group.push(error);
+        byPath.set(error.instancePath, group);
+    }
+
+    const specificOverUnionWrapper: ErrorObject[] = [];
+    for (const group of byPath.values()) {
+        const specific = group.filter(
+            (error) => error.keyword !== "anyOf" && error.keyword !== "oneOf",
+        );
+        specificOverUnionWrapper.push(...(specific.length > 0 ? specific : group));
+    }
+
+    const seen = new Set<string>();
+    return specificOverUnionWrapper.filter((error) => {
+        const key = `${getInvalidElement(error)}|${error.message}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
 }
 
 export namespace InkCompiler {
@@ -451,5 +546,60 @@ export namespace InkCompiler {
         }
 
         return unknown;
+    }
+
+    /**
+     * Compiles a JSON Schema object into a reusable Ajv validator. Fetching the schema (from a
+     * URL, a bundled file, ...) and caching the result across calls is entirely up to the caller
+     * (e.g. `vitePluginInk` fetches by the document's own `$schema` URL and caches per URL; a VS
+     * Code extension might instead cache to disk or bundle a schema offline) — this function only
+     * ever compiles the schema object it's given.
+     *
+     * @param schema JSON Schema object to compile.
+     * @returns A compiled Ajv validator, reusable across many {@link validateAgainstJsonSchema} calls.
+     */
+    export function getSchemaValidator(schema: object): ValidateFunction {
+        const ajv = new Ajv({ strict: false, allErrors: true });
+        return ajv.compile(schema);
+    }
+
+    /**
+     * Validates a document against a JSON Schema, returning any mismatch as a structured
+     * {@link SchemaValidationIssue} — never throws on a validation mismatch, so a schema drift
+     * never has to block a caller's build/compile step. Mismatches on an exported `PixiVNJson`
+     * payload are expected to mostly land inside `operations` (e.g. a custom hashtag-command
+     * handler returning a slightly malformed operation), so each issue includes the nearest
+     * `$origin` — the original `# ...` ink source line — when one can be traced, to make it
+     * findable.
+     *
+     * Returns plain data rather than logging/warning itself: it's up to the caller (a Vite plugin,
+     * a VS Code extension, ...) to decide how each issue is surfaced (console warning, editor
+     * diagnostic with a squiggly under `element`, ...).
+     *
+     * @param data   The document to validate.
+     * @param schema Either a JSON Schema object (compiled on the fly via
+     *               {@link getSchemaValidator}) or an already-compiled validator — pass a
+     *               precompiled one when validating many documents against the same schema to
+     *               avoid recompiling every time.
+     * @returns Array of {@link SchemaValidationIssue}, empty when the document is valid.
+     */
+    export function validateAgainstJsonSchema(
+        data: unknown,
+        schema: object | ValidateFunction,
+    ): SchemaValidationIssue[] {
+        const validate: ValidateFunction =
+            typeof schema === "function"
+                ? (schema as ValidateFunction)
+                : getSchemaValidator(schema);
+
+        const valid = validate(data);
+        if (valid) return [];
+
+        return simplifySchemaErrors(validate.errors ?? []).map((error) => ({
+            instancePath: error.instancePath || "(root)",
+            element: getInvalidElement(error),
+            message: error.message ?? "invalid value",
+            origin: findNearestOrigin(data, error.instancePath),
+        }));
     }
 }
