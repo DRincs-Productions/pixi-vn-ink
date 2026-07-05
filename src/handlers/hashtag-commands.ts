@@ -1338,10 +1338,34 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
-# show video <alias> [<source>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show video <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
             validation: z
-                .tuple([z.literal("show"), z.literal("video"), z.string()])
+                .tuple([z.literal("show"), z.literal("video"), idSchema(options.assetAliasIds)])
+                .rest(z.string()),
+        },
+    );
+
+    HashtagCommands.addMapper(
+        (list) => {
+            const alias = list[2];
+            const propsList = convertListStringToPropListForMapper(list.slice(3));
+            return getImageOrVideoShowOperationForMapper("video", alias, propsList);
+        },
+        {
+            name: "Show video",
+            description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
+
+\`\`\`ink
+# show video <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+\`\`\``,
+            validation: z
+                .tuple([
+                    z.literal("show"),
+                    z.literal("video"),
+                    z.string(),
+                    idSchema(options.assetAliasIds),
+                ])
                 .rest(z.string()),
         },
     );
