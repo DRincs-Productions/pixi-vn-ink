@@ -188,14 +188,97 @@ function extractHashtagCommands(source: string): HashtagCommandOccurrence[] {
  * Name of the invalid field/element an Ajv error is about — e.g. `"x"` when `x` was assigned a
  * string but the schema only accepts a number. For a `required` error this is the *missing*
  * property (from `error.params.missingProperty`), since `instancePath` there points at the
- * parent object, not the absent field. Falls back to the last segment of `instancePath`, or
- * `"(root)"` for an error on the whole document.
+ * parent object, not the absent field. For an `additionalProperties` error this is the actual
+ * *unrecognised* key (from `error.params.additionalProperty`), for the same reason —
+ * `instancePath` there points at the container object (e.g. `props`), not the extra key itself
+ * (e.g. `xAlin`). Falls back to the last segment of `instancePath`, or `"(root)"` for an error on
+ * the whole document.
  */
 function getInvalidElement(error: ErrorObject): string {
     if (error.keyword === "required" && typeof error.params?.missingProperty === "string") {
         return error.params.missingProperty;
     }
+    if (
+        error.keyword === "additionalProperties" &&
+        typeof error.params?.additionalProperty === "string"
+    ) {
+        return error.params.additionalProperty;
+    }
     return error.instancePath.split("/").pop() || "(root)";
+}
+
+/**
+ * Levenshtein edit distance between two strings, used to suggest the intended property name for
+ * a typo'd one (e.g. `xAlin` → `xAlign`).
+ */
+function editDistance(a: string, b: string): number {
+    const rows = a.length + 1;
+    const cols = b.length + 1;
+    const distances: number[][] = Array.from({ length: rows }, (_, i) => [
+        i,
+        ...Array(cols - 1).fill(0),
+    ]);
+    for (let j = 1; j < cols; j++) distances[0][j] = j;
+    for (let i = 1; i < rows; i++) {
+        for (let j = 1; j < cols; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            distances[i][j] = Math.min(
+                distances[i - 1][j] + 1,
+                distances[i][j - 1] + 1,
+                distances[i - 1][j - 1] + cost,
+            );
+        }
+    }
+    return distances[rows - 1][cols - 1];
+}
+
+/**
+ * Finds the closest match to `key` among `candidates` (e.g. a mistyped `xAlin` against the real
+ * `["xAlign", "yAlign", ...]` prop names), within an edit-distance budget proportional to the
+ * key's length. Returns `undefined` when nothing is close enough to be a plausible typo.
+ */
+function findClosestKey(key: string, candidates: readonly string[]): string | undefined {
+    let best: string | undefined;
+    let bestDistance = Infinity;
+    for (const candidate of candidates) {
+        const distance = editDistance(key, candidate);
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            best = candidate;
+        }
+    }
+    const budget = Math.max(1, Math.floor(key.length / 3));
+    return bestDistance <= budget ? best : undefined;
+}
+
+/**
+ * Human-readable message for a schema validation error. Ajv's own `error.message` is generic for
+ * `additionalProperties` ("must NOT have additional properties") and doesn't name the offending
+ * key — this fills in the actual key (and a "did you mean" suggestion when a known property name
+ * is a close typo match) so the warning is actionable without cross-referencing `params`.
+ */
+function formatErrorMessage(error: ErrorObject, knownProperties?: readonly string[]): string {
+    if (
+        error.keyword === "additionalProperties" &&
+        typeof error.params?.additionalProperty === "string"
+    ) {
+        const badKey = error.params.additionalProperty;
+        const suggestion = knownProperties && findClosestKey(badKey, knownProperties);
+        const suggestionSuffix = suggestion ? ` (did you mean "${suggestion}"?)` : "";
+        return `has an unrecognised property "${badKey}"${suggestionSuffix}`;
+    }
+    return error.message ?? "invalid value";
+}
+
+/**
+ * Splits an Ajv `instancePath` (a JSON Pointer, e.g. `/labels/talk_alice/2/operations/0/value`)
+ * into its unescaped segments.
+ */
+function splitInstancePath(instancePath: string): string[] {
+    return instancePath
+        .split("/")
+        .filter(Boolean)
+        .map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
 }
 
 /**
@@ -206,11 +289,6 @@ function getInvalidElement(error: ErrorObject): string {
  * even though the error itself points at a plain field with no `$origin` of its own.
  */
 function findNearestOrigin(root: unknown, instancePath: string): string | undefined {
-    const segments = instancePath
-        .split("/")
-        .filter(Boolean)
-        .map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"));
-
     let node: unknown = root;
     let nearestOrigin: string | undefined;
     const captureOrigin = (candidate: unknown) => {
@@ -224,12 +302,179 @@ function findNearestOrigin(root: unknown, instancePath: string): string | undefi
     };
 
     captureOrigin(node);
-    for (const segment of segments) {
+    for (const segment of splitInstancePath(instancePath)) {
         if (node === null || typeof node !== "object") break;
         node = (node as Record<string, unknown>)[segment];
         captureOrigin(node);
     }
     return nearestOrigin;
+}
+
+/**
+ * Finds the nearest ancestor of `instancePath` (including itself) that is a plain object with a
+ * string `type` field — i.e. looks like a `PixiVNJsonOperation`. Used to scope a fanned-out
+ * anyOf failure down to "the one operation this error is actually about" so it can be
+ * re-validated narrowly (see {@link findMatchingLeafDefinitionKeys}) instead of reported against
+ * every unrelated branch of the wider union.
+ */
+function findEnclosingOperation(
+    root: unknown,
+    instancePath: string,
+): { path: string; node: Record<string, unknown> } | undefined {
+    const segments = splitInstancePath(instancePath);
+    for (let length = segments.length; length >= 0; length--) {
+        const prefix = segments.slice(0, length);
+        let node: unknown = root;
+        for (const segment of prefix) {
+            if (node === null || typeof node !== "object") {
+                node = undefined;
+                break;
+            }
+            node = (node as Record<string, unknown>)[segment];
+        }
+        if (
+            node &&
+            typeof node === "object" &&
+            !Array.isArray(node) &&
+            typeof (node as Record<string, unknown>).type === "string"
+        ) {
+            const path = `/${prefix.map((segment) => segment.replace(/~/g, "~0").replace(/\//g, "~1")).join("/")}`;
+            return { path, node: node as Record<string, unknown> };
+        }
+    }
+    return undefined;
+}
+
+/**
+ * Resolves a `{ $ref: "#/definitions/Name" }` node to the definition it points at (recursively,
+ * in case a definition is itself just a ref to another one). Returns the node unchanged if it
+ * isn't a local `#/definitions/...` ref (external/unresolvable refs are treated as opaque).
+ */
+function resolveDefinitionRef(
+    node: unknown,
+    definitions: Record<string, unknown>,
+    seen: Set<string> = new Set(),
+): unknown {
+    if (!node || typeof node !== "object") return node;
+    const ref = (node as Record<string, unknown>).$ref;
+    if (typeof ref !== "string") return node;
+    const match = ref.match(/^#\/definitions\/([^/]+)$/);
+    if (!match?.[1] || seen.has(match[1]) || !(match[1] in definitions)) return {};
+    seen.add(match[1]);
+    return resolveDefinitionRef(definitions[match[1]], definitions, seen);
+}
+
+/**
+ * Flattens a definition (resolving `$ref`/`allOf`) down to its own `properties`/`required`, or
+ * `undefined` if it isn't a leaf object shape (e.g. a bare `anyOf`/`oneOf` union container, which
+ * isn't itself a candidate operation shape — only its members are).
+ */
+function collectLeafProperties(
+    node: unknown,
+    definitions: Record<string, unknown>,
+): { properties: Record<string, unknown>; required: string[] } | undefined {
+    const resolved = resolveDefinitionRef(node, definitions);
+    if (!resolved || typeof resolved !== "object") return undefined;
+    const schema = resolved as Record<string, unknown>;
+    if (schema.anyOf || schema.oneOf) return undefined;
+    if (Array.isArray(schema.allOf)) {
+        const merged = { properties: {} as Record<string, unknown>, required: [] as string[] };
+        for (const member of schema.allOf) {
+            const sub = collectLeafProperties(member, definitions);
+            if (!sub) return undefined;
+            Object.assign(merged.properties, sub.properties);
+            merged.required.push(...sub.required);
+        }
+        return merged;
+    }
+    return {
+        properties: (schema.properties as Record<string, unknown>) ?? {},
+        required: (schema.required as string[]) ?? [],
+    };
+}
+
+/**
+ * Whether a field's schema (a `const`/`enum` discriminant, typically) accepts `value`. A field
+ * with no `const`/`enum` constraint is treated as non-disqualifying (it isn't a discriminant).
+ */
+function discriminantFieldMatches(fieldSchema: unknown, value: unknown): boolean {
+    if (!fieldSchema || typeof fieldSchema !== "object") return true;
+    const schema = fieldSchema as Record<string, unknown>;
+    if ("const" in schema) return schema.const === value;
+    if (Array.isArray(schema.enum)) return schema.enum.includes(value);
+    return true;
+}
+
+/**
+ * Finds every named definition in `schema.definitions` that is a leaf operation shape (not a
+ * union container) whose `type`/`operationType` discriminant matches `data`'s. This is how a
+ * `PixiVNJsonOperation` value gets narrowed down from "one of ~25 union branches" to "the one
+ * branch it actually is", so it can be re-validated in isolation without noise from every
+ * unrelated branch. Returns an empty/multi-element array (instead of picking one) when the match
+ * is ambiguous or nonexistent — callers should only act on a single unique match.
+ */
+function findMatchingLeafDefinitionKeys(
+    schema: Record<string, unknown>,
+    data: Record<string, unknown>,
+): string[] {
+    const definitions = (schema.definitions as Record<string, unknown>) ?? {};
+    const matches: string[] = [];
+    for (const [key, def] of Object.entries(definitions)) {
+        const leaf = collectLeafProperties(def, definitions);
+        if (!leaf) continue;
+        const typeSchema = leaf.properties.type;
+        const hasTypeDiscriminant =
+            typeSchema &&
+            typeof typeSchema === "object" &&
+            ("const" in (typeSchema as Record<string, unknown>) ||
+                Array.isArray((typeSchema as Record<string, unknown>).enum));
+        if (!hasTypeDiscriminant) continue; // not an operation-shaped leaf
+        if (!discriminantFieldMatches(typeSchema, data.type)) continue;
+        if (!discriminantFieldMatches(leaf.properties.operationType, data.operationType)) continue;
+        matches.push(key);
+    }
+    return matches;
+}
+
+/**
+ * Re-validates a single operation value against exactly one candidate definition (found via
+ * {@link findMatchingLeafDefinitionKeys}), instead of the whole `PixiVNJsonOperation` union.
+ * Compiling a tiny one-off Ajv instance per mismatched operation is fine here — this only runs
+ * when the wider validation already failed, i.e. on the rare "something is actually wrong" path,
+ * not on every successful build.
+ */
+function validateAgainstDefinition(
+    schema: Record<string, unknown>,
+    definitionKey: string,
+    node: unknown,
+): ErrorObject[] {
+    const definitions = (schema.definitions as Record<string, unknown>) ?? {};
+    const narrowSchema = { definitions, ...(definitions[definitionKey] as object) };
+    const validate = new Ajv({ strict: false, allErrors: true }).compile(narrowSchema);
+    if (validate(node)) return [];
+    return validate.errors ?? [];
+}
+
+/**
+ * The known property names of the sub-schema found by walking `instancePath` down from
+ * `definitionKey`'s own schema — e.g. for an `additionalProperties` error at `/props`, this
+ * returns the real prop names (`xAlign`, `yAlign`, ...) so {@link formatErrorMessage} can suggest
+ * the one the typo'd key was probably meant to be.
+ */
+function getKnownPropertiesAtPath(
+    schema: Record<string, unknown>,
+    definitionKey: string,
+    instancePath: string,
+): string[] {
+    const definitions = (schema.definitions as Record<string, unknown>) ?? {};
+    let node: unknown = resolveDefinitionRef(definitions[definitionKey], definitions);
+    for (const segment of splitInstancePath(instancePath)) {
+        const leaf = collectLeafProperties(node, definitions);
+        const next = leaf?.properties[segment];
+        if (next === undefined) return [];
+        node = resolveDefinitionRef(next, definitions);
+    }
+    return Object.keys(collectLeafProperties(node, definitions)?.properties ?? {});
 }
 
 /**
@@ -275,6 +520,102 @@ function simplifySchemaErrors(errors: ErrorObject[]): ErrorObject[] {
         seen.add(key);
         return true;
     });
+}
+
+/**
+ * Builds one {@link SchemaValidationIssue} per error, applying {@link getInvalidElement},
+ * {@link formatErrorMessage}, and {@link findNearestOrigin} consistently regardless of which
+ * path (narrowed-to-one-operation, or the original fallback) produced the error.
+ */
+function toIssues(
+    errors: ErrorObject[],
+    data: unknown,
+    knownPropertiesFor?: (error: ErrorObject) => readonly string[] | undefined,
+): SchemaValidationIssue[] {
+    return errors.map((error) => ({
+        instancePath: error.instancePath || "(root)",
+        element: getInvalidElement(error),
+        message: formatErrorMessage(error, knownPropertiesFor?.(error)),
+        origin: findNearestOrigin(data, error.instancePath),
+    }));
+}
+
+/**
+ * Top-level error simplification for a whole-document validation failure. Every leaf error is
+ * first attributed to its nearest enclosing operation (see {@link findEnclosingOperation}); when
+ * that operation's `type`/`operationType` uniquely identify one schema definition, the operation
+ * is re-validated in isolation against just that definition (see
+ * {@link validateAgainstDefinition}) instead of reporting the original fanned-out errors — this
+ * is what collapses e.g. a single typo'd prop key into one specific warning instead of one per
+ * rejected union branch. Errors with no identifiable enclosing operation (or an ambiguous/no
+ * match) fall back to the original {@link simplifySchemaErrors} behavior, scoped to their own
+ * group so unrelated groups can't suppress each other's messages.
+ */
+function simplifyErrorsForDocument(
+    errors: ErrorObject[],
+    data: unknown,
+    schema: unknown,
+): SchemaValidationIssue[] {
+    const instancePaths = errors.map((error) => error.instancePath);
+    const isAncestorOfAnother = (path: string) =>
+        instancePaths.some((other) => other !== path && other.startsWith(`${path}/`));
+    const leaves = errors.filter((error) => !isAncestorOfAnother(error.instancePath));
+
+    const schemaRecord =
+        schema && typeof schema === "object" ? (schema as Record<string, unknown>) : undefined;
+
+    const operationGroups = new Map<
+        string,
+        { node: Record<string, unknown>; errors: ErrorObject[] }
+    >();
+    const ungrouped: ErrorObject[] = [];
+
+    for (const error of leaves) {
+        const enclosing = schemaRecord
+            ? findEnclosingOperation(data, error.instancePath)
+            : undefined;
+        if (!enclosing) {
+            ungrouped.push(error);
+            continue;
+        }
+        const group = operationGroups.get(enclosing.path);
+        if (group) {
+            group.errors.push(error);
+        } else {
+            operationGroups.set(enclosing.path, { node: enclosing.node, errors: [error] });
+        }
+    }
+
+    const issues: SchemaValidationIssue[] = toIssues(simplifySchemaErrors(ungrouped), data);
+
+    for (const [operationPath, group] of operationGroups) {
+        const matches = schemaRecord
+            ? findMatchingLeafDefinitionKeys(schemaRecord, group.node)
+            : [];
+        const definitionKey = matches.length === 1 ? matches[0] : undefined;
+        if (!definitionKey || !schemaRecord) {
+            issues.push(...toIssues(simplifySchemaErrors(group.errors), data));
+            continue;
+        }
+        const narrowErrors = simplifySchemaErrors(
+            validateAgainstDefinition(schemaRecord, definitionKey, group.node),
+        );
+        const rebasedErrors = narrowErrors.map((error) => ({
+            ...error,
+            instancePath: `${operationPath}${error.instancePath}`,
+        }));
+        issues.push(
+            ...toIssues(rebasedErrors, data, (error) =>
+                getKnownPropertiesAtPath(
+                    schemaRecord,
+                    definitionKey,
+                    error.instancePath.slice(operationPath.length),
+                ),
+            ),
+        );
+    }
+
+    return issues;
 }
 
 export namespace InkCompiler {
@@ -595,11 +936,6 @@ export namespace InkCompiler {
         const valid = validate(data);
         if (valid) return [];
 
-        return simplifySchemaErrors(validate.errors ?? []).map((error) => ({
-            instancePath: error.instancePath || "(root)",
-            element: getInvalidElement(error),
-            message: error.message ?? "invalid value",
-            origin: findNearestOrigin(data, error.instancePath),
-        }));
+        return simplifyErrorsForDocument(validate.errors ?? [], data, validate.schema);
     }
 }

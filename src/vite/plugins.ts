@@ -254,6 +254,29 @@ async function getCachedSchemaValidator(
 }
 
 /**
+ * Renders an ink source line (prefixed with `# `) dimmed in gray, with every whole-word
+ * occurrence of `element` (the specific invalid property/field name) highlighted in yellow —
+ * e.g. `# show imagecontainer james [...] `+yellow(`xAlin`)+` 0.5 yAlign 1 ...`, so the exact
+ * spot to fix jumps out instead of making the reader scan the whole line.
+ */
+function highlightOriginLine(origin: string, element: string): string {
+    const line = `# ${origin}`;
+    if (!element) return pc.gray(line);
+
+    const pattern = new RegExp(`\\b${element.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
+    let result = "";
+    let lastIndex = 0;
+    for (const match of line.matchAll(pattern)) {
+        const index = match.index ?? lastIndex;
+        result += pc.gray(line.slice(lastIndex, index));
+        result += pc.yellow(match[0]);
+        lastIndex = index + match[0].length;
+    }
+    result += pc.gray(line.slice(lastIndex));
+    return result;
+}
+
+/**
  * Validates an exported `PixiVNJson` payload against the JSON Schema referenced by its own
  * `$schema` field (via {@link InkCompiler.validateAgainstJsonSchema}), and reports any mismatch
  * as a warning (never blocks export/build — a schema drift shouldn't be fatal). Mismatches are
@@ -275,10 +298,10 @@ async function validatePixiVNJsonAgainstSchema(
 
     const issues = InkCompiler.validateAgainstJsonSchema(data, validate);
     for (const issue of issues) {
-        const originSuffix = issue.origin ? ` — from ink source: "${issue.origin}"` : "";
-        logWarning(
-            `${fileLabel}: schema validation failed at "${issue.instancePath}": ${issue.message}${originSuffix}`,
-        );
+        const originSuffix = issue.origin
+            ? ` — from ink source: \n${highlightOriginLine(issue.origin, issue.element)}`
+            : "";
+        logWarning(`${fileLabel}: ${issue.element} - ${issue.message}${originSuffix}`);
     }
 }
 

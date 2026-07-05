@@ -160,3 +160,93 @@ test("validateAgainstJsonSchema deduplicates repeated complaints about the same 
     const issues = InkCompiler.validateAgainstJsonSchema(data, schema);
     expect(issues.filter((issue) => issue.element === "x")).toHaveLength(1);
 });
+
+// ── validateAgainstJsonSchema: discriminated-union operation narrowing ────────
+
+/**
+ * A schema shaped like a small slice of the real `PixiVNJsonOperation` union: several
+ * `definitions` discriminated by `type`(+`operationType`), each with a `props` object that
+ * rejects unknown keys. Regression coverage for a real bug: a typo'd prop key (e.g. `xAlin`
+ * instead of `xAlign`) used to report one warning *per rejected union branch* (5+ for a single
+ * typo), none of which named the actual offending key.
+ */
+const OPERATION_UNION_SCHEMA = {
+    type: "object",
+    properties: {
+        operations: {
+            type: "array",
+            items: { anyOf: [{ $ref: "#/definitions/ShowImage" }, { $ref: "#/definitions/ShowImageContainer" }] },
+        },
+    },
+    definitions: {
+        ShowImage: {
+            type: "object",
+            properties: {
+                type: { const: "image" },
+                operationType: { const: "show" },
+                alias: { type: "string" },
+                props: {
+                    type: "object",
+                    properties: { x: { type: "number" }, y: { type: "number" } },
+                    additionalProperties: false,
+                },
+            },
+            required: ["type", "operationType", "alias"],
+        },
+        ShowImageContainer: {
+            type: "object",
+            properties: {
+                type: { const: "imagecontainer" },
+                operationType: { const: "show" },
+                alias: { type: "string" },
+                props: {
+                    type: "object",
+                    properties: { xAlign: { type: "number" }, yAlign: { type: "number" } },
+                    additionalProperties: false,
+                },
+            },
+            required: ["type", "operationType", "alias"],
+        },
+    },
+};
+
+test("validateAgainstJsonSchema narrows a typo'd prop key on a discriminated-union operation to one issue naming the key", () => {
+    const data = {
+        operations: [
+            {
+                type: "imagecontainer",
+                operationType: "show",
+                alias: "james",
+                props: { xAlin: 0.5, yAlign: 1 },
+                $origin: "show imagecontainer james [...] xAlin 0.5 yAlign 1",
+            },
+        ],
+    };
+    const issues = InkCompiler.validateAgainstJsonSchema(data, OPERATION_UNION_SCHEMA);
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0].element).toBe("xAlin");
+    expect(issues[0].message).toContain('"xAlin"');
+    expect(issues[0].message).toContain('did you mean "xAlign"');
+    expect(issues[0].origin).toBe("show imagecontainer james [...] xAlin 0.5 yAlign 1");
+});
+
+test("validateAgainstJsonSchema returns no issues for a valid discriminated-union operation", () => {
+    const data = {
+        operations: [
+            { type: "imagecontainer", operationType: "show", alias: "james", props: { xAlign: 0.5 } },
+        ],
+    };
+    expect(InkCompiler.validateAgainstJsonSchema(data, OPERATION_UNION_SCHEMA)).toEqual([]);
+});
+
+test("validateAgainstJsonSchema falls back to the original fan-out report for an unrecognised operation type", () => {
+    // "type" doesn't match any definition's discriminant at all, so narrowing can't identify a
+    // single intended branch — this must still report *something* instead of silently dropping
+    // the error or throwing.
+    const data = {
+        operations: [{ type: "totally-unknown", operationType: "show", alias: "james" }],
+    };
+    const issues = InkCompiler.validateAgainstJsonSchema(data, OPERATION_UNION_SCHEMA);
+    expect(issues.length).toBeGreaterThan(0);
+});

@@ -1019,11 +1019,12 @@ describe("vitePluginInk dev API", () => {
 
         const warnedMessage = logger.warn.mock.calls
             .map(([message]) => String(message))
-            .find((message) => message.includes("schema validation failed"));
+            .find((message) => message.includes(path.join(root, "ink", "start.ink")));
 
         expect(warnedMessage).toBeDefined();
         expect(warnedMessage).toContain("aliases");
-        expect(warnedMessage).toContain('from ink source: "lazyload assets myAlias"');
+        expect(warnedMessage).toContain("from ink source:");
+        expect(warnedMessage).toContain("# lazyload assets myAlias");
     });
 
     it("collapses a widely-fanned-out anyOf failure into one specific warning per field", async () => {
@@ -1094,7 +1095,7 @@ describe("vitePluginInk dev API", () => {
 
         const schemaWarnings = logger.warn.mock.calls
             .map(([message]) => String(message))
-            .filter((message) => message.includes("schema validation failed"));
+            .filter((message) => message.includes(path.join(root, "ink", "start.ink")));
 
         expect(schemaWarnings).toHaveLength(1);
         expect(schemaWarnings[0]).toContain("aliases");
@@ -1139,8 +1140,8 @@ describe("vitePluginInk dev API", () => {
                     message.includes("Skipping schema validation"),
             ),
         ).toBe(true);
-        expect(warnings.some((message) => message.includes("schema validation failed"))).toBe(
-            false,
-        );
+        expect(
+            warnings.some((message) => message.includes(path.join(root, "ink", "start.ink"))),
+        ).toBe(false);
     });
 });
