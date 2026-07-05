@@ -364,41 +364,6 @@ test("addBaseHashtagCommands accepts any alias when bundleIds/assetAliasIds are 
     HashtagCommands.clearMappers();
 });
 
-// ── addBaseHashtagCommands(options) — labelIds validation ──────────────────
-
-test("addBaseHashtagCommands restricts 'call'/'jump' targets to the known label ids when provided", () => {
-    HashtagCommands.clearMappers();
-    addBaseHashtagCommands({ labelIds: ["intro"] });
-    const step = {} as unknown as PixiVNJsonLabelStep;
-
-    HashtagCommands.convertOperation(["call", "intro"], step);
-    expect(step.labelToOpen).toEqual({ label: "intro", type: "call" });
-
-    HashtagCommands.convertOperation(["jump", "intro"], step);
-    expect(step.labelToOpen).toEqual({ label: "intro", type: "jump" });
-
-    // A label outside the known list matches neither mapper, so it misses entirely.
-    expect(
-        HashtagCommands.convertOperation(["call", "unknown"], step, { silent: true }),
-    ).toBeUndefined();
-    expect(
-        HashtagCommands.convertOperation(["jump", "unknown"], step, { silent: true }),
-    ).toBeUndefined();
-
-    HashtagCommands.clearMappers();
-});
-
-test("addBaseHashtagCommands accepts any label when labelIds is not provided", () => {
-    HashtagCommands.clearMappers();
-    addBaseHashtagCommands();
-    const step = {} as unknown as PixiVNJsonLabelStep;
-
-    HashtagCommands.convertOperation(["call", "anything"], step);
-    expect(step.labelToOpen).toEqual({ label: "anything", type: "call" });
-
-    HashtagCommands.clearMappers();
-});
-
 // ── mergeInkVariables (Vite plugin path) ────────────────────────────────────
 
 test("convertTagTolist mergeInkVariables: { varname } becomes a single token", () => {

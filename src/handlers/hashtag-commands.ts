@@ -510,11 +510,6 @@ export interface BaseHashtagCommandsOptions {
      * instead of accepting any string.
      */
     assetAliasIds?: readonly string[];
-    /**
-     * Known Ink label ids (knot/stitch/choice names). When provided, `# call <label>` /
-     * `# jump <label>` do a runtime membership check instead of accepting any string.
-     */
-    labelIds?: readonly string[];
 }
 
 /**
@@ -554,12 +549,13 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
         },
         {
             name: "Call",
+            deprecated: true,
             description: `Calls the label specified by the second token, then returns to the current position.
 
 \`\`\`ink
 # call label_name
 \`\`\``,
-            validation: z.tuple([z.literal("call"), idSchema(options.labelIds)]),
+            validation: z.tuple([z.literal("call"), z.string()]),
         },
     );
 
@@ -573,12 +569,13 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
         },
         {
             name: "Jump",
+            deprecated: true,
             description: `Jumps to the label specified by the second token without returning.
 
 \`\`\`ink
 # jump label_name
 \`\`\``,
-            validation: z.tuple([z.literal("jump"), idSchema(options.labelIds)]),
+            validation: z.tuple([z.literal("jump"), z.string()]),
         },
     );
 
