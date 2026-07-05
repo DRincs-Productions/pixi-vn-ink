@@ -1062,30 +1062,17 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             }
             return value;
         };
-        let urls = [];
-        const startIndex = list.findIndex((item) => item.startsWith("["));
-        const endIndex = list.findIndex((item) => item.endsWith("]"));
+        // `[`/`]` are always standalone tokens (see `splitEdgeBrackets` in `convertTagTolist`).
+        const startIndex = list.indexOf("[");
+        const endIndex = list.indexOf("]", startIndex + 1);
         if (startIndex === -1 || endIndex === -1) {
             logger.error("Show imagecontainer must have a list of image ulrs", list);
             return undefined;
         }
-        urls = list.slice(startIndex, endIndex + 1);
-        if (urls.length < 2) {
+        const urls = list.slice(startIndex + 1, endIndex);
+        if (urls.length === 0) {
             logger.error("Show imagecontainer must have a list of image ulrs", list);
             return undefined;
-        }
-        if (urls[0] === "[") {
-            urls.shift();
-        } else {
-            urls[0] = urls[0].substring(1);
-        }
-        if (urls[urls.length - 1] === "]") {
-            urls.pop();
-        } else {
-            urls[urls.length - 1] = urls[urls.length - 1].substring(
-                0,
-                urls[urls.length - 1].length - 1,
-            );
         }
         const op: PixiVNJsonOperation = {
             type: "imagecontainer",
@@ -1111,21 +1098,27 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
         return op;
     }
 
+    /**
+     * Parses the tail of a `# show imagecontainer <alias> [ <url…> ] [<key> <value> …] [with …]`
+     * command for validation. `fullList[3]` is expected to already be the literal `"["` token
+     * (enforced by the mapper's `z.tuple` prefix), so the url list runs from index 4 up to the
+     * matching `"]"`.
+     */
     function splitImageContainerShowListForValidation(
         fullList: string[],
-    ): { beforeWith: string[]; afterWith: string[] } | undefined {
-        const commandList = fullList.slice(3);
-        const startIndex = commandList.findIndex((item) => item.startsWith("["));
-        const endIndex = commandList.findIndex((item) => item.endsWith("]"));
-        if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+    ): { urls: string[]; beforeWith: string[]; afterWith: string[] } | undefined {
+        const closeIndex = fullList.indexOf("]", 4);
+        if (closeIndex === -1) {
             return undefined;
         }
-        const propList = commandList.slice(endIndex + 1);
+        const urls = fullList.slice(4, closeIndex);
+        const propList = fullList.slice(closeIndex + 1);
         const withIndex = propList.indexOf("with");
         if (withIndex === -1) {
-            return { beforeWith: propList, afterWith: [] };
+            return { urls, beforeWith: propList, afterWith: [] };
         }
         return {
+            urls,
             beforeWith: propList.slice(0, withIndex),
             afterWith: propList.slice(withIndex + 1),
         };
@@ -1238,6 +1231,8 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
         },
     );
 
+    const imageContainerUrlSchema = idSchema(options.assetAliasIds);
+
     HashtagCommands.addMapper(
         (list) =>
             getImageContainerShowOperationForMapper(
@@ -1252,14 +1247,19 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
 # show imagecontainer <alias> [ <source1> <ursource2> … ] [<key> <value> …]
 \`\`\``,
             validation: z
-                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string(), z.literal("[")])
                 .rest(z.string())
                 .refine((arr) => {
                     const split = splitImageContainerShowListForValidation(arr);
                     if (split === undefined) {
                         return false;
                     }
-                    return split.afterWith.length === 0 && split.beforeWith.length % 2 === 0;
+                    return (
+                        split.urls.length > 0 &&
+                        split.urls.every((url) => imageContainerUrlSchema.safeParse(url).success) &&
+                        split.afterWith.length === 0 &&
+                        split.beforeWith.length % 2 === 0
+                    );
                 }),
         },
     );
@@ -1278,14 +1278,19 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
 # show imagecontainer <alias> [ <ursource1> <source2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout
 \`\`\``,
             validation: z
-                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string(), z.literal("[")])
                 .rest(z.string())
                 .refine((arr) => {
                     const split = splitImageContainerShowListForValidation(arr);
                     if (split === undefined) {
                         return false;
                     }
-                    return split.afterWith.length === 1 && split.beforeWith.length % 2 === 0;
+                    return (
+                        split.urls.length > 0 &&
+                        split.urls.every((url) => imageContainerUrlSchema.safeParse(url).success) &&
+                        split.afterWith.length === 1 &&
+                        split.beforeWith.length % 2 === 0
+                    );
                 }),
         },
     );
@@ -1304,7 +1309,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
 # show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout <key> <value> …
 \`\`\``,
             validation: z
-                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
+                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string(), z.literal("[")])
                 .rest(z.string())
                 .refine((arr) => {
                     const split = splitImageContainerShowListForValidation(arr);
@@ -1312,6 +1317,8 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
                         return false;
                     }
                     return (
+                        split.urls.length > 0 &&
+                        split.urls.every((url) => imageContainerUrlSchema.safeParse(url).success) &&
                         split.afterWith.length > 1 &&
                         (split.afterWith.length - 1) % 2 === 0 &&
                         split.beforeWith.length % 2 === 0

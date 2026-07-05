@@ -364,6 +364,76 @@ test("addBaseHashtagCommands accepts any alias when bundleIds/assetAliasIds are 
     HashtagCommands.clearMappers();
 });
 
+test("addBaseHashtagCommands restricts 'show imagecontainer' urls to the known assetAliasIds when provided", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ assetAliasIds: ["img1", "img2"] });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(
+        HashtagCommands.convertOperation(
+            ["show", "imagecontainer", "bg", "[", "img1", "img2", "]"],
+            step,
+        ),
+    ).toEqual({
+        type: "imagecontainer",
+        operationType: "show",
+        alias: "bg",
+        urls: ["img1", "img2"],
+    });
+
+    // A url outside the known list matches no mapper, so it misses entirely.
+    expect(
+        HashtagCommands.convertOperation(
+            ["show", "imagecontainer", "bg", "[", "img1", "unknown", "]"],
+            step,
+            { silent: true },
+        ),
+    ).toBeUndefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands accepts any 'show imagecontainer' url when assetAliasIds is not provided", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(
+        HashtagCommands.convertOperation(
+            ["show", "imagecontainer", "bg", "[", "anything1", "anything2", "]"],
+            step,
+        ),
+    ).toEqual({
+        type: "imagecontainer",
+        operationType: "show",
+        alias: "bg",
+        urls: ["anything1", "anything2"],
+    });
+
+    HashtagCommands.clearMappers();
+});
+
+test("end-to-end: 'show imagecontainer' with a quoted url glued to '[' tokenizes and validates correctly", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    const list = HashtagCommands.convertTagTolist(
+        'show imagecontainer bg ["/image A.png" image  ] x 10 y 20 with dissolve',
+    );
+
+    expect(HashtagCommands.convertOperation(list, step)).toEqual({
+        type: "imagecontainer",
+        operationType: "show",
+        alias: "bg",
+        urls: ["/image A.png", "image"],
+        transition: { type: "dissolve" },
+        props: { x: 10, y: 20 },
+    });
+
+    HashtagCommands.clearMappers();
+});
+
 // ── mergeInkVariables (Vite plugin path) ────────────────────────────────────
 
 test("convertTagTolist mergeInkVariables: { varname } becomes a single token", () => {
