@@ -833,7 +833,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
 # play sound <alias> [<key> <value> …]
 \`\`\``,
             validation: z
-                .tuple([z.literal("play"), z.literal("sound"), z.string()])
+                .tuple([z.literal("play"), z.literal("sound"), idSchema(options.assetAliasIds)])
                 .rest(z.string())
                 .refine((arr) => (arr.length - 3) % 2 === 0),
         },
@@ -863,7 +863,12 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
 \`\`\`
 `,
             validation: z
-                .tuple([z.literal("play"), z.literal("sound"), z.string()])
+                .tuple([
+                    z.literal("play"),
+                    z.literal("sound"),
+                    z.string(),
+                    idSchema(options.assetAliasIds),
+                ])
                 .rest(z.string())
                 .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
         },
@@ -1174,10 +1179,34 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
-# show image <alias> [<source>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show image <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
             validation: z
-                .tuple([z.literal("show"), z.literal("image"), z.string()])
+                .tuple([z.literal("show"), z.literal("image"), idSchema(options.assetAliasIds)])
+                .rest(z.string()),
+        },
+    );
+
+    HashtagCommands.addMapper(
+        (list) => {
+            const alias = list[2];
+            const propsList = convertListStringToPropListForMapper(list.slice(3));
+            return getImageOrVideoShowOperationForMapper("image", alias, propsList);
+        },
+        {
+            name: "Show image",
+            description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
+
+\`\`\`ink
+# show image <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+\`\`\``,
+            validation: z
+                .tuple([
+                    z.literal("show"),
+                    z.literal("image"),
+                    z.string(),
+                    idSchema(options.assetAliasIds),
+                ])
                 .rest(z.string()),
         },
     );
@@ -1193,7 +1222,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             description: `Shows an image-container canvas element with a list of image URLs and optional key/value properties.
 
 \`\`\`ink
-# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …]
+# show imagecontainer <alias> [ <source1> <ursource2> … ] [<key> <value> …]
 \`\`\``,
             validation: z
                 .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
@@ -1219,7 +1248,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             description: `Shows an image-container canvas element with a list of image URLs, optional properties, and a transition effect.
 
 \`\`\`ink
-# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout
+# show imagecontainer <alias> [ <ursource1> <source2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout
 \`\`\``,
             validation: z
                 .tuple([z.literal("show"), z.literal("imagecontainer"), z.string()])
