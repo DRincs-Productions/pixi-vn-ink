@@ -265,6 +265,7 @@ export namespace HashtagCommands {
         // find the { and } that are not between quotes and join only valid JSON-like blocks
         // ["edit","image","bg","position","{",'"x":',"-20.5,",'"y":',"30,",'"test":','"test } \' test",','"test2":','"\'"',"}","visible","true","cursor",'"pointer"',"alpha","0.5",];
         list = mergeJsonBlocks(list);
+        list = list.flatMap((item) => splitEdgeBrackets(item));
         list = list.map((item) => {
             if (
                 (item.startsWith('"') && item.endsWith('"')) ||
@@ -483,6 +484,32 @@ export namespace HashtagCommands {
         }
 
         return -1;
+    }
+
+    /**
+     * Splits any leading `[` and/or trailing `]` off a token into their own tokens, e.g.
+     * `["foo` → `["`, `"foo`, and `foo]` → `foo`, `"]"`. Used so `[`/`]` are always standalone
+     * tokens even when they end up glued to a quoted value (e.g. `["/image A.png"`), regardless
+     * of whether the Ink author put spaces around them.
+     */
+    function splitEdgeBrackets(item: string): string[] {
+        if (item === "[" || item === "]") {
+            return [item];
+        }
+        let start = 0;
+        let end = item.length;
+        const leading: string[] = [];
+        while (start < end && item[start] === "[") {
+            leading.push("[");
+            start++;
+        }
+        const trailing: string[] = [];
+        while (end > start && item[end - 1] === "]") {
+            trailing.unshift("]");
+            end--;
+        }
+        const middle = item.slice(start, end);
+        return middle === "" ? [...leading, ...trailing] : [...leading, middle, ...trailing];
     }
 }
 
