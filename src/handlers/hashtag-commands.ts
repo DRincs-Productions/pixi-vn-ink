@@ -1194,7 +1194,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             return getImageOrVideoShowOperationForMapper("image", alias, propsList);
         },
         {
-            name: "Show image",
+            name: "Show image with source",
             description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
