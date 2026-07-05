@@ -434,6 +434,19 @@ test("end-to-end: 'show imagecontainer' with a quoted url glued to '[' tokenizes
     HashtagCommands.clearMappers();
 });
 
+test("convertOperation maps 'clear canvas' to a canvas clear operation", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(HashtagCommands.convertOperation(["clear", "canvas"], step)).toEqual({
+        type: "canvas",
+        operationType: "clear",
+    });
+
+    HashtagCommands.clearMappers();
+});
+
 // ── mergeInkVariables (Vite plugin path) ────────────────────────────────────
 
 test("convertTagTolist mergeInkVariables: { varname } becomes a single token", () => {

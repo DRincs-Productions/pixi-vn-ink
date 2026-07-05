@@ -1484,6 +1484,22 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
     );
 
     HashtagCommands.addMapper(
+        () => ({
+            type: "canvas",
+            operationType: "clear",
+        }),
+        {
+            name: "Clear canvas",
+            description: `Removes every element currently on the canvas.
+
+\`\`\`ink
+# clear canvas
+\`\`\``,
+            validation: z.tuple([z.literal("clear"), z.literal("canvas")]),
+        },
+    );
+
+    HashtagCommands.addMapper(
         (list) => ({
             type: "image",
             operationType: "edit",
