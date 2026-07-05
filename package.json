@@ -91,7 +91,7 @@
   "homepage": "https://pixi-vn.com/ink",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "dependencies": {
-    "@drincs/pixi-vn-json": "^1.13.13",
+    "@drincs/pixi-vn-json": "^1.13.14",
     "ajv": "^8.20.0"
   },
   "devDependencies": {
