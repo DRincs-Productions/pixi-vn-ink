@@ -13,7 +13,7 @@ import { type ConditionalList, parserSwitch } from "@/mapper/switch-parser";
 import type { MapperSharedType } from "@/mapper/types";
 import { getSetValue } from "@/mapper/value-utility";
 import { logger } from "@/utils/log-utility";
-import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json/constants";
 import type {
     PixiVNJson,
     PixiVNJsonLabels,

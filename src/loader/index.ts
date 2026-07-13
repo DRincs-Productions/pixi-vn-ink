@@ -5,5 +5,5 @@ export {
      */
     convertInkToJson as convertInkText,
     convertInkToJson,
-} from "@/loader/ink-to-pixivn";
-export type { CharacterIdSource } from "@/loader/type";
+} from "@/converter";
+export type { CharacterIdSource } from "@/converter";

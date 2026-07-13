@@ -1,6 +1,6 @@
-import { HashtagCommands } from "@/handlers";
-import { convertInkToJson } from "@/loader/ink-to-pixivn";
-import type { CharacterIdSource, LoaderSharedType } from "@/loader/type";
+import { convertInkToJson } from "@/converter";
+import type { CharacterIdSource, LoaderSharedType } from "@/converter/type";
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { init, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { importPixiVNJson } from "@drincs/pixi-vn-json/interpreter";
 

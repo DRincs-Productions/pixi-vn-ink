@@ -1,5 +1,5 @@
+import type { CharacterIdSource, LoaderSharedType } from "@/converter/type";
 import type InkStoryType from "@/interfaces/InkStoryType";
-import type { CharacterIdSource, LoaderSharedType } from "@/loader/type";
 import { InkMapper } from "@/mapper";
 import { InkCompiler } from "@/parser";
 import type { CompileSharedType } from "@/parser/types";

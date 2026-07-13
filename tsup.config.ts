@@ -13,6 +13,7 @@ export default defineConfig((options) => {
             entry: {
                 parser: "src/parser/index.ts",
                 mapper: "src/mapper/index.ts",
+                converter: "src/converter/index.ts",
             },
             format: ["cjs", "esm"],
             treeshake: true,
@@ -43,6 +44,7 @@ export default defineConfig((options) => {
                 "vite",
                 "@drincs/pixi-vn-ink/parser",
                 "@drincs/pixi-vn-ink/mapper",
+                "@drincs/pixi-vn-ink/converter",
                 "virtual:pixi-vn-ink",
                 "@drincs/pixi-vn",
                 "zod",
@@ -58,6 +60,7 @@ export default defineConfig((options) => {
             entry: {
                 parser: "src/parser/index.ts",
                 mapper: "src/mapper/index.ts",
+                converter: "src/converter/index.ts",
                 index: "src/index.ts",
                 vite: "src/vite/index.ts",
                 "vite-listener": "src/vite-listener/index.ts",
@@ -69,6 +72,7 @@ export default defineConfig((options) => {
                 "vite",
                 "@drincs/pixi-vn-ink/parser",
                 "@drincs/pixi-vn-ink/mapper",
+                "@drincs/pixi-vn-ink/converter",
                 "virtual:pixi-vn-ink",
                 "@drincs/pixi-vn",
                 "zod",

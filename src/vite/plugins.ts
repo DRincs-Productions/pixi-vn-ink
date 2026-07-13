@@ -1,5 +1,5 @@
+import { convertInkToJson } from "@/converter";
 import { HashtagCommands } from "@/handlers/hashtag-commands";
-import { convertInkToJson } from "@/loader/ink-to-pixivn";
 import { InkCompiler } from "@/parser";
 import type { InkValidationInfo } from "@/parser/types";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";

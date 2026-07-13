@@ -44,6 +44,12 @@
       "require": "./dist/mapper.cjs",
       "default": "./dist/mapper.mjs"
     },
+    "./converter": {
+      "types": "./dist/converter.d.ts",
+      "import": "./dist/converter.mjs",
+      "require": "./dist/converter.cjs",
+      "default": "./dist/converter.mjs"
+    },
     "./vite": {
       "types": "./dist/vite.d.ts",
       "import": "./dist/vite.mjs",
@@ -67,6 +73,9 @@
       ],
       "mapper": [
         "./dist/mapper.d.ts"
+      ],
+      "converter": [
+        "./dist/converter.d.ts"
       ],
       "vite": [
         "./dist/vite.d.ts"
