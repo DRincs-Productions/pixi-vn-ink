@@ -1,4 +1,5 @@
-import { convertInkToJson } from "@/loader/ink-to-pixivn";
+import { HashtagCommands } from "@/handlers/hashtag-commands";
+import { convertInkToJson } from "@/loader";
 import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
 import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import { vitePluginInk } from "@/vite/plugins";
@@ -127,6 +128,60 @@ describe("vitePluginInk", () => {
             expect.stringContaining('Unknown hashtag command "# navigat /game/navigation"'),
             expect.anything(),
         );
+    });
+
+    it("warns about a keySchemas mismatch on an otherwise-recognised hashtag command", async () => {
+        // A custom `.add()` handler can declare `keySchemas` for order-independent `<key> <value>`
+        // sections of its tokens (e.g. `props`/`movein`); a mismatch there must surface as a
+        // build-time warning even though the command itself is recognised (unlike the "unknown
+        // hashtag command" case above).
+        HashtagCommands.clear();
+        HashtagCommands.add(
+            () => true,
+            {
+                name: "wait-with-options",
+                validation: /^wait\b/,
+                keySchemas: {
+                    wait: {
+                        type: "object",
+                        properties: { hours: { type: "number" }, days: { type: "string" } },
+                        additionalProperties: false,
+                    },
+                },
+            },
+        );
+
+        const root = await createTempProject();
+        tempDirectories.push(root);
+
+        await fs.mkdir(path.join(root, "ink"), { recursive: true });
+        await fs.mkdir(path.join(root, "public"), { recursive: true });
+        await fs.writeFile(
+            path.join(root, "ink", "start.ink"),
+            "=== start ===\n# wait hours 3 weeks 1\nHello world!\n",
+            "utf-8",
+        );
+
+        const plugin = vitePluginInk({
+            inkGlob: "./ink/**/*.ink",
+            inkJsonOutputPattern: "./public/ink-json/[path][name].json",
+        });
+
+        const logger = makeLogger();
+        plugin.configResolved?.(makeResolvedConfig(root, path.join(root, "public"), logger));
+
+        try {
+            await plugin.buildStart?.call(undefined);
+
+            expect(logger.warn).toHaveBeenCalledWith(
+                expect.stringContaining(
+                    'Hashtag command "# wait hours 3 weeks 1": "wait" section weeks',
+                ),
+                expect.anything(),
+            );
+        } finally {
+            HashtagCommands.clear();
+        }
     });
 
     it("removes stale exported json files when an ink file becomes invalid", async () => {

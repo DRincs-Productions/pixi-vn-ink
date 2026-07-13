@@ -3,8 +3,10 @@ import type {
     CompileSharedType,
     DivertOccurrence,
     HashtagCommandOccurrence,
+    HashtagKeySchemaIssue,
     InkHashtagCommandInfo,
     IssueType,
+    KeyedSchemaValidationIssue,
     SchemaValidationIssue,
 } from "@/parser/types";
 import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
@@ -937,5 +939,122 @@ export namespace InkCompiler {
         if (valid) return [];
 
         return simplifyErrorsForDocument(validate.errors ?? [], data, validate.schema);
+    }
+
+    /**
+     * Splits `tokens` into order-independent `<key> <value> [<value2> ...]` sections, one per
+     * occurrence of any of `keys`, scanning right to left.
+     *
+     * The right-most occurrence of any known key starts a section running to the end of the
+     * still-unprocessed tail (initially the whole array); the scan then continues to its left for
+     * the next key, and so on, until no more keys are found. Tokens before the left-most matched
+     * key (e.g. a command's own fixed arguments, like `show imagecontainer sly`) are ignored, as
+     * are any tokens between two matched keys that aren't themselves a key (they belong to the
+     * section of the key to their left).
+     *
+     * @example
+     * `extractKeyedSections(["show","imagecontainer","sly","props","xAlign","0.2","yAlign","1","movein","direction","right","ease","anticipate"], ["props","movein"])`
+     * returns `[{ key: "props", sectionTokens: ["xAlign","0.2","yAlign","1"] }, { key: "movein", sectionTokens: ["direction","right","ease","anticipate"] }]`.
+     *
+     * @param tokens Full token list to scan (e.g. the output of `convertTagTolist`).
+     * @param keys   The keys to look for (typically `Object.keys(keySchemas)`).
+     * @returns One entry per matched key, in left-to-right (original) order. `sectionTokens` is
+     *          the (possibly empty) slice of tokens between that key and the next matched key to
+     *          its right (or the end of `tokens`).
+     */
+    export function extractKeyedSections(
+        tokens: readonly string[],
+        keys: readonly string[],
+    ): { key: string; sectionTokens: string[] }[] {
+        const keySet = new Set(keys);
+        const sections: { key: string; sectionTokens: string[] }[] = [];
+        let end = tokens.length;
+        for (let index = tokens.length - 1; index >= 0; index--) {
+            if (keySet.has(tokens[index])) {
+                sections.push({ key: tokens[index], sectionTokens: tokens.slice(index + 1, end) });
+                end = index;
+            }
+        }
+        return sections.reverse();
+    }
+
+    /**
+     * Validates the order-independent keyed sections of a command's token list (see
+     * {@link extractKeyedSections}) against their JSON Schemas.
+     *
+     * Each section's tokens are converted to an object with the same `<key> <value>` pairing logic
+     * as `HashtagCommands.convertListStringToObj`, then validated with
+     * {@link validateAgainstJsonSchema}. A section that can't be paired into `<key> <value>` (an
+     * odd number of tokens, or a malformed value) is reported as its own issue instead of throwing.
+     *
+     * @param tokens     Full token list to scan (e.g. the output of `convertTagTolist`).
+     * @param keySchemas JSON Schemas keyed by the token that introduces each section — see
+     *                   `HashtagHandlerOptions.keySchemas`.
+     * @returns One {@link KeyedSchemaValidationIssue} per mismatch, empty when every section is
+     *          valid (including when no key is found at all).
+     */
+    export function validateKeyedJsonSchemas(
+        tokens: readonly string[],
+        keySchemas: Record<string, object>,
+    ): KeyedSchemaValidationIssue[] {
+        const sections = extractKeyedSections(tokens, Object.keys(keySchemas));
+        const issues: KeyedSchemaValidationIssue[] = [];
+        for (const { key, sectionTokens } of sections) {
+            let obj: object;
+            try {
+                obj = HashtagCommands.convertListStringToObj(sectionTokens);
+            } catch (error) {
+                issues.push({
+                    key,
+                    instancePath: "(root)",
+                    element: key,
+                    message: `could not parse "${key}" section into key/value pairs: ${
+                        error instanceof Error ? error.message : String(error)
+                    }`,
+                });
+                continue;
+            }
+            const schemaIssues = validateAgainstJsonSchema(obj, keySchemas[key]);
+            issues.push(...schemaIssues.map((issue) => ({ ...issue, key })));
+        }
+        return issues;
+    }
+
+    /**
+     * Returns every {@link HashtagKeySchemaIssue} found while scanning `source`'s hashtag
+     * commands: for each command that matches a registered {@link InkHashtagCommandInfo} with a
+     * `keySchemas`, its keyed sections (see {@link extractKeyedSections}) are validated against
+     * that command's schemas.
+     *
+     * Unlike {@link getUnknownHashtagCommands} (which flags a command matching *no* registered
+     * validation), this only runs on commands that already matched one — it is purely additive and
+     * doesn't affect unknown-command detection. A command with no matching entry, or a matching
+     * entry with no `keySchemas`, is simply skipped.
+     *
+     * @param source   Raw Ink source text to scan.
+     * @param commands List of known command descriptors (e.g. obtained from
+     *                 `GET /__pixi-vn-ink/hashtag-commands`).
+     * @returns Array of {@link HashtagKeySchemaIssue}, empty when every keyed section validates.
+     */
+    export function getHashtagKeySchemaIssues(
+        source: string,
+        commands: InkHashtagCommandInfo[],
+    ): HashtagKeySchemaIssue[] {
+        const issues: HashtagKeySchemaIssue[] = [];
+        for (const occurrence of extractHashtagCommands(source)) {
+            const matched = commands.find(({ validation }) =>
+                matchesHashtagValidation(occurrence.tokens, validation),
+            );
+            if (!matched?.keySchemas) continue;
+            const keyIssues = validateKeyedJsonSchemas(occurrence.tokens, matched.keySchemas);
+            issues.push(
+                ...keyIssues.map((issue) => ({
+                    ...issue,
+                    line: occurrence.line,
+                    command: occurrence.command,
+                })),
+            );
+        }
+        return issues;
     }
 }

@@ -73,6 +73,43 @@ export interface InkHashtagCommandInfo {
      * Serializable form of the validation rule.
      */
     validation: InkValidationInfo;
+    /**
+     * JSON Schemas (usable with Ajv), keyed by the token that introduces an order-independent
+     * `<key> <value> [<value2> ...]` section of the command's tokens. Matches
+     * `HashtagHandlerOptions.keySchemas` / `ReplaceHandlerOptions.keySchemas` — already plain JSON
+     * Schema objects, so no extra serialization step is needed (unlike {@link validation}).
+     *
+     * @see {@link InkCompiler.validateKeyedJsonSchemas} for how a token list is split into
+     * sections and validated against these schemas.
+     */
+    keySchemas?: Record<string, object>;
+}
+
+/**
+ * Represents a single JSON Schema mismatch found while validating one of a hashtag command's
+ * {@link InkHashtagCommandInfo.keySchemas} sections, as reported by
+ * {@link InkCompiler.validateKeyedJsonSchemas}.
+ */
+export interface KeyedSchemaValidationIssue extends SchemaValidationIssue {
+    /**
+     * The token that introduced the invalid section (e.g. `"props"` or `"movein"`).
+     */
+    key: string;
+}
+
+/**
+ * A {@link KeyedSchemaValidationIssue} found while scanning a whole Ink source file, as reported
+ * by {@link InkCompiler.getHashtagKeySchemaIssues}.
+ */
+export interface HashtagKeySchemaIssue extends KeyedSchemaValidationIssue {
+    /**
+     * 1-based line number where the offending hashtag command appears.
+     */
+    line: number;
+    /**
+     * The raw command string (without the leading `#`).
+     */
+    command: string;
 }
 
 /**

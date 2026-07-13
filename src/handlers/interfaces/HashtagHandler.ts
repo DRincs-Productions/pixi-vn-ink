@@ -101,4 +101,36 @@ export interface HashtagHandlerOptions {
      * but may be replaced by newer alternatives in the future.
      */
     deprecated?: boolean;
+    /**
+     * JSON Schemas (usable with Ajv) for order-independent `<key> <value> [<value2> ...]` sections
+     * embedded anywhere in the command's token list, keyed by the token that introduces the
+     * section.
+     *
+     * {@link validation} can only check the token list's own shape (fixed positions, or "any
+     * number of trailing strings"); it can't express that everything after a given key must parse
+     * into an object matching a specific JSON Schema. `keySchemas` fills that gap and — unlike
+     * {@link validation} — is meant to be checked statically (by `vitePluginPixivn` / the VS Code
+     * extension) without running the handler.
+     *
+     * Each key in `keySchemas` is matched against the command's tokens from right to left: the
+     * right-most occurrence of any known key starts a section that runs to the end of the
+     * still-unprocessed tail; the scan then continues to its left for the next key, and so on.
+     * Each section's tokens are converted to an object with the same `<key> <value>` pairing logic
+     * as `convertListStringToObj` (passed to {@link HashtagHandler}), then validated against that
+     * key's schema.
+     *
+     * @example
+     * For the command `# wait hours 3 days tomorrow`, tokens are
+     * `["wait", "hours", "3", "days", "tomorrow"]`. With
+     * `keySchemas: { wait: { type: "object", properties: { hours: { type: "number" }, days: { type: "string" } } } }`,
+     * the right-most (and only) match is `"wait"` at index 0; everything after it —
+     * `{ hours: 3, days: "tomorrow" }` — is validated against that schema.
+     * @example
+     * For `# show imagecontainer sly props xAlign 0.2 yAlign 1 movein direction right ease anticipate`
+     * with `keySchemas: { props: propsSchema, movein: moveinSchema }`, the scan finds `"movein"`
+     * first (right-most), validates `{ direction: "right", ease: "anticipate" }` against
+     * `moveinSchema`, then continues left to `"props"` and validates
+     * `{ xAlign: 0.2, yAlign: 1 }` against `propsSchema`.
+     */
+    keySchemas?: Record<string, object>;
 }

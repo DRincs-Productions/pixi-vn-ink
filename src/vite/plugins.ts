@@ -197,6 +197,26 @@ function logUnknownHashtagCommands(
     }
 }
 
+/**
+ * Warns about hashtag commands whose `keySchemas` sections (e.g. `props`, `movein`) don't match
+ * their registered JSON Schema — see {@link InkCompiler.getHashtagKeySchemaIssues}. Unlike
+ * {@link logUnknownHashtagCommands}, this only concerns commands that already matched a
+ * registered handler; it flags a malformed section within an otherwise-recognised command.
+ */
+function logHashtagKeySchemaIssues(
+    source: string,
+    hashtagCommandsStore: InkHashtagCommandInfo[],
+    logWarning: (message: string, line?: number) => void,
+): void {
+    const issues = InkCompiler.getHashtagKeySchemaIssues(source, hashtagCommandsStore);
+    issues.forEach(({ command, line, key, element, message }) => {
+        logWarning(
+            `Hashtag command "# ${command}": "${key}" section ${element} - ${message}`,
+            line,
+        );
+    });
+}
+
 function logUnknownDivertTargets(
     source: string,
     knownLabels: readonly string[],
@@ -480,6 +500,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         name: string;
         description?: string;
         validation: RegExp | ZodType | string;
+        keySchemas?: Record<string, object>;
     };
     type SsrReplaceInfo = SsrHandlerInfo & { type?: "before-translation" | "after-translation" };
 
@@ -498,10 +519,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         const hashtagInfo: SsrHandlerInfo[] = HashtagCommands.info();
         const textReplaceInfo: SsrReplaceInfo[] = TextReplaces.info() as SsrReplaceInfo[];
 
-        hashtagCommandsStore = hashtagInfo.map(({ name, description, validation }) => ({
+        hashtagCommandsStore = hashtagInfo.map(({ name, description, validation, keySchemas }) => ({
             name,
             description,
             validation: serializeValidation(validation),
+            keySchemas,
         }));
         textReplacesStore = textReplaceInfo.map(({ name, description, validation, type }) => ({
             name,
@@ -777,6 +799,12 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                     { timestamp: true },
                 ),
             );
+            logHashtagKeySchemaIssues(source, hashtagCommandsStore, (message, line) =>
+                resolvedConfig!.logger.warn(
+                    `${line !== undefined ? `${matchedFile}:${line}` : matchedFile}: ${message}`,
+                    { timestamp: true },
+                ),
+            );
             logUnknownDivertTargets(source, knownLabelsForExport, (message, line) =>
                 resolvedConfig!.logger.warn(
                     `${line !== undefined ? `${matchedFile}:${line}` : matchedFile}: ${message}`,
@@ -981,6 +1009,12 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                                 { timestamp: true },
                             ),
                         );
+                        logHashtagKeySchemaIssues(source, hashtagCommandsStore, (message, line) =>
+                            server.config.logger.warn(
+                                `${line !== undefined ? `${file}:${line}` : file}: ${message}`,
+                                { timestamp: true },
+                            ),
+                        );
                         const pixivnLabelsHU =
                             getPixivnPlugin(server.config.plugins)?.api?.labels ?? [];
                         logUnknownDivertTargets(
@@ -1070,6 +1104,9 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 }
             });
             logUnknownHashtagCommands(source, hashtagCommandsStore, (message, line) =>
+                this.warn({ message, loc: line !== undefined ? { line, column: 0 } : undefined }),
+            );
+            logHashtagKeySchemaIssues(source, hashtagCommandsStore, (message, line) =>
                 this.warn({ message, loc: line !== undefined ? { line, column: 0 } : undefined }),
             );
             const pixivnLabelsT = getPixivnPlugin(resolvedConfig?.plugins)?.api?.labels ?? [];
