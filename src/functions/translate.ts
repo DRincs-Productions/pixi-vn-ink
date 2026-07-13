@@ -1,5 +1,5 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
-import type { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
+import type { PixiVNJson, PixiVNJsonLabelStep } from "@drincs/pixi-vn-json/schema";
 import { translator } from "@drincs/pixi-vn-json/translator";
 
 /**

@@ -1,5 +1,5 @@
 import type VariableReference from "@/interfaces/parserItems/VariableReference";
-import type { PixiVNJsonConditionalStatements } from "@drincs/pixi-vn-json";
+import type { PixiVNJsonConditionalStatements } from "@drincs/pixi-vn-json/schema";
 import type NativeFunctions from "./parserItems/NativeFunctions";
 import type ReadCount from "./parserItems/ReadCount";
 

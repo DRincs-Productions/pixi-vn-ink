@@ -4,7 +4,7 @@ import { InkMapper } from "@/mapper";
 import { InkCompiler } from "@/parser";
 import type { CompileSharedType } from "@/parser/types";
 import { logger } from "@/utils/log-utility";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json/schema";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
 

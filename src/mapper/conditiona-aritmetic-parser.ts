@@ -11,7 +11,7 @@ import { getLabelByStandardDivert } from "@/utils/divert-utility";
 import { logger } from "@/utils/log-utility";
 import { getText } from "@/utils/text-utility";
 import type { StorageElementType } from "@drincs/pixi-vn";
-import { PixiVNJsonComparationOperators } from "@drincs/pixi-vn-json";
+import { PixiVNJsonComparationOperators } from "@drincs/pixi-vn-json/constants";
 import type {
     PixiVNJsonArithmeticOperations,
     PixiVNJsonComparation,

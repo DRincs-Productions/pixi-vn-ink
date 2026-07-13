@@ -9,7 +9,7 @@
  * ```
  */
 declare module "virtual:pixi-vn-ink" {
-    import type { PixiVNJson } from "@drincs/pixi-vn-json";
+    import type { PixiVNJson } from "@drincs/pixi-vn-json/schema";
 
     /**
      * Array of raw `.ink` file contents matched by the `inkGlob` option of `vitePluginInk`.

@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { importInkText, importJson } from "@/loader/importer";
 import type { CharacterIdSource } from "@/loader/type";
-import type { PixiVNJson } from "@drincs/pixi-vn-json";
+import type { PixiVNJson } from "@drincs/pixi-vn-json/schema";
 import { inkJsons } from "virtual:pixi-vn-ink";
 
 type InkUpdatedPayload = {

@@ -1,4 +1,4 @@
-import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json";
+import type { PixiVNJsonValueGet, PixiVNJsonValueSet } from "@drincs/pixi-vn-json/schema";
 
 type VariableAssignmentVar = {
     "VAR=": any;

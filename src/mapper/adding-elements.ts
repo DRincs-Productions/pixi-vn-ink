@@ -1,5 +1,5 @@
 import { CHOISE_LABEL_KEY_SEPARATOR } from "@/constant";
-import { HashtagCommands } from "@/handlers";
+import { HashtagCommands } from "@/handlers/hashtag-commands";
 import type { DivertTunnel, StandardDivert } from "@/interfaces/parserItems/Divert";
 import type { MyVariableAssignment } from "@/interfaces/parserItems/VariableAssignment";
 import type { MapperSharedType } from "@/mapper/types";
