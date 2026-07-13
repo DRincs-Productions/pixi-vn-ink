@@ -50,6 +50,12 @@
       "require": "./dist/converter.cjs",
       "default": "./dist/converter.mjs"
     },
+    "./dev-api": {
+      "types": "./dist/dev-api.d.ts",
+      "import": "./dist/dev-api.mjs",
+      "require": "./dist/dev-api.cjs",
+      "default": "./dist/dev-api.mjs"
+    },
     "./vite": {
       "types": "./dist/vite.d.ts",
       "import": "./dist/vite.mjs",
@@ -76,6 +82,9 @@
       ],
       "converter": [
         "./dist/converter.d.ts"
+      ],
+      "dev-api": [
+        "./dist/dev-api.d.ts"
       ],
       "vite": [
         "./dist/vite.d.ts"
