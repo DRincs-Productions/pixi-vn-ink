@@ -1,7 +1,11 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { convertInkToJson } from "@/loader";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
-import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "@/vite/info-types";
+import {
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_INFO,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
+import type { InkHashtagCommandInfo, InkLibraryInfo, InkTextReplaceInfo } from "@/vite/info-types";
 import { vitePluginInk } from "@/vite/plugins";
 import fs from "node:fs/promises";
 import http from "node:http";
@@ -909,6 +913,15 @@ describe("vitePluginInk dev API", () => {
         const body = JSON.parse(res.body) as InkHashtagCommandInfo[];
         expect(body.length).toBeGreaterThan(0);
         expect(body.some((entry) => entry.name === "Call")).toBe(true);
+    });
+
+    it("GET info returns this library's own version and the PixiVNJson schema URL", async () => {
+        const { server } = await startPlugin();
+        const res = await request(server, "GET", INK_DEV_API_INFO);
+        expect(res.status).toBe(200);
+        const body = JSON.parse(res.body) as InkLibraryInfo;
+        expect(body.version).toEqual(expect.stringMatching(/^\d+\.\d+\.\d+/));
+        expect(body.schemaUrl).toContain("https://");
     });
 
     it("GET text-replaces returns empty array initially", async () => {

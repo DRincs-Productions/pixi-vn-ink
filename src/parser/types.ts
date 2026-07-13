@@ -71,16 +71,70 @@ export interface InkHashtagCommandInfo {
     description?: string;
     /**
      * Serializable form of the validation rule.
+     *
+     * @example
+     * A `RegExp` validation (e.g. `/^jump\b/`) serializes to:
+     * ```ts
+     * { type: "regexp", source: "^jump\\b", flags: "" }
+     * ```
+     * @example
+     * A Zod validation (e.g. `z.tuple([z.literal("jump"), z.string()])`) serializes to its JSON
+     * Schema form:
+     * ```ts
+     * {
+     *   type: "zod",
+     *   schema: {
+     *     type: "array",
+     *     prefixItems: [{ type: "string", const: "jump" }, { type: "string" }],
+     *     minItems: 2,
+     *     maxItems: 2,
+     *   },
+     * }
+     * ```
+     * @example
+     * A string-literal validation (e.g. `TextReplaces`' `"all"` / `"characterId"` modes)
+     * serializes to:
+     * ```ts
+     * { type: "literal", value: "all" }
+     * ```
      */
     validation: InkValidationInfo;
     /**
      * JSON Schemas (usable with Ajv), keyed by the token that introduces an order-independent
      * `<key> <value> [<value2> ...]` section of the command's tokens. Matches
-     * `HashtagHandlerOptions.keySchemas` / `ReplaceHandlerOptions.keySchemas` — already plain JSON
-     * Schema objects, so no extra serialization step is needed (unlike {@link validation}).
+     * {@link HashtagHandlerOptions.keySchemas} — already plain JSON Schema objects, so no extra
+     * serialization step is needed (unlike {@link validation}).
      *
      * @see {@link InkCompiler.validateKeyedJsonSchemas} for how a token list is split into
      * sections and validated against these schemas.
+     *
+     * @example
+     * For the command `# wait hours 3 days tomorrow` (tokens
+     * `["wait", "hours", "3", "days", "tomorrow"]`):
+     * ```ts
+     * {
+     *   name: "wait-with-options",
+     *   validation: { type: "regexp", source: "^wait\\b", flags: "" },
+     *   keySchemas: {
+     *     wait: {
+     *       type: "object",
+     *       properties: { hours: { type: "number" }, days: { type: "string" } },
+     *       additionalProperties: false,
+     *     },
+     *   },
+     * }
+     * ```
+     * `InkCompiler.getHashtagKeySchemaIssues` matches `"wait"` (the right-most, and only,
+     * occurrence) and validates `{ hours: 3, days: "tomorrow" }` against its schema.
+     * @example
+     * For `# show imagecontainer sly props xAlign 0.2 yAlign 1 movein direction right ease anticipate`,
+     * with two independent sections:
+     * ```ts
+     * keySchemas: {
+     *   props: { type: "object", properties: { xAlign: { type: "number" }, yAlign: { type: "number" } } },
+     *   movein: { type: "object", properties: { direction: { type: "string" }, ease: { type: "string" } } },
+     * }
+     * ```
      */
     keySchemas?: Record<string, object>;
 }

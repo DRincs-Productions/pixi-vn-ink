@@ -2,8 +2,13 @@ import { convertInkToJson } from "@/converter";
 import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { InkCompiler } from "@/parser";
 import type { InkValidationInfo } from "@/parser/types";
-import { INK_DEV_API_HASHTAG_COMMANDS, INK_DEV_API_TEXT_REPLACES } from "@/vite/costants";
+import {
+    INK_DEV_API_HASHTAG_COMMANDS,
+    INK_DEV_API_INFO,
+    INK_DEV_API_TEXT_REPLACES,
+} from "@/vite/costants";
 import { TextReplaces, type PixiVNJson } from "@drincs/pixi-vn-json";
+import { PIXIVNJSON_SCHEMA_URL } from "@drincs/pixi-vn-json/constants";
 import type { ValidateFunction } from "ajv";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import fs from "node:fs/promises";
@@ -13,7 +18,8 @@ import pc from "picocolors";
 import { glob } from "tinyglobby";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 import { toJSONSchema, type ZodType } from "zod";
-import type { InkHashtagCommandInfo, InkTextReplaceInfo } from "./info-types";
+import { version as PIXI_VN_INK_VERSION } from "../../package.json";
+import type { InkHashtagCommandInfo, InkLibraryInfo, InkTextReplaceInfo } from "./info-types";
 
 const PLUGIN_PREFIX = pc.cyan("(pixi-vn-ink)");
 
@@ -902,6 +908,18 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                             res.statusCode = 400;
                             res.end();
                         }
+                        return;
+                    }
+                }
+
+                if (url === INK_DEV_API_INFO) {
+                    if (method === "GET") {
+                        res.setHeader("Content-Type", "application/json");
+                        const info: InkLibraryInfo = {
+                            version: PIXI_VN_INK_VERSION,
+                            schemaUrl: PIXIVNJSON_SCHEMA_URL,
+                        };
+                        res.end(JSON.stringify(info));
                         return;
                     }
                 }

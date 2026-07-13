@@ -35,3 +35,21 @@ export interface InkTextReplaceInfo {
      */
     type?: "before-translation" | "after-translation";
 }
+
+/**
+ * Static information about a running `@drincs/pixi-vn-ink` instance, as returned by
+ * `GET /__pixi-vn-ink/info`.
+ *
+ * @see https://pixi-vn.com/ink#vite-plugin
+ */
+export interface InkLibraryInfo {
+    /**
+     * This `@drincs/pixi-vn-ink` package's own version (from its `package.json`).
+     */
+    version: string;
+    /**
+     * The JSON Schema URL (`PIXIVNJSON_SCHEMA_URL` from `@drincs/pixi-vn-json/constants`)
+     * embedded as `$schema` in every exported `PixiVNJson` document.
+     */
+    schemaUrl: string;
+}

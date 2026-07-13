@@ -41,3 +41,24 @@ export const INK_DEV_API_HASHTAG_COMMANDS = "/__pixi-vn-ink/hashtag-commands";
  * ```
  */
 export const INK_DEV_API_TEXT_REPLACES = "/__pixi-vn-ink/text-replaces";
+
+/**
+ * Dev-server endpoint that exposes static information about this library instance, as an
+ * {@link InkLibraryInfo} object.
+ *
+ * - `GET /__pixi-vn-ink/info` – returns `{ version, schemaUrl }`, where `version` is this
+ *   `@drincs/pixi-vn-ink` package's own version and `schemaUrl` is the `PIXIVNJSON_SCHEMA_URL`
+ *   (from `@drincs/pixi-vn-json/constants`) embedded as `$schema` in every exported `PixiVNJson`
+ *   document.
+ * - Read-only: unlike {@link INK_DEV_API_HASHTAG_COMMANDS} / {@link INK_DEV_API_TEXT_REPLACES},
+ *   there is no `POST` — both values are static per plugin instance and don't depend on
+ *   SSR-loading the user's content, so there's nothing for {@link setupInkHmrListener} to push.
+ *
+ * @example
+ * ```ts
+ * // VS Code extension reading the library version / schema URL
+ * const res = await fetch("http://localhost:5173/__pixi-vn-ink/info");
+ * const { version, schemaUrl }: InkLibraryInfo = await res.json();
+ * ```
+ */
+export const INK_DEV_API_INFO = "/__pixi-vn-ink/info";
