@@ -257,6 +257,38 @@ test("run custom handler uses zod validation filter", async () => {
     HashtagCommands.clear();
 });
 
+test("keySchemas is purely a static-analysis hint: a malformed keySchemas section never prevents the handler from running", async () => {
+    HashtagCommands.clear();
+    let called = 0;
+    HashtagCommands.add(
+        (script) => {
+            called += 1;
+            return script[0] === "wait";
+        },
+        {
+            name: "wait-with-options",
+            validation: /^wait\b/,
+            // "hours" is declared as a number, but the command below passes a string for it —
+            // this would be reported by `InkCompiler.getHashtagKeySchemaIssues` (a static/build-
+            // time check), but `HashtagCommands.run` must still execute the handler normally.
+            keySchemas: {
+                wait: {
+                    type: "object",
+                    properties: { hours: { type: "number" } },
+                    additionalProperties: false,
+                },
+            },
+        },
+    );
+
+    const step = {} as unknown as PixiVNJsonLabelStep;
+    const result = await HashtagCommands.run("wait hours not-a-number", step, {});
+
+    expect(called).toBe(1);
+    expect(result).toBeUndefined();
+    HashtagCommands.clear();
+});
+
 test("run custom handler supports deprecated add(handler) overload", async () => {
     HashtagCommands.clear();
     let called = 0;

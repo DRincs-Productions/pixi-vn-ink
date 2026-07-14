@@ -131,6 +131,14 @@ export interface HashtagHandlerOptions {
      * first (right-most), validates `{ direction: "right", ease: "anticipate" }` against
      * `moveinSchema`, then continues left to `"props"` and validates
      * `{ xAlign: 0.2, yAlign: 1 }` against `propsSchema`.
+     *
+     * A key can also be a number (or a digit-only string — object keys are always strings at
+     * runtime). Numeric keys are checked only after every string key has already claimed its
+     * section, largest to smallest, counting from `0` at the command's own leading literal (e.g.
+     * `"show"`): key `N` claims `tokens[N .. end)` — `end` being the left edge of whatever the
+     * previous (string or numeric) match already claimed — and the token right before it
+     * (`tokens[N - 1]`, e.g. a dynamic alias no literal key could match) is dropped along with it.
+     * See {@link InkHashtagCommandInfo.keySchemas} for a full worked example.
      */
-    keySchemas?: Record<string, object>;
+    keySchemas?: Record<string | number, object>;
 }

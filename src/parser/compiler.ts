@@ -957,25 +957,83 @@ export namespace InkCompiler {
      * returns `[{ key: "props", sectionTokens: ["xAlign","0.2","yAlign","1"] }, { key: "movein", sectionTokens: ["direction","right","ease","anticipate"] }]`.
      *
      * @param tokens Full token list to scan (e.g. the output of `convertTagTolist`).
-     * @param keys   The keys to look for (typically `Object.keys(keySchemas)`).
-     * @returns One entry per matched key, in left-to-right (original) order. `sectionTokens` is
-     *          the (possibly empty) slice of tokens between that key and the next matched key to
-     *          its right (or the end of `tokens`).
+     * @param keys   The keys to look for (typically `Object.keys(keySchemas)`). An element that is
+     *               a number, or a string containing only digits (object keys are always strings
+     *               at runtime, so `3` and `"3"` are equivalent here), is treated as a *numeric*
+     *               key instead of a literal token — see the numeric-key pass below.
+     * @returns One entry per matched key, in left-to-right (original) order — numeric-key sections
+     *          first (they only ever occur in the prefix left over after every string key has been
+     *          matched), then string-key sections. `sectionTokens` is the (possibly empty) slice of
+     *          tokens belonging to that key.
+     *
+     * Numeric keys are resolved by **position**, in a second pass that runs only after every string
+     * key has already claimed its section above. Counting starts at `0` for `tokens[0]` (e.g. the
+     * command's own leading literal, like `"show"`). Numeric keys are processed largest to
+     * smallest, each bounded by `end` — the left edge of whatever the previous match (string or
+     * numeric) already claimed, starting from the left-most string-key match (or `tokens.length` if
+     * none matched): key `N` claims `tokens.slice(N, end)` as its section, then `end` becomes
+     * `N - 1` — dropping `tokens[N - 1]` (e.g. a dynamic alias no literal key could match) along
+     * with it, so the next, smaller numeric key resumes scanning to its left. A numeric key outside
+     * the current `[0, end)` bound (e.g. it collides with an already-claimed region) is skipped.
+     *
+     * @example
+     * For `["show","spine","flowerTop","x","220","y","20","with","dissolve","duration","2"]` with
+     * keys `["with", "dissolve", 3]`: the string-key pass matches `"dissolve"` (section
+     * `["duration","2"]`) then `"with"` (empty section), leaving `end = 7`. The numeric pass then
+     * matches key `3`: section = `tokens.slice(3, 7)` = `["x","220","y","20"]`, and drops
+     * `tokens[2]` (`"flowerTop"`) too.
      */
     export function extractKeyedSections(
         tokens: readonly string[],
-        keys: readonly string[],
-    ): { key: string; sectionTokens: string[] }[] {
-        const keySet = new Set(keys);
-        const sections: { key: string; sectionTokens: string[] }[] = [];
+        keys: readonly (string | number)[],
+    ): { key: string | number; sectionTokens: string[] }[] {
+        const stringKeys = new Set<string>();
+        const numericKeys: number[] = [];
+        for (const key of keys) {
+            const numericKey = toNumericKey(key);
+            if (numericKey !== undefined) {
+                numericKeys.push(numericKey);
+            } else {
+                stringKeys.add(String(key));
+            }
+        }
+        numericKeys.sort((a, b) => b - a);
+
+        const stringSections: { key: string; sectionTokens: string[] }[] = [];
         let end = tokens.length;
         for (let index = tokens.length - 1; index >= 0; index--) {
-            if (keySet.has(tokens[index])) {
-                sections.push({ key: tokens[index], sectionTokens: tokens.slice(index + 1, end) });
+            if (stringKeys.has(tokens[index])) {
+                stringSections.push({
+                    key: tokens[index],
+                    sectionTokens: tokens.slice(index + 1, end),
+                });
                 end = index;
             }
         }
-        return sections.reverse();
+        stringSections.reverse();
+
+        const numericSections: { key: number; sectionTokens: string[] }[] = [];
+        for (const key of numericKeys) {
+            if (key < 0 || key >= end) continue;
+            numericSections.push({ key, sectionTokens: tokens.slice(key, end) });
+            end = key - 1;
+        }
+        numericSections.reverse();
+
+        return [...numericSections, ...stringSections];
+    }
+
+    /**
+     * Parses `key` as a non-negative-integer position for {@link extractKeyedSections}'s numeric
+     * pass — accepting either an actual `number` or a digit-only string (`Object.keys(...)` always
+     * yields strings, even for numeric object keys like `{ 3: ... }`). Returns `undefined` for
+     * anything else (a literal string key).
+     */
+    function toNumericKey(key: string | number): number | undefined {
+        if (typeof key === "number") {
+            return Number.isInteger(key) && key >= 0 ? key : undefined;
+        }
+        return /^\d+$/.test(key) ? Number(key) : undefined;
     }
 
     /**
@@ -995,7 +1053,7 @@ export namespace InkCompiler {
      */
     export function validateKeyedJsonSchemas(
         tokens: readonly string[],
-        keySchemas: Record<string, object>,
+        keySchemas: Record<string | number, object>,
     ): KeyedSchemaValidationIssue[] {
         const sections = extractKeyedSections(tokens, Object.keys(keySchemas));
         const issues: KeyedSchemaValidationIssue[] = [];
@@ -1007,7 +1065,7 @@ export namespace InkCompiler {
                 issues.push({
                     key,
                     instancePath: "(root)",
-                    element: key,
+                    element: String(key),
                     message: `could not parse "${key}" section into key/value pairs: ${
                         error instanceof Error ? error.message : String(error)
                     }`,

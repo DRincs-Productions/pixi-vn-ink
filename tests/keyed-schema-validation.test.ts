@@ -73,6 +73,64 @@ test("extractKeyedSections: a repeated key produces one section per occurrence",
     ]);
 });
 
+// ── extractKeyedSections: numeric keys ──────────────────────────────────────────
+
+test("extractKeyedSections: numeric key claims a position-based section and drops the preceding token (the 'show spine' example)", () => {
+    // # show spine flowerTop x 220 y 20 with dissolve duration 2
+    const tokens = [
+        "show",
+        "spine",
+        "flowerTop",
+        "x",
+        "220",
+        "y",
+        "20",
+        "with",
+        "dissolve",
+        "duration",
+        "2",
+    ];
+    expect(InkCompiler.extractKeyedSections(tokens, ["with", "dissolve", 3])).toEqual([
+        { key: 3, sectionTokens: ["x", "220", "y", "20"] },
+        { key: "with", sectionTokens: [] },
+        { key: "dissolve", sectionTokens: ["duration", "2"] },
+    ]);
+});
+
+test("extractKeyedSections: a digit-only string key behaves exactly like the equivalent number", () => {
+    const tokens = ["show", "spine", "flowerTop", "x", "220", "y", "20"];
+    expect(InkCompiler.extractKeyedSections(tokens, ["3"])).toEqual(
+        InkCompiler.extractKeyedSections(tokens, [3]),
+    );
+});
+
+test("extractKeyedSections: numeric key 0 claims the whole array and drops nothing (no index -1)", () => {
+    const tokens = ["wait", "hours", "3"];
+    expect(InkCompiler.extractKeyedSections(tokens, [0])).toEqual([
+        { key: 0, sectionTokens: ["wait", "hours", "3"] },
+    ]);
+});
+
+test("extractKeyedSections: multiple numeric keys are processed largest to smallest", () => {
+    // indices: a0 b1 c2 d3 e4 f5
+    const tokens = ["a", "b", "c", "d", "e", "f"];
+    expect(InkCompiler.extractKeyedSections(tokens, [4, 1])).toEqual([
+        // key 4 is processed first (largest, end starts at tokens.length=6): section = tokens[4..6) = [e,f]
+        // key 1 is processed next, bounded by the new end (4-1=3): section = tokens[1..3) = [b,c]
+        { key: 1, sectionTokens: ["b", "c"] },
+        { key: 4, sectionTokens: ["e", "f"] },
+    ]);
+});
+
+test("extractKeyedSections: a numeric key outside the still-unprocessed bound is skipped", () => {
+    // "dissolve" claims everything from index 1 onward, so a numeric key of 3 (inside the
+    // claimed region) has nothing left to claim.
+    const tokens = ["show", "dissolve", "duration", "2"];
+    expect(InkCompiler.extractKeyedSections(tokens, ["dissolve", 3])).toEqual([
+        { key: "dissolve", sectionTokens: ["duration", "2"] },
+    ]);
+});
+
 // ── validateKeyedJsonSchemas ────────────────────────────────────────────────────
 
 const PROPS_SCHEMA = {
@@ -168,6 +226,46 @@ test("validateKeyedJsonSchemas validates the whole tail against a single schema 
     expect(issues[0]).toMatchObject({ key: "wait", element: "weeks" });
 });
 
+test("validateKeyedJsonSchemas validates a numeric-key section (the 'show spine' example)", () => {
+    // # show spine flowerTop x 220 y 20 with dissolve duration 2
+    const tokens = [
+        "show",
+        "spine",
+        "flowerTop",
+        "x",
+        "220",
+        "y",
+        "20",
+        "with",
+        "dissolve",
+        "duration",
+        "2",
+    ];
+    const schemas = {
+        with: {},
+        dissolve: { type: "object", properties: { duration: { type: "number" } } },
+        3: { type: "object", properties: { x: { type: "number" }, y: { type: "number" } } },
+    };
+    expect(InkCompiler.validateKeyedJsonSchemas(tokens, schemas)).toEqual([]);
+
+    const invalidTokens = [
+        "show",
+        "spine",
+        "flowerTop",
+        "x",
+        "not-a-number",
+        "y",
+        "20",
+        "with",
+        "dissolve",
+        "duration",
+        "2",
+    ];
+    const issues = InkCompiler.validateKeyedJsonSchemas(invalidTokens, schemas);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ key: 3, element: "x" });
+});
+
 // ── getHashtagKeySchemaIssues ────────────────────────────────────────────────────
 
 const showImagecontainerCommand: InkHashtagCommandInfo = {
@@ -220,6 +318,28 @@ test("getHashtagKeySchemaIssues reports one issue per malformed section on the s
     expect(issues).toHaveLength(2);
     expect(issues.every((issue) => issue.line === 2)).toBe(true);
     expect(issues.map((issue) => issue.key).sort()).toEqual(["movein", "props"]);
+});
+
+test("getHashtagKeySchemaIssues supports a numeric key alongside string keys (the 'show spine' example)", () => {
+    const showSpineCommand: InkHashtagCommandInfo = {
+        name: "show spine",
+        validation: { type: "regexp", source: "^show spine\\b", flags: "" },
+        keySchemas: {
+            with: {},
+            dissolve: { type: "object", properties: { duration: { type: "number" } } },
+            3: { type: "object", properties: { x: { type: "number" }, y: { type: "number" } } },
+        },
+    };
+
+    const validSource =
+        "=== start ===\n# show spine flowerTop x 220 y 20 with dissolve duration 2\n";
+    expect(InkCompiler.getHashtagKeySchemaIssues(validSource, [showSpineCommand])).toEqual([]);
+
+    const invalidSource =
+        "=== start ===\n# show spine flowerTop x not-a-number y 20 with dissolve duration 2\n";
+    const issues = InkCompiler.getHashtagKeySchemaIssues(invalidSource, [showSpineCommand]);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ line: 2, key: 3, element: "x" });
 });
 
 // ── end-to-end: HashtagCommands.add({ keySchemas }) → HashtagCommands.info() → InkCompiler ─────

@@ -135,8 +135,33 @@ export interface InkHashtagCommandInfo {
      *   movein: { type: "object", properties: { direction: { type: "string" }, ease: { type: "string" } } },
      * }
      * ```
+     * A key can also be a (positive integer) number — or a string made only of digits, since
+     * object keys are always strings at runtime — instead of a literal token. Numeric keys are
+     * resolved by **position** rather than by token identity, and are checked only after every
+     * string key has already claimed its section (right to left, exactly as above); counting
+     * starts at `0` for the command's own leading literal (e.g. `"show"`). Numeric keys are then
+     * processed largest to smallest: key `N` claims `tokens[N .. end)` as its section (`end` being
+     * the left edge of the previously-claimed section), is validated against its schema, and the
+     * token immediately before it (`tokens[N - 1]`, e.g. a dynamic alias that can't be matched by
+     * literal value) is dropped along with it — so the next, smaller numeric key resumes scanning
+     * to its left.
+     * @example
+     * For `# show spine flowerTop x 220 y 20 with dissolve duration 2` (tokens
+     * `["show","spine","flowerTop","x","220","y","20","with","dissolve","duration","2"]`) with:
+     * ```ts
+     * keySchemas: {
+     *   with: {},
+     *   dissolve: { type: "object", properties: { duration: { type: "number" } } },
+     *   3: { type: "object", properties: { x: { type: "number" }, y: { type: "number" } } },
+     * }
+     * ```
+     * String keys are resolved first: `"dissolve"` (right-most) claims `{ duration: 2 }`, then
+     * `"with"` claims an empty section — leaving `["show","spine","flowerTop","x","220","y","20"]`
+     * (`"show"` is position `0`) for the numeric pass. Key `3` claims `tokens[3..7)` →
+     * `{ x: 220, y: 20 }`, and also drops `"flowerTop"` (position `2`, the element's dynamic
+     * alias) — nothing is left to check further left.
      */
-    keySchemas?: Record<string, object>;
+    keySchemas?: Record<string | number, object>;
 }
 
 /**
@@ -146,9 +171,10 @@ export interface InkHashtagCommandInfo {
  */
 export interface KeyedSchemaValidationIssue extends SchemaValidationIssue {
     /**
-     * The token that introduced the invalid section (e.g. `"props"` or `"movein"`).
+     * The token that introduced the invalid section (e.g. `"props"` or `"movein"`), or the
+     * numeric position key (see {@link InkHashtagCommandInfo.keySchemas}) that introduced it.
      */
-    key: string;
+    key: string | number;
 }
 
 /**

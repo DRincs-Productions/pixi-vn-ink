@@ -506,7 +506,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         name: string;
         description?: string;
         validation: RegExp | ZodType | string;
-        keySchemas?: Record<string, object>;
+        keySchemas?: Record<string | number, object>;
     };
     type SsrReplaceInfo = SsrHandlerInfo & { type?: "before-translation" | "after-translation" };
 
