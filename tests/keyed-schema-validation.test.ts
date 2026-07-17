@@ -342,6 +342,45 @@ test("getHashtagKeySchemaIssues supports a numeric key alongside string keys (th
     expect(issues[0]).toMatchObject({ line: 2, key: 3, element: "x" });
 });
 
+test("getHashtagKeySchemaIssues flags a typo'd property in a numeric-key section that also has additionalProperties: false (real-world 'show spine' shape)", () => {
+    // Mirrors how a third-party package (e.g. `@drincs/pixi-vn-spine`) registers `# show spine`:
+    // string keys for the optional `with <transition>` section, plus a numeric key for the
+    // free-form construction props, whose schema rejects unknown properties outright.
+    const showSpineCommand: InkHashtagCommandInfo = {
+        name: "Show spine",
+        validation: { type: "regexp", source: "^show spine\\b", flags: "" },
+        keySchemas: {
+            with: {},
+            dissolve: { type: "object", properties: { duration: { type: "number" } } },
+            3: {
+                type: "object",
+                properties: {
+                    skeleton: { type: "string" },
+                    atlas: { type: "string" },
+                    xAlign: { type: "number" },
+                    yAlign: { type: "number" },
+                    animation: { type: "string" },
+                },
+                required: ["skeleton", "atlas"],
+                additionalProperties: false,
+            },
+        },
+    };
+
+    // # show spine boy skeleton spineboySkeleton atlas spineboyAtlas xAln 0.5 yAlign 1 animation idle
+    const typoSource =
+        "=== start ===\n# show spine boy skeleton spineboySkeleton atlas spineboyAtlas xAln 0.5 yAlign 1 animation idle\n";
+    const issues = InkCompiler.getHashtagKeySchemaIssues(typoSource, [showSpineCommand]);
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ line: 2, key: 3, element: "xAln" });
+    expect(issues[0].message).toContain("unrecognised property");
+
+    // The same command with the typo fixed reports nothing.
+    const fixedSource =
+        "=== start ===\n# show spine boy skeleton spineboySkeleton atlas spineboyAtlas xAlign 0.5 yAlign 1 animation idle\n";
+    expect(InkCompiler.getHashtagKeySchemaIssues(fixedSource, [showSpineCommand])).toEqual([]);
+});
+
 // ── end-to-end: HashtagCommands.add({ keySchemas }) → HashtagCommands.info() → InkCompiler ─────
 
 test("end-to-end: a keySchemas mismatch on a custom .add() command is caught via HashtagCommands.info()", () => {
