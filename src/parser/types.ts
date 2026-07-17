@@ -193,6 +193,33 @@ export interface HashtagKeySchemaIssue extends KeyedSchemaValidationIssue {
 }
 
 /**
+ * A {@link SchemaValidationIssue} found while checking whether an *unrecognized* `# ...` hashtag
+ * command (one no registered {@link InkHashtagCommandInfo} validation matches) is instead a
+ * probable typo of one of the registered `"zod"` handlers, as reported by
+ * {@link InkCompiler.getLikelyUnknownHashtagCommandSchemaIssues}.
+ */
+export interface LikelyUnknownHashtagCommandSchemaIssue extends SchemaValidationIssue {
+    /**
+     * 1-based line number where the offending hashtag command appears.
+     */
+    line: number;
+    /**
+     * The raw command string (without the leading `#`), exactly as found in the source.
+     */
+    command: string;
+    /**
+     * `name` of the {@link InkHashtagCommandInfo} whose `"zod"` schema this command is a likely
+     * (but invalid) match for.
+     */
+    handlerName: string;
+    /**
+     * Confidence, in `[0, 1]`, that `command` was meant to match `handlerName`'s schema — see
+     * {@link InkCompiler.getLikelyUnknownHashtagCommandSchemaIssues}.
+     */
+    score: number;
+}
+
+/**
  * Represents a single divert occurrence found in an Ink source file whose target
  * could not be resolved locally or against the known external label pool.
  */

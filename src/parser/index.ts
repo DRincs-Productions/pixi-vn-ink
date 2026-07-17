@@ -6,5 +6,6 @@ export type {
     InkHashtagCommandInfo,
     InkValidationInfo,
     KeyedSchemaValidationIssue,
+    LikelyUnknownHashtagCommandSchemaIssue,
     SchemaValidationIssue,
 } from "@/parser/types";

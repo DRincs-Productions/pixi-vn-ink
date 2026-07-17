@@ -7,9 +7,11 @@ import type {
     InkHashtagCommandInfo,
     IssueType,
     KeyedSchemaValidationIssue,
+    LikelyUnknownHashtagCommandSchemaIssue,
     SchemaValidationIssue,
 } from "@/parser/types";
 import Ajv, { type ErrorObject, type ValidateFunction } from "ajv";
+import Ajv2020 from "ajv/dist/2020";
 import { Compiler } from "inkjs/compiler/Compiler";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 
@@ -158,6 +160,206 @@ function matchesHashtagValidation(
         return tokens.join(" ") === validation.value;
     }
     return arrayMatchesSchemaTokens(tokens, validation.schema);
+}
+
+/**
+ * Flattens a `"zod"` validation's serialized schema down to its leaf tuple-shaped array schemas —
+ * unwrapping `anyOf`/`oneOf` (from a `z.union([...])`, e.g. the "Load assets/bundle" command) and
+ * merging `allOf` members, the same three combinators {@link arrayMatchesSchemaTokens} already
+ * unwraps to *decide* a match. Used instead to *score* how close a command that matched none of
+ * them still is to each individual branch — see {@link scoreZodArrayBranch}.
+ */
+function collectZodArrayBranches(schema: unknown): Record<string, unknown>[] {
+    if (!schema || typeof schema !== "object") return [];
+    const typedSchema = schema as Record<string, unknown>;
+
+    if (Array.isArray(typedSchema.anyOf)) return typedSchema.anyOf.flatMap(collectZodArrayBranches);
+    if (Array.isArray(typedSchema.oneOf)) return typedSchema.oneOf.flatMap(collectZodArrayBranches);
+    if (Array.isArray(typedSchema.allOf)) {
+        const merged: Record<string, unknown> = {};
+        for (const member of typedSchema.allOf) {
+            if (member && typeof member === "object") Object.assign(merged, member);
+        }
+        return collectZodArrayBranches(merged);
+    }
+
+    if (typedSchema.type === "array" && Array.isArray(typedSchema.prefixItems)) {
+        return [typedSchema];
+    }
+    return [];
+}
+
+/**
+ * Levenshtein similarity of `a` against `b`, normalized to `[0, 1]` (`1` for an exact match, `0`
+ * for two strings sharing nothing). Reuses {@link editDistance} — the same measure already used
+ * to suggest a `keySchemas` property typo — to instead score a whole *token* against the literal
+ * (`const`/`enum`) a hashtag command's tuple schema expects at that position.
+ */
+function stringSimilarity(a: string, b: string): number {
+    if (a === b) return 1;
+    const maxLength = Math.max(a.length, b.length);
+    if (maxLength === 0) return 1;
+    return Math.max(0, 1 - editDistance(a, b) / maxLength);
+}
+
+/**
+ * How well a single token matches a single `prefixItems` position schema, as a `{ weight,
+ * matched }` pair (`matched / weight` is that position's own contribution to
+ * {@link scoreZodArrayBranch}'s overall score). A `const`/`enum` position is a *discriminant* —
+ * the part of a command that actually identifies it (`"show"`, `"video"`, ...) — and is weighted
+ * higher than a plain, unconstrained position (a free-form alias/argument, trivially satisfied by
+ * any token): getting a discriminant right is far stronger evidence of a typo'd match than an
+ * argument merely being present.
+ */
+function scoreHashtagPositionToken(
+    token: string | undefined,
+    positionSchema: unknown,
+): { weight: number; matched: number } {
+    if (positionSchema && typeof positionSchema === "object") {
+        const typedSchema = positionSchema as Record<string, unknown>;
+        if (typeof typedSchema.const === "string") {
+            return {
+                weight: 2,
+                matched: token === undefined ? 0 : 2 * stringSimilarity(token, typedSchema.const),
+            };
+        }
+        if (Array.isArray(typedSchema.enum)) {
+            const bestSimilarity =
+                token === undefined
+                    ? 0
+                    : Math.max(
+                          0,
+                          ...typedSchema.enum
+                              .filter((value): value is string => typeof value === "string")
+                              .map((value) => stringSimilarity(token, value)),
+                      );
+            return { weight: 2, matched: 2 * bestSimilarity };
+        }
+    }
+    return { weight: 1, matched: token === undefined ? 0 : 1 };
+}
+
+/**
+ * Confidence, in `[0, 1]`, that `tokens` was *meant* to match `branchSchema` — one leaf branch of
+ * a registered `"zod"` command's schema, already known not to actually match (see
+ * {@link InkCompiler.getLikelyUnknownHashtagCommandSchemaIssues}, which only ever scores a command
+ * against branches it didn't already match). Only the `prefixItems` positions `tokens` actually
+ * has something at are scored (each via {@link scoreHashtagPositionToken}) — a missing trailing
+ * argument or an unexpected extra token is a distinct kind of mistake (wrong *shape*, not wrong
+ * *word*) from a typo'd literal/enum, and is instead surfaced separately, via the concrete
+ * `minItems`/`maxItems` mismatch {@link normalizeZodArrayBranchForValidation} lets Ajv itself
+ * report once a candidate has already cleared this score on the tokens that are present. Without
+ * this split, a bare `# jump` (missing its required label) would score low on "the label is
+ * missing" alone and never even reach that more specific error. `hasDiscriminant` reports whether
+ * the compared positions included *any* `const`/`enum` position at all — a branch with none (every
+ * compared position a free-form string) would otherwise trivially "match" any tokens, which isn't
+ * a typo signal worth reporting on.
+ */
+function scoreZodArrayBranch(
+    tokens: readonly string[],
+    branchSchema: Record<string, unknown>,
+): { score: number; hasDiscriminant: boolean } {
+    const prefixItems = Array.isArray(branchSchema.prefixItems) ? branchSchema.prefixItems : [];
+    const comparedLength = Math.min(prefixItems.length, tokens.length);
+
+    let weight = 0;
+    let matched = 0;
+    let hasDiscriminant = false;
+    for (let index = 0; index < comparedLength; index++) {
+        const position = scoreHashtagPositionToken(tokens[index], prefixItems[index]);
+        weight += position.weight;
+        matched += position.matched;
+        if (position.weight > 1) hasDiscriminant = true;
+    }
+
+    return { score: weight === 0 ? 0 : matched / weight, hasDiscriminant };
+}
+
+/**
+ * How confident a match must be (see {@link scoreZodArrayBranch}) before
+ * {@link InkCompiler.getLikelyUnknownHashtagCommandSchemaIssues} treats an otherwise-unknown
+ * command as a probable typo worth reporting, rather than staying silent (as it does for anything
+ * that doesn't resemble a registered command at all).
+ */
+const LIKELY_HASHTAG_MATCH_SCORE_THRESHOLD = 0.8;
+
+const ZOD_ARRAY_VALIDATOR_CACHE = new Map<string, ValidateFunction>();
+
+/**
+ * Compiles (and caches, by the schema's own JSON text — mirroring {@link getCachedRegExp}'s cache)
+ * a `branchSchema` with `Ajv2020`, not the plain (draft-07) `Ajv` instance
+ * {@link InkCompiler.getSchemaValidator} uses elsewhere. A `"zod"` validation's schema is produced
+ * by zod's own `toJSONSchema()`, which for a tuple emits the 2020-12 `prefixItems` keyword — a
+ * plain draft-07 Ajv instance doesn't recognize it at all and silently ignores it (non-strict
+ * mode), which would make *any* token array "valid" against it. Caching matters here specifically
+ * because {@link InkCompiler.getLikelyUnknownHashtagCommandSchemaIssues} runs on every diagnostics
+ * refresh (effectively every keystroke in an editor).
+ */
+function getZodArrayValidator(branchSchema: Record<string, unknown>): ValidateFunction {
+    const cacheKey = JSON.stringify(branchSchema);
+    const cached = ZOD_ARRAY_VALIDATOR_CACHE.get(cacheKey);
+    if (cached) return cached;
+    const validate = new Ajv2020({ strict: false, allErrors: true }).compile(branchSchema);
+    ZOD_ARRAY_VALIDATOR_CACHE.set(cacheKey, validate);
+    return validate;
+}
+
+/**
+ * A `branchSchema` with no `items` key rejects any tokens past `prefixItems` per
+ * {@link zodArrayBranchAllowsExtraTokens} — but plain JSON Schema semantics treat a missing
+ * `items` as "unconstrained", so Ajv itself wouldn't actually flag a too-long token list without
+ * this. Fills in the `minItems`/`maxItems`/`items: false` the schema's own acceptance rule already
+ * implies, so Ajv's own errors (not just the boolean score) can point at a wrong token count too.
+ * A schema that already has an `items` key (a `.rest(...)`-extended tuple) is returned unchanged.
+ */
+function normalizeZodArrayBranchForValidation(
+    branchSchema: Record<string, unknown>,
+): Record<string, unknown> {
+    if ("items" in branchSchema) return branchSchema;
+    const prefixItemsLength = Array.isArray(branchSchema.prefixItems)
+        ? branchSchema.prefixItems.length
+        : 0;
+    return {
+        ...branchSchema,
+        minItems: prefixItemsLength,
+        maxItems: prefixItemsLength,
+        items: false,
+    };
+}
+
+/**
+ * The token `error` is actually about — e.g. the mistyped `"shwo"` itself, not just its position
+ * `0` — found by resolving the leading segment of its `instancePath` (an array index) back into
+ * `tokens`. Falls back to {@link getInvalidElement}'s own generic handling (the last path segment,
+ * or `"(root)"`) for a whole-array error with no single offending token (e.g. `minItems`).
+ */
+function getLikelyHashtagInvalidElement(error: ErrorObject, tokens: readonly string[]): string {
+    const [firstSegment] = splitInstancePath(error.instancePath);
+    if (firstSegment !== undefined && /^\d+$/.test(firstSegment)) {
+        const index = Number(firstSegment);
+        if (index < tokens.length) return tokens[index];
+    }
+    return getInvalidElement(error);
+}
+
+/**
+ * Human-readable message for one `error` found while validating a command's tokens against a
+ * likely-intended handler's schema. Ajv's own default message is generic and, for the two
+ * keywords a tuple's `prefixItems` position actually produces, doesn't name the value it expected
+ * (`"must be equal to constant"` / `"must be equal to one of the allowed values"` — the allowed
+ * value(s) only live in `error.params`) — this fills that in so the warning is actionable without
+ * cross-referencing `params`. Any other keyword (`minItems`/`maxItems`, ...) keeps Ajv's own
+ * message as-is.
+ */
+function formatLikelyHashtagErrorMessage(error: ErrorObject): string {
+    if (error.keyword === "const") {
+        return `must be "${(error.params as { allowedValue?: unknown }).allowedValue}"`;
+    }
+    if (error.keyword === "enum") {
+        const allowedValues = (error.params as { allowedValues?: unknown[] }).allowedValues ?? [];
+        return `must be one of ${allowedValues.map((value) => `"${value}"`).join(", ")}`;
+    }
+    return error.message ?? "invalid value";
 }
 
 function extractHashtagCommands(source: string): HashtagCommandOccurrence[] {
@@ -833,6 +1035,93 @@ export namespace InkCompiler {
             ({ tokens }) =>
                 !commands.some(({ validation }) => matchesHashtagValidation(tokens, validation)),
         );
+    }
+
+    /**
+     * Among every hashtag command {@link getUnknownHashtagCommands} would flag as unrecognized,
+     * finds the ones that are a very likely typo of a registered `"zod"`-validated command instead
+     * of something genuinely unknown — a distraction error (`# shwo image bg` for `# show image
+     * bg`) rather than a deliberately custom command a project registers on its own dev
+     * server/app. Purely additive: it never changes what {@link getUnknownHashtagCommands} itself
+     * reports, only adds a second, more specific diagnostic on top for the subset it's confident
+     * about.
+     *
+     * For each unknown occurrence, every registered command's `"zod"` schema is scored (see
+     * {@link scoreZodArrayBranch}) against the command's tokens; only once the best-scoring branch
+     * clears {@link LIKELY_HASHTAG_MATCH_SCORE_THRESHOLD} is the command actually re-validated
+     * against that one schema with `Ajv2020` (see {@link getZodArrayValidator}) to find the
+     * concrete mismatch(es) to report — a `"regexp"`/`"literal"` validation has no JSON Schema to
+     * validate against and is never a candidate here.
+     *
+     * @param source   Raw Ink source text to scan.
+     * @param commands List of known command descriptors (e.g. obtained from
+     *                 `GET /__pixi-vn-ink/hashtag-commands`).
+     * @returns Array of {@link LikelyUnknownHashtagCommandSchemaIssue}, one per concrete Ajv
+     *          mismatch found on the closest-matching command, empty when nothing scores high
+     *          enough to be worth reporting.
+     */
+    export function getLikelyUnknownHashtagCommandSchemaIssues(
+        source: string,
+        commands: InkHashtagCommandInfo[],
+    ): LikelyUnknownHashtagCommandSchemaIssue[] {
+        const zodCommands = commands.filter(
+            (
+                command,
+            ): command is InkHashtagCommandInfo & {
+                validation: { type: "zod"; schema: Record<string, unknown> };
+            } => command.validation.type === "zod",
+        );
+        if (zodCommands.length === 0) return [];
+
+        const issues: LikelyUnknownHashtagCommandSchemaIssue[] = [];
+        for (const occurrence of extractHashtagCommands(source)) {
+            if (
+                commands.some(({ validation }) =>
+                    matchesHashtagValidation(occurrence.tokens, validation),
+                )
+            ) {
+                continue; // recognized by some registered command — not this function's concern
+            }
+
+            let best:
+                | {
+                      command: (typeof zodCommands)[number];
+                      branch: Record<string, unknown>;
+                      score: number;
+                  }
+                | undefined;
+            for (const command of zodCommands) {
+                for (const branch of collectZodArrayBranches(command.validation.schema)) {
+                    const { score, hasDiscriminant } = scoreZodArrayBranch(
+                        occurrence.tokens,
+                        branch,
+                    );
+                    if (!hasDiscriminant) continue;
+                    if (!best || score > best.score) {
+                        best = { command, branch, score };
+                    }
+                }
+            }
+            if (!best || best.score < LIKELY_HASHTAG_MATCH_SCORE_THRESHOLD) continue;
+
+            const validate = getZodArrayValidator(
+                normalizeZodArrayBranchForValidation(best.branch),
+            );
+            if (validate(occurrence.tokens)) continue; // no concrete Ajv mismatch to point at after all
+
+            for (const error of simplifySchemaErrors(validate.errors ?? [])) {
+                issues.push({
+                    line: occurrence.line,
+                    command: occurrence.command,
+                    handlerName: best.command.name,
+                    instancePath: error.instancePath || "(root)",
+                    element: getLikelyHashtagInvalidElement(error, occurrence.tokens),
+                    message: formatLikelyHashtagErrorMessage(error),
+                    score: best.score,
+                });
+            }
+        }
+        return issues;
     }
 
     /**
