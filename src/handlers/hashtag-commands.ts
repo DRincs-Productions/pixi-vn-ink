@@ -521,6 +521,42 @@ export function onInkHashtagScript(runCustomHashtagScript: HashtagHandler) {
 }
 
 /**
+ * Which built-in Hashtag-Command groups {@link addBaseHashtagCommands} registers. Every section
+ * defaults to `true` (registering nothing new here — an app that never passes `sections` at all
+ * still gets every built-in command, same as before this option existed). Pass `false` for a
+ * section an app wants to opt out of — e.g. it registers its own canvas commands via
+ * {@link HashtagCommands.addMapper} and doesn't want the built-in `# show`/`# edit ...` ones to
+ * also match, or it doesn't use pixi-vn's sound system at all and would rather a typo'd `# paus
+ * sound bg` be reported as a genuinely unknown command instead of matching nothing here either
+ * way but still being considered for one.
+ */
+export interface BaseHashtagCommandsSections {
+    /**
+     * `# show`/`# edit`/`# remove` for images, videos, image-containers, text, and other canvas
+     * elements, plus `# shake`, `# animate`, and `# clear canvas`.
+     * @default true
+     */
+    canvas?: boolean;
+    /**
+     * `# pause`/`# resume`/`# stop` for an individual sound, an audio channel, or every sound at
+     * once, plus `# edit sound`/`# play sound`.
+     * @default true
+     */
+    sound?: boolean;
+    /**
+     * `# call`, `# jump`, `# pause` (the dialogue-clearing one, not `# pause sound`/`# pause
+     * video`/...), `# continue`, and `# request input`.
+     * @default true
+     */
+    narration?: boolean;
+    /**
+     * `# load`/`# lazyload` for assets and bundles.
+     * @default true
+     */
+    assets?: boolean;
+}
+
+/**
  * Options for {@link addBaseHashtagCommands}.
  */
 export interface BaseHashtagCommandsOptions {
@@ -537,6 +573,12 @@ export interface BaseHashtagCommandsOptions {
      * instead of accepting any string.
      */
     assetAliasIds?: readonly string[];
+    /**
+     * Which of the four built-in groups to actually register — see
+     * {@link BaseHashtagCommandsSections}. Any section left unset (or `sections` itself left
+     * unset) defaults to `true`.
+     */
+    sections?: BaseHashtagCommandsSections;
 }
 
 /**
@@ -554,9 +596,15 @@ export interface BaseHashtagCommandsOptions {
  *
  * addBaseHashtagCommands();
  * ```
- * @param options Optional configuration for known bundle/asset-alias ids.
+ * @param options Optional configuration for known bundle/asset-alias ids, and which built-in
+ *                command sections (see {@link BaseHashtagCommandsSections}) to register.
  */
 export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {}): void {
+    const includeCanvas = options.sections?.canvas ?? true;
+    const includeSound = options.sections?.sound ?? true;
+    const includeNarration = options.sections?.narration ?? true;
+    const includeAssets = options.sections?.assets ?? true;
+
     function idSchema(
         ids: readonly string[] | undefined,
     ): z.ZodString | z.ZodEnum<Record<string, string>> {
@@ -566,114 +614,119 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
         return z.string();
     }
 
-    HashtagCommands.addMapper(
-        (list: string[], step: PixiVNJsonLabelStep) => {
-            step.labelToOpen = {
-                label: list[1],
-                type: "call",
-            };
-            step.goNextStep = undefined;
-        },
-        {
-            name: "Call",
-            deprecated: true,
-            description: `Calls the label specified by the second token, then returns to the current position.
+    if (includeNarration) {
+        HashtagCommands.addMapper(
+            (list: string[], step: PixiVNJsonLabelStep) => {
+                step.labelToOpen = {
+                    label: list[1],
+                    type: "call",
+                };
+                step.goNextStep = undefined;
+            },
+            {
+                name: "Call",
+                deprecated: true,
+                description: `Calls the label specified by the second token, then returns to the current position.
 
 \`\`\`ink
 # call label_name
 \`\`\``,
-            validation: z.tuple([z.literal("call"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("call"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list: string[], step: PixiVNJsonLabelStep) => {
-            step.labelToOpen = {
-                label: list[1],
-                type: "jump",
-            };
-            step.goNextStep = undefined;
-        },
-        {
-            name: "Jump",
-            deprecated: true,
-            description: `Jumps to the label specified by the second token without returning.
+        HashtagCommands.addMapper(
+            (list: string[], step: PixiVNJsonLabelStep) => {
+                step.labelToOpen = {
+                    label: list[1],
+                    type: "jump",
+                };
+                step.goNextStep = undefined;
+            },
+            {
+                name: "Jump",
+                deprecated: true,
+                description: `Jumps to the label specified by the second token without returning.
 
 \`\`\`ink
 # jump label_name
 \`\`\``,
-            validation: z.tuple([z.literal("jump"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("jump"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (_list: string[], step: PixiVNJsonLabelStep) => {
-            if ("dialogue" in step) {
-                delete step.dialogue;
-            }
-            if ("goNextStep" in step) {
-                delete step.goNextStep;
-            }
-            return {
-                type: "dialogue",
-                operationType: "clean",
-            };
-        },
-        {
-            name: "Pause",
-            description: `Clears the current dialogue and waits for user input before advancing.
+        HashtagCommands.addMapper(
+            (_list: string[], step: PixiVNJsonLabelStep) => {
+                if ("dialogue" in step) {
+                    delete step.dialogue;
+                }
+                if ("goNextStep" in step) {
+                    delete step.goNextStep;
+                }
+                return {
+                    type: "dialogue",
+                    operationType: "clean",
+                };
+            },
+            {
+                name: "Pause",
+                description: `Clears the current dialogue and waits for user input before advancing.
 
 \`\`\`ink
 # pause
 \`\`\``,
-            validation: z.tuple([z.literal("pause")]),
-        },
-    );
+                validation: z.tuple([z.literal("pause")]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (_list: string[], step: PixiVNJsonLabelStep) => {
-            step.goNextStep = true;
-            step.glueEnabled = false;
-            return undefined;
-        },
-        {
-            name: "Continue",
-            description: `Forces the story to proceed to the next step automatically.
+        HashtagCommands.addMapper(
+            (_list: string[], step: PixiVNJsonLabelStep) => {
+                step.goNextStep = true;
+                step.glueEnabled = false;
+                return undefined;
+            },
+            {
+                name: "Continue",
+                description: `Forces the story to proceed to the next step automatically.
 
 \`\`\`ink
 # continue
 \`\`\``,
-            validation: z.tuple([z.literal("continue")]),
-        },
-    );
+                validation: z.tuple([z.literal("continue")]),
+            },
+        );
+    }
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "video",
-            operationType: list[0] as "pause" | "resume",
-            alias: list[2],
-        }),
-        {
-            name: "Pause/Resume video",
-            description: `Pauses or resumes a video canvas element identified by its alias.
+    if (includeCanvas) {
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "video",
+                operationType: list[0] as "pause" | "resume",
+                alias: list[2],
+            }),
+            {
+                name: "Pause/Resume video",
+                description: `Pauses or resumes a video canvas element identified by its alias.
 
 \`\`\`ink
 # pause video <alias>
 # resume video <alias>
 \`\`\``,
-            validation: z.tuple([z.enum(["pause", "resume"]), z.literal("video"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.enum(["pause", "resume"]), z.literal("video"), z.string()]),
+            },
+        );
+    }
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: list[1] as "assets" | "bundle",
-            operationType: list[0] as "load" | "lazyload",
-            aliases: list.slice(2),
-        }),
-        {
-            name: "Load assets/bundle",
-            description: `Loads (eagerly or lazily) a set of asset or bundle aliases.
+    if (includeAssets) {
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: list[1] as "assets" | "bundle",
+                operationType: list[0] as "load" | "lazyload",
+                aliases: list.slice(2),
+            }),
+            {
+                name: "Load assets/bundle",
+                description: `Loads (eagerly or lazily) a set of asset or bundle aliases.
 
 \`\`\`ink
 # load assets <alias...>
@@ -681,972 +734,1001 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
 # load bundle <alias...>
 # lazyload bundle <alias...>
 \`\`\``,
-            validation: z.union([
-                z
-                    .tuple([z.enum(["load", "lazyload"]), z.literal("assets")])
-                    .rest(idSchema(options.assetAliasIds)),
-                z
-                    .tuple([z.enum(["load", "lazyload"]), z.literal("bundle")])
-                    .rest(idSchema(options.bundleIds)),
-            ]),
-        },
-    );
+                validation: z.union([
+                    z
+                        .tuple([z.enum(["load", "lazyload"]), z.literal("assets")])
+                        .rest(idSchema(options.assetAliasIds)),
+                    z
+                        .tuple([z.enum(["load", "lazyload"]), z.literal("bundle")])
+                        .rest(idSchema(options.bundleIds)),
+                ]),
+            },
+        );
+    }
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "all",
-            operationType: list[0] as "pause" | "resume" | "stop",
-        }),
-        {
-            name: "Pause/Resume/Stop all sounds",
-            description: `Pauses, resumes, or stops all active sounds at once.
+    if (includeSound) {
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "all",
+                operationType: list[0] as "pause" | "resume" | "stop",
+            }),
+            {
+                name: "Pause/Resume/Stop all sounds",
+                description: `Pauses, resumes, or stops all active sounds at once.
 
 \`\`\`ink
 # pause all sounds
 # resume all sounds
 # stop all sounds
 \`\`\``,
-            validation: z.tuple([
-                z.enum(["pause", "resume", "stop"]),
-                z.literal("all"),
-                z.enum(["sounds", "sound"]),
-            ]),
-        },
-    );
+                validation: z.tuple([
+                    z.enum(["pause", "resume", "stop"]),
+                    z.literal("all"),
+                    z.enum(["sounds", "sound"]),
+                ]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "sound",
-            operationType: "pause",
-            alias: list[2],
-        }),
-        {
-            name: "Pause sound",
-            description: `Pauses the sound identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "sound",
+                operationType: "pause",
+                alias: list[2],
+            }),
+            {
+                name: "Pause sound",
+                description: `Pauses the sound identified by its alias.
 
 \`\`\`ink
 # pause sound <alias>
 \`\`\``,
-            validation: z.tuple([z.literal("pause"), z.literal("sound"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("pause"), z.literal("sound"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "channel",
-            operationType: "pause",
-            alias: list[2],
-        }),
-        {
-            name: "Pause channel",
-            description: `Pauses the audio channel identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "channel",
+                operationType: "pause",
+                alias: list[2],
+            }),
+            {
+                name: "Pause channel",
+                description: `Pauses the audio channel identified by its alias.
 
 \`\`\`ink
 # pause channel <alias>
 \`\`\``,
-            validation: z.tuple([z.literal("pause"), z.literal("channel"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("pause"), z.literal("channel"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "sound",
-            operationType: "resume",
-            alias: list[2],
-        }),
-        {
-            name: "Resume sound",
-            description: `Resumes the sound identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "sound",
+                operationType: "resume",
+                alias: list[2],
+            }),
+            {
+                name: "Resume sound",
+                description: `Resumes the sound identified by its alias.
 
 \`\`\`ink
 # resume sound <alias>
 \`\`\``,
-            validation: z.tuple([z.literal("resume"), z.literal("sound"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("resume"), z.literal("sound"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "channel",
-            operationType: "resume",
-            alias: list[2],
-        }),
-        {
-            name: "Resume channel",
-            description: `Resumes the audio channel identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "channel",
+                operationType: "resume",
+                alias: list[2],
+            }),
+            {
+                name: "Resume channel",
+                description: `Resumes the audio channel identified by its alias.
 
 \`\`\`ink
 # resume channel <alias>
 \`\`\``,
-            validation: z.tuple([z.literal("resume"), z.literal("channel"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("resume"), z.literal("channel"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "sound",
-            operationType: "stop",
-            alias: list[2],
-        }),
-        {
-            name: "Stop sound",
-            description: `Stops the sound identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "sound",
+                operationType: "stop",
+                alias: list[2],
+            }),
+            {
+                name: "Stop sound",
+                description: `Stops the sound identified by its alias.
 
 \`\`\`ink
 # stop sound <alias>
 \`\`\``,
-            validation: z.tuple([z.literal("stop"), z.literal("sound"), z.string()]),
-        },
-    );
+                validation: z.tuple([z.literal("stop"), z.literal("sound"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "sound",
-            operationType: "stop",
-            alias: list[2],
-        }),
-        {
-            name: "Remove sound",
-            description: `Removes (stops) the sound identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "sound",
+                operationType: "stop",
+                alias: list[2],
+            }),
+            {
+                name: "Remove sound",
+                description: `Removes (stops) the sound identified by its alias.
 
 \`\`\`ink
 # remove sound <alias>
 \`\`\``,
-            deprecated: true,
-            validation: z.tuple([z.literal("remove"), z.literal("sound"), z.string()]),
-        },
-    );
+                deprecated: true,
+                validation: z.tuple([z.literal("remove"), z.literal("sound"), z.string()]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "sound",
-            operationType: "edit",
-            alias: list[2],
-            props: HashtagCommands.convertListStringToObj(list.slice(3)),
-        }),
-        {
-            name: "Edit sound",
-            description: `Edits the properties of a sound identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "sound",
+                operationType: "edit",
+                alias: list[2],
+                props: HashtagCommands.convertListStringToObj(list.slice(3)),
+            }),
+            {
+                name: "Edit sound",
+                description: `Edits the properties of a sound identified by its alias.
 
 \`\`\`ink
 # edit sound <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("edit"), z.literal("sound"), z.string()])
-                .rest(z.string())
-                .refine((arr) => (arr.length - 3) % 2 === 0),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("edit"), z.literal("sound"), z.string()])
+                    .rest(z.string())
+                    .refine((arr) => (arr.length - 3) % 2 === 0),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: "play",
-                alias,
-                url: alias,
-            };
-            if (list.length > 3) {
-                op.props = HashtagCommands.convertListStringToObj(list.slice(3));
-            }
-            return op;
-        },
-        {
-            name: "Play sound",
-            description: `Plays a sound using its alias as the URL, with optional key/value properties.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const op: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: "play",
+                    alias,
+                    url: alias,
+                };
+                if (list.length > 3) {
+                    op.props = HashtagCommands.convertListStringToObj(list.slice(3));
+                }
+                return op;
+            },
+            {
+                name: "Play sound",
+                description: `Plays a sound using its alias as the URL, with optional key/value properties.
 
 \`\`\`ink
 # play sound <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("play"), z.literal("sound"), idSchema(options.assetAliasIds)])
-                .rest(z.string())
-                .refine((arr) => (arr.length - 3) % 2 === 0),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("play"), z.literal("sound"), idSchema(options.assetAliasIds)])
+                    .rest(z.string())
+                    .refine((arr) => (arr.length - 3) % 2 === 0),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const url = list[3];
-            const op: PixiVNJsonOperation = {
-                type: "sound",
-                operationType: "play",
-                alias,
-                url,
-            };
-            if (list.length > 4) {
-                op.props = HashtagCommands.convertListStringToObj(list.slice(4));
-            }
-            return op;
-        },
-        {
-            name: "Play sound with source",
-            description: `Plays a sound with an explicit source URL and optional key/value properties.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const url = list[3];
+                const op: PixiVNJsonOperation = {
+                    type: "sound",
+                    operationType: "play",
+                    alias,
+                    url,
+                };
+                if (list.length > 4) {
+                    op.props = HashtagCommands.convertListStringToObj(list.slice(4));
+                }
+                return op;
+            },
+            {
+                name: "Play sound with source",
+                description: `Plays a sound with an explicit source URL and optional key/value properties.
         
 \`\`\`ink
 # play sound <alias> <source> [<key> <value> …]
 \`\`\`
 `,
-            validation: z
-                .tuple([
-                    z.literal("play"),
-                    z.literal("sound"),
-                    z.string(),
-                    idSchema(options.assetAliasIds),
-                ])
-                .rest(z.string())
-                .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
-        },
-    );
-    function convertListStringToPropListForMapper(listParm: string[]): string[] {
-        const list: string[] = [];
-        let curlyBrackets = 0;
-        let temp = "";
-        for (const item of listParm) {
-            if (item.startsWith("{")) {
-                curlyBrackets++;
-                temp += item;
-            } else if (item.endsWith("}") && curlyBrackets > 0) {
-                curlyBrackets--;
-                temp += item;
-                if (curlyBrackets === 0) {
-                    list.push(temp);
-                    temp = "";
+                validation: z
+                    .tuple([
+                        z.literal("play"),
+                        z.literal("sound"),
+                        z.string(),
+                        idSchema(options.assetAliasIds),
+                    ])
+                    .rest(z.string())
+                    .refine((arr) => arr.length > 3 && (arr.length - 3) % 2 !== 0),
+            },
+        );
+    }
+
+    if (includeCanvas) {
+        function convertListStringToPropListForMapper(listParm: string[]): string[] {
+            const list: string[] = [];
+            let curlyBrackets = 0;
+            let temp = "";
+            for (const item of listParm) {
+                if (item.startsWith("{")) {
+                    curlyBrackets++;
+                    temp += item;
+                } else if (item.endsWith("}") && curlyBrackets > 0) {
+                    curlyBrackets--;
+                    temp += item;
+                    if (curlyBrackets === 0) {
+                        list.push(temp);
+                        temp = "";
+                    }
+                } else if (curlyBrackets > 0) {
+                    temp += item;
+                } else {
+                    list.push(item);
                 }
-            } else if (curlyBrackets > 0) {
-                temp += item;
+            }
+            return list;
+        }
+
+        function getTransitionForMapper(
+            transitionType: string,
+            propsList: string[],
+        ): PixiVNJsonMediaTransiotions | undefined {
+            switch (transitionType) {
+                case "dissolve":
+                case "fade":
+                case "movein":
+                case "moveout":
+                case "zoomin":
+                case "zoomout":
+                case "pushin":
+                case "pushout":
+                    break;
+                default:
+                    return undefined;
+            }
+            const transition: PixiVNJsonMediaTransiotions = {
+                type: transitionType,
+            };
+            if (propsList.length > 0) {
+                try {
+                    transition.props = HashtagCommands.convertListStringToObj(propsList);
+                } catch (_) {}
+            }
+            return transition;
+        }
+
+        function getImageOrVideoShowOperationForMapper(
+            type: "image" | "video",
+            alias: string,
+            list: string[],
+        ): PixiVNJsonOperation | undefined {
+            let url: string;
+            let propList: string[];
+            if (list.length % 2 === 0) {
+                url = alias;
+                propList = list;
             } else {
-                list.push(item);
+                url = list[0];
+                propList = list.slice(1);
             }
+            const op: PixiVNJsonOperation = {
+                type,
+                operationType: "show",
+                alias,
+                url,
+            };
+            if (propList.length > 0) {
+                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                    const transitionType = propList[propList.indexOf("with") + 1];
+                    const transitionList = propList.slice(propList.indexOf("with") + 2);
+                    propList = propList.slice(0, propList.indexOf("with"));
+                    const transition = getTransitionForMapper(transitionType, transitionList);
+                    if (transition !== undefined) {
+                        op.transition = transition;
+                    }
+                }
+                if (propList.length > 0) {
+                    op.props = HashtagCommands.convertListStringToObj(propList);
+                }
+            }
+            return op;
         }
-        return list;
-    }
 
-    function getTransitionForMapper(
-        transitionType: string,
-        propsList: string[],
-    ): PixiVNJsonMediaTransiotions | undefined {
-        switch (transitionType) {
-            case "dissolve":
-            case "fade":
-            case "movein":
-            case "moveout":
-            case "zoomin":
-            case "zoomout":
-            case "pushin":
-            case "pushout":
-                break;
-            default:
+        function getTextShowOperationForMapper(
+            alias: string,
+            list: string[],
+        ): PixiVNJsonOperation | undefined {
+            let text: string;
+            let propList: string[];
+            if (list.length % 2 === 0) {
+                text = alias;
+                propList = list;
+            } else {
+                text = list[0];
+                propList = list.slice(1);
+            }
+            const op: PixiVNJsonOperation = {
+                type: "text",
+                operationType: "show",
+                alias,
+                text,
+            };
+            if (propList.length > 0) {
+                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                    const transitionType = propList[propList.indexOf("with") + 1];
+                    const transitionList = propList.slice(propList.indexOf("with") + 2);
+                    propList = propList.slice(0, propList.indexOf("with"));
+                    const transition = getTransitionForMapper(transitionType, transitionList);
+                    if (transition !== undefined) {
+                        op.transition = transition;
+                    }
+                }
+                if (propList.length > 0) {
+                    op.props = HashtagCommands.convertListStringToObj(propList);
+                }
+            }
+            return op;
+        }
+
+        function getCanvasRemoveOperationForMapper(
+            type: "image" | "video" | "canvaselement" | "text" | "imagecontainer",
+            alias: string,
+            list: string[],
+        ): PixiVNJsonOperation | undefined {
+            const op: PixiVNJsonOperation = {
+                type,
+                operationType: "remove",
+                alias,
+            };
+            if (list.includes("with") && list.length > list.indexOf("with") + 1) {
+                const transitionType = list[list.indexOf("with") + 1];
+                const transitionList = list.slice(list.indexOf("with") + 2);
+                const transition = getTransitionForMapper(transitionType, transitionList);
+                if (transition !== undefined) {
+                    op.transition = transition;
+                }
+            }
+            return op;
+        }
+
+        function getImageContainerShowOperationForMapper(
+            alias: string,
+            list: string[],
+        ): PixiVNJsonOperation | undefined {
+            const removeExtraDoubleQuotesForMapper = (value: string): string => {
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    return value.substring(1, value.length - 1);
+                }
+                if (value.startsWith("'") && value.endsWith("'")) {
+                    return value.substring(1, value.length - 1);
+                }
+                if (value.startsWith("`") && value.endsWith("`")) {
+                    return value.substring(1, value.length - 1);
+                }
+                return value;
+            };
+            // `[`/`]` are always standalone tokens (see `splitEdgeBrackets` in `convertTagTolist`).
+            const startIndex = list.indexOf("[");
+            const endIndex = list.indexOf("]", startIndex + 1);
+            if (startIndex === -1 || endIndex === -1) {
+                logger.error("Show imagecontainer must have a list of image ulrs", list);
                 return undefined;
-        }
-        const transition: PixiVNJsonMediaTransiotions = {
-            type: transitionType,
-        };
-        if (propsList.length > 0) {
-            try {
-                transition.props = HashtagCommands.convertListStringToObj(propsList);
-            } catch (_) {}
-        }
-        return transition;
-    }
-
-    function getImageOrVideoShowOperationForMapper(
-        type: "image" | "video",
-        alias: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        let url: string;
-        let propList: string[];
-        if (list.length % 2 === 0) {
-            url = alias;
-            propList = list;
-        } else {
-            url = list[0];
-            propList = list.slice(1);
-        }
-        const op: PixiVNJsonOperation = {
-            type,
-            operationType: "show",
-            alias,
-            url,
-        };
-        if (propList.length > 0) {
-            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                const transitionType = propList[propList.indexOf("with") + 1];
-                const transitionList = propList.slice(propList.indexOf("with") + 2);
-                propList = propList.slice(0, propList.indexOf("with"));
-                const transition = getTransitionForMapper(transitionType, transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
+            }
+            const urls = list.slice(startIndex + 1, endIndex);
+            if (urls.length === 0) {
+                logger.error("Show imagecontainer must have a list of image ulrs", list);
+                return undefined;
+            }
+            const op: PixiVNJsonOperation = {
+                type: "imagecontainer",
+                operationType: "show",
+                alias,
+                urls: urls.map((item) => removeExtraDoubleQuotesForMapper(item)),
+            };
+            let propList = list.slice(endIndex + 1);
+            if (propList.length > 0) {
+                if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
+                    const transitionType = propList[propList.indexOf("with") + 1];
+                    const transitionList = propList.slice(propList.indexOf("with") + 2);
+                    propList = propList.slice(0, propList.indexOf("with"));
+                    const transition = getTransitionForMapper(transitionType, transitionList);
+                    if (transition !== undefined) {
+                        op.transition = transition;
+                    }
+                }
+                if (propList.length > 0) {
+                    op.props = HashtagCommands.convertListStringToObj(propList);
                 }
             }
-            if (propList.length > 0) {
-                op.props = HashtagCommands.convertListStringToObj(propList);
-            }
+            return op;
         }
-        return op;
-    }
 
-    function getTextShowOperationForMapper(
-        alias: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        let text: string;
-        let propList: string[];
-        if (list.length % 2 === 0) {
-            text = alias;
-            propList = list;
-        } else {
-            text = list[0];
-            propList = list.slice(1);
-        }
-        const op: PixiVNJsonOperation = {
-            type: "text",
-            operationType: "show",
-            alias,
-            text,
-        };
-        if (propList.length > 0) {
-            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                const transitionType = propList[propList.indexOf("with") + 1];
-                const transitionList = propList.slice(propList.indexOf("with") + 2);
-                propList = propList.slice(0, propList.indexOf("with"));
-                const transition = getTransitionForMapper(transitionType, transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
-                }
+        /**
+         * Parses the tail of a `# show imagecontainer <alias> [ <url…> ] [<key> <value> …] [with …]`
+         * command for validation. `fullList[3]` is expected to already be the literal `"["` token
+         * (enforced by the mapper's `z.tuple` prefix), so the url list runs from index 4 up to the
+         * matching `"]"`.
+         */
+        function splitImageContainerShowListForValidation(
+            fullList: string[],
+        ): { urls: string[]; beforeWith: string[]; afterWith: string[] } | undefined {
+            const closeIndex = fullList.indexOf("]", 4);
+            if (closeIndex === -1) {
+                return undefined;
             }
-            if (propList.length > 0) {
-                op.props = HashtagCommands.convertListStringToObj(propList);
+            const urls = fullList.slice(4, closeIndex);
+            const propList = fullList.slice(closeIndex + 1);
+            const withIndex = propList.indexOf("with");
+            if (withIndex === -1) {
+                return { urls, beforeWith: propList, afterWith: [] };
             }
+            return {
+                urls,
+                beforeWith: propList.slice(0, withIndex),
+                afterWith: propList.slice(withIndex + 1),
+            };
         }
-        return op;
-    }
 
-    function getCanvasRemoveOperationForMapper(
-        type: "image" | "video" | "canvaselement" | "text" | "imagecontainer",
-        alias: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        const op: PixiVNJsonOperation = {
-            type,
-            operationType: "remove",
-            alias,
-        };
-        if (list.includes("with") && list.length > list.indexOf("with") + 1) {
-            const transitionType = list[list.indexOf("with") + 1];
-            const transitionList = list.slice(list.indexOf("with") + 2);
-            const transition = getTransitionForMapper(transitionType, transitionList);
-            if (transition !== undefined) {
-                op.transition = transition;
-            }
-        }
-        return op;
-    }
-
-    function getImageContainerShowOperationForMapper(
-        alias: string,
-        list: string[],
-    ): PixiVNJsonOperation | undefined {
-        const removeExtraDoubleQuotesForMapper = (value: string): string => {
-            if (value.startsWith('"') && value.endsWith('"')) {
-                return value.substring(1, value.length - 1);
-            }
-            if (value.startsWith("'") && value.endsWith("'")) {
-                return value.substring(1, value.length - 1);
-            }
-            if (value.startsWith("`") && value.endsWith("`")) {
-                return value.substring(1, value.length - 1);
-            }
-            return value;
-        };
-        // `[`/`]` are always standalone tokens (see `splitEdgeBrackets` in `convertTagTolist`).
-        const startIndex = list.indexOf("[");
-        const endIndex = list.indexOf("]", startIndex + 1);
-        if (startIndex === -1 || endIndex === -1) {
-            logger.error("Show imagecontainer must have a list of image ulrs", list);
-            return undefined;
-        }
-        const urls = list.slice(startIndex + 1, endIndex);
-        if (urls.length === 0) {
-            logger.error("Show imagecontainer must have a list of image ulrs", list);
-            return undefined;
-        }
-        const op: PixiVNJsonOperation = {
-            type: "imagecontainer",
-            operationType: "show",
-            alias,
-            urls: urls.map((item) => removeExtraDoubleQuotesForMapper(item)),
-        };
-        let propList = list.slice(endIndex + 1);
-        if (propList.length > 0) {
-            if (propList.includes("with") && propList.length > propList.indexOf("with") + 1) {
-                const transitionType = propList[propList.indexOf("with") + 1];
-                const transitionList = propList.slice(propList.indexOf("with") + 2);
-                propList = propList.slice(0, propList.indexOf("with"));
-                const transition = getTransitionForMapper(transitionType, transitionList);
-                if (transition !== undefined) {
-                    op.transition = transition;
-                }
-            }
-            if (propList.length > 0) {
-                op.props = HashtagCommands.convertListStringToObj(propList);
-            }
-        }
-        return op;
-    }
-
-    /**
-     * Parses the tail of a `# show imagecontainer <alias> [ <url…> ] [<key> <value> …] [with …]`
-     * command for validation. `fullList[3]` is expected to already be the literal `"["` token
-     * (enforced by the mapper's `z.tuple` prefix), so the url list runs from index 4 up to the
-     * matching `"]"`.
-     */
-    function splitImageContainerShowListForValidation(
-        fullList: string[],
-    ): { urls: string[]; beforeWith: string[]; afterWith: string[] } | undefined {
-        const closeIndex = fullList.indexOf("]", 4);
-        if (closeIndex === -1) {
-            return undefined;
-        }
-        const urls = fullList.slice(4, closeIndex);
-        const propList = fullList.slice(closeIndex + 1);
-        const withIndex = propList.indexOf("with");
-        if (withIndex === -1) {
-            return { urls, beforeWith: propList, afterWith: [] };
-        }
-        return {
-            urls,
-            beforeWith: propList.slice(0, withIndex),
-            afterWith: propList.slice(withIndex + 1),
-        };
-    }
-
-    HashtagCommands.addMapper(
-        (list) => ({
-            alias: list[1],
-            type: "shake",
-            props: HashtagCommands.convertListStringToObj(list.slice(2)),
-        }),
-        {
-            name: "Shake",
-            description: `Applies shake effect to a canvas alias with optional key/value parameters.
+        HashtagCommands.addMapper(
+            (list) => ({
+                alias: list[1],
+                type: "shake",
+                props: HashtagCommands.convertListStringToObj(list.slice(2)),
+            }),
+            {
+                name: "Shake",
+                description: `Applies shake effect to a canvas alias with optional key/value parameters.
 
 \`\`\`ink
 # shake <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("shake"), z.string()])
-                .rest(z.string())
-                .refine((arr) => (arr.length - 2) % 2 === 0),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("shake"), z.string()])
+                    .rest(z.string())
+                    .refine((arr) => (arr.length - 2) % 2 === 0),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const commandList = list.slice(2);
-            let keyframesList = commandList;
-            let optionsList: string[] = [];
-            if (commandList.includes("options")) {
-                const optionsIndex = commandList.indexOf("options");
-                keyframesList = commandList.slice(0, optionsIndex);
-                optionsList = commandList.slice(optionsIndex + 1);
-            }
-            const animate: PixiVNJsonCanvasAnimate = {
-                alias: list[1],
-                type: "animate",
-                keyframes: HashtagCommands.convertListStringToObj(keyframesList),
-                options: HashtagCommands.convertListStringToObj(optionsList),
-            };
-            return animate;
-        },
-        {
-            name: "Animate",
-            description: `Animates a canvas alias with keyframes and optional options section, both in key/value pairs.
+        HashtagCommands.addMapper(
+            (list) => {
+                const commandList = list.slice(2);
+                let keyframesList = commandList;
+                let optionsList: string[] = [];
+                if (commandList.includes("options")) {
+                    const optionsIndex = commandList.indexOf("options");
+                    keyframesList = commandList.slice(0, optionsIndex);
+                    optionsList = commandList.slice(optionsIndex + 1);
+                }
+                const animate: PixiVNJsonCanvasAnimate = {
+                    alias: list[1],
+                    type: "animate",
+                    keyframes: HashtagCommands.convertListStringToObj(keyframesList),
+                    options: HashtagCommands.convertListStringToObj(optionsList),
+                };
+                return animate;
+            },
+            {
+                name: "Animate",
+                description: `Animates a canvas alias with keyframes and optional options section, both in key/value pairs.
 
 \`\`\`ink
 # animate <alias> [<key> <value> …] [options <key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("animate"), z.string()])
-                .rest(z.string())
-                .refine((arr) => {
-                    const commandList = arr.slice(2);
-                    const optionsIndex = commandList.indexOf("options");
-                    if (optionsIndex === -1) {
-                        return commandList.length % 2 === 0;
-                    }
-                    if (commandList.lastIndexOf("options") !== optionsIndex) {
-                        return false;
-                    }
-                    const keyframesList = commandList.slice(0, optionsIndex);
-                    const optionsList = commandList.slice(optionsIndex + 1);
-                    return keyframesList.length % 2 === 0 && optionsList.length % 2 === 0;
-                }),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("animate"), z.string()])
+                    .rest(z.string())
+                    .refine((arr) => {
+                        const commandList = arr.slice(2);
+                        const optionsIndex = commandList.indexOf("options");
+                        if (optionsIndex === -1) {
+                            return commandList.length % 2 === 0;
+                        }
+                        if (commandList.lastIndexOf("options") !== optionsIndex) {
+                            return false;
+                        }
+                        const keyframesList = commandList.slice(0, optionsIndex);
+                        const optionsList = commandList.slice(optionsIndex + 1);
+                        return keyframesList.length % 2 === 0 && optionsList.length % 2 === 0;
+                    }),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getImageOrVideoShowOperationForMapper("image", alias, propsList);
-        },
-        {
-            name: "Show image",
-            description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getImageOrVideoShowOperationForMapper("image", alias, propsList);
+            },
+            {
+                name: "Show image",
+                description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
 # show image <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("show"), z.literal("image"), idSchema(options.assetAliasIds)])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("show"), z.literal("image"), idSchema(options.assetAliasIds)])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getImageOrVideoShowOperationForMapper("image", alias, propsList);
-        },
-        {
-            name: "Show image with source",
-            description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getImageOrVideoShowOperationForMapper("image", alias, propsList);
+            },
+            {
+                name: "Show image with source",
+                description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
 # show image <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([
-                    z.literal("show"),
-                    z.literal("image"),
-                    z.string(),
-                    idSchema(options.assetAliasIds),
-                ])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([
+                        z.literal("show"),
+                        z.literal("image"),
+                        z.string(),
+                        idSchema(options.assetAliasIds),
+                    ])
+                    .rest(z.string()),
+            },
+        );
 
-    const imageContainerUrlSchema = idSchema(options.assetAliasIds);
+        const imageContainerUrlSchema = idSchema(options.assetAliasIds);
 
-    HashtagCommands.addMapper(
-        (list) =>
-            getImageContainerShowOperationForMapper(
-                list[2],
-                convertListStringToPropListForMapper(list.slice(3)),
-            ),
-        {
-            name: "Show imagecontainer",
-            description: `Shows an image-container canvas element with a list of image URLs and optional key/value properties.
+        HashtagCommands.addMapper(
+            (list) =>
+                getImageContainerShowOperationForMapper(
+                    list[2],
+                    convertListStringToPropListForMapper(list.slice(3)),
+                ),
+            {
+                name: "Show imagecontainer",
+                description: `Shows an image-container canvas element with a list of image URLs and optional key/value properties.
 
 \`\`\`ink
 # show imagecontainer <alias> [ <source1> <ursource2> … ] [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string(), z.literal("[")])
-                .rest(z.string())
-                .refine((arr) => {
-                    const split = splitImageContainerShowListForValidation(arr);
-                    if (split === undefined) {
-                        return false;
-                    }
-                    return (
-                        split.urls.length > 0 &&
-                        split.urls.every((url) => imageContainerUrlSchema.safeParse(url).success) &&
-                        split.afterWith.length === 0 &&
-                        split.beforeWith.length % 2 === 0
-                    );
-                }),
-        },
-    );
+                validation: z
+                    .tuple([
+                        z.literal("show"),
+                        z.literal("imagecontainer"),
+                        z.string(),
+                        z.literal("["),
+                    ])
+                    .rest(z.string())
+                    .refine((arr) => {
+                        const split = splitImageContainerShowListForValidation(arr);
+                        if (split === undefined) {
+                            return false;
+                        }
+                        return (
+                            split.urls.length > 0 &&
+                            split.urls.every(
+                                (url) => imageContainerUrlSchema.safeParse(url).success,
+                            ) &&
+                            split.afterWith.length === 0 &&
+                            split.beforeWith.length % 2 === 0
+                        );
+                    }),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) =>
-            getImageContainerShowOperationForMapper(
-                list[2],
-                convertListStringToPropListForMapper(list.slice(3)),
-            ),
-        {
-            name: "Show imagecontainer with transition",
-            description: `Shows an image-container canvas element with a list of image URLs, optional properties, and a transition effect.
+        HashtagCommands.addMapper(
+            (list) =>
+                getImageContainerShowOperationForMapper(
+                    list[2],
+                    convertListStringToPropListForMapper(list.slice(3)),
+                ),
+            {
+                name: "Show imagecontainer with transition",
+                description: `Shows an image-container canvas element with a list of image URLs, optional properties, and a transition effect.
 
 \`\`\`ink
 # show imagecontainer <alias> [ <ursource1> <source2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout
 \`\`\``,
-            validation: z
-                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string(), z.literal("[")])
-                .rest(z.string())
-                .refine((arr) => {
-                    const split = splitImageContainerShowListForValidation(arr);
-                    if (split === undefined) {
-                        return false;
-                    }
-                    return (
-                        split.urls.length > 0 &&
-                        split.urls.every((url) => imageContainerUrlSchema.safeParse(url).success) &&
-                        split.afterWith.length === 1 &&
-                        split.beforeWith.length % 2 === 0
-                    );
-                }),
-        },
-    );
+                validation: z
+                    .tuple([
+                        z.literal("show"),
+                        z.literal("imagecontainer"),
+                        z.string(),
+                        z.literal("["),
+                    ])
+                    .rest(z.string())
+                    .refine((arr) => {
+                        const split = splitImageContainerShowListForValidation(arr);
+                        if (split === undefined) {
+                            return false;
+                        }
+                        return (
+                            split.urls.length > 0 &&
+                            split.urls.every(
+                                (url) => imageContainerUrlSchema.safeParse(url).success,
+                            ) &&
+                            split.afterWith.length === 1 &&
+                            split.beforeWith.length % 2 === 0
+                        );
+                    }),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) =>
-            getImageContainerShowOperationForMapper(
-                list[2],
-                convertListStringToPropListForMapper(list.slice(3)),
-            ),
-        {
-            name: "Show imagecontainer with transition and props",
-            description: `Shows an image-container canvas element with a list of image URLs, optional properties, a transition effect, and transition key/value properties.
+        HashtagCommands.addMapper(
+            (list) =>
+                getImageContainerShowOperationForMapper(
+                    list[2],
+                    convertListStringToPropListForMapper(list.slice(3)),
+                ),
+            {
+                name: "Show imagecontainer with transition and props",
+                description: `Shows an image-container canvas element with a list of image URLs, optional properties, a transition effect, and transition key/value properties.
 
 \`\`\`ink
 # show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout <key> <value> …
 \`\`\``,
-            validation: z
-                .tuple([z.literal("show"), z.literal("imagecontainer"), z.string(), z.literal("[")])
-                .rest(z.string())
-                .refine((arr) => {
-                    const split = splitImageContainerShowListForValidation(arr);
-                    if (split === undefined) {
-                        return false;
-                    }
-                    return (
-                        split.urls.length > 0 &&
-                        split.urls.every((url) => imageContainerUrlSchema.safeParse(url).success) &&
-                        split.afterWith.length > 1 &&
-                        (split.afterWith.length - 1) % 2 === 0 &&
-                        split.beforeWith.length % 2 === 0
-                    );
-                }),
-        },
-    );
+                validation: z
+                    .tuple([
+                        z.literal("show"),
+                        z.literal("imagecontainer"),
+                        z.string(),
+                        z.literal("["),
+                    ])
+                    .rest(z.string())
+                    .refine((arr) => {
+                        const split = splitImageContainerShowListForValidation(arr);
+                        if (split === undefined) {
+                            return false;
+                        }
+                        return (
+                            split.urls.length > 0 &&
+                            split.urls.every(
+                                (url) => imageContainerUrlSchema.safeParse(url).success,
+                            ) &&
+                            split.afterWith.length > 1 &&
+                            (split.afterWith.length - 1) % 2 === 0 &&
+                            split.beforeWith.length % 2 === 0
+                        );
+                    }),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getImageOrVideoShowOperationForMapper("video", alias, propsList);
-        },
-        {
-            name: "Show video",
-            description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getImageOrVideoShowOperationForMapper("video", alias, propsList);
+            },
+            {
+                name: "Show video",
+                description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
 # show video <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("show"), z.literal("video"), idSchema(options.assetAliasIds)])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("show"), z.literal("video"), idSchema(options.assetAliasIds)])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getImageOrVideoShowOperationForMapper("video", alias, propsList);
-        },
-        {
-            name: "Show video",
-            description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getImageOrVideoShowOperationForMapper("video", alias, propsList);
+            },
+            {
+                name: "Show video",
+                description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
 
 \`\`\`ink
 # show video <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([
-                    z.literal("show"),
-                    z.literal("video"),
-                    z.string(),
-                    idSchema(options.assetAliasIds),
-                ])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([
+                        z.literal("show"),
+                        z.literal("video"),
+                        z.string(),
+                        idSchema(options.assetAliasIds),
+                    ])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            return getTextShowOperationForMapper(alias, list.slice(3));
-        },
-        {
-            name: "Show text",
-            description: `Shows a text canvas element with optional text content, key/value properties, and transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                return getTextShowOperationForMapper(alias, list.slice(3));
+            },
+            {
+                name: "Show text",
+                description: `Shows a text canvas element with optional text content, key/value properties, and transition effect.
 
 \`\`\`ink
 # show text <alias> [<text>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("show"), z.literal("text"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("show"), z.literal("text"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getCanvasRemoveOperationForMapper("image", alias, propsList);
-        },
-        {
-            name: "Remove image",
-            description: `Removes an image canvas element with an optional transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getCanvasRemoveOperationForMapper("image", alias, propsList);
+            },
+            {
+                name: "Remove image",
+                description: `Removes an image canvas element with an optional transition effect.
 
 \`\`\`ink
 # remove image <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("remove"), z.literal("image"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("remove"), z.literal("image"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getCanvasRemoveOperationForMapper("video", alias, propsList);
-        },
-        {
-            name: "Remove video",
-            description: `Removes a video canvas element with an optional transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getCanvasRemoveOperationForMapper("video", alias, propsList);
+            },
+            {
+                name: "Remove video",
+                description: `Removes a video canvas element with an optional transition effect.
 
 \`\`\`ink
 # remove video <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("remove"), z.literal("video"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("remove"), z.literal("video"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getCanvasRemoveOperationForMapper("canvaselement", alias, propsList);
-        },
-        {
-            name: "Remove canvas element",
-            description: `Removes a canvas element with an optional transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getCanvasRemoveOperationForMapper("canvaselement", alias, propsList);
+            },
+            {
+                name: "Remove canvas element",
+                description: `Removes a canvas element with an optional transition effect.
 
 \`\`\`ink
 # remove canvaselement <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getCanvasRemoveOperationForMapper("text", alias, propsList);
-        },
-        {
-            name: "Remove text",
-            description: `Removes a text canvas element with an optional transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getCanvasRemoveOperationForMapper("text", alias, propsList);
+            },
+            {
+                name: "Remove text",
+                description: `Removes a text canvas element with an optional transition effect.
 
 \`\`\`ink
 # remove text <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("remove"), z.literal("text"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("remove"), z.literal("text"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const alias = list[2];
-            const propsList = convertListStringToPropListForMapper(list.slice(3));
-            return getCanvasRemoveOperationForMapper("imagecontainer", alias, propsList);
-        },
-        {
-            name: "Remove imagecontainer",
-            description: `Removes an image-container canvas element with an optional transition effect.
+        HashtagCommands.addMapper(
+            (list) => {
+                const alias = list[2];
+                const propsList = convertListStringToPropListForMapper(list.slice(3));
+                return getCanvasRemoveOperationForMapper("imagecontainer", alias, propsList);
+            },
+            {
+                name: "Remove imagecontainer",
+                description: `Removes an image-container canvas element with an optional transition effect.
 
 \`\`\`ink
 # remove imagecontainer <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        () => ({
-            type: "canvas",
-            operationType: "clear",
-        }),
-        {
-            name: "Clear canvas",
-            description: `Removes every element currently on the canvas.
+        HashtagCommands.addMapper(
+            () => ({
+                type: "canvas",
+                operationType: "clear",
+            }),
+            {
+                name: "Clear canvas",
+                description: `Removes every element currently on the canvas.
 
 \`\`\`ink
 # clear canvas
 \`\`\``,
-            validation: z.tuple([z.literal("clear"), z.literal("canvas")]),
-        },
-    );
+                validation: z.tuple([z.literal("clear"), z.literal("canvas")]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "image",
-            operationType: "edit",
-            alias: list[2],
-            props: HashtagCommands.convertListStringToObj(list.slice(3)),
-        }),
-        {
-            name: "Edit image",
-            description: `Edits the properties of an image canvas element identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "image",
+                operationType: "edit",
+                alias: list[2],
+                props: HashtagCommands.convertListStringToObj(list.slice(3)),
+            }),
+            {
+                name: "Edit image",
+                description: `Edits the properties of an image canvas element identified by its alias.
 
 \`\`\`ink
 # edit image <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("edit"), z.literal("image"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("edit"), z.literal("image"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "imagecontainer",
-            operationType: "edit",
-            alias: list[2],
-            props: HashtagCommands.convertListStringToObj(list.slice(3)),
-        }),
-        {
-            name: "Edit imagecontainer",
-            description: `Edits the properties of an image-container canvas element identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "imagecontainer",
+                operationType: "edit",
+                alias: list[2],
+                props: HashtagCommands.convertListStringToObj(list.slice(3)),
+            }),
+            {
+                name: "Edit imagecontainer",
+                description: `Edits the properties of an image-container canvas element identified by its alias.
 
 \`\`\`ink
 # edit imagecontainer <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("edit"), z.literal("imagecontainer"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("edit"), z.literal("imagecontainer"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "canvaselement",
-            operationType: "edit",
-            alias: list[2],
-            props: HashtagCommands.convertListStringToObj(list.slice(3)),
-        }),
-        {
-            name: "Edit canvas element",
-            description: `Edits the properties of a canvas element identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "canvaselement",
+                operationType: "edit",
+                alias: list[2],
+                props: HashtagCommands.convertListStringToObj(list.slice(3)),
+            }),
+            {
+                name: "Edit canvas element",
+                description: `Edits the properties of a canvas element identified by its alias.
 
 \`\`\`ink
 # edit canvaselement <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("edit"), z.literal("canvaselement"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("edit"), z.literal("canvaselement"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "video",
-            operationType: "edit",
-            alias: list[2],
-            props: HashtagCommands.convertListStringToObj(list.slice(3)),
-        }),
-        {
-            name: "Edit video",
-            description: `Edits the properties of a video canvas element identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "video",
+                operationType: "edit",
+                alias: list[2],
+                props: HashtagCommands.convertListStringToObj(list.slice(3)),
+            }),
+            {
+                name: "Edit video",
+                description: `Edits the properties of a video canvas element identified by its alias.
 
 \`\`\`ink
 # edit video <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("edit"), z.literal("video"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("edit"), z.literal("video"), z.string()])
+                    .rest(z.string()),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => ({
-            type: "text",
-            operationType: "edit",
-            alias: list[2],
-            props: HashtagCommands.convertListStringToObj(list.slice(3)),
-        }),
-        {
-            name: "Edit text",
-            description: `Edits the properties of a text canvas element identified by its alias.
+        HashtagCommands.addMapper(
+            (list) => ({
+                type: "text",
+                operationType: "edit",
+                alias: list[2],
+                props: HashtagCommands.convertListStringToObj(list.slice(3)),
+            }),
+            {
+                name: "Edit text",
+                description: `Edits the properties of a text canvas element identified by its alias.
 
 \`\`\`ink
 # edit text <alias> [<key> <value> …]
 \`\`\``,
-            validation: z
-                .tuple([z.literal("edit"), z.literal("text"), z.string()])
-                .rest(z.string()),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("edit"), z.literal("text"), z.string()])
+                    .rest(z.string()),
+            },
+        );
+    }
 
-    HashtagCommands.addMapper(
-        (_list) => ({
-            type: "input",
-            operationType: "request",
-        }),
-        {
-            name: "Request input",
-            description: `Requests player input without any additional constraints.
+    if (includeNarration) {
+        HashtagCommands.addMapper(
+            (_list) => ({
+                type: "input",
+                operationType: "request",
+            }),
+            {
+                name: "Request input",
+                description: `Requests player input without any additional constraints.
 
 \`\`\`ink
 # request input
 \`\`\``,
-            validation: z.tuple([z.literal("request"), z.literal("input")]),
-        },
-    );
+                validation: z.tuple([z.literal("request"), z.literal("input")]),
+            },
+        );
 
-    HashtagCommands.addMapper(
-        (list) => {
-            const op: PixiVNJsonOperation = {
-                type: "input",
-                operationType: "request",
-            };
-            try {
-                const props = HashtagCommands.convertListStringToObj(list.slice(2)) as Record<
-                    string,
-                    unknown
-                >;
-                if ("type" in props && typeof props.type === "string") {
-                    op.valueType = props.type;
-                }
-                if ("default" in props) {
-                    op.defaultValue = props.default;
-                }
-            } catch (_) {}
-            return op;
-        },
-        {
-            name: "Request input with params",
-            description: `Requests player input with optional key/value parameters (e.g. type, default).
+        HashtagCommands.addMapper(
+            (list) => {
+                const op: PixiVNJsonOperation = {
+                    type: "input",
+                    operationType: "request",
+                };
+                try {
+                    const props = HashtagCommands.convertListStringToObj(list.slice(2)) as Record<
+                        string,
+                        unknown
+                    >;
+                    if ("type" in props && typeof props.type === "string") {
+                        op.valueType = props.type;
+                    }
+                    if ("default" in props) {
+                        op.defaultValue = props.default;
+                    }
+                } catch (_) {}
+                return op;
+            },
+            {
+                name: "Request input with params",
+                description: `Requests player input with optional key/value parameters (e.g. type, default).
 
 \`\`\`ink
 # request input <key> <value> [<key> <value> …]
 # request input type number default 18
 \`\`\``,
-            validation: z
-                .tuple([z.literal("request"), z.literal("input")])
-                .rest(z.string())
-                .refine((arr) => arr.length > 2 && (arr.length - 2) % 2 === 0),
-        },
-    );
+                validation: z
+                    .tuple([z.literal("request"), z.literal("input")])
+                    .rest(z.string())
+                    .refine((arr) => arr.length > 2 && (arr.length - 2) % 2 === 0),
+            },
+        );
+    }
 }

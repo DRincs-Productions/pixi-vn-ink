@@ -396,6 +396,127 @@ test("addBaseHashtagCommands accepts any alias when bundleIds/assetAliasIds are 
     HashtagCommands.clearMappers();
 });
 
+// ── addBaseHashtagCommands(options) — sections ──────────────────────────────
+
+// "Jump" mutates `step.labelToOpen` and always returns `undefined` on a match (same as "Call") —
+// unlike every other probe command used below, its return value alone can't tell a match from a
+// miss, so these helpers check the mutation instead.
+function jumps(step: PixiVNJsonLabelStep): boolean {
+    step.labelToOpen = undefined;
+    HashtagCommands.convertOperation(["jump", "knot_a"], step, { silent: true });
+    return step.labelToOpen !== undefined;
+}
+
+test("addBaseHashtagCommands registers every section by default", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(HashtagCommands.convertOperation(["clear", "canvas"], step)).toBeDefined();
+    expect(HashtagCommands.convertOperation(["pause", "sound", "bg"], step)).toBeDefined();
+    expect(jumps(step)).toBe(true);
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toBeDefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands({ sections: { canvas: false } }) skips canvas commands only", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ sections: { canvas: false } });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(
+        HashtagCommands.convertOperation(["clear", "canvas"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(
+        HashtagCommands.convertOperation(["show", "image", "bg"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(HashtagCommands.convertOperation(["pause", "sound", "bg"], step)).toBeDefined();
+    expect(jumps(step)).toBe(true);
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toBeDefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands({ sections: { sound: false } }) skips sound commands only", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ sections: { sound: false } });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(
+        HashtagCommands.convertOperation(["pause", "sound", "bg"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(
+        HashtagCommands.convertOperation(["play", "sound", "bg"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(HashtagCommands.convertOperation(["clear", "canvas"], step)).toBeDefined();
+    expect(jumps(step)).toBe(true);
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toBeDefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands({ sections: { narration: false } }) skips narration commands only", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ sections: { narration: false } });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(jumps(step)).toBe(false);
+    expect(
+        HashtagCommands.convertOperation(["request", "input"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(HashtagCommands.convertOperation(["clear", "canvas"], step)).toBeDefined();
+    expect(HashtagCommands.convertOperation(["pause", "sound", "bg"], step)).toBeDefined();
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toBeDefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands({ sections: { assets: false } }) skips asset/bundle loading only", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ sections: { assets: false } });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(
+        HashtagCommands.convertOperation(["load", "assets", "alice"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(HashtagCommands.convertOperation(["clear", "canvas"], step)).toBeDefined();
+    expect(HashtagCommands.convertOperation(["pause", "sound", "bg"], step)).toBeDefined();
+    expect(jumps(step)).toBe(true);
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands({ sections: {} }) registers every section, same as omitting sections entirely", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ sections: {} });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(HashtagCommands.convertOperation(["clear", "canvas"], step)).toBeDefined();
+    expect(HashtagCommands.convertOperation(["pause", "sound", "bg"], step)).toBeDefined();
+    expect(jumps(step)).toBe(true);
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toBeDefined();
+
+    HashtagCommands.clearMappers();
+});
+
+test("addBaseHashtagCommands can skip multiple sections at once", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands({ sections: { canvas: false, sound: false } });
+    const step = {} as unknown as PixiVNJsonLabelStep;
+
+    expect(
+        HashtagCommands.convertOperation(["clear", "canvas"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(
+        HashtagCommands.convertOperation(["pause", "sound", "bg"], step, { silent: true }),
+    ).toBeUndefined();
+    expect(jumps(step)).toBe(true);
+    expect(HashtagCommands.convertOperation(["load", "assets", "alice"], step)).toBeDefined();
+
+    HashtagCommands.clearMappers();
+});
+
 test("addBaseHashtagCommands restricts 'show imagecontainer' urls to the known assetAliasIds when provided", () => {
     HashtagCommands.clearMappers();
     addBaseHashtagCommands({ assetAliasIds: ["img1", "img2"] });
