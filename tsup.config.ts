@@ -22,6 +22,11 @@ export default defineConfig((options) => {
             clean: true,
             minify: true,
             skipNodeModulesBundle: false,
+            // Bundled in (rather than left as a runtime import) so `ajv` can move from
+            // `dependencies` to `devDependencies` — consumers of `@drincs/pixi-vn-ink/parser`
+            // (and anything re-exporting it: `/converter`, `/dev-api`, `/vite`) get it for free
+            // from the compiled output instead of needing it installed separately.
+            noExternal: ["ajv"],
             outExtension({ format }) {
                 return {
                     js: format === "esm" ? ".mjs" : ".cjs",
@@ -40,7 +45,7 @@ export default defineConfig((options) => {
             clean: false,
             minify: true,
             skipNodeModulesBundle: false,
-            noExternal: ["@drincs/pixi-vn-json"],
+            noExternal: ["@drincs/pixi-vn-json", "ajv"],
             external: [
                 "vite",
                 "@drincs/pixi-vn-ink/parser",

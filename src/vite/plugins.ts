@@ -506,6 +506,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         name: string;
         description?: string;
         validation: RegExp | ZodType | string;
+        deprecated?: boolean;
         keySchemas?: Record<string | number, object>;
     };
     type SsrReplaceInfo = SsrHandlerInfo & { type?: "before-translation" | "after-translation" };
@@ -525,10 +526,11 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         const hashtagInfo: SsrHandlerInfo[] = HashtagCommands.info();
         const textReplaceInfo: SsrReplaceInfo[] = TextReplaces.info() as SsrReplaceInfo[];
 
-        hashtagCommandsStore = hashtagInfo.map(({ name, description, validation, keySchemas }) => ({
+        hashtagCommandsStore = hashtagInfo.map(({ name, description, validation, deprecated, keySchemas }) => ({
             name,
             description,
             validation: serializeValidation(validation),
+            deprecated,
             keySchemas,
         }));
         textReplacesStore = textReplaceInfo.map(({ name, description, validation, type }) => ({

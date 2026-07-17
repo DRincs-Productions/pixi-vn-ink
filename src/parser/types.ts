@@ -100,6 +100,10 @@ export interface InkHashtagCommandInfo {
      */
     validation: InkValidationInfo;
     /**
+     * Whether this handler is deprecated. Matches {@link HashtagHandlerOptions.deprecated}.
+     */
+    deprecated?: boolean;
+    /**
      * JSON Schemas (usable with Ajv), keyed by the token that introduces an order-independent
      * `<key> <value> [<value2> ...]` section of the command's tokens. Matches
      * {@link HashtagHandlerOptions.keySchemas} — already plain JSON Schema objects, so no extra

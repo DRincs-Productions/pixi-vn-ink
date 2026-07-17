@@ -915,6 +915,20 @@ describe("vitePluginInk dev API", () => {
         expect(body.some((entry) => entry.name === "Call")).toBe(true);
     });
 
+    it("GET hashtag-commands preserves a handler's `deprecated: true` flag", async () => {
+        // `HashtagHandlerOptions.deprecated` must survive `syncStores`'s own field-by-field
+        // mapping from the live `HashtagCommands.info()` into the store the dev API actually
+        // serves — a mapping that once silently dropped it (an explicit `{ name, description,
+        // validation, keySchemas }` pick that never listed `deprecated` at all), so a deprecated
+        // handler always reported as `deprecated: undefined` here regardless of how it was
+        // registered. The built-in "Call"/"Jump" mappers are already registered with
+        // `deprecated: true` (see addBaseHashtagCommands), so no extra registration is needed.
+        const { server } = await startPlugin();
+        const res = await request(server, "GET", INK_DEV_API_HASHTAG_COMMANDS);
+        const body = JSON.parse(res.body) as InkHashtagCommandInfo[];
+        expect(body.find((entry) => entry.name === "Call")?.deprecated).toBe(true);
+    });
+
     it("GET info returns this library's own version and the PixiVNJson schema URL", async () => {
         const { server } = await startPlugin();
         const res = await request(server, "GET", INK_DEV_API_INFO);
