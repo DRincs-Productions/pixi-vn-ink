@@ -747,3 +747,61 @@ test("converting a `.ink` script does not log a false 'not valid' error for a co
         expect.anything(),
     );
 });
+
+// ── deprecated "with source" mappers ────────────────────────────────────────
+// The positional `<source>` argument (`# play sound <alias> <source> ...`) is deprecated in
+// favor of passing `source <value>` inside the `[<key> <value> ...]` properties instead.
+
+test("the positional-source mappers are flagged as deprecated", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const byName = Object.fromEntries(HashtagCommands.info().map((opts) => [opts.name, opts]));
+    expect(byName["Play sound with source"]?.deprecated).toBe(true);
+    expect(byName["Show image with source"]?.deprecated).toBe(true);
+    expect(byName["Show video with source"]?.deprecated).toBe(true);
+    // the non-deprecated counterparts must still be registered and not themselves deprecated
+    expect(byName["Play sound"]?.deprecated).toBeFalsy();
+    expect(byName["Show image"]?.deprecated).toBeFalsy();
+    expect(byName["Show video"]?.deprecated).toBeFalsy();
+});
+
+test("`source` as a key/value property overrides the URL for play sound, show image, and show video", () => {
+    HashtagCommands.clearMappers();
+    addBaseHashtagCommands();
+    const res = convertInkToJson(`
+=== start
+# play sound bird source "bird 2" volume 100
+# show image bg source "/image 2.png" x 10
+# show video bg source "/video 2.mp4" x 10
+-> DONE
+`);
+    const operations = Object.values(res.labels)
+        .flat()
+        .flatMap((step) => step.operations ?? []);
+    expect(operations).toEqual([
+        {
+            type: "sound",
+            operationType: "play",
+            alias: "bird",
+            url: "bird 2",
+            props: { volume: 100 },
+            $origin: 'play sound bird source "bird 2" volume 100',
+        },
+        {
+            type: "image",
+            operationType: "show",
+            alias: "bg",
+            url: "/image 2.png",
+            props: { x: 10 },
+            $origin: 'show image bg source "/image 2.png" x 10',
+        },
+        {
+            type: "video",
+            operationType: "show",
+            alias: "bg",
+            url: "/video 2.mp4",
+            props: { x: 10 },
+            $origin: 'show video bg source "/video 2.mp4" x 10',
+        },
+    ]);
+});

@@ -903,16 +903,27 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
                     url: alias,
                 };
                 if (list.length > 3) {
-                    op.props = HashtagCommands.convertListStringToObj(list.slice(3));
+                    const props = HashtagCommands.convertListStringToObj(list.slice(3)) as Record<
+                        string,
+                        unknown
+                    >;
+                    if ("source" in props && typeof props.source === "string") {
+                        op.url = props.source;
+                        delete props.source;
+                    }
+                    if (Object.keys(props).length > 0) {
+                        op.props = props;
+                    }
                 }
                 return op;
             },
             {
                 name: "Play sound",
-                description: `Plays a sound using its alias as the URL, with optional key/value properties.
+                description: `Plays a sound using its alias as the URL, with optional key/value properties. Pass \`source <value>\` among the key/value properties to use a different URL than the alias.
 
 \`\`\`ink
 # play sound <alias> [<key> <value> …]
+# play sound <alias> source <url> [<key> <value> …]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("play"), z.literal("sound"), idSchema(options.assetAliasIds)])
@@ -938,8 +949,11 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             },
             {
                 name: "Play sound with source",
-                description: `Plays a sound with an explicit source URL and optional key/value properties.
-        
+                deprecated: true,
+                description: `**Deprecated**: use \`# play sound <alias> source <url> [<key> <value> …]\` instead, passing the URL as a \`source\` key/value property rather than as a positional argument.
+
+Plays a sound with an explicit source URL and optional key/value properties.
+
 \`\`\`ink
 # play sound <alias> <source> [<key> <value> …]
 \`\`\`
@@ -1041,7 +1055,17 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
                     }
                 }
                 if (propList.length > 0) {
-                    op.props = HashtagCommands.convertListStringToObj(propList);
+                    const props = HashtagCommands.convertListStringToObj(propList) as Record<
+                        string,
+                        unknown
+                    >;
+                    if ("source" in props && typeof props.source === "string") {
+                        op.url = props.source;
+                        delete props.source;
+                    }
+                    if (Object.keys(props).length > 0) {
+                        op.props = props;
+                    }
                 }
             }
             return op;
@@ -1254,10 +1278,11 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             },
             {
                 name: "Show image",
-                description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
+                description: `Shows an image canvas element with optional key/value properties and transition effect. Pass \`source <value>\` among the key/value properties to use a different URL than the alias.
 
 \`\`\`ink
 # show image <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show image <alias> source <url> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("show"), z.literal("image"), idSchema(options.assetAliasIds)])
@@ -1273,7 +1298,10 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             },
             {
                 name: "Show image with source",
-                description: `Shows an image canvas element with optional source URL, key/value properties, and transition effect.
+                deprecated: true,
+                description: `**Deprecated**: use \`# show image <alias> source <url> [<key> <value> …]\` instead, passing the URL as a \`source\` key/value property rather than as a positional argument.
+
+Shows an image canvas element with an explicit source URL, optional key/value properties, and transition effect.
 
 \`\`\`ink
 # show image <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
@@ -1414,10 +1442,11 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
             },
             {
                 name: "Show video",
-                description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
+                description: `Shows a video canvas element with optional key/value properties and transition effect. Pass \`source <value>\` among the key/value properties to use a different URL than the alias.
 
 \`\`\`ink
 # show video <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show video <alias> source <url> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("show"), z.literal("video"), idSchema(options.assetAliasIds)])
@@ -1432,8 +1461,11 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
                 return getImageOrVideoShowOperationForMapper("video", alias, propsList);
             },
             {
-                name: "Show video",
-                description: `Shows a video canvas element with optional source URL, key/value properties, and transition effect.
+                name: "Show video with source",
+                deprecated: true,
+                description: `**Deprecated**: use \`# show video <alias> source <url> [<key> <value> …]\` instead, passing the URL as a \`source\` key/value property rather than as a positional argument.
+
+Shows a video canvas element with an explicit source URL, optional key/value properties, and transition effect.
 
 \`\`\`ink
 # show video <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
