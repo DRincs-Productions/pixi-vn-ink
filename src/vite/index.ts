@@ -4,11 +4,5 @@ export {
     INK_DEV_API_TEXT_REPLACES,
 } from "@/vite/costants";
 export type { InkHashtagCommandInfo, InkLibraryInfo, InkTextReplaceInfo } from "@/vite/info-types";
-export {
-    /**
-     * @deprecated use vitePluginInk instead
-     */
-    vitePluginInk as noHmrInkPlugin,
-    vitePluginInk,
-} from "@/vite/plugins";
+export { vitePluginInk } from "@/vite/plugins";
 export type { VitePluginInkOptions } from "@/vite/plugins";
