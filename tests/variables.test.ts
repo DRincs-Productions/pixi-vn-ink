@@ -1840,7 +1840,7 @@ test("Conditional blocks are not limited to logic", async () => {
                             secondConditionalItem: [
                                 {
                                     glueEnabled: true,
-                                    goNextStep: false,
+                                    goNextStep: true,
                                 },
                                 {
                                     dialogue: ' "But surely you are not serious?" I demanded.',
@@ -1853,7 +1853,7 @@ test("Conditional blocks are not limited to logic", async () => {
                             secondConditionalItem: [
                                 {
                                     glueEnabled: true,
-                                    goNextStep: false,
+                                    goNextStep: true,
                                 },
                                 {
                                     dialogue:

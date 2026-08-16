@@ -42,6 +42,93 @@ as fast as we could.
 });
 
 /**
+ * A divert placed alone on its own line must behave the same as a divert
+ * glued to the end of the preceding text line: it should not introduce an
+ * extra click-requiring step, since diverts are invisible regardless of
+ * where they are placed in the source.
+ */
+test("Diverts on their own line are invisible too", async () => {
+    const expected: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            "theTop_|_extendSentence": [
+                {
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " append this.",
+                },
+                {
+                    dialogue: "But with the divert on the same line it takes one click to ",
+                    goNextStep: true,
+                },
+                {
+                    labelToOpen: {
+                        label: "theTop_|_extendSentence2",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: true,
+                },
+            ],
+            "theTop_|_extendSentence2": [
+                {
+                    glueEnabled: true,
+                    goNextStep: true,
+                },
+                {
+                    dialogue: " append this.",
+                },
+                {
+                    dialogue: "I thought that putting <> at the front of a line would mean it would take a click to advance a step to",
+                    glueEnabled: true,
+                    goNextStep: false,
+                },
+                {
+                    dialogue: " append this. But, it doesn't wait...",
+                },
+                {
+                    end: "game_end",
+                },
+            ],
+            theTop: [
+                {
+                    dialogue: "With the divert on a second line, it takes two clicks to",
+                },
+                {
+                    labelToOpen: {
+                        label: "theTop_|_extendSentence",
+                        type: "jump",
+                        params: undefined,
+                    },
+                    glueEnabled: undefined,
+                },
+            ],
+        },
+    };
+    const res = convertInkText(`
+=== theTop ===
+With the divert on a second line, it takes two clicks to
+->extendSentence
+= extendSentence
+<> append this.
+//the divert does not execute until the user clicks a second time
+
+But with the divert on the same line it takes one click to->extendSentence2
+= extendSentence2
+<> append this.
+//the divert executes after the user clicks once
+
+I thought that putting \\<\\> at the front of a line would mean it would take a click to advance a step to
+<> append this. But, it doesn't wait...
+//the two lines are executed without user interaction
+-> END
+`);
+    expect(res).toEqual(expected);
+});
+
+/**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#glue
  */
 test("Glue", async () => {
@@ -77,7 +164,7 @@ test("Glue", async () => {
             as_fast_as_we_could: [
                 {
                     glueEnabled: true,
-                    goNextStep: false,
+                    goNextStep: true,
                 },
                 {
                     dialogue: " as fast as we could.",
@@ -212,7 +299,7 @@ test("Branching and joining", async () => {
             as_fast_as_we_could: [
                 {
                     glueEnabled: true,
-                    goNextStep: false,
+                    goNextStep: true,
                 },
                 {
                     dialogue: " as fast as we could.",
