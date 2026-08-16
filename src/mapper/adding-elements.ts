@@ -191,12 +191,17 @@ function addConditionalElementStep(
             if (list.length > 0) {
                 const prevItem = list[list.length - 1];
                 prevItem.glueEnabled = true;
-                if (!prevItem.labelToOpen) prevItem.goNextStep = true;
+                // <> glued to the end of the previous line means "don't wait, continue
+                // right away". <> on its own new line still glues visually, but the
+                // previous step should keep waiting for the user's click.
+                if (!prevItem.labelToOpen) {
+                    prevItem.goNextStep = !isNewLine;
+                }
                 list[list.length - 1] = prevItem;
             } else {
                 list.push({
                     glueEnabled: true,
-                    goNextStep: false,
+                    goNextStep: true,
                 });
             }
         }
