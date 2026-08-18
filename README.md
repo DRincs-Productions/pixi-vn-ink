@@ -58,3 +58,28 @@ declare module "*.ink" {
   export default value;
 }
 ```
+
+## Agent Skills
+
+This package ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants
+(like Claude Code) the full **ink** language plus every Pixi'VN-specific integration detail (hashtag
+commands, `importInkText`, storage mapping, and every deliberate difference from native ink). Unlike
+`@drincs/pixi-vn`'s skill set, where each skill can be installed independently, these are meant to
+travel together — install all of them at once with:
+
+```npm
+npx skills add DRincs-Productions/pixi-vn-ink --all
+```
+
+This installs every skill below:
+
+- `getting-started` — installation, the Vite plugin, dev-server debugging, translation files, and core ink syntax as used in Pixi'VN
+- `characters` — dialogue attribution, name substitution, emotions
+- `input` — `# request input` prompts
+- `pause-continue` — `# pause` and `<># continue`
+- `markup` — Markdown/HTML/CSS in dialogue text
+- `canvas` — every canvas hashtag command
+- `sound` — every sound hashtag command
+- `assets` — `# load`/`# lazyload`
+- `text-replacement` — `[key]` substitution
+- `hashtag-commands` — writing a custom hashtag command instead of an ink function

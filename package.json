@@ -23,7 +23,8 @@
     "check": "biome check",
     "format": "biome format --write",
     "test": "vitest",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "skills:validate": "node scripts/validate-skills.mjs"
   },
   "exports": {
     ".": {
