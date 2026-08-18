@@ -10,3 +10,4 @@ export type {
     MapperHandler,
 } from "@/handlers/interfaces/HashtagHandler";
 export { TextReplaces } from "@drincs/pixi-vn-json";
+export type { ReplaceHandler, ReplaceHandlerOptions } from "@drincs/pixi-vn-json";
