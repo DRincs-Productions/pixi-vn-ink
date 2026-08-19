@@ -83,3 +83,4 @@ This installs every skill below:
 - `assets` — `# load`/`# lazyload`
 - `text-replacement` — `[key]` substitution
 - `hashtag-commands` — writing a custom hashtag command instead of an ink function
+- `migration` — upgrading an existing project to the current version

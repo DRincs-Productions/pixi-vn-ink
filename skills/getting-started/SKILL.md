@@ -33,6 +33,7 @@ the storage mapping, the hashtag-command mechanism). Installing with
 - **pixi-vn-ink-assets** — `# load`/`# lazyload`.
 - **pixi-vn-ink-text-replacement** — `[key]` substitution.
 - **pixi-vn-ink-hashtag-commands** — how to author your own hashtag command instead of an ink function.
+- **pixi-vn-ink-migration** — upgrading an existing project to the current version.
 
 ## Installation
 
