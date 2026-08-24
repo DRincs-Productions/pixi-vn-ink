@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@drincs/pixi-vn": "^1.8.0",
+    "@drincs/pixi-vn": "^1.9.0",
     "@drincs/pixi-vn-ink": "file:.."
   },
   "devDependencies": {

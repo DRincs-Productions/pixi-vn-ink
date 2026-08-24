@@ -41,7 +41,7 @@ the storage mapping, the hashtag-command mechanism). Installing with
 npm install @drincs/pixi-vn @drincs/pixi-vn-ink
 ```
 
-Peer dependencies: `@drincs/pixi-vn` (>=1.8.0) and `zod` (>=4.4.0, used by `HashtagCommands`/
+Peer dependencies: `@drincs/pixi-vn` (>=1.9.0) and `zod` (>=4.4.0, used by `HashtagCommands`/
 `TextReplaces` validation). `vite` is an optional peer — only needed for the Vite plugin below, which
 is the recommended setup for every real project.
 
