@@ -1,6 +1,6 @@
 # Pixi’VN - Ink Language Integration
 
-![pixi-vn-cover-ink](https://github.com/user-attachments/assets/4275aecb-24cc-4e2a-b2e6-7dd010e32214)
+![pixi-vn-cover-ink](https://github.com/user-attachments/assets/25599899-36b9-4b96-b5c1-9c99e335c3f7)
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@drincs/pixi-vn-ink" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-ink?label=version" alt="npm version"></a>
