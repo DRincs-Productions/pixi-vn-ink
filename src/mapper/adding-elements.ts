@@ -193,9 +193,15 @@ function addConditionalElementStep(
                 prevItem.glueEnabled = true;
                 // <> glued to the end of the previous line means "don't wait, continue
                 // right away". <> on its own new line still glues visually, but the
-                // previous step should keep waiting for the user's click.
+                // previous step should keep waiting for the user's click - unless that
+                // step has no visible content of its own (e.g. an operations-only step
+                // created from a hashtag command). There is nothing on screen to pause
+                // on in that case, so it must auto-continue straight into the glued
+                // line, the same way a label that opens with glue is invisible.
+                const prevIsOperationsOnly =
+                    prevItem.operations !== undefined && prevItem.dialogue === undefined;
                 if (!prevItem.labelToOpen) {
-                    prevItem.goNextStep = !isNewLine;
+                    prevItem.goNextStep = prevIsOperationsOnly ? true : !isNewLine;
                 }
                 list[list.length - 1] = prevItem;
             } else {
