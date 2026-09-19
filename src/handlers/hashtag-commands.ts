@@ -326,11 +326,7 @@ export namespace HashtagCommands {
      * into object:
      * { "duration": 3, "x": 2, "y": 3, "name": "C J", "surname": "Smith", "position": { x: 2, y 3 } }
      */
-    export function convertListStringToObj(listParm: string[]): object {
-        return convertPropListStringToObj(listParm);
-    }
-
-    function convertPropListStringToObj(list: string[]): object {
+    export function convertListStringToObj(list: string[]): Record<string, unknown> {
         if (list.length === 0) {
             return {};
         }
