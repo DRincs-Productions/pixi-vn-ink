@@ -1,6 +1,6 @@
 {
   "name": "@drincs/pixi-vn-ink",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "workspaces": [
     "playground"
@@ -113,17 +113,17 @@
     "@drincs/pixi-vn-json": "^1.14.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.14",
+    "@biomejs/biome": "^2.5.14",
     "ajv": "^8.20.0",
     "inkjs": "2.4.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.1.0",
     "json5": "^2.2.3",
     "picocolors": "^1.1.1",
-    "tinyglobby": "^0.2.16",
+    "tinyglobby": "^0.2.17",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.1",
-    "typedoc": "^0.28.19",
-    "typedoc-plugin-markdown": "^4.11.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.13.1",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
     "vite-tsconfig-paths": "^6.1.1",
