@@ -1101,7 +1101,7 @@ describe("vitePluginInk dev API", () => {
 
         const warnedMessage = logger.warn.mock.calls
             .map(([message]) => String(message))
-            .find((message) => message.includes(path.join(root, "ink", "start.ink")));
+            .find((message) => message.includes(path.join(root, "ink", "start.ink").replaceAll("\\", "/")));
 
         expect(warnedMessage).toBeDefined();
         expect(warnedMessage).toContain("aliases");
@@ -1177,7 +1177,7 @@ describe("vitePluginInk dev API", () => {
 
         const schemaWarnings = logger.warn.mock.calls
             .map(([message]) => String(message))
-            .filter((message) => message.includes(path.join(root, "ink", "start.ink")));
+            .filter((message) => message.includes(path.join(root, "ink", "start.ink").replaceAll("\\", "/")));
 
         expect(schemaWarnings).toHaveLength(1);
         expect(schemaWarnings[0]).toContain("aliases");
@@ -1223,7 +1223,7 @@ describe("vitePluginInk dev API", () => {
             ),
         ).toBe(true);
         expect(
-            warnings.some((message) => message.includes(path.join(root, "ink", "start.ink"))),
+            warnings.some((message) => message.includes(path.join(root, "ink", "start.ink").replaceAll("\\", "/"))),
         ).toBe(false);
     });
 });

@@ -739,7 +739,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
                 );
                 continue;
             }
-            generatedJsonFiles.add(outputFile);
+            generatedJsonFiles.add(path.resolve(outputFile));
 
             if (!converted) {
                 await fs.rm(outputFile, { force: true });
@@ -780,7 +780,7 @@ export function vitePluginInk(options?: VitePluginInkOptions): Plugin {
         for (const existingJsonFile of existingJsonFiles) {
             if (
                 path.resolve(existingJsonFile) !== path.resolve(manifestFile) &&
-                !generatedJsonFiles.has(existingJsonFile)
+                !generatedJsonFiles.has(path.resolve(existingJsonFile))
             ) {
                 await fs.rm(existingJsonFile, { force: true });
             }
