@@ -68,8 +68,34 @@ commands, `importInkText`, storage mapping, and every deliberate difference from
 travel together — install all of them at once with:
 
 ```npm
-npx skills add DRincs-Productions/pixi-vn-ink --all
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all
 ```
+
+**Codex (global)**:
+
+```npm
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent codex -g
+```
+
+**Claude Code (global)**:
+
+```npm
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent claude-code -g
+```
+
+**Ollama**:
+
+Ollama runs the model; install the skills for the coding agent you use with it. For Claude Code powered by Ollama, use the Claude Code command above, then start it with:
+
+```bash
+ollama launch claude --model <model>
+```
+
+**LM Studio**:
+
+In LM Studio Bionic, ask the agent to install skills from `https://github.com/DRincs-Productions/pixi-vn-ink`, or add the skill files in **Settings → Skills**. To reuse skills installed for Codex or Claude Code, enable **Settings → Skills → Use skills found in other apps**.
+
+**Other agents (current project)**:
 
 This installs every skill below:
 
