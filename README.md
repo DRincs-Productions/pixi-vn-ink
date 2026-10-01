@@ -68,19 +68,19 @@ commands, `importInkText`, storage mapping, and every deliberate difference from
 travel together — install all of them at once with:
 
 ```npm
-npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all -y
 ```
 
 **Codex (global)**:
 
 ```npm
-npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent codex -g
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent codex -g -y
 ```
 
 **Claude Code (global)**:
 
 ```npm
-npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent claude-code -g
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent claude-code -g -y
 ```
 
 **Ollama**:
