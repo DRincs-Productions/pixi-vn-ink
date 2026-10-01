@@ -61,35 +61,29 @@ declare module "*.ink" {
 
 ## Agent Skills
 
-This package ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants
-(like Claude Code) the full **ink** language plus every Pixi'VN-specific integration detail (hashtag
-commands, `importInkText`, storage mapping, and every deliberate difference from native ink). Unlike
-`@drincs/pixi-vn`'s skill set, where each skill can be installed independently, these are meant to
-travel together — install all of them at once with:
+Pixi'VN ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants how to correctly use each part of the engine.
 
-```npm
-npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all -y
-```
+> In LM Studio Bionic, ask the agent to install skills from `https://github.com/DRincs-Productions/pixi-vn-ink`, or add the skill files in **Settings → Skills**. To reuse skills installed for Codex or Claude Code, enable **Settings → Skills → Use skills found in other apps**.
 
-**Codex (global)**:
+**Codex**:
 
 ```npm
 npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent codex -g -y
 ```
 
-**Claude Code (global)**:
+**Claude Code**:
 
 ```npm
 npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent claude-code -g -y
 ```
 
-**LM Studio**:
+**Other agents**:
 
-In LM Studio Bionic, ask the agent to install skills from `https://github.com/DRincs-Productions/pixi-vn-ink`, or add the skill files in **Settings → Skills**. To reuse skills installed for Codex or Claude Code, enable **Settings → Skills → Use skills found in other apps**.
+```npm
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all -y
+```
 
-**Other agents (current project)**:
-
-This installs every skill below:
+Available skills:
 
 - `getting-started` — installation, the Vite plugin, dev-server debugging, translation files, and core ink syntax as used in Pixi'VN
 - `characters` — dialogue attribution, name substitution, emotions
