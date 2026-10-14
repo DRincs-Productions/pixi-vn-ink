@@ -805,3 +805,28 @@ test("`source` as a key/value property overrides the URL for play sound, show im
         },
     ]);
 });
+
+test("convertOperation maps every new effect like shake", () => {
+    const step = {} as PixiVNJsonLabelStep;
+    for (const type of ["bounce", "glow-pulse", "chromatic-aberration"]) {
+        expect(HashtagCommands.convertOperation([type, "bg", "x", "10"], step)).toEqual({
+            alias: "bg",
+            type,
+            props: { x: 10 },
+        });
+    }
+});
+
+test("convertOperation maps new transitions on show and remove", () => {
+    const step = {} as PixiVNJsonLabelStep;
+    const show = HashtagCommands.convertOperation(
+        ["show", "image", "bg", "with", "wipein", "duration", "2"],
+        step,
+    ) as any;
+    expect(show.transition).toEqual({ type: "wipein", props: { duration: 2 } });
+    const remove = HashtagCommands.convertOperation(
+        ["remove", "image", "bg", "with", "noisedissolveout"],
+        step,
+    ) as any;
+    expect(remove.transition).toEqual({ type: "noisedissolveout" });
+});

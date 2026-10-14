@@ -7,12 +7,74 @@ import { logger } from "@/utils/log-utility";
 import type { StepLabelProps } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
+    PixiVNJsonCanvasEffect,
     PixiVNJsonLabelStep,
     PixiVNJsonMediaTransiotions,
     PixiVNJsonOperation,
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
 import z, { ZodType } from "zod";
+
+const TRANSITION_TYPES: PixiVNJsonMediaTransiotions["type"][] = [
+    "dissolve",
+    "fade",
+    "movein",
+    "moveout",
+    "zoomin",
+    "zoomout",
+    "pushin",
+    "pushout",
+    "wipein",
+    "wipeout",
+    "irisin",
+    "irisout",
+    "splitin",
+    "splitout",
+    "blurin",
+    "blurout",
+    "pixelatein",
+    "pixelateout",
+    "flashin",
+    "flashout",
+    "glitchin",
+    "glitchout",
+    "twistin",
+    "twistout",
+    "warpin",
+    "warpout",
+    "ripplein",
+    "rippleout",
+    "noisedissolvein",
+    "noisedissolveout",
+    "tvin",
+    "tvout",
+    "pinchin",
+    "pinchout",
+];
+
+const EFFECT_TYPES: PixiVNJsonCanvasEffect["type"][] = [
+    "shake",
+    "bounce",
+    "pulse",
+    "hop",
+    "wiggle",
+    "nod",
+    "sway",
+    "punch",
+    "glitch",
+    "chromatic-aberration",
+    "shockwave",
+    "radial-blur",
+    "blur-pulse",
+    "vignette-pulse",
+    "desaturate",
+    "glow-pulse",
+];
+
+function effectDisplayName(type: string): string {
+    const words = type.split("-").join(" ");
+    return words.charAt(0).toUpperCase() + words.slice(1);
+}
 
 const SPACE_SEPARATOR = "§SPACE§";
 const DOUBLE_QUOTES_CONVERTER = "§DOUBLE_QUOTES§";
@@ -996,22 +1058,12 @@ Plays a sound with an explicit source URL and optional key/value properties.
             transitionType: string,
             propsList: string[],
         ): PixiVNJsonMediaTransiotions | undefined {
-            switch (transitionType) {
-                case "dissolve":
-                case "fade":
-                case "movein":
-                case "moveout":
-                case "zoomin":
-                case "zoomout":
-                case "pushin":
-                case "pushout":
-                    break;
-                default:
-                    return undefined;
+            if (!TRANSITION_TYPES.includes(transitionType as PixiVNJsonMediaTransiotions["type"])) {
+                return undefined;
             }
             const transition: PixiVNJsonMediaTransiotions = {
-                type: transitionType,
-            };
+                type: transitionType as PixiVNJsonMediaTransiotions["type"],
+            } as PixiVNJsonMediaTransiotions;
             if (propsList.length > 0) {
                 try {
                     transition.props = HashtagCommands.convertListStringToObj(propsList);
@@ -1202,25 +1254,28 @@ Plays a sound with an explicit source URL and optional key/value properties.
             };
         }
 
-        HashtagCommands.addMapper(
-            (list) => ({
-                alias: list[1],
-                type: "shake",
-                props: HashtagCommands.convertListStringToObj(list.slice(2)),
-            }),
-            {
-                name: "Shake",
-                description: `Applies shake effect to a canvas alias with optional key/value parameters.
+        for (const effectType of EFFECT_TYPES) {
+            HashtagCommands.addMapper(
+                (list) =>
+                    ({
+                        alias: list[1],
+                        type: effectType,
+                        props: HashtagCommands.convertListStringToObj(list.slice(2)),
+                    }) as PixiVNJsonCanvasEffect,
+                {
+                    name: effectDisplayName(effectType),
+                    description: `Applies the ${effectType} effect to a canvas alias with optional key/value parameters.
 
 \`\`\`ink
-# shake <alias> [<key> <value> …]
+# ${effectType} <alias> [<key> <value> …]
 \`\`\``,
-                validation: z
-                    .tuple([z.literal("shake"), z.string()])
-                    .rest(z.string())
-                    .refine((arr) => (arr.length - 2) % 2 === 0),
-            },
-        );
+                    validation: z
+                        .tuple([z.literal(effectType), z.string()])
+                        .rest(z.string())
+                        .refine((arr) => (arr.length - 2) % 2 === 0),
+                },
+            );
+        }
 
         HashtagCommands.addMapper(
             (list) => {
@@ -1277,8 +1332,8 @@ Plays a sound with an explicit source URL and optional key/value properties.
                 description: `Shows an image canvas element with optional key/value properties and transition effect. Pass \`source <value>\` among the key/value properties to use a different URL than the alias.
 
 \`\`\`ink
-# show image <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
-# show image <alias> source <url> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show image <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
+# show image <alias> source <url> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("show"), z.literal("image"), idSchema(options.assetAliasIds)])
@@ -1300,7 +1355,7 @@ Plays a sound with an explicit source URL and optional key/value properties.
 Shows an image canvas element with an explicit source URL, optional key/value properties, and transition effect.
 
 \`\`\`ink
-# show image <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show image <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([
@@ -1364,7 +1419,7 @@ Shows an image canvas element with an explicit source URL, optional key/value pr
                 description: `Shows an image-container canvas element with a list of image URLs, optional properties, and a transition effect.
 
 \`\`\`ink
-# show imagecontainer <alias> [ <ursource1> <source2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout
+# show imagecontainer <alias> [ <ursource1> <source2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout
 \`\`\``,
                 validation: z
                     .tuple([
@@ -1402,7 +1457,7 @@ Shows an image canvas element with an explicit source URL, optional key/value pr
                 description: `Shows an image-container canvas element with a list of image URLs, optional properties, a transition effect, and transition key/value properties.
 
 \`\`\`ink
-# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout <key> <value> …
+# show imagecontainer <alias> [ <url1> <url2> … ] [<key> <value> …] with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout <key> <value> …
 \`\`\``,
                 validation: z
                     .tuple([
@@ -1441,8 +1496,8 @@ Shows an image canvas element with an explicit source URL, optional key/value pr
                 description: `Shows a video canvas element with optional key/value properties and transition effect. Pass \`source <value>\` among the key/value properties to use a different URL than the alias.
 
 \`\`\`ink
-# show video <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
-# show video <alias> source <url> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show video <alias> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
+# show video <alias> source <url> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("show"), z.literal("video"), idSchema(options.assetAliasIds)])
@@ -1464,7 +1519,7 @@ Shows an image canvas element with an explicit source URL, optional key/value pr
 Shows a video canvas element with an explicit source URL, optional key/value properties, and transition effect.
 
 \`\`\`ink
-# show video <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show video <alias> <source> [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([
@@ -1487,7 +1542,7 @@ Shows a video canvas element with an explicit source URL, optional key/value pro
                 description: `Shows a text canvas element with optional text content, key/value properties, and transition effect.
 
 \`\`\`ink
-# show text <alias> [<text>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# show text <alias> [<text>] [<key> <value> …] [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("show"), z.literal("text"), z.string()])
@@ -1506,7 +1561,7 @@ Shows a video canvas element with an explicit source URL, optional key/value pro
                 description: `Removes an image canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove image <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# remove image <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("remove"), z.literal("image"), z.string()])
@@ -1525,7 +1580,7 @@ Shows a video canvas element with an explicit source URL, optional key/value pro
                 description: `Removes a video canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove video <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# remove video <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("remove"), z.literal("video"), z.string()])
@@ -1544,7 +1599,7 @@ Shows a video canvas element with an explicit source URL, optional key/value pro
                 description: `Removes a canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove canvaselement <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# remove canvaselement <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("remove"), z.literal("canvaselement"), z.string()])
@@ -1563,7 +1618,7 @@ Shows a video canvas element with an explicit source URL, optional key/value pro
                 description: `Removes a text canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove text <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# remove text <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("remove"), z.literal("text"), z.string()])
@@ -1582,7 +1637,7 @@ Shows a video canvas element with an explicit source URL, optional key/value pro
                 description: `Removes an image-container canvas element with an optional transition effect.
 
 \`\`\`ink
-# remove imagecontainer <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+# remove imagecontainer <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout|wipein|wipeout|irisin|irisout|splitin|splitout|blurin|blurout|pixelatein|pixelateout|flashin|flashout|glitchin|glitchout|twistin|twistout|warpin|warpout|ripplein|rippleout|noisedissolvein|noisedissolveout|tvin|tvout|pinchin|pinchout [<key> <value> …]]
 \`\`\``,
                 validation: z
                     .tuple([z.literal("remove"), z.literal("imagecontainer"), z.string()])

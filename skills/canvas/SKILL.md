@@ -65,9 +65,10 @@ temp durationVar = 3
 # show skully x 20 y 30 with pushin
 ```
 
-Transition types: `dissolve`, `fade`, `movein`, `zoomin`, `pushin` (their parameters correspond to
-`ShowWithDissolveTransitionProps`, `ShowWithFadeTransitionProps`, `MoveInOutProps`, `ZoomInOutProps`,
-`PushInOutProps` respectively — all optional). Transition parameter values can reference ink variables
+Transition types: `dissolve`, `fade`, `movein`, `zoomin`, `pushin`, `wipein`, `irisin`, `splitin`, `blurin`,
+`pixelatein`, `flashin`, `glitchin`, `twistin`, `warpin`, `ripplein`, `noisedissolvein`, `tvin`, `pinchin`
+(their parameters correspond to the matching `…Props` interface of each transition, e.g.
+`ShowWithDissolveTransitionProps`, `MoveInOutProps`, `WipeInOutProps` — all optional). Transition parameter values can reference ink variables
 with `{...}`, as in the `fade duration {durationVar}` example above.
 
 ## Edit
@@ -106,7 +107,7 @@ temp durationVar = 3
 # remove image bg with pushout
 ```
 
-Transition types here: `dissolve`, `fade`, `moveout`, `zoomout`, `pushout` — same parameter interfaces
+Transition types here: `dissolve`, `fade`, and the `…out` counterpart of every `…in` type above (`moveout`, `zoomout`, `pushout`, `wipeout`, …) — same parameter interfaces
 as `show`'s transitions, "in" swapped for "out".
 
 ## Clear the whole canvas
@@ -162,7 +163,7 @@ memory-shape interfaces as `edit` (`ImageSpriteMemory`, `VideoSpriteMemory`, `Im
 Common patterns: move (`xAlign`/`yAlign` keyframes), rotate (`angle`), fade (`alpha`), zoom
 (`scaleX`/`scaleY` toward `0`), mirror (`scaleX` toward `-1` then back to `1`).
 
-## Shake (and other articulated animations)
+## Effects (shake and other articulated animations)
 
 ```ink
 # shake bg
@@ -171,8 +172,9 @@ Common patterns: move (`xAlign`/`yAlign` keyframes), rotate (`angle`), fade (`al
 
 `# shake <alias> [<key> <value> ...]` triggers the built-in
 [`shakeEffect`](https://pixi-vn.com/jsdoc/pixi-vn/index/functions/shakeEffect) — a ready-made multi-step
-`canvas.animate` sequence. Parameters are the properties of `ShakeEffectProps`, all optional. This is
-the one built-in "articulated animation" hashtag command; a project can register more of its own the
+`canvas.animate` sequence. Parameters are the properties of `ShakeEffectProps`, all optional. The same syntax works for every other built-in effect: `bounce`, `pulse`, `hop`, `wiggle`, `nod`, `sway`,
+`punch`, `glitch`, `chromatic-aberration`, `shockwave`, `radial-blur`, `blur-pulse`, `vignette-pulse`,
+`desaturate`, `glow-pulse` (e.g. `# bounce bg`). A project can register more of its own the
 same way (see **pixi-vn-ink-hashtag-commands**) if it has its own reusable multi-step effects.
 
 ## Related
