@@ -134,7 +134,7 @@ Video resumed
 ```
 
 `# pause video <alias>` / `# resume video <alias>` — video playback only; this is distinct from
-[`# pause`](../pause-continue/SKILL.md) (no alias, stops the *story* from auto-advancing) and from
+[`# pause`](../pause-continue/SKILL.md) (no alias, stops the _story_ from auto-advancing) and from
 [pausing a sound/channel](../sound/SKILL.md).
 
 ## Animate
@@ -145,10 +145,10 @@ Video resumed
 ```
 
 `# animate <alias> <keyframes> options <parameters>` — built on
-[`canvas.animate`](https://pixi-vn.com/jsdoc/pixi-vn/index/interfaces/CanvasManagerInterface#animate).
-**`keyframes`** (before the `options` keyword) is the *target* state to reach — properties from the same
+[`canvas.animate`](https://jsdocs.pixi-vn.com/pixi-vn/index/interfaces/CanvasManagerInterface#animate).
+**`keyframes`** (before the `options` keyword) is the _target_ state to reach — properties from the same
 memory-shape interfaces as `edit` (`ImageSpriteMemory`, `VideoSpriteMemory`, `ImageContainerMemory`,
-`TextMemory`). **`options`** (after the `options` keyword) is *how* to get there — any
+`TextMemory`). **`options`** (after the `options` keyword) is _how_ to get there — any
 [`motion` animate option](https://motion.dev/docs/animate#options) (`duration`, `ease`, `type`,
 `repeat`, `repeatDelay`, ...) plus the extras in `PixiVNJsonAnimateBaseOptions`.
 
@@ -171,7 +171,7 @@ Common patterns: move (`xAlign`/`yAlign` keyframes), rotate (`angle`), fade (`al
 ```
 
 `# shake <alias> [<key> <value> ...]` triggers the built-in
-[`shakeEffect`](https://pixi-vn.com/jsdoc/pixi-vn/index/functions/shakeEffect) — a ready-made multi-step
+[`shakeEffect`](https://jsdocs.pixi-vn.com/pixi-vn/index/namespaces/effects/functions/shakeEffect) — a ready-made multi-step
 `canvas.animate` sequence. Parameters are the properties of `ShakeEffectProps`, all optional. The same syntax works for every other built-in effect: `bounce`, `pulse`, `hop`, `wiggle`, `nod`, `sway`,
 `punch`, `glitch`, `chromatic-aberration`, `shockwave`, `radial-blur`, `blur-pulse`, `vignette-pulse`,
 `desaturate`, `glow-pulse` (e.g. `# bounce bg`). A project can register more of its own the
