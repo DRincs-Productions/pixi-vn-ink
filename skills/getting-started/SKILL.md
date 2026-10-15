@@ -1,9 +1,9 @@
 ---
-name: pixi-vn-ink-getting-started
-description: Use when installing/configuring @drincs/pixi-vn-ink, wiring vitePluginInk and setupInkHmrListener, debugging ink via the Vite dev-server logs/API or the exported JSON, generating ink translation files, or writing/reading core ink syntax (knots, diverts, choices, weave, variables, lists) as it applies to a Pixi'VN project. Entry point for every other pixi-vn-ink-* skill — install it together with the rest of this skill set, not alone.
+name: pixi-vn-ink
+description: Use when installing/configuring @drincs/pixi-vn-ink, wiring vitePluginInk and setupInkHmrListener, debugging ink via the Vite dev-server logs/API or the exported JSON, generating ink translation files, or writing/reading core ink syntax (knots, diverts, choices, weave, variables, lists) as it applies to a Pixi'VN project. Index and entry point of the pixi-vn-ink skill set: start here, then follow the skill map to the right pixi-vn-ink-* skill — install it together with the rest of this skill set, not alone.
 ---
 
-# Pixi'VN + ink: getting started
+# Pixi'VN + ink: skill index and getting started
 
 Official docs: [pixi-vn.com/ink](https://pixi-vn.com/ink). Full native-ink language spec (Inkle):
 bundled at `reference/writing-with-ink.md` in this skill, annotated inline wherever Pixi'VN behaves
@@ -18,22 +18,33 @@ generating translation files, or writing/reviewing plain ink narrative structure
 choices, weave, variables, lists) — the parts of ink that aren't owned by a more specific skill in this
 set.
 
-This skill set is split into modules the same way `@drincs/pixi-vn`'s is, but **unlike that skill
-set, install every `pixi-vn-ink-*` module together** — they all teach one coherent "how to write ink
+This is the index of the `pixi-vn-ink` skill set. It is split into modules the same way `@drincs/pixi-vn`'s is, but **unlike that skill
+set, install every `pixi-vn-ink*` module together** — they all teach one coherent "how to write ink
 for Pixi'VN" skill, and several depend on the vocabulary/setup this module establishes (knots-as-labels,
 the storage mapping, the hashtag-command mechanism). Installing with
 `npx skills add DRincs-Productions/pixi-vn-ink --all` is the supported path; don't cherry-pick a subset.
 
-- **pixi-vn-ink-characters** — dialogue attribution, name substitution, emotions.
-- **pixi-vn-ink-input** — `# request input` prompts.
-- **pixi-vn-ink-pause-continue** — `# pause` and `<># continue`.
-- **pixi-vn-ink-markup** — Markdown/HTML/CSS inside dialogue text.
-- **pixi-vn-ink-canvas** — every canvas hashtag command.
-- **pixi-vn-ink-sound** — every sound hashtag command.
-- **pixi-vn-ink-assets** — `# load`/`# lazyload`.
-- **pixi-vn-ink-text-replacement** — `[key]` substitution.
-- **pixi-vn-ink-hashtag-commands** — how to author your own hashtag command instead of an ink function.
-- **pixi-vn-ink-migration** — upgrading an existing project to the current version.
+## Skill map: which skill to load
+
+Find the task below, then load the matching skill before writing ink or hashtag-command code.
+
+| Task | Skill |
+| --- | --- |
+| Install/configure `@drincs/pixi-vn-ink`, Vite plugin, debugging, translation files, core ink syntax (knots, diverts, choices, variables) | **pixi-vn-ink** (this skill) |
+| Attribute dialogue to a character, `[characterId]`, `id@emotion`, `# rename` | [pixi-vn-ink-characters](../characters/SKILL.md) |
+| Prompt the player for input (`# request input`) | [pixi-vn-ink-input](../input/SKILL.md) |
+| `# pause` and `<># continue` | [pixi-vn-ink-pause-continue](../pause-continue/SKILL.md) |
+| Markdown/HTML/Tailwind in dialogue text, escaping symbols | [pixi-vn-ink-markup](../markup/SKILL.md) |
+| Show/edit/remove/animate canvas elements (`# show`, `# edit`, `# remove`, ...) | [pixi-vn-ink-canvas](../canvas/SKILL.md) |
+| Play/pause/edit/stop sounds and channels | [pixi-vn-ink-sound](../sound/SKILL.md) |
+| Load/lazy-load assets and bundles (`# load`/`# lazyload`) | [pixi-vn-ink-assets](../assets/SKILL.md) |
+| Inline `[key]` substitution via `TextReplaces.add` | [pixi-vn-ink-text-replacement](../text-replacement/SKILL.md) |
+| Custom logic: write your own hashtag command instead of an ink function | [pixi-vn-ink-hashtag-commands](../hashtag-commands/SKILL.md) |
+| Upgrade the package to a newer version | [pixi-vn-ink-migration](../migration/SKILL.md) |
+
+### Core Pixi'VN skills
+
+Ink content calls into the exact same engine APIs as plain TypeScript narration, so for anything outside ink itself (`Game.init`, canvas, sound, storage, saves, history, UI, testing, ...) use the core `@drincs/pixi-vn` skill set — start from its index skill, **pixi-vn**, which maps every task to a skill. Install: `npx skills@latest add DRincs-Productions/pixi-vn@latest --skill '*' -g -y`. For exact signatures and types of the engine API, see the JSDoc reference: [jsdocs.pixi-vn.com/pixi-vn](https://jsdocs.pixi-vn.com/pixi-vn).
 
 ## Installation
 
@@ -350,9 +361,10 @@ native-ink parity, invalidate the choice explicitly: `* (shove) {!shove} [2] 2`.
 ## Related
 
 - Every other `pixi-vn-ink-*` skill in this set (install together — see above).
-- The `@drincs/pixi-vn` Agent Skills (`npx skills add DRincs-Productions/pixi-vn`) — `Game.init`, plain
-  TS narration, canvas, sound, storage, characters, saves, UI. Ink content calls into the exact same
-  APIs those skills document.
+- The `@drincs/pixi-vn` Agent Skills (`npx skills add DRincs-Productions/pixi-vn`; index skill
+  **pixi-vn**) — `Game.init`, plain TS narration, canvas, sound, storage, characters, saves, UI. Ink
+  content calls into the exact same APIs those skills document.
+- [jsdocs.pixi-vn.com/pixi-vn](https://jsdocs.pixi-vn.com/pixi-vn) — the engine's JSDoc API reference.
 - [pixi-vn.com/ink](https://pixi-vn.com/ink) — the rendered version of this integration's docs.
 - [inkle/ink](https://github.com/inkle/ink) and [inkjs](https://github.com/inkle/inkjs) — the language
   and the JS runtime this integration is built on.

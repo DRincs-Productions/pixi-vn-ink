@@ -85,7 +85,7 @@ npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all -y
 
 Available skills:
 
-- `getting-started` — installation, the Vite plugin, dev-server debugging, translation files, and core ink syntax as used in Pixi'VN
+- `getting-started` (skill `pixi-vn-ink`) — the index of the skill set: skill map, installation, the Vite plugin, dev-server debugging, translation files, and core ink syntax as used in Pixi'VN
 - `characters` — dialogue attribution, name substitution, emotions
 - `input` — `# request input` prompts
 - `pause-continue` — `# pause` and `<># continue`

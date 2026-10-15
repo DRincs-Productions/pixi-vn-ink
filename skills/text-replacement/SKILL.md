@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-text-replacement
-description: Use when ink text needs to inject the result of a JS/TS function or lookup inline with [key], via TextReplaces.add — for anything a plain {variable} interpolation can't express. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when ink text needs to inject the result of a JS/TS function or lookup inline with [key], via TextReplaces.add — for anything a plain {variable} interpolation can't express. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Text replacement: `[key]` substitution
@@ -59,7 +59,7 @@ TextReplaces.add(() => "Alice", {
 - **`type`** — `"before-translation"` (runs before `onInkTranslate`; useful to rewrite a key into an
   i18next-style `{{key}}` token first) or `"after-translation"` (default — runs after translation,
   useful when the replacement depends on the already-translated text). See
-  **pixi-vn-ink-getting-started** for how translation itself is wired up.
+  **pixi-vn-ink** for how translation itself is wired up.
 - **`i18nInterpolation`** — when `true`, the handler's replacement is applied on the *second* occurrence
   of a matched key onward; the first occurrence instead becomes `{{key}}` once, so an i18next
   interpolation slot exists in the translated string for that key. Pair this with a
@@ -88,6 +88,6 @@ Everyone just calls her Steph, but her full name is [steph_fullname].
 ## Related
 
 - **pixi-vn-ink-characters** — `[characterId]` is the most common concrete use of this mechanism.
-- **pixi-vn-ink-getting-started** — translation wiring (`onInkTranslate`), and how to inspect every
+- **pixi-vn-ink** — translation wiring (`onInkTranslate`), and how to inspect every
   currently-registered `TextReplaces` handler via the Vite dev-server API
   (`GET /__pixi-vn-ink/text-replaces`) while debugging.

@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-hashtag-commands
-description: Use when a Pixi'VN ink project needs custom logic that native ink can't express — write it as a HashtagCommands.add/addMapper handler, not an ink function (ink function definitions are silently ignored by Pixi'VN). Covers add vs addMapper, validation (regex/zod), and addBaseHashtagCommands' built-in sections. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when a Pixi'VN ink project needs custom logic that native ink can't express — write it as a HashtagCommands.add/addMapper handler, not an ink function (ink function definitions are silently ignored by Pixi'VN). Covers add vs addMapper, validation (regex/zod), and addBaseHashtagCommands' built-in sections. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Custom hashtag commands
@@ -21,7 +21,7 @@ is free to read off and interpret however it likes, or ignore entirely — ink i
 to it. **Pixi'VN ink is not "reading off tags"** — it's running a real command→operation dispatch
 system. Every `#` line in a Pixi'VN `.ink` file is tokenized into a string array (`["show", "image",
 "bg", ...]`), matched against every registered handler's `validation` rule, and — if none matches — the
-Vite dev server logs it as an **unknown hashtag command** (see **pixi-vn-ink-getting-started**'s
+Vite dev server logs it as an **unknown hashtag command** (see **pixi-vn-ink**'s
 debugging section). A `#` line is either a recognized command that does something specific and
 type-checked, or a mistake to be reported — never a value-neutral annotation the engine shrugs off.
 
@@ -138,18 +138,18 @@ effect of importing `@drincs/pixi-vn-ink` (deliberately: nothing runs until you 
 to `false` only when a project registers its own replacement for that whole group (e.g. custom canvas
 commands via `addMapper` that would otherwise collide with the built-ins) or genuinely never needs it
 and would rather a typo there be reported as a fully unknown command. `# call`/`# jump` are
-**deprecated** — use native ink `->`/`-> ->` instead (see **pixi-vn-ink-getting-started**).
+**deprecated** — use native ink `->`/`-> ->` instead (see **pixi-vn-ink**).
 
 ## Inspecting what's registered
 
 `HashtagCommands.info()` returns every registered handler's `{ name, description, validation, ... }` —
 this is exactly what the Vite dev server's `GET /__pixi-vn-ink/hashtag-commands` endpoint serves (see
-**pixi-vn-ink-getting-started**'s debugging section). Query it instead of guessing whether a command
+**pixi-vn-ink**'s debugging section). Query it instead of guessing whether a command
 exists or what shape it expects.
 
 ## Related
 
-- **pixi-vn-ink-getting-started** — why ink `function` is ignored, the dev-server debugging workflow,
+- **pixi-vn-ink** — why ink `function` is ignored, the dev-server debugging workflow,
   and installation.
 - **pixi-vn-ink-canvas** / **-sound** / **-assets** / **-input** / **-pause-continue** — every built-in
   command this mechanism ships.

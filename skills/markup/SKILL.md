@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-markup
-description: Use when ink dialogue text needs bold/italic/links via Markdown, raw HTML, or Tailwind CSS classes, or when a symbol shared between Markdown and ink syntax (#, *, /, ~, -, |) needs escaping. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when ink dialogue text needs bold/italic/links via Markdown, raw HTML, or Tailwind CSS classes, or when a symbol shared between Markdown and ink syntax (#, *, /, ~, -, |) needs escaping. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Markup language and CSS in ink
@@ -89,7 +89,7 @@ persistent underline) — default to Markdown's own inline syntax otherwise.
 
 ## Related
 
-- **pixi-vn-ink-getting-started** — installation and general ink/Pixi'VN vocabulary.
+- **pixi-vn-ink** — installation and general ink/Pixi'VN vocabulary.
 - [pixi-vn.com/start/markup](https://pixi-vn.com/start/markup),
   [markup-markdown](https://pixi-vn.com/start/markup-markdown),
   [markup-tailwindcss](https://pixi-vn.com/start/markup-tailwindcss) — the JS/TS side of wiring up a

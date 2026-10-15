@@ -1,13 +1,13 @@
 ---
 name: pixi-vn-ink-assets
-description: Use when an ink script needs to load or lazy-load images, audio, video, or an asset bundle before/while a knot runs, via # load and # lazyload. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when an ink script needs to load or lazy-load images, audio, video, or an asset bundle before/while a knot runs, via # load and # lazyload. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Assets from ink
 
 Official docs: [pixi-vn.com/ink/assets](https://pixi-vn.com/ink/assets). Requires
 `addBaseHashtagCommands()` to have run (its `assets` section, on by default) — see
-**pixi-vn-ink-getting-started**. Assumes the [asset
+**pixi-vn-ink**. Assumes the [asset
 manifest](https://pixi-vn.com/start/assets-management#initialize-the-asset-matrix-at-project-start) is
 already initialized in JS/TS — this only covers triggering a load from ink.
 
@@ -46,7 +46,7 @@ what a *later* scene will need while the player is still reading the current one
 the arrays [`vitePluginPixivn`'s `typeFilePath` generates](https://pixi-vn.com/start#the-vite-plugin-drincspixi-vnvite))
 makes `# load`/`# lazyload` validate the alias against that known list at parse time instead of
 accepting any string — a typo'd alias then surfaces as an "unknown hashtag command" warning in the Vite
-dev-server log (see **pixi-vn-ink-getting-started**) instead of failing silently or only at runtime.
+dev-server log (see **pixi-vn-ink**) instead of failing silently or only at runtime.
 
 ```ts title="content/ink/hashtag-commands.ts"
 import { assetAliasIds, bundleIds } from "@/pixi-vn.keys.gen";

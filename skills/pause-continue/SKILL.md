@@ -1,13 +1,13 @@
 ---
 name: pixi-vn-ink-pause-continue
-description: Use when an ink script needs to hold on a canvas/sound change without printing dialogue (# pause), or needs to show a line of dialogue and its choice menu together in a single step (<># continue). Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when an ink script needs to hold on a canvas/sound change without printing dialogue (# pause), or needs to show a line of dialogue and its choice menu together in a single step (<># continue). Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Pause and continue
 
 Official docs: [pixi-vn.com/ink/other-narrative-features](https://pixi-vn.com/ink/other-narrative-features).
 Requires `addBaseHashtagCommands()` to have run (its `narration` section, on by default) — see
-**pixi-vn-ink-getting-started**.
+**pixi-vn-ink**.
 
 ## When to use this skill
 
@@ -77,7 +77,7 @@ mechanisms.
 
 - **pixi-vn-ink-hashtag-commands** — `# pause`/`# continue` are ordinary hashtag commands, not special
   syntax; this is where to look to register a similar one-off flow-control command of your own.
-- **pixi-vn-ink-getting-started** — "Diverting in the same step", the closely related native-ink
+- **pixi-vn-ink** — "Diverting in the same step", the closely related native-ink
   glue/timing rule for diverts specifically.
 - [pixi-vn.com/start/labels-flow](https://pixi-vn.com/start/labels-flow) — the underlying
   `narration.continue`/`canContinue` mechanics these commands manipulate.

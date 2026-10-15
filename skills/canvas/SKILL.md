@@ -1,13 +1,13 @@
 ---
 name: pixi-vn-ink-canvas
-description: Use when an ink script needs to show, edit, remove, pause/resume, animate, shake, or clear canvas elements — images, image containers, video, or text — via hashtag commands like # show, # edit, # remove, # animate, # shake, and # clear canvas. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when an ink script needs to show, edit, remove, pause/resume, animate, shake, or clear canvas elements — images, image containers, video, or text — via hashtag commands like # show, # edit, # remove, # animate, # shake, and # clear canvas. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Canvas from ink
 
 Official docs: [pixi-vn.com/ink/canvas](https://pixi-vn.com/ink/canvas). Requires
 `addBaseHashtagCommands()` to have run (its `canvas` section, on by default) — see
-**pixi-vn-ink-getting-started**. Assumes [Pixi'VN canvas
+**pixi-vn-ink**. Assumes [Pixi'VN canvas
 components](https://pixi-vn.com/start/canvas-components) as a concept — this covers driving them from
 ink, not the underlying JS/TS canvas API.
 

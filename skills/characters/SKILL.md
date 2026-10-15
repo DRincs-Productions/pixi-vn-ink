@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-characters
-description: Use when attributing ink dialogue to a Character, printing a character's name inline with [characterId], writing character emotions with the id@emotion syntax, or renaming a character from ink with # rename. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when attributing ink dialogue to a Character, printing a character's name inline with [characterId], writing character emotions with the id@emotion syntax, or renaming a character from ink with # rename. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Characters in ink
@@ -139,6 +139,6 @@ why this is registered as a plain `add` handler (it mutates game state directly 
 
 - **pixi-vn-ink-text-replacement** — the general `[key]` mechanism `[characterId]` is built on.
 - **pixi-vn-ink-hashtag-commands** — how `# rename` (and any other custom command) is registered.
-- **pixi-vn-ink-getting-started** — knots-as-labels, storage mapping, installation.
+- **pixi-vn-ink** — knots-as-labels, storage mapping, installation.
 - [pixi-vn.com/start/character](https://pixi-vn.com/start/character) — defining `CharacterBaseModel`s
   in JS/TS in the first place.

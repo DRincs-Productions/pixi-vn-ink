@@ -15,7 +15,7 @@ Use this skill whenever a task is "upgrade this project's `@drincs/pixi-vn-ink` 
 latest", or a developer reports that ink hashtag commands (`# show`, `# play sound`, ...) that used to
 work now silently do nothing after a dependency bump. Check the currently installed version first
 (`package.json` dependency, or the `version` field returned by the Vite dev-server's
-`GET /__pixi-vn-ink/info` endpoint at runtime — see **pixi-vn-ink-getting-started**), then walk forward
+`GET /__pixi-vn-ink/info` endpoint at runtime — see **pixi-vn-ink**), then walk forward
 through only the version sections below that fall between the installed version and the target — most
 of these changes don't apply unless a project is crossing that specific boundary.
 
@@ -34,7 +34,7 @@ addBaseHashtagCommands(); // [!code ++]
 Call it once, near the start of the app, before any ink content is parsed (every official template
 already does this). Symptom if this step is missed after upgrading: every built-in `#` command in
 existing `.ink` files silently does nothing at runtime, and the Vite dev server logs each one as an
-**unknown hashtag command** (see **pixi-vn-ink-getting-started**'s debugging section) — that log output
+**unknown hashtag command** (see **pixi-vn-ink**'s debugging section) — that log output
 is the fastest way to confirm this is the cause.
 
 `addBaseHashtagCommands` also gained optional configuration in this same generation (`bundleIds`/
@@ -44,7 +44,7 @@ passing no options at all preserves the pre-v1.1.0 behavior of registering every
 
 ## Related skills
 
-- **pixi-vn-ink-getting-started** — current installation, the Vite plugin, and the dev-server
+- **pixi-vn-ink** — current installation, the Vite plugin, and the dev-server
   debugging workflow (logs + `GET /__pixi-vn-ink/*` endpoints) referenced above.
 - **pixi-vn-ink-hashtag-commands** — current `addBaseHashtagCommands`/`HashtagCommands` API.
 - **pixi-vn-ink-assets** — current `bundleIds`/`assetAliasIds` validation option.

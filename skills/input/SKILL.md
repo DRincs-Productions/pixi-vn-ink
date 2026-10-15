@@ -1,13 +1,13 @@
 ---
 name: pixi-vn-ink-input
-description: Use when an ink script needs to prompt the player for text, numeric, or HTML input with # request input, or read the entered value back into the narration. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink-getting-started.
+description: Use when an ink script needs to prompt the player for text, numeric, or HTML input with # request input, or read the entered value back into the narration. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
 
 # Input prompts in ink
 
 Official docs: [pixi-vn.com/ink/input](https://pixi-vn.com/ink/input). Requires
 `addBaseHashtagCommands()` to have run (its `narration` section, on by default) — see
-**pixi-vn-ink-getting-started**.
+**pixi-vn-ink**.
 
 ## When to use this skill
 
@@ -57,7 +57,7 @@ control) before the next prompt overwrites it if the value needs to survive long
 
 ## Related
 
-- **pixi-vn-ink-getting-started** — the hashtag-command mechanism this is built on, and the storage
+- **pixi-vn-ink** — the hashtag-command mechanism this is built on, and the storage
   model `_input_value_` lives in.
 - **pixi-vn-ink-characters** — combine with `# rename mc {_input_value_}` to let the player name a
   character.
