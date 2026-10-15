@@ -12,6 +12,10 @@ This library lets [Pixi’VN](https://pixi-vn.com) games be written in [ink](htt
 
 The goal is to handle ink correctly and completely, and to expose Pixi’VN features through ink in a way that stays idiomatic.
 
+## Language
+
+English is the primary language of this project: write code, comments, documentation (`README.md`, `skills/`), commit messages, and PR descriptions in English, even if the conversation with the user happens in another language.
+
 ## Ink references
 
 Always consult the official ink documentation when touching parsing, conversion or runtime behaviour:

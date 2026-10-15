@@ -44,7 +44,7 @@ Find the task below, then load the matching skill before writing ink or hashtag-
 
 ### Core Pixi'VN skills
 
-Ink content calls into the exact same engine APIs as plain TypeScript narration, so for anything outside ink itself (`Game.init`, canvas, sound, storage, saves, history, UI, testing, ...) use the core `@drincs/pixi-vn` skill set — start from its index skill, **pixi-vn**, which maps every task to a skill. Install: `npx skills@latest add DRincs-Productions/pixi-vn@latest --skill '*' -g -y`. For exact signatures and types of the engine API, see the JSDoc reference: [jsdocs.pixi-vn.com/pixi-vn](https://jsdocs.pixi-vn.com/pixi-vn).
+Ink content calls into the exact same engine APIs as plain TypeScript narration, so for anything outside ink itself (`Game.init`, canvas, sound, storage, saves, history, UI, testing, ...) use the core `@drincs/pixi-vn` skill set — start from its index skill, **pixi-vn**, which maps every task to a skill. Install: `npx skills@latest add DRincs-Productions/pixi-vn@latest --skill '*' -g -y`. For exact signatures and types of the engine API, see the JSDoc reference: [jsdocs.pixi-vn.com/pixi-vn](https://jsdocs.pixi-vn.com/pixi-vn). For this library's own API, see [jsdocs.pixi-vn.com/pixi-vn-ink](https://jsdocs.pixi-vn.com/pixi-vn-ink).
 
 ## Installation
 
@@ -365,6 +365,8 @@ native-ink parity, invalidate the choice explicitly: `* (shove) {!shove} [2] 2`.
   **pixi-vn**) — `Game.init`, plain TS narration, canvas, sound, storage, characters, saves, UI. Ink
   content calls into the exact same APIs those skills document.
 - [jsdocs.pixi-vn.com/pixi-vn](https://jsdocs.pixi-vn.com/pixi-vn) — the engine's JSDoc API reference.
+- [jsdocs.pixi-vn.com/pixi-vn-ink](https://jsdocs.pixi-vn.com/pixi-vn-ink) — this library's JSDoc API reference
+  (`importInkText`, `HashtagCommands`, `onInkTranslate`, the Vite plugin, ...).
 - [pixi-vn.com/ink](https://pixi-vn.com/ink) — the rendered version of this integration's docs.
 - [inkle/ink](https://github.com/inkle/ink) and [inkjs](https://github.com/inkle/inkjs) — the language
   and the JS runtime this integration is built on.

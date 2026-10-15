@@ -59,6 +59,10 @@ declare module "*.ink" {
 }
 ```
 
+## API reference
+
+The JSDoc API reference for this library is available at [jsdocs.pixi-vn.com/pixi-vn-ink](https://jsdocs.pixi-vn.com/pixi-vn-ink).
+
 ## Agent Skills
 
 Pixi'VN ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants how to correctly use each part of the engine.
