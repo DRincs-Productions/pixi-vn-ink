@@ -32,6 +32,10 @@ constraints. Recognized parameters (both optional):
 This blocks `narration.canContinue` — the UI must resolve the prompt (via whatever input component your
 project renders) before the story advances to the next step; there is no timeout or fallback built in.
 
+Treat the submitted value as untrusted player content. Use this prompt for ordinary game input such as
+names or story choices, never for passwords, API keys, tokens, or other credentials. The UI should render
+the value as text and apply the validation or escaping appropriate to its input component.
+
 ## Reading the value back
 
 The submitted value is written into storage under the system key `_input_value_`, so ink can read it
