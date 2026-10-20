@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Pixi'VN Ink local package smoke test</title>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@drincs/pixi-vn-ink": "/dist/index.mjs"
+                }
+            }
+        </script>
+    </head>
+    <body data-status="loading">
+        <main id="result">Loading local Pixi'VN Ink package…</main>
+        <script type="module">
+            const result = document.querySelector("#result");
+
+            try {
+                const { convertInkToJson } = await import("@drincs/pixi-vn-ink");
+                const json = convertInkToJson(`
+=== start ===
+Hello from the local CDN-style smoke test.
+-> END
+`);
+
+                if (json?.labels?.start?.[0]?.dialogue !== "Hello from the local CDN-style smoke test.") {
+                    throw new Error("The local Ink package did not compile the sample label correctly");
+                }
+
+                document.body.dataset.status = "passed";
+                result.textContent = "Loaded the local Pixi'VN Ink package and compiled a sample Ink label.";
+            } catch (error) {
+                document.body.dataset.status = "failed";
+                result.textContent = error instanceof Error ? error.stack || error.message : String(error);
+            }
+        </script>
+    </body>
+</html>

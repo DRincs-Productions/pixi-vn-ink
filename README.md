@@ -32,6 +32,16 @@ To install the package, run the following command in your project:
 npm install @drincs/pixi-vn-ink
 ```
 
+## Development
+
+Use Node.js 20.19.0 or newer to run the tests and use Vite 8. The release build uses `tsup@9` and requires Node.js 22.18.0 or newer. Package metadata does not enforce these versions.
+
+```sh
+npm ci
+npm test
+npm run build
+```
+
 ## Start using _ink_ in Pixi’VN
 
 If you have not created a project yet then it is recommended to use the [template](https://pixi-vn.com/start/getting-started.html#project-initialization) to start your project with **_ink_**.

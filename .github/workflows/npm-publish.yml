@@ -3,6 +3,9 @@
 
 name: Node.js Package
 
+permissions:
+  contents: read
+
 on:
   push:
     tags:
@@ -22,25 +25,29 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    strategy:
+      matrix:
+        node-version: ["20.19.0", "22.18.0", "24"]
     steps:
-      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
-      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.12.0
-      - run: npm i
-      - run: npm ci
-      - run: npm run build
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci --workspaces=false
       - run: npm test
+      - run: npm run test:cdn
+        if: matrix.node-version != '20.19.0'
 
   validate-skills:
     name: Validate Agent Skills
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
-      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.12.0
+          node-version: 24
+      - run: npm ci --workspaces=false
       - run: npm run skills:validate
 
   publish-npm:
@@ -49,15 +56,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
-      - uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.12.0
+          node-version: 24
           registry-url: https://registry.npmjs.org/
-      - run: |
-          npm i
-          npm ci
-          npm run build
+      - run: npm ci --workspaces=false
+      - run: npm run build
       - run: npm publish -f
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -70,7 +75,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Extract dependency versions
         id: versions
         run: |
@@ -100,15 +105,15 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24.12.0
+          node-version: 24
 
       - name: Install deps
-        run: npm i
+        run: npm ci --workspaces=false
 
       - name: Generate docs
         run: npm run docs
