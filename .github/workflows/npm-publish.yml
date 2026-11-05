@@ -18,7 +18,7 @@ on:
         required: false
         default: "false"
 
-run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
+run-name: ${{ github.workflow }} for ${{ github.ref_name }} by @${{ github.actor }}
 
 jobs:
   test:
