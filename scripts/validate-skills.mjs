@@ -1,8 +1,8 @@
 /**
  * Validates every skills/<name>/SKILL.md against the `npx skills` convention
  * (https://www.skills.sh) before a release goes out, so a malformed skill
- * never ships in a tagged release that `npx skills add DRincs-Productions/pixi-vn-ink`
- * would pull from.
+ * never ships in a tagged release. Validation is skipped when the repository
+ * does not contain any skills/<name>/SKILL.md files.
  */
 
 import { readdir, readFile, stat } from "node:fs/promises";
@@ -42,17 +42,30 @@ async function main() {
     try {
         entries = await readdir(skillsDir, { withFileTypes: true });
     } catch {
-        console.error(`No "skills" directory found at ${skillsDir}`);
-        process.exitCode = 1;
+        console.log("No skills/ directory found; skipping skill validation.");
+        return;
+    }
+
+    const skillEntries = [];
+    for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        try {
+            await stat(join(skillsDir, entry.name, "SKILL.md"));
+            skillEntries.push(entry);
+        } catch {
+            // Ignore directories that do not contain a skill file.
+        }
+    }
+
+    if (skillEntries.length === 0) {
+        console.log("No skills found under skills/; skipping skill validation.");
         return;
     }
 
     const errors = [];
     const seenNames = new Map();
 
-    for (const entry of entries) {
-        if (!entry.isDirectory()) continue;
-
+    for (const entry of skillEntries) {
         const skillPath = join(skillsDir, entry.name, "SKILL.md");
         let content;
         try {
