@@ -4,7 +4,7 @@ import type {
     MapperHandler,
 } from "@/handlers/interfaces/HashtagHandler";
 import { logger } from "@/utils/log-utility";
-import { registerAnimatedSpriteCommands } from "./animated-sprite";
+import { registerAnimatedSpriteMappers } from "./animated-sprite";
 import { TRANSITION_TYPES } from "./canvas-transitions";
 import type { StepLabelProps } from "@drincs/pixi-vn";
 import type {
@@ -721,7 +721,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
     }
 
     if (includeCanvas) {
-        registerAnimatedSpriteCommands();
+        registerAnimatedSpriteMappers();
         HashtagCommands.addMapper(
             (list) => ({
                 type: "video",

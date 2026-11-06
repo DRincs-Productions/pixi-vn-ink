@@ -1,4 +1,5 @@
 ---
+
 name: pixi-vn-ink-canvas
 description: Use when an ink script needs to show, edit, remove, pause/resume, animate, shake, or clear canvas elements — images, image containers, video, or text — via hashtag commands like # show, # edit, # remove, # animate, # shake, and # clear canvas. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
@@ -22,7 +23,7 @@ canvas.
 
 ### Animated sprites (v1.4.0)
 
-Requires `@drincs/pixi-vn >=1.9.9`. Use `asprite` to show and control spritesheet animations.
+Requires `@drincs/pixi-vn >=1.9.9` and `@drincs/pixi-vn-json >=1.16.0`. Use `asprite` to show and control spritesheet animations.
 
 ```ink
 # show asprite hero heroSheet animation walk useFrameDurations true
@@ -39,8 +40,12 @@ property selects another sheet. `animation`, `frames`, and `useFrameDurations` b
 Remaining properties configure the component. Editing source properties reloads its frames.
 `goto` uses a zero-based frame index and preserves the current playing state. Show commands support
 the existing entrance transitions. Remove commands support the existing canvas removal transitions.
-These commands are deferred during compilation and handled by the registered canvas runtime handlers.
-Register `addBaseHashtagCommands()` at runtime as well as when compiling.
+Like `image`/`video`, these commands are built-in mappers: compilation converts them into static
+`type: "asprite"` JSON operations (e.g. `{ "type": "asprite", "operationType": "goto", "alias":
+"hero", "frame": 2 }`), which `@drincs/pixi-vn-json` executes. Invalid commands (unknown transition,
+transition on `edit`, missing or non-integer `goto` frame, extra `pause`/`resume`/`goto`
+arguments) are not converted and raise an error when the
+step runs.
 
 Spritesheets converted from Aseprite or LibreSprite use the same commands. Their tags are animation
 names. Source format metadata is available to application code in the generated spritesheet JSON.
