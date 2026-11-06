@@ -1,17 +1,14 @@
 import {
-    AnimatedSprite,
-    canvas,
-    showAnimatedSprite,
-    type AnimatedSpriteSource,
-    type AnimatedSpriteOptions,
-} from "@drincs/pixi-vn/canvas";
-import {
-    canvasElementOperation,
-    executeEntranceTransition,
+    animatedSpriteOperation,
     ENTRANCE_TRANSITION_TYPES,
     type EntranceTransitionType,
 } from "@drincs/pixi-vn-json/actions";
-import type { PixiVNJsonMediaTransiotions } from "@drincs/pixi-vn-json";
+import type {
+    PixiVNJsonAnimatedSpriteEdit,
+    PixiVNJsonCanvasAnimatedSpriteShow,
+    PixiVNJsonMediaTransiotions,
+} from "@drincs/pixi-vn-json";
+import type { AnimatedSpriteSource } from "@drincs/pixi-vn/canvas";
 import { HashtagCommands } from "./hashtag-commands";
 import { TRANSITION_TYPES } from "./canvas-transitions";
 import JSON5 from "json5";
@@ -46,8 +43,8 @@ export function registerAnimatedSpriteCommands() {
                 }
             }
             if (verb === "remove") {
-                await canvasElementOperation({
-                    type: "canvaselement",
+                await animatedSpriteOperation({
+                    type: "asprite",
                     operationType: "remove",
                     alias,
                     ...(transition
@@ -89,40 +86,45 @@ export function registerAnimatedSpriteCommands() {
                     }
                 }
                 if (verb === "show") {
-                    const component = await showAnimatedSprite(
+                    const operation: PixiVNJsonCanvasAnimatedSpriteShow = {
+                        type: "asprite",
+                        operationType: "show",
                         alias,
                         source,
-                        values as AnimatedSpriteOptions,
-                    );
-                    if (transition)
-                        await executeEntranceTransition(
-                            alias,
-                            component,
-                            transition as EntranceTransitionType,
-                            transitionProps,
-                        );
+                        props: values as PixiVNJsonCanvasAnimatedSpriteShow["props"],
+                        ...(transition
+                            ? {
+                                  transition: {
+                                      type: transition as EntranceTransitionType,
+                                      props: transitionProps,
+                                  } as PixiVNJsonMediaTransiotions,
+                              }
+                            : {}),
+                    };
+                    await animatedSpriteOperation(operation);
                 } else {
-                    const component = canvas.find<AnimatedSprite>(alias);
-                    if (!(component instanceof AnimatedSprite))
-                        throw new Error(`Animated sprite "${alias}" was not found.`);
-                    Object.assign(component, values);
-                    if (Object.keys(source).length) {
-                        component.source = { ...component.source, ...source };
-                        await component.load();
-                    }
+                    const props: PixiVNJsonAnimatedSpriteEdit["props"] = {
+                        ...values,
+                        ...(Object.keys(source).length > 0 ? { source } : {}),
+                    } as PixiVNJsonAnimatedSpriteEdit["props"];
+                    await animatedSpriteOperation({
+                        type: "asprite",
+                        operationType: "edit",
+                        alias,
+                        props,
+                    });
                 }
                 return true;
             }
-            const component = canvas.find<AnimatedSprite>(alias);
-            if (!(component instanceof AnimatedSprite))
-                throw new Error(`Animated sprite "${alias}" was not found.`);
-            if (verb === "pause") component.stop();
-            if (verb === "resume") component.play();
             if (verb === "goto") {
-                const frame = Number(args[0]);
-                if (!Number.isInteger(frame) || frame < 0)
-                    throw new Error("Animated sprite frame must be a non-negative integer.");
-                component.setFrame(frame);
+                await animatedSpriteOperation({
+                    type: "asprite",
+                    operationType: "goto",
+                    alias,
+                    frame: Number(args[0]),
+                });
+            } else if (verb === "pause" || verb === "resume") {
+                await animatedSpriteOperation({ type: "asprite", operationType: verb, alias });
             }
             return true;
         },
