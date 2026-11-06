@@ -27,6 +27,10 @@ Always consult the official ink documentation when touching parsing, conversion 
 
 ## Differences from standard ink
 
+- **Animated sprites (v1.4.0)** use `show/edit/remove/pause/resume/goto asprite` and require
+  Pixi'VN v1.9.9. They execute through canvas runtime handlers after deferred command conversion.
+  Keep their source properties separate from display options. See `skills/canvas`.
+
 Standard ink is the baseline; anything that deviates from it must be documented. When you add or change such behaviour, update this list **and** the relevant skill.
 
 - **Hashtag commands**: tags starting with `#` can run Pixi’VN operations (`# show image …`, `# shake …`, `# play sound …`, `# jump`, …) with optional transitions (`with dissolve|fade|…`) and effects. Custom ones are registered through `HashtagCommands`. See `skills/hashtag-commands` and `skills/canvas`.

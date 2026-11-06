@@ -20,6 +20,31 @@ canvas.
 
 ## Component types
 
+### Animated sprites (v1.4.0)
+
+Requires `@drincs/pixi-vn >=1.9.9`. Use `asprite` to show and control spritesheet animations.
+
+```ink
+# show asprite hero heroSheet animation walk useFrameDurations true
+# show asprite blink heroSheet frames [ eyes_open.png eyes_closed.png ]
+# pause asprite hero
+# resume asprite hero
+# edit asprite hero animationSpeed 0.5 loop false
+# goto asprite hero 2
+# remove asprite hero with moveout duration 1
+```
+
+The spritesheet defaults to the component alias. A positional spritesheet alias or the `spritesheet`
+property selects another sheet. `animation`, `frames`, and `useFrameDurations` belong to the source.
+Remaining properties configure the component. Editing source properties reloads its frames.
+`goto` uses a zero-based frame index and preserves the current playing state. Show commands support
+the existing entrance transitions. Remove commands support the existing canvas removal transitions.
+These commands are deferred during compilation and handled by the registered canvas runtime handlers.
+Register `addBaseHashtagCommands()` at runtime as well as when compiling.
+
+Spritesheets converted from Aseprite or LibreSprite use the same commands. Their tags are animation
+names. Source format metadata is available to application code in the generated spritesheet JSON.
+
 Every command below targets one of: `image`, `imagecontainer` (a composite sprite built from several
 layered textures — e.g. body + eyes + mouth), `video`, `text`, or (edit/remove only) the generic
 `canvaselement`. All commands share the same shape:

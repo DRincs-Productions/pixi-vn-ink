@@ -4,6 +4,8 @@ import type {
     MapperHandler,
 } from "@/handlers/interfaces/HashtagHandler";
 import { logger } from "@/utils/log-utility";
+import { registerAnimatedSpriteCommands } from "./animated-sprite";
+import { TRANSITION_TYPES } from "./canvas-transitions";
 import type { StepLabelProps } from "@drincs/pixi-vn";
 import type {
     PixiVNJsonCanvasAnimate,
@@ -14,43 +16,6 @@ import type {
 } from "@drincs/pixi-vn-json";
 import JSON5 from "json5";
 import z, { ZodType } from "zod";
-
-const TRANSITION_TYPES: PixiVNJsonMediaTransiotions["type"][] = [
-    "dissolve",
-    "fade",
-    "movein",
-    "moveout",
-    "zoomin",
-    "zoomout",
-    "pushin",
-    "pushout",
-    "wipein",
-    "wipeout",
-    "irisin",
-    "irisout",
-    "splitin",
-    "splitout",
-    "blurin",
-    "blurout",
-    "pixelatein",
-    "pixelateout",
-    "flashin",
-    "flashout",
-    "glitchin",
-    "glitchout",
-    "twistin",
-    "twistout",
-    "warpin",
-    "warpout",
-    "ripplein",
-    "rippleout",
-    "noisedissolvein",
-    "noisedissolveout",
-    "tvin",
-    "tvout",
-    "pinchin",
-    "pinchout",
-];
 
 const EFFECT_TYPES: PixiVNJsonCanvasEffect["type"][] = [
     "shake",
@@ -756,6 +721,7 @@ export function addBaseHashtagCommands(options: BaseHashtagCommandsOptions = {})
     }
 
     if (includeCanvas) {
+        registerAnimatedSpriteCommands();
         HashtagCommands.addMapper(
             (list) => ({
                 type: "video",
