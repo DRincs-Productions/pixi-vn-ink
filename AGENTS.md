@@ -27,6 +27,16 @@ Always consult the official ink documentation when touching parsing, conversion 
 
 ## Differences from standard ink
 
+- **Animated sprites (v1.4.0)** use `show/edit/remove/pause/resume/goto asprite` and require
+  `@drincs/pixi-vn` >=1.9.9 and `@drincs/pixi-vn-json` >=1.16.0. Ink only parses and maps the
+  syntax (it never calls `animatedSpriteOperation` or PixiJS). Keep their source properties
+  separate from display options. See `skills/canvas`.
+- **Built-in canvas hashtag commands** (`image`, `video`, `asprite`, …) must be registered with
+  `HashtagCommands.addMapper` and converted at compile time into static `PixiVNJsonOperation`s;
+  executing them belongs to `@drincs/pixi-vn-json`. Mappers throw on invalid input so the command
+  is deferred and fails at runtime like other mappers. Only use runtime `HashtagCommands.add`
+  handlers for behaviour that cannot be represented as a JSON operation.
+
 Standard ink is the baseline; anything that deviates from it must be documented. When you add or change such behaviour, update this list **and** the relevant skill.
 
 - **Hashtag commands**: tags starting with `#` can run Pixi’VN operations (`# show image …`, `# shake …`, `# play sound …`, `# jump`, …) with optional transitions (`with dissolve|fade|…`) and effects. Custom ones are registered through `HashtagCommands`. See `skills/hashtag-commands` and `skills/canvas`.

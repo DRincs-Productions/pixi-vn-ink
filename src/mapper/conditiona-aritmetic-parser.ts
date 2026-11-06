@@ -22,12 +22,19 @@ import type {
     PixiVNJsonValueGet,
 } from "@drincs/pixi-vn-json/schema";
 
+type ConditionalArithmeticItem =
+    | PixiVNJsonArithmeticOperations
+    | PixiVNJsonValueGet
+    | StorageElementType
+    | PixiVNJsonConditions
+    | PixiVNJsonFunction;
+
 export function conditionaAritmeticParser(
     list: any[],
     labelKey: string,
     paramNames: string[],
     shared: MapperSharedType,
-) {
+): ConditionalArithmeticItem[] {
     const { functions } = shared;
     list = list.map((item) => {
         if (typeof item === "string") {
@@ -40,13 +47,7 @@ export function conditionaAritmeticParser(
         }
         return item;
     });
-    const conditions: (
-        | PixiVNJsonArithmeticOperations
-        | PixiVNJsonValueGet
-        | StorageElementType
-        | PixiVNJsonConditions
-        | PixiVNJsonFunction
-    )[] = [];
+    const conditions: ConditionalArithmeticItem[] = [];
     list.forEach((item) => {
         if (typeof item === "string") {
             switch (item) {

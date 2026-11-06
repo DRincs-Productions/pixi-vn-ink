@@ -1,4 +1,5 @@
 ---
+
 name: pixi-vn-ink-canvas
 description: Use when an ink script needs to show, edit, remove, pause/resume, animate, shake, or clear canvas elements — images, image containers, video, or text — via hashtag commands like # show, # edit, # remove, # animate, # shake, and # clear canvas. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
 ---
@@ -19,6 +20,35 @@ transition), run a `motion`-driven animation on it, trigger a shake/bounce effec
 canvas.
 
 ## Component types
+
+### Animated sprites (v1.4.0)
+
+Requires `@drincs/pixi-vn >=1.9.9` and `@drincs/pixi-vn-json >=1.16.0`. Use `asprite` to show and control spritesheet animations.
+
+```ink
+# show asprite hero heroSheet animation walk useFrameDurations true
+# show asprite blink heroSheet frames [ eyes_open.png eyes_closed.png ]
+# pause asprite hero
+# resume asprite hero
+# edit asprite hero animationSpeed 0.5 loop false
+# goto asprite hero 2
+# remove asprite hero with moveout duration 1
+```
+
+The spritesheet defaults to the component alias. A positional spritesheet alias or the `spritesheet`
+property selects another sheet. `animation`, `frames`, and `useFrameDurations` belong to the source.
+Remaining properties configure the component. Editing source properties reloads its frames.
+`goto` uses a zero-based frame index and preserves the current playing state. Show commands support
+the existing entrance transitions. Remove commands support the existing canvas removal transitions.
+Like `image`/`video`, these commands are built-in mappers: compilation converts them into static
+`type: "asprite"` JSON operations (e.g. `{ "type": "asprite", "operationType": "goto", "alias":
+"hero", "frame": 2 }`), which `@drincs/pixi-vn-json` executes. Invalid commands (unknown transition,
+transition on `edit`, missing or non-integer `goto` frame, extra `pause`/`resume`/`goto`
+arguments) are not converted and raise an error when the
+step runs.
+
+Spritesheets converted from Aseprite or LibreSprite use the same commands. Their tags are animation
+names. Source format metadata is available to application code in the generated spritesheet JSON.
 
 Every command below targets one of: `image`, `imagecontainer` (a composite sprite built from several
 layered textures — e.g. body + eyes + mouth), `video`, `text`, or (edit/remove only) the generic
