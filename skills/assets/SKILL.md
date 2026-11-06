@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-assets
-description: Use when an ink script needs to load or lazy-load images, audio, video, or an asset bundle before/while a knot runs, via # load and # lazyload. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
+description: "Use when an ink script needs to load or lazy-load images, audio, video, or an asset bundle before/while a knot runs, via # load and # lazyload. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink."
 ---
 
 # Assets from ink

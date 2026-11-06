@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-characters
-description: Use when attributing ink dialogue to a Character, printing a character's name inline with [characterId], writing character emotions with the id@emotion syntax, or renaming a character from ink with # rename. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
+description: "Use when attributing ink dialogue to a Character, printing a character's name inline with [characterId], writing character emotions with the id@emotion syntax, or renaming a character from ink with # rename. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink."
 ---
 
 # Characters in ink

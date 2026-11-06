@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink
-description: Use when installing/configuring @drincs/pixi-vn-ink, wiring vitePluginInk and setupInkHmrListener, debugging ink via the Vite dev-server logs/API or the exported JSON, generating ink translation files, or writing/reading core ink syntax (knots, diverts, choices, weave, variables, lists) as it applies to a Pixi'VN project. Index and entry point of the pixi-vn-ink skill set: start here, then follow the skill map to the right pixi-vn-ink-* skill — install it together with the rest of this skill set, not alone.
+description: "Use when installing/configuring @drincs/pixi-vn-ink, wiring vitePluginInk and setupInkHmrListener, debugging ink via the Vite dev-server logs/API or the exported JSON, generating ink translation files, or writing/reading core ink syntax (knots, diverts, choices, weave, variables, lists) as it applies to a Pixi'VN project. Index and entry point of the pixi-vn-ink skill set: start here, then follow the skill map to the right pixi-vn-ink-* skill — install it together with the rest of this skill set, not alone."
 ---
 
 # Pixi'VN + ink: skill index and getting started

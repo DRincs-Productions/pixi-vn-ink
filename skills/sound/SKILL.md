@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-sound
-description: Use when an ink script needs to play, pause, resume, edit, or stop a sound/music track or an audio channel via hashtag commands like # play sound, # pause sound, # edit sound, and # stop sound. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
+description: "Use when an ink script needs to play, pause, resume, edit, or stop a sound/music track or an audio channel via hashtag commands like # play sound, # pause sound, # edit sound, and # stop sound. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink."
 ---
 
 # Sounds and music from ink

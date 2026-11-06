@@ -1,6 +1,6 @@
 ---
 name: pixi-vn-ink-input
-description: Use when an ink script needs to prompt the player for text, numeric, or HTML input with # request input, or read the entered value back into the narration. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink.
+description: "Use when an ink script needs to prompt the player for text, numeric, or HTML input with # request input, or read the entered value back into the narration. Part of the pixi-vn-ink skill set — install alongside pixi-vn-ink."
 ---
 
 # Input prompts in ink
