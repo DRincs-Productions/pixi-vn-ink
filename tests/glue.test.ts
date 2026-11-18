@@ -530,6 +530,8 @@ Ready?-> next
 <> Go!
 `);
     expect(resSameLine).toEqual(expectedSameLine);
+    expectJsonInkRoundTrip(expectedNewLine);
+    expectJsonInkRoundTrip(expectedSameLine);
 });
 
 /**

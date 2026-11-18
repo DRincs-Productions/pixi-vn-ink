@@ -1,6 +1,7 @@
 import { convertInkToJson } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("LIST 1", async () => {
     const expected: PixiVNJson = {
@@ -192,6 +193,7 @@ VAR grado = rango.recluta
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("LIST 2", async () => {
@@ -787,6 +789,7 @@ VAR skill = ()
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("LIST 3", async () => {
@@ -1045,6 +1048,7 @@ LIST b = due, tre, quattro
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("LIST 4", async () => {
@@ -1247,6 +1251,7 @@ VAR stato2 = ()
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("LIST 5", async () => {
@@ -1602,6 +1607,7 @@ VAR player_rank = rank.base
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("LIST 6", async () => {
@@ -1854,4 +1860,5 @@ test("LIST 6", async () => {
         },
     };
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });

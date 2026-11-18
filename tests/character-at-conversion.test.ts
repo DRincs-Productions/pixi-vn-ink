@@ -1,6 +1,7 @@
 import { convertInkToJson } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
 import { describe, expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 /**
  * Regression tests for #123: `characterId: text` speakers must resolve when the characters are
@@ -16,6 +17,9 @@ describe("#123 resolve characterId speaker when characters are passed to the con
         });
 
         expect(res?.labels?.start[0].dialogue).toEqual({ character: "bob", text: "Hi" });
+        expectJsonInkRoundTrip(res, {
+            characters: ["bob"],
+        });
     });
 
     test("accepts character-like objects (e.g. RegisteredCharacters.values())", () => {
@@ -26,6 +30,9 @@ describe("#123 resolve characterId speaker when characters are passed to the con
         });
 
         expect(res?.labels?.start[0].dialogue).toEqual({ character: "zoe", text: "Hello there." });
+        expectJsonInkRoundTrip(res, {
+            characters: [{ id: "zoe" }],
+        });
     });
 
     test("keeps the first ': ' split so a sentence with extra colons stays intact", () => {
@@ -37,6 +44,9 @@ describe("#123 resolve characterId speaker when characters are passed to the con
             character: "bob",
             text: "I see it: a clue.",
         });
+        expectJsonInkRoundTrip(res, {
+            characters: ["bob"],
+        });
     });
 
     test("does NOT split an unknown prefix (no false-positive speaker on plain colons)", () => {
@@ -46,6 +56,9 @@ describe("#123 resolve characterId speaker when characters are passed to the con
 
         // "Note" is not a known character, so the line stays a narrator line, prefix included.
         expect(res?.labels?.start[0].dialogue).toBe("Note: remember this");
+        expectJsonInkRoundTrip(res, {
+            characters: ["bob"],
+        });
     });
 
     test("without the option and without a global registration, the prefix is left as text", () => {
@@ -55,6 +68,7 @@ describe("#123 resolve characterId speaker when characters are passed to the con
         const res = convertInkToJson(`\n=== start ===\nbob: Hi\n-> DONE\n`);
 
         expect(res?.labels?.start[0].dialogue).toBe("bob: Hi");
+        expectJsonInkRoundTrip(res);
     });
 
     test("still honours the global RegisteredCharacters registry (no regression)", () => {
@@ -64,6 +78,7 @@ describe("#123 resolve characterId speaker when characters are passed to the con
         const res = convertInkToJson(`\n=== start ===\ncarol: Hi\n-> DONE\n`);
 
         expect(res?.labels?.start[0].dialogue).toEqual({ character: "carol", text: "Hi" });
+        expectJsonInkRoundTrip(res);
     });
 
     test("merges the passed characters with the global registry", () => {
@@ -84,5 +99,6 @@ describe("#123 resolve characterId speaker when characters are passed to the con
             character: "bob",
             text: "From the option.",
         });
+        expectJsonInkRoundTrip(res, { characters: ["bob"] });
     });
 });

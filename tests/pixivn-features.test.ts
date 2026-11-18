@@ -8,6 +8,7 @@ import {
 } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("Assign dialogue to a character", async () => {
     const alice = new CharacterBaseModel("alice", {
@@ -37,6 +38,7 @@ alice: Hello, world!
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Assign dialogue to a character: double colons in a sentence", async () => {
@@ -67,6 +69,7 @@ james: Well, I mean, you are kinda acting like a father. Like, I can totally see
 -> DONE
 `);
     expect(res).toEqual(expected1);
+    expectJsonInkRoundTrip(expected1);
 });
 
 /**
@@ -337,6 +340,7 @@ hello
     expect(res).toEqual(expected1);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+    expectJsonInkRoundTrip(expected1);
 });
 
 test("edit image", async () => {
@@ -384,6 +388,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("remove image", async () => {
@@ -495,6 +500,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("effect image", async () => {
@@ -569,6 +575,7 @@ test("effect image", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("effect image with params", async () => {
@@ -613,6 +620,7 @@ test("effect image with params", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -719,6 +727,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("remove canvaselement", async () => {
@@ -783,6 +792,7 @@ test("remove canvaselement", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -941,6 +951,7 @@ hello
     expect(res).toEqual(expected1);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+    expectJsonInkRoundTrip(expected1);
 });
 
 /**
@@ -969,6 +980,7 @@ test("show imagecontainer is resolved eagerly with $origin, not deferred as oper
         $origin:
             "show imagecontainer james [m01-body m01-eyes-smile m01-mouth-neutral01] xAlign 0.5 yAlign 1",
     });
+    expectJsonInkRoundTrip(res);
 });
 
 /**
@@ -1105,6 +1117,7 @@ test("text", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1251,6 +1264,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1289,6 +1303,7 @@ hello
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1361,6 +1376,7 @@ Hello
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1635,6 +1651,7 @@ Footer
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1735,6 +1752,7 @@ After End
     expect(res).toEqual(expected1);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+    expectJsonInkRoundTrip(expected1);
 });
 
 test("continue", async () => {
@@ -1786,4 +1804,5 @@ We hurried home <># continue
 `);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+    expectJsonInkRoundTrip(expected2);
 });

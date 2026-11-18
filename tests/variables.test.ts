@@ -118,6 +118,7 @@ VAR current_epilogue = -> they_all_die_of_the_plague
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -218,6 +219,7 @@ Give up now, or keep trying to save your Kingdom?
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -293,6 +295,7 @@ My name is Jean Passepartout, but my friends call me {friendly_name_of_player}. 
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -363,6 +366,7 @@ VAR a_colour = ""
 + [restart] -> start
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -538,6 +542,7 @@ VAR knows_about_wager = false
 	-> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -598,6 +603,7 @@ test("Mathematics", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -732,6 +738,7 @@ test("RANDOM(min, max)", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -889,6 +896,7 @@ VAR z = 0
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -998,6 +1006,7 @@ test("Advanced: INT(), FLOOR() and FLOAT()", async () => {
 {FLOAT(4)} is, um, still 4.
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1086,6 +1095,7 @@ test("String queries", async () => {
 ->DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1186,6 +1196,7 @@ VAR y = 0
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1311,6 +1322,7 @@ VAR y = 0
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1467,6 +1479,7 @@ VAR y = 0
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1561,6 +1574,7 @@ VAR x = 0
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1813,6 +1827,7 @@ dream_about_marmalade
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1900,6 +1915,7 @@ know_about_wager
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2066,6 +2082,7 @@ open_door
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2263,6 +2280,7 @@ At the table, I drew a card. <>
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2369,6 +2387,7 @@ res:
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2479,6 +2498,7 @@ res:
 }
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2680,6 +2700,7 @@ VAR ear_muffs = 0
 VAR gloves = 0
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2840,6 +2861,7 @@ test("Knots and stitches can take parameters", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2995,6 +3017,7 @@ test("Example: a recursive knot definition", async () => {
 	-> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3054,6 +3077,7 @@ test("Advanced: sending divert targets as parameters", async () => {
 	You get back to your feet, ready to continue your journey.
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3148,6 +3172,7 @@ found_japps_bloodied_glove
 ->DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3277,6 +3302,7 @@ VAR suitcase_location = HALLWAY
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Uknown variable in text", async () => {
@@ -3312,6 +3338,7 @@ The value of _input_value_ is: {_input_value_}
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Params", async () => {
@@ -3467,6 +3494,7 @@ Variable: {Head} <># continue
 `);
     await convertOperation(res);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3511,6 +3539,7 @@ The coin is worth {GOLD_COIN_VALUE} coins.
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3568,6 +3597,7 @@ VAR health = 7
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3623,6 +3653,7 @@ VAR met_blofeld = true
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3702,6 +3733,7 @@ VAR x = 1
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3791,6 +3823,7 @@ VAR learned_his_name = false
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3831,6 +3864,7 @@ You have taken {TURNS()} turns so far.
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3888,6 +3922,7 @@ You go to sleep.
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -3984,4 +4019,5 @@ test("CHOICE_COUNT game query (upcoming feature)", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });

@@ -13,6 +13,7 @@ import os from "node:os";
 import path from "node:path";
 import type { ResolvedConfig } from "vite";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 async function createTempProject(): Promise<string> {
     return await fs.mkdtemp(path.join(os.tmpdir(), "pixi-vn-ink-vite-plugin-"));
@@ -398,6 +399,7 @@ describe("vitePluginInk", () => {
         expect(loaded).toContain(
             `export const inkJsons = ${JSON.stringify([expectedJson])};`,
         );
+        expectJsonInkRoundTrip(expectedJson);
     });
 
     // Regression for #123: the build/dev converter resolves `characterId: text` speakers from
@@ -525,6 +527,7 @@ describe("vitePluginInk", () => {
             event: "ink-updated",
             data: { inkText: inkSource, inkJson: [expectedJson] },
         });
+        expectJsonInkRoundTrip(expectedJson);
     });
 
     it("hotUpdate for managed .json emits ink-updated without reloading", async () => {
@@ -569,6 +572,7 @@ describe("vitePluginInk", () => {
             event: "ink-updated",
             data: { inkJson: [expectedJson] },
         });
+        expectJsonInkRoundTrip(expectedJson);
     });
 
     it("syncs external ink labels to vite-plugin-pixi-vn after buildStart", async () => {
