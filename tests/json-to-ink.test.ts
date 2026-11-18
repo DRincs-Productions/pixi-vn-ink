@@ -295,3 +295,14 @@ test("round-trips a fallback choice with its own dialogue", () => {
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips an Ink choice without a generated body", () => {
+    const input = convertInkToJson(`
+=== start ===
+* [No further dialogue]
+= another_scene
+-> END
+`);
+
+    expectJsonInkRoundTrip(input);
+});

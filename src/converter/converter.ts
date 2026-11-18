@@ -84,6 +84,7 @@ type InkConversionContext = {
     lists: InkLists;
     inkNames: Map<string, string>;
     choiceBodies: Map<string, PixiVNJsonLabelStep[]>;
+    renderedChoices: Set<string>;
     divertParameters: Map<string, Set<number>>;
     divertVariables: Set<string>;
 };
@@ -140,7 +141,14 @@ export function convertJsonToInk(data: PixiVNJson): string {
     const divertVariables = new Set<string>();
     const arities = new Map<string, number>();
     const lists: InkLists = new Map();
-    const context = { lists, inkNames, choiceBodies, divertParameters, divertVariables };
+    const context = {
+        lists,
+        inkNames,
+        choiceBodies,
+        divertParameters,
+        divertVariables,
+        renderedChoices: new Set<string>(),
+    };
     for (const [label, steps] of Object.entries(labels)) {
         const owner = label.replace(/(?:_\|_c-\d+)+$/, "");
         visitInkValues(steps, (entry) => {
@@ -711,9 +719,24 @@ function convertChoice(
     const choicePrefix = condition ? `${marker} { ${condition} }` : marker;
     if (generated) {
         const body = context.choiceBodies.get(choice.label);
-        if (!body) throw new Error(`Missing or repeated generated choice body at ${path}.label`);
+        if (context.renderedChoices.has(choice.label)) {
+            throw new Error(`Repeated generated choice at ${path}.label`);
+        }
+        context.renderedChoices.add(choice.label);
         if (choice.type !== "call")
             throw new Error(`Unsupported generated choice type at ${path}.type`);
+        if (!body) {
+            const owner = /^labels\.([^[]+)\[/.exec(path)?.[1];
+            if (
+                !fallback &&
+                typeof choice.text === "string" &&
+                owner &&
+                choice.label.startsWith(`${owner}_|_c-`)
+            ) {
+                return [`${choicePrefix} [${escapeInkText(choice.text)}]`];
+            }
+            throw new Error(`Missing generated choice body at ${path}.label`);
+        }
         context.choiceBodies.delete(choice.label);
 
         const [first, second, third] = body;
@@ -752,7 +775,12 @@ function convertChoice(
             throw new Error(`Unsupported composed choice text at ${path}.text`);
         } else {
             const text = escapeInkText(choice.text);
-            const echoesChoice = first?.dialogue === choice.text && Object.keys(first).length === 1;
+            const echoesChoice =
+                first?.dialogue === choice.text &&
+                (Object.keys(first).length === 1 ||
+                    (Object.keys(first).length === 2 &&
+                        first.goNextStep === true &&
+                        (second?.labelToOpen !== undefined || second?.end !== undefined)));
             header = `${choicePrefix} ${echoesChoice ? text : `[${text}]`}`;
             consumed = echoesChoice ? 1 : 0;
         }

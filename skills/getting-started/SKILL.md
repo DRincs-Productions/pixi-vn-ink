@@ -225,7 +225,8 @@ glue, weave, gathers, variable text, `VAR`/`CONST`/`temp`, `LIST`, functions, tu
 standard ink. The full syntax reference is `reference/writing-with-ink.md`; this section covers only
 what's specific to writing it *for Pixi'VN*.
 
-Use `* ->` followed by branch content for a fallback choice with dialogue.
+Use `* ->` followed by branch content for a fallback choice with dialogue. A bracketed
+choice with no branch content can appear in the menu without a separate PixiVN label.
 
 ### Knots are Pixi'VN labels — in both directions
 
