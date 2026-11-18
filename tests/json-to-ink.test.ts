@@ -282,3 +282,16 @@ Stay here<># continue
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips a fallback choice with its own dialogue", () => {
+    const input = convertInkToJson(`
+=== start ===
+* [Try again]
+    -> start
+* ->
+    No options left.
+    -> END
+`);
+
+    expectJsonInkRoundTrip(input);
+});

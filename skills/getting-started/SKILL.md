@@ -225,6 +225,8 @@ glue, weave, gathers, variable text, `VAR`/`CONST`/`temp`, `LIST`, functions, tu
 standard ink. The full syntax reference is `reference/writing-with-ink.md`; this section covers only
 what's specific to writing it *for Pixi'VN*.
 
+Use `* ->` followed by branch content for a fallback choice with dialogue.
+
 ### Knots are Pixi'VN labels — in both directions
 
 Creating a `knot` with ink registers a `label` internally, addressed exactly like a TS-authored one:

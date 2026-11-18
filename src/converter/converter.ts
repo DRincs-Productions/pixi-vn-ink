@@ -697,7 +697,13 @@ function convertChoice(
     if (Object.keys(choice.props).length > 0) {
         throw new Error(`Choice props at ${path}.props are not supported`);
     }
-    if (fallback && choice.text !== "") throw new Error(`Unsupported fallback choice at ${path}`);
+    if (
+        fallback &&
+        choice.text !== "" &&
+        !(Array.isArray(choice.text) && choice.text.length === 0)
+    ) {
+        throw new Error(`Unsupported fallback choice at ${path}`);
+    }
     const generated = isGeneratedChoiceLabel(choice.label);
     // The mapper omits oneTime for sticky Ink choices.
     const marker =
@@ -710,7 +716,13 @@ function convertChoice(
             throw new Error(`Unsupported generated choice type at ${path}.type`);
         context.choiceBodies.delete(choice.label);
 
-        const [first, second] = body;
+        const [first, second, third] = body;
+        const hasInlineDivert =
+            second?.goNextStep === true &&
+            Object.keys(second).length === 2 &&
+            third?.labelToOpen &&
+            third.glueEnabled === true &&
+            Object.keys(third).length === 2;
         const shared = Array.isArray(choice.text) ? choice.text[0] : choice.text;
         const menuOnly = Array.isArray(choice.text) ? choice.text[1] : "";
         const hasSharedText =
@@ -723,17 +735,21 @@ function convertChoice(
             first.goNextStep === true &&
             Object.keys(first).length === 3 &&
             typeof second?.dialogue === "string" &&
-            Object.keys(second).length === 1;
+            (Object.keys(second).length === 1 || hasInlineDivert);
 
         let header: string;
         let consumed = 0;
         if (hasSharedText) {
             header = `${choicePrefix} ${escapeInkText(shared)}[${escapeInkText(menuOnly)}]${escapeInkText(second.dialogue as string)}`;
             consumed = 2;
-        } else if (typeof choice.text !== "string") {
-            throw new Error(`Unsupported composed choice text at ${path}.text`);
+            if (hasInlineDivert) {
+                header += convertStep(third, `labels.${choice.label}[2]`, context).join("");
+                consumed = 3;
+            }
         } else if (fallback) {
             header = choicePrefix;
+        } else if (typeof choice.text !== "string") {
+            throw new Error(`Unsupported composed choice text at ${path}.text`);
         } else {
             const text = escapeInkText(choice.text);
             const echoesChoice = first?.dialogue === choice.text && Object.keys(first).length === 1;
@@ -762,7 +778,7 @@ function convertChoice(
         if (consumed === 0 && /^[ \t]+-> /.test(inlineDivert ?? "")) {
             return [header + inlineDivert, ...indent(bodyLines.slice(1))];
         }
-        return [header, ...indent(bodyLines)];
+        return [fallback ? `${header} ->` : header, ...indent(bodyLines)];
     }
     if (typeof choice.text !== "string")
         throw new Error(`Unsupported composed choice text at ${path}.text`);
@@ -936,7 +952,7 @@ function toInkCondition(
     if (value.type === "union") {
         const union = value as unknown as PixiVNJsonUnionCondition;
         if (union.unionType === "not")
-            return `not (${toInkCondition(union.condition, path, lists)})`;
+            return `(not ${toInkCondition(union.condition, path, lists)})`;
         return `(${union.conditions.map((item) => toInkCondition(item, path, lists)).join(union.unionType === "and" ? " and " : " or ")})`;
     }
     return toInkExpression(condition, path, lists);
