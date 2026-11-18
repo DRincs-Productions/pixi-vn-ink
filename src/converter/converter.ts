@@ -205,6 +205,11 @@ export function convertJsonToInk(data: PixiVNJson): string {
         inkNames.set(label, inkName);
     }
 
+    const scopedOwners = new Set<string>();
+    visitInkValues(labels, (entry) => {
+        const owner = scopedGatherOwner(entry);
+        if (owner) scopedOwners.add(owner);
+    });
     const knots = new Map<string, { label: string; stitch?: string }[]>();
     for (const label of Object.keys(labels)) {
         if (isGeneratedChoiceLabel(label)) {
@@ -212,7 +217,19 @@ export function convertJsonToInk(data: PixiVNJson): string {
             continue;
         }
         const parent = gatherParent(label);
-        if (isAnonymousGather(label) || (parent.includes("_|_") && Object.hasOwn(labels, parent))) {
+        const parentSteps = labels[parent];
+        const isScopedRootGather =
+            scopedOwners.has(parent) &&
+            parentSteps?.length === 1 &&
+            implicitGatherTarget(parentSteps[0]) === label &&
+            !Object.keys(labels).some(
+                (child) => gatherParent(child) === label && !isGeneratedChoiceLabel(child),
+            );
+        if (
+            isAnonymousGather(label) ||
+            (parent.includes("_|_") && Object.hasOwn(labels, parent)) ||
+            isScopedRootGather
+        ) {
             context.gathers.set(label, labels[label]);
             if (!isAnonymousGather(label)) context.namedGatherLabels.add(label);
             continue;
@@ -796,29 +813,36 @@ function convertConditionalStep(
     ];
 }
 
+// The mapper encodes a scoped gather visit as a comparison on its owning flow.
+function scopedGatherOwner(condition: unknown): string | undefined {
+    if (!condition || typeof condition !== "object") return undefined;
+    const entry = condition as Record<string, any>;
+    if (
+        entry.type === "compare" &&
+        entry.operator === ">=" &&
+        entry.leftValue?.type === "value" &&
+        entry.leftValue.storageType === "label" &&
+        entry.leftValue.storageOperationType === "get" &&
+        typeof entry.leftValue.label === "string" &&
+        entry.rightValue?.type === "value" &&
+        entry.rightValue.value === 0 &&
+        Object.keys(entry.rightValue).length === 2
+    )
+        return entry.leftValue.label;
+    return undefined;
+}
+
 function renderChoiceCondition(
     condition: unknown,
     path: string,
     context: InkConversionContext,
 ): string {
-    // The mapper encodes a scoped gather visit as a comparison on its owning flow.
-    if (condition && typeof condition === "object") {
-        const entry = condition as Record<string, any>;
-        if (
-            entry.type === "compare" &&
-            entry.operator === ">=" &&
-            entry.leftValue?.type === "value" &&
-            entry.leftValue.storageType === "label" &&
-            entry.leftValue.storageOperationType === "get" &&
-            entry.rightValue?.type === "value" &&
-            entry.rightValue.value === 0 &&
-            Object.keys(entry.rightValue).length === 2
-        ) {
-            const candidates = [...context.namedGatherLabels].filter(
-                (label) => gatherParent(label) === entry.leftValue.label,
-            );
-            if (candidates.length === 1) return inkAddress(candidates[0], path);
-        }
+    const owner = scopedGatherOwner(condition);
+    if (owner) {
+        const candidates = [...context.namedGatherLabels].filter(
+            (label) => gatherParent(label) === owner,
+        );
+        if (candidates.length === 1) return inkAddress(candidates[0], path);
     }
     return toInkCondition(condition, path, context.lists);
 }

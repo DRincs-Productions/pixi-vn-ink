@@ -1,4 +1,4 @@
-import { convertInkToJson } from "@/converter";
+import { convertInkToJson, convertJsonToInk } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
@@ -1497,6 +1497,7 @@ test("Scope2", async () => {
 `);
     expect(res).toEqual(expected);
 
+    expect(convertJsonToInk(expected)).toContain("- (gather_one)");
     expectJsonInkRoundTrip(expected);
 });
 
