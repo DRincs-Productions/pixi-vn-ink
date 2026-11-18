@@ -261,3 +261,24 @@ VAR amount = 2
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips a literal glue marker in dialogue", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [{ dialogue: "Type <> to join lines." }, { end: "game_end" }],
+        },
+    };
+
+    expectJsonInkRoundTrip(input);
+});
+
+test("round-trips a deferred continue attached to dialogue", () => {
+    const input = convertInkToJson(`
+=== start ===
+Stay here<># continue
+* [Continue] -> END
+`);
+
+    expectJsonInkRoundTrip(input);
+});

@@ -81,3 +81,6 @@ mechanisms.
   glue/timing rule for diverts specifically.
 - [pixi-vn.com/start/labels-flow](https://pixi-vn.com/start/labels-flow) — the underlying
   `narration.continue`/`canContinue` mechanics these commands manipulate.
+
+The reverse converter can reconstruct `<># continue` from the glue and
+deferred command produced by the Ink mapper.

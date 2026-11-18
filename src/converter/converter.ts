@@ -325,10 +325,33 @@ function convertSteps(
         const previous = steps[index - 1];
         const stepPath = `${path}[${index}]`;
         const rendered = convertStep(step, stepPath, context);
+        if (
+            step.glueEnabled === false &&
+            step.goNextStep === true &&
+            step.operations?.length === 1 &&
+            step.operations[0].type === "operationtoconvert" &&
+            step.operations[0].values.length === 1 &&
+            step.operations[0].values[0] === "continue" &&
+            Object.keys(step).length === 3 &&
+            lines.at(-1)?.endsWith("<>")
+        ) {
+            lines[lines.length - 1] += "# continue";
+            continue;
+        }
         if (previous?.glueEnabled && previous.goNextStep === false) {
             if (step.dialogue === undefined || rendered.length !== 1) {
                 throw new Error(`Unsupported step after leading glue at ${stepPath}`);
             }
+            rendered[0] = `<>${rendered[0]}`;
+        } else if (
+            previous?.glueEnabled &&
+            previous.goNextStep &&
+            previous.dialogue === undefined &&
+            (lines.at(-1) === "<>" || !!previous.operations?.length) &&
+            step.dialogue !== undefined &&
+            rendered.length === 1
+        ) {
+            if (lines.at(-1) === "<>") lines.pop();
             rendered[0] = `<>${rendered[0]}`;
         } else if (
             (step.dialogue !== undefined || step.conditionalStep?.type === "stepswitch") &&
@@ -338,9 +361,9 @@ function convertSteps(
             previous.glueEnabled &&
             previous.goNextStep &&
             rendered.length === 1 &&
-            lines.at(-1)?.endsWith(" <>")
+            lines.at(-1)?.endsWith("<>")
         ) {
-            lines[lines.length - 1] = lines[lines.length - 1].slice(0, -3) + rendered[0];
+            lines[lines.length - 1] = lines[lines.length - 1].slice(0, -2) + rendered[0];
             continue;
         } else if (
             step.labelToOpen &&
@@ -379,7 +402,7 @@ function convertStep(
             step.glueEnabled &&
             step.goNextStep
         )
-            rendered[0] += " <>";
+            rendered[0] += "<>";
         return rendered;
     }
     const lines: string[] = [];
@@ -417,7 +440,7 @@ function convertStep(
     }
     if (step.dialogue !== undefined) {
         const dialogue = convertDialog(step.dialogue, `${path}.dialogue`, context.lists);
-        if (step.glueEnabled && step.goNextStep === true) lines.push(`${dialogue} <>`);
+        if (step.glueEnabled && step.goNextStep === true) lines.push(`${dialogue}<>`);
         else lines.push(dialogue);
     }
     if (step.choices !== undefined) {
@@ -930,5 +953,9 @@ function assertInkName(value: string, path: string): void {
 }
 
 function escapeInkText(value: string): string {
-    return value.replace(/\\/g, "\\\\").replace(/\{/g, "\\{").replace(/\}/g, "\\}");
+    return value
+        .replace(/\\/g, "\\\\")
+        .replace(/\{/g, "\\{")
+        .replace(/\}/g, "\\}")
+        .replace(/<>/g, "\\<\\>");
 }
