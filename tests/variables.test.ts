@@ -1,4 +1,4 @@
-import { convertInkToJson } from "@/loader";
+import { convertInkToJson, convertJsonToInk } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
@@ -3539,6 +3539,7 @@ The coin is worth {GOLD_COIN_VALUE} coins.
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("\\ coins.");
     expectJsonInkRoundTrip(expected);
 });
 
@@ -3823,6 +3824,7 @@ VAR learned_his_name = false
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("{learned_his_name: Franz|a secret}");
     expectJsonInkRoundTrip(expected);
 });
 

@@ -472,6 +472,15 @@ function convertSteps(
             lines[lines.length - 1] += rendered[0];
             continue;
         }
+        if (
+            previous?.glueEnabled &&
+            previous.goNextStep &&
+            typeof step.dialogue === "string" &&
+            rendered.length === 1 &&
+            lines.at(-1)?.endsWith("<>")
+        ) {
+            rendered[0] = rendered[0].replace(/^ +/, (spaces) => "\\ ".repeat(spaces.length));
+        }
         lines.push(...rendered);
     }
     const last = steps.at(-1);
@@ -775,6 +784,68 @@ function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?:
     return `{${toInkExpression(part, path, lists)}}`;
 }
 
+function inlineConditionalBranch(
+    branch: unknown,
+    path: string,
+    context: InkConversionContext,
+): string | undefined {
+    if (!branch || typeof branch !== "object") return undefined;
+    const step = branch as PixiVNJsonLabelStep;
+    if (
+        Object.keys(step).length === 1 &&
+        typeof step.dialogue === "string" &&
+        !/[\r\n|]/.test(step.dialogue)
+    )
+        return escapeInkText(step.dialogue);
+
+    const combination = branch as PixiVNJsonConditionalResultToCombine<PixiVNJsonLabelStep>;
+    if (
+        combination.type !== "resulttocombine" ||
+        combination.combine !== "cross" ||
+        ("firstConditionalItem" in combination && combination.firstConditionalItem !== undefined) ||
+        !Array.isArray(combination.secondConditionalItem) ||
+        combination.secondConditionalItem.length < 2
+    ) {
+        return undefined;
+    }
+    const items = combination.secondConditionalItem;
+    const rendered = items.map((item, index) => {
+        if ("type" in item) return undefined;
+        const joinsNext = index < items.length - 1;
+        if (joinsNext && (!item.glueEnabled || item.goNextStep !== true)) return undefined;
+        if (Object.keys(item).length !== (joinsNext ? 3 : 1)) return undefined;
+        const itemPath = `${path}.secondConditionalItem[${index}]`;
+        if (item.conditionalStep?.type === "ifelse") {
+            return renderInlineConditional(
+                item.conditionalStep,
+                `${itemPath}.conditionalStep`,
+                context,
+            );
+        }
+        if (
+            item.dialogue === undefined ||
+            (typeof item.dialogue === "string" && /[\r\n|]/.test(item.dialogue))
+        )
+            return undefined;
+        return convertDialog(item.dialogue, `${itemPath}.dialogue`, context.lists);
+    });
+    return rendered.every((line) => line !== undefined) ? rendered.join("") : undefined;
+}
+
+function renderInlineConditional(
+    conditional: { condition: unknown; then: unknown; else?: unknown },
+    path: string,
+    context: InkConversionContext,
+): string | undefined {
+    const then = inlineConditionalBranch(conditional.then, `${path}.then`, context);
+    const otherwise = inlineConditionalBranch(conditional.else, `${path}.else`, context);
+    if (then === undefined || (conditional.else !== undefined && otherwise === undefined)) {
+        return undefined;
+    }
+    const condition = toInkCondition(conditional.condition, `${path}.condition`, context.lists);
+    return `{${condition}:${then}${otherwise === undefined ? "" : `|${otherwise}`}}`;
+}
+
 function convertConditionalBranch(
     branch:
         | PixiVNJsonLabelStep
@@ -878,6 +949,15 @@ function convertConditionalStep(
     }
     if (conditional.type !== "ifelse") throw new Error(`Unsupported conditional step at ${path}`);
     const statement = conditional as PixiVNJsonIfElse<PixiVNJsonLabelStep>;
+    const isCrossBranch = (branch: unknown): boolean =>
+        !!branch &&
+        typeof branch === "object" &&
+        "type" in branch &&
+        branch.type === "resulttocombine";
+    if (isCrossBranch(statement.then) || isCrossBranch(statement.else)) {
+        const inline = renderInlineConditional(statement, path, context);
+        if (inline !== undefined) return [inline];
+    }
     const condition = toInkCondition(statement.condition, `${path}.condition`, context.lists);
     const thenText = "dialogue" in statement.then ? statement.then.dialogue : undefined;
     const elseText =
