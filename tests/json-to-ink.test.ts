@@ -320,3 +320,17 @@ test("round-trips choices joining at an anonymous gather", () => {
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips a named gather inside a stitch", () => {
+    const input = convertInkToJson(`
+=== station ===
+= platform
+- (arrival) You arrive.
+-> DONE
+
+=== ticket_office ===
+-> station.platform.arrival
+`);
+
+    expectJsonInkRoundTrip(input);
+});

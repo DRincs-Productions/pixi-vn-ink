@@ -86,6 +86,7 @@ type InkConversionContext = {
     choiceBodies: Map<string, PixiVNJsonLabelStep[]>;
     renderedChoices: Set<string>;
     gathers: Map<string, PixiVNJsonLabelStep[]>;
+    namedGatherLabels: Set<string>;
     implicitGather?: string;
     choiceDepth?: number;
     divertParameters: Map<string, Set<number>>;
@@ -152,6 +153,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
         divertVariables,
         renderedChoices: new Set<string>(),
         gathers: new Map<string, PixiVNJsonLabelStep[]>(),
+        namedGatherLabels: new Set<string>(),
     };
     for (const [label, steps] of Object.entries(labels)) {
         const owner = label.replace(/(?:_\|_c-\d+)+$/, "");
@@ -209,8 +211,10 @@ export function convertJsonToInk(data: PixiVNJson): string {
             choiceBodies.set(label, labels[label]);
             continue;
         }
-        if (/_\|_g-\d+$/.test(label)) {
+        const parent = gatherParent(label);
+        if (isAnonymousGather(label) || (parent.includes("_|_") && Object.hasOwn(labels, parent))) {
             context.gathers.set(label, labels[label]);
+            if (!isAnonymousGather(label)) context.namedGatherLabels.add(label);
             continue;
         }
         const [knot, stitch, nested] = label.split("_|_");
@@ -346,12 +350,12 @@ function convertSteps(
         const stepPath = `${path}[${index}]`;
         const entryGather =
             index === 0 && steps.length === 1 ? implicitGatherTarget(step) : undefined;
-        if (entryGather && entryGather.replace(/_\|_g-\d+$/, "") === path.slice("labels.".length)) {
+        if (entryGather && gatherParent(entryGather) === path.slice("labels.".length)) {
             const body = context.gathers.get(entryGather);
             if (body) {
                 context.gathers.delete(entryGather);
                 lines.push(
-                    gatherMarker(context),
+                    gatherMarker(entryGather, context),
                     ...convertSteps(body, `labels.${entryGather}`, context),
                 );
                 continue;
@@ -418,8 +422,20 @@ function convertSteps(
     return lines;
 }
 
-function gatherMarker(context: InkConversionContext): string {
-    return "- ".repeat((context.choiceDepth ?? 0) + 1).trimEnd();
+function isAnonymousGather(label: string): boolean {
+    return /_\|_g-\d+$/.test(label);
+}
+
+function gatherParent(label: string): string {
+    return label.slice(0, Math.max(0, label.lastIndexOf("_|_")));
+}
+
+function gatherMarker(label: string, context: InkConversionContext): string {
+    const marker = "- ".repeat((context.choiceDepth ?? 0) + 1).trimEnd();
+    if (isAnonymousGather(label)) return marker;
+    const name = label.slice(label.lastIndexOf("_|_") + 3);
+    assertInkName(name, `labels.${label}`);
+    return `${marker} (${name})`;
 }
 
 function implicitGatherTarget(step: PixiVNJsonLabelStep | undefined): string | undefined {
@@ -458,7 +474,7 @@ function collectGatherTargets(
         visited.add(choice.label);
         const last = context.choiceBodies.get(choice.label)?.at(-1);
         const target = implicitGatherTarget(last);
-        if (target && target.replace(/_\|_g-\d+$/, "") === owner && context.gathers.has(target)) {
+        if (target && gatherParent(target) === owner && context.gathers.has(target)) {
             targets.add(target);
         }
         if (last?.choices) collectGatherTargets(last.choices, context, owner, targets, visited);
@@ -527,7 +543,11 @@ function convertStep(
         if (!Array.isArray(step.choices)) {
             throw new Error(`Unsupported JSON to Ink choices at ${path}.choices`);
         }
-        const owner = /^labels\.([^[]+)\[/.exec(path)?.[1]?.replace(/_\|_g-\d+$/, "");
+        const label = /^labels\.([^[]+)\[/.exec(path)?.[1];
+        const owner =
+            label && (context.namedGatherLabels.has(label) || isAnonymousGather(label))
+                ? gatherParent(label)
+                : label;
         const targets = new Set<string>();
         if (owner) collectGatherTargets(step.choices, context, owner, targets);
         const gather = targets.size === 1 ? targets.values().next().value : undefined;
@@ -536,10 +556,10 @@ function convertStep(
             if ("text" in choice) {
                 lines.push(...convertChoice(choice, choicePath, context, undefined, gather));
             } else if (choice.type === "ifelse" && !choice.else && "text" in choice.then) {
-                const condition = toInkCondition(
+                const condition = renderChoiceCondition(
                     choice.condition,
                     `${choicePath}.condition`,
-                    context.lists,
+                    context,
                 );
                 lines.push(
                     ...convertChoice(choice.then, `${choicePath}.then`, context, condition, gather),
@@ -552,7 +572,10 @@ function convertStep(
             const steps = context.gathers.get(gather);
             if (!steps) throw new Error(`Repeated Ink gather at labels.${gather}`);
             context.gathers.delete(gather);
-            lines.push(gatherMarker(context), ...convertSteps(steps, `labels.${gather}`, context));
+            lines.push(
+                gatherMarker(gather, context),
+                ...convertSteps(steps, `labels.${gather}`, context),
+            );
         }
     }
     if (step.labelToOpen !== undefined) {
@@ -771,6 +794,33 @@ function convertConditionalStep(
         ...(elseLines.length ? ["- else:", ...indent(elseLines)] : []),
         "}",
     ];
+}
+
+function renderChoiceCondition(
+    condition: unknown,
+    path: string,
+    context: InkConversionContext,
+): string {
+    // The mapper encodes a scoped gather visit as a comparison on its owning flow.
+    if (condition && typeof condition === "object") {
+        const entry = condition as Record<string, any>;
+        if (
+            entry.type === "compare" &&
+            entry.operator === ">=" &&
+            entry.leftValue?.type === "value" &&
+            entry.leftValue.storageType === "label" &&
+            entry.leftValue.storageOperationType === "get" &&
+            entry.rightValue?.type === "value" &&
+            entry.rightValue.value === 0 &&
+            Object.keys(entry.rightValue).length === 2
+        ) {
+            const candidates = [...context.namedGatherLabels].filter(
+                (label) => gatherParent(label) === entry.leftValue.label,
+            );
+            if (candidates.length === 1) return inkAddress(candidates[0], path);
+        }
+    }
+    return toInkCondition(condition, path, context.lists);
 }
 
 function convertChoice(
