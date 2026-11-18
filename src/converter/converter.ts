@@ -567,12 +567,17 @@ function convertStep(
                     convertVariableSet(operation, `${path}.operations[${index}]`, false, context),
                 );
             } else if ("$origin" in operation && operation.$origin) {
-                lines.push(convertTag(operation.$origin, `${path}.operations[${index}].$origin`));
+                lines.push(
+                    convertTag(
+                        escapeInkTagText(operation.$origin),
+                        `${path}.operations[${index}].$origin`,
+                    ),
+                );
             } else if (operation.type === "operationtoconvert") {
                 const tagPath = `${path}.operations[${index}].values`;
                 const tag =
                     operation.values.length === 1 && typeof operation.values[0] === "string"
-                        ? operation.values[0]
+                        ? escapeInkTagText(operation.values[0])
                         : operation.values
                               .map((part, index) =>
                                   renderTagPart(part, `${tagPath}[${index}]`, context.lists),
@@ -639,7 +644,7 @@ function convertStep(
             );
         }
     }
-    if (step.labelToOpen !== undefined) {
+    if (step.labelToOpen !== undefined && !hasMatchingNarrationTag(step)) {
         if (Array.isArray(step.labelToOpen) || !("label" in step.labelToOpen)) {
             throw new Error(`Unsupported conditional divert at ${path}.labelToOpen`);
         }
@@ -684,6 +689,31 @@ function convertStep(
     return lines;
 }
 
+function hasMatchingNarrationTag(step: PixiVNJsonLabelStep): boolean {
+    const divert = step.labelToOpen;
+    const operation = step.operations?.[0];
+    return (
+        step.operations?.length === 1 &&
+        step.goNextStep === undefined &&
+        step.glueEnabled === undefined &&
+        !!divert &&
+        "label" in divert &&
+        typeof divert.label === "string" &&
+        (divert.type === "jump" || divert.type === "call") &&
+        divert.params === undefined &&
+        operation?.type === "operationtoconvert" &&
+        operation.values.length === 1 &&
+        operation.values[0] === `${divert.type} ${divert.label}`
+    );
+}
+
+function escapeInkTagText(value: string): string {
+    return escapeInkText(value)
+        .replace(/#/g, "\\#")
+        .replace(/\/\//g, "\\/\\/")
+        .replace(/\/\*/g, "\\/*");
+}
+
 function convertTag(tag: string, path: string): string {
     if (!tag.trim() || /[\r\n]/.test(tag)) {
         throw new Error(`Invalid Ink tag at ${path}`);
@@ -692,7 +722,7 @@ function convertTag(tag: string, path: string): string {
 }
 
 function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?: string): string {
-    if (typeof value === "string") return escapeInkText(value);
+    if (typeof value === "string") return escapeInkTagText(value);
     if (!value || typeof value !== "object") {
         throw new Error(`Unsupported Ink tag fragment at ${path}`);
     }

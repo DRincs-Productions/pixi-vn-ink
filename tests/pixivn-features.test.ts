@@ -1,4 +1,4 @@
-import { convertInkToJson } from "@/loader";
+import { convertInkToJson, convertJsonToInk } from "@/loader";
 import { CharacterBaseModel, RegisteredCharacters } from "@drincs/pixi-vn";
 import {
     type PixiVNJson,
@@ -1752,6 +1752,7 @@ After End
     expect(res).toEqual(expected1);
     await convertOperation(res);
     expect(res).toEqual(expected2);
+    expect(convertJsonToInk(expected1)).not.toContain("-> after");
     expectJsonInkRoundTrip(expected1);
 });
 
@@ -1802,7 +1803,12 @@ We hurried home <># continue
 + [2]
 -> DONE
 `);
+    const expectedRaw = structuredClone(expected2);
+    expectedRaw.labels!.hurry_home[1].operations = [
+        { type: "operationtoconvert", values: ["continue"] },
+    ];
+    expect(res).toEqual(expectedRaw);
     await convertOperation(res);
     expect(res).toEqual(expected2);
-    expectJsonInkRoundTrip(expected2);
+    expectJsonInkRoundTrip(expectedRaw);
 });

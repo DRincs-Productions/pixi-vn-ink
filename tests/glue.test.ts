@@ -448,10 +448,15 @@ some text<># continue
 finish text
 -> END
 `);
+    const expectedRaw = structuredClone(expected);
+    expectedRaw.labels!.start[1].operations = [
+        { type: "operationtoconvert", values: ["continue"] },
+    ];
+    expect(res).toEqual(expectedRaw);
     await convertOperation(res);
     expect(res).toEqual(expected);
 
-    expectJsonInkRoundTrip(expected);
+    expectJsonInkRoundTrip(expectedRaw);
 });
 
 /**

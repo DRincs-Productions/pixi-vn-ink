@@ -27,6 +27,7 @@ type-checked, or a mistake to be reported — never a value-neutral annotation t
 
 Deferred hashtag operations can round-trip through `convertJsonToInk` when their
 fragments are text, interpolations, or supported inline branches.
+Object arguments in static commands retain their braces and other literal Ink syntax.
 
 ## Why not an ink `function`?
 
