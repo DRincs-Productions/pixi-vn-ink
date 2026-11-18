@@ -1,6 +1,7 @@
 import { convertInkText } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./convertOperation";
 
 test("Label test 1", async () => {
     const expected: PixiVNJson = {
@@ -30,17 +31,15 @@ test("Label test 1", async () => {
     };
     const res = convertInkText(`
 === back_in_london ===
-
 We arrived into London at 9.45pm exactly.
 -> hurry_home
-
 === hurry_home ===
 We hurried home to Savile Row as fast as we could.
 ->DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
-
 test("Label test 2", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
@@ -66,17 +65,15 @@ test("Label test 2", async () => {
     };
     const res = convertInkText(`
 === back_in_london ===
-
 We arrived into London at 9.45pm exactly.
 -> END
-
 === hurry_home ===
 We hurried home to Savile Row as fast as we could.
 ->DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
-
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#the-first-stitch-is-the-default
  */
@@ -137,11 +134,9 @@ test("The first stitch is the default", async () => {
     };
     const res = convertInkText(`
 === the_orient_express ===
-
 We boarded the train, but where?
 *	[First class] -> in_first_class
 *	[Second class] -> in_second_class
-
 = in_first_class
 	First class was luxurious.
 = in_second_class
@@ -149,7 +144,6 @@ We boarded the train, but where?
 `);
     expect(res).toEqual(expected);
 });
-
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#local-diverts
  */
@@ -209,14 +203,12 @@ test("Local diverts", async () => {
 	I settled my master.
 	*	[Move to third class]
 		-> in_third_class
-
 = in_third_class
 	I put myself in third.
 	->DONE
 `);
     expect(res).toEqual(expected);
 });
-
 test("Ignore Uknown Labels", async () => {
     const expected: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
@@ -245,13 +237,12 @@ test("Ignore Uknown Labels", async () => {
     };
     const res = convertInkText(`
 === back_in_london ===
-
 We arrived into London at 9.45pm exactly.
 -> uknown
-
 === hurry_home ===
 We hurried home to Savile Row as fast as we could.
 ->DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });

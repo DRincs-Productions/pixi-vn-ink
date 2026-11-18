@@ -7,7 +7,7 @@ Guidance for AI agents (and humans) working on `@drincs/pixi-vn-ink`.
 This library lets [Pixi’VN](https://pixi-vn.com) games be written in [ink](https://github.com/inkle/ink), inkle's narrative scripting language. It:
 
 1. compiles/parses ink with [`inkjs`](https://github.com/y-lohse/inkjs) (`src/parser`, `src/loader`),
-2. converts the ink runtime JSON into Pixi’VN JSON (`src/converter`, `src/mapper`), which is executed by [`@drincs/pixi-vn-json`](https://github.com/DRincs-Productions/pixi-vn-json),
+2. converts between Ink source and Pixi’VN JSON (`src/converter`, `src/mapper`); Pixi’VN JSON is executed by [`@drincs/pixi-vn-json`](https://github.com/DRincs-Productions/pixi-vn-json),
 3. adds Pixi’VN-specific features on top of ink (hashtag commands, text replacement, markup, input, etc. — see `src/handlers`), and ships a Vite plugin (`src/vite`).
 
 The goal is to handle ink correctly and completely, and to expose Pixi’VN features through ink in a way that stays idiomatic.
@@ -49,6 +49,8 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 ## Working rules
 
 - **Tests**: for every change (feature, fix, new command), add or update a test in `tests/` (vitest, `npx vitest run`). Prefer a small focused test near the existing ones for that area.
+- **JSON to Ink round-trip tests**: whenever a test defines an expected PixiVN JSON result for Ink conversion, also pass that JSON through `convertJsonToInk`, compile the generated Ink with `convertInkToJson`, and assert that the result equals the input JSON. Keep unsupported JSON constructs explicit in dedicated tests; do not silently omit them from generated Ink.
+- **JSON to Ink scope**: `convertJsonToInk` must either preserve a JSON construct through the Ink compiler and mapper or throw a path-specific error. Never silently drop unsupported operations, conditionals, dynamic content, or Pixi’VN-only metadata.
 - **Skills**: `skills/` is user-facing documentation for agents and must always be kept up to date. Any change to behaviour, syntax, commands, options or supported ink features must be reflected in the relevant `skills/*/SKILL.md` (and `README.md` if relevant).
 - **`inkjs` version**: it is very important to use the latest `inkjs` release (currently pinned in `devDependencies` and used by the compiler). When bumping, check the changelog for ink language/runtime changes and make sure the converter handles new JSON runtime constructs.
 - **Pixi’VN dependencies**: keep `@drincs/pixi-vn` and `@drincs/pixi-vn-json` on their latest versions, avoid deprecated APIs, and support new transitions/effects added upstream.

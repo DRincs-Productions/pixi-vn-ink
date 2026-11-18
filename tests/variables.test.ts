@@ -1,7 +1,7 @@
 import { convertInkToJson } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { convertOperation } from "./convertOperation";
+import { convertOperation, expectJsonInkRoundTrip } from "./convertOperation";
 
 /**
  * 1) Global Variables

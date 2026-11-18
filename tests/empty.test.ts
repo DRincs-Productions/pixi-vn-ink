@@ -1,6 +1,7 @@
 import { convertInkText } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./convertOperation";
 
 test("Empty file test", async () => {
     const res = convertInkText(``);
@@ -9,15 +10,11 @@ test("Empty file test", async () => {
         labels: {},
     });
 });
-
 test("Test elements not considered", async () => {
     const res = convertInkText(`
 "What do you make of this?" she asked.
-
 // Something unprintable...
-
 "I couldn't possibly comment," I replied.
-
 /*
 	... or an unlimited block of text
 */
@@ -27,7 +24,6 @@ test("Test elements not considered", async () => {
         labels: {},
     });
 });
-
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#comments
  * TODO comments are compiler notes; they are not emitted as content.
@@ -54,8 +50,8 @@ TODO: Add more content here.
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
-
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#script-files-can-be-combined
  * The file handler always returns an empty string, so included files contribute no content.
@@ -78,23 +74,20 @@ test("INCLUDE statement loads empty file", async () => {
     };
     const res = convertInkText(`
 INCLUDE other_file.ink
-
 === start ===
 Hello world!
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
-
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#randommin-max
  */
 test("exterlan temp variable", async () => {
     const res = convertInkText(`
 ~ temp dice_roll = RANDOM(1, 6)
-
 ~ temp lazy_grading_for_test_paper = RANDOM(30, 75)
-
 ~ temp number_of_heads_the_serpent_has = RANDOM(3, 8)
 `);
     expect(res).toEqual({
@@ -102,7 +95,6 @@ test("exterlan temp variable", async () => {
         labels: {},
     });
 });
-
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#seed_random
  * SEED_RANDOM() is silently ignored by PixiVN – it is syntax that PixiVN does not need.
@@ -130,4 +122,5 @@ The coin is heads.
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });

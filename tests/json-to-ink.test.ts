@@ -1,0 +1,91 @@
+import { convertInkToJson, convertJsonToInk } from "@/converter";
+import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
+import { expect, test } from "vitest";
+
+test("converts labels, dialogue, choices, diverts, and endings to Ink", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                { dialogue: "Hello, world!" },
+                {
+                    choices: [
+                        {
+                            text: "Continue",
+                            label: "next",
+                            type: "call",
+                            props: {},
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            next: [{ dialogue: "Done." }, { end: "game_end" }],
+        },
+    };
+
+    const ink = convertJsonToInk(input);
+
+    expect(ink).toContain("=== start ===");
+    expect(ink).toContain("* [Continue] -> next");
+    expect(ink).toContain("-> END");
+    const output = convertInkToJson(ink);
+    expect(output?.labels?.start?.[0]).toEqual(input.labels?.start?.[0]);
+    expect(output?.labels?.start?.[1]?.choices?.[0]).toMatchObject({
+        text: "Continue",
+        type: "call",
+        oneTime: true,
+    });
+    expect(output?.labels?.next?.[0]).toEqual(input.labels?.next?.[0]);
+    expect(output?.labels?.next?.[1]).toEqual({ end: "game_end" });
+    expect(output?.labels?.["start_|_c-0"]?.[0]?.labelToOpen).toMatchObject({
+        label: "next",
+        type: "jump",
+    });
+});
+
+test("converts initial variables", () => {
+    const input: PixiVNJson = {
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "score",
+                value: 0,
+            },
+        ],
+        labels: { start: [{ dialogue: "Ready?" }, { end: "label_end" }] },
+    };
+    const ink = convertJsonToInk(input);
+    expect(ink).toContain("VAR score = 0");
+    expect(convertInkToJson(ink)).toEqual({
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: input.initialOperations,
+        labels: {
+            start: [{ dialogue: "Ready?" }, { end: "label_end", goNextStep: true }],
+        },
+    });
+});
+
+test("reports JSON constructs that have no supported Ink representation", () => {
+    const input: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    operations: [
+                        {
+                            type: "image",
+                            operationType: "show",
+                            alias: "background",
+                            url: "bg.png",
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+    expect(() => convertJsonToInk(input)).toThrow(
+        "Unsupported operation at labels.start[0].operations[0]",
+    );
+});
