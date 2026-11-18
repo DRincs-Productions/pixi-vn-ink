@@ -228,6 +228,7 @@ what's specific to writing it *for Pixi'VN*.
 Use `* ->` followed by branch content for a fallback choice with dialogue. A bracketed
 choice with no branch content can appear in the menu without a separate PixiVN label.
 An unnamed gather begins with `-` and brings preceding choices back together. Use `- (name)` for a named gather and qualify references from other knots or stitches.
+Standalone function calls use an Ink logic line such as `~ award_points(5)`.
 
 ### Knots are Pixi'VN labels — in both directions
 

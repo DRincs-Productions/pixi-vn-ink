@@ -538,6 +538,9 @@ function convertStep(
                               )
                               .join("");
                 lines.push(convertTag(tag, tagPath));
+            } else if (operation.type === "function") {
+                const operationPath = `${path}.operations[${index}]`;
+                lines.push(`~ ${toInkExpression(operation, operationPath, context.lists)}`);
             } else {
                 throw new Error(`Unsupported operation at ${path}.operations[${index}]`);
             }
@@ -1126,10 +1129,16 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
             return `"{${markers[kind]}${entry.elements.join("|")}}"`;
         }
         if (entry.type === "function") {
+            if (typeof entry.functionName !== "string") {
+                throw new Error(`Invalid Ink function name at ${path}.functionName`);
+            }
+            assertInkName(entry.functionName, `${path}.functionName`);
             const args = Array.isArray(entry.args)
-                ? entry.args.map((arg) => toInkExpression(arg, path, lists))
+                ? entry.args.map((arg, index) =>
+                      toInkExpression(arg, `${path}.args[${index}]`, lists),
+                  )
                 : [];
-            return `${String(entry.functionName)}(${args.join(", ")})`;
+            return `${entry.functionName}(${args.join(", ")})`;
         }
         if (entry.type === "arithmetic") {
             const left = toInkExpression(entry.leftValue, `${path}.leftValue`, lists);
