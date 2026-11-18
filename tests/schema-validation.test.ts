@@ -12,6 +12,30 @@ test("getSchemaValidator compiles a schema into a reusable Ajv validator", () =>
     expect(validate({ x: "1" })).toBe(false);
 });
 
+test("reports errors at each use of a shared schema definition", () => {
+    const shared = { $ref: "#/definitions/value" };
+    const schema = {
+        type: "object",
+        definitions: {
+            value: {
+                anyOf: [{ type: "integer" }, { type: "string", minLength: 2 }],
+            },
+        },
+        properties: { first: shared, second: shared },
+    };
+    const validate = InkCompiler.getSchemaValidator(schema);
+    expect(validate({ first: 1, second: "ok" })).toBe(true);
+    expect(validate({ first: false, second: "x" })).toBe(false);
+    expect(validate.errors?.map(({ instancePath }) => instancePath)).toEqual([
+        "/first",
+        "/first",
+        "/first",
+        "/second",
+        "/second",
+        "/second",
+    ]);
+});
+
 // ── validateAgainstJsonSchema: happy path ─────────────────────────────────────
 
 test("validateAgainstJsonSchema returns an empty array when the document is valid", () => {

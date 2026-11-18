@@ -654,7 +654,7 @@ function validateAgainstDefinition(
 ): ErrorObject[] {
     const definitions = (schema.definitions as Record<string, unknown>) ?? {};
     const narrowSchema = { definitions, ...(definitions[definitionKey] as object) };
-    const validate = new Ajv({ strict: false, allErrors: true }).compile(narrowSchema);
+    const validate = InkCompiler.getSchemaValidator(narrowSchema);
     if (validate(node)) return [];
     return validate.errors ?? [];
 }
@@ -1191,7 +1191,14 @@ export namespace InkCompiler {
      * @returns A compiled Ajv validator, reusable across many {@link validateAgainstJsonSchema} calls.
      */
     export function getSchemaValidator(schema: object): ValidateFunction {
-        const ajv = new Ajv({ strict: false, allErrors: true });
+        // Large generated schemas contain shared definitions and deeply nested unions.
+        // Reuse compiled references and skip Ajv's expensive code optimization pass.
+        const ajv = new Ajv({
+            strict: false,
+            allErrors: true,
+            inlineRefs: false,
+            code: { optimize: false },
+        });
         return ajv.compile(schema);
     }
 
