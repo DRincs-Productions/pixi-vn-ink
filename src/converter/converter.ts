@@ -583,7 +583,7 @@ function convertStep(
                         ? escapeInkTagText(operation.values[0])
                         : operation.values
                               .map((part, index) =>
-                                  renderTagPart(part, `${tagPath}[${index}]`, context.lists),
+                                  renderInlineTextPart(part, `${tagPath}[${index}]`, context.lists),
                               )
                               .join("");
                 lines.push(convertTag(tag, tagPath));
@@ -724,19 +724,29 @@ function convertTag(tag: string, path: string): string {
     return `# ${tag}`;
 }
 
-function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?: string): string {
+function renderInlineTextPart(
+    value: unknown,
+    path: string,
+    lists: InkLists,
+    branchId?: string,
+): string {
     if (typeof value === "string") return escapeInkTagText(value);
     if (!value || typeof value !== "object") {
-        throw new Error(`Unsupported Ink tag fragment at ${path}`);
+        throw new Error(`Unsupported Ink text fragment at ${path}`);
     }
     const part = value as Record<string, unknown>;
     if (part.type === "ifelse") {
         const condition = toInkCondition(part.condition, `${path}.condition`, lists);
-        const then = renderTagPart(part.then, `${path}.then`, lists, `${branchId ?? ""}then`);
+        const then = renderInlineTextPart(
+            part.then,
+            `${path}.then`,
+            lists,
+            `${branchId ?? ""}then`,
+        );
         const otherwise =
             part.else === undefined
                 ? ""
-                : `|${renderTagPart(part.else, `${path}.else`, lists, `${branchId ?? ""}else`)}`;
+                : `|${renderInlineTextPart(part.else, `${path}.else`, lists, `${branchId ?? ""}else`)}`;
         return `{${condition}:${then}${otherwise}}`;
     }
     if (
@@ -747,7 +757,12 @@ function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?:
     ) {
         return part.secondConditionalItem
             .map((item, index) =>
-                renderTagPart(item, `${path}.secondConditionalItem[${index}]`, lists, branchId),
+                renderInlineTextPart(
+                    item,
+                    `${path}.secondConditionalItem[${index}]`,
+                    lists,
+                    branchId,
+                ),
             )
             .join("");
     }
@@ -767,10 +782,10 @@ function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?:
             (part.end !== undefined && part.end !== "lastItem") ||
             (part.nestedId !== undefined && part.nestedId !== branchId)
         ) {
-            throw new Error(`Unsupported Ink tag alternative at ${path}`);
+            throw new Error(`Unsupported Ink text alternative at ${path}`);
         }
         const alternatives = part.elements.map((item, index) =>
-            renderTagPart(item, `${path}.elements[${index}]`, lists, branchId),
+            renderInlineTextPart(item, `${path}.elements[${index}]`, lists, branchId),
         );
         return `{${marker}${alternatives.join("|")}}`;
     }
@@ -794,6 +809,9 @@ function inlineConditionalBranch(
 
     if (Object.keys(step).length === 1 && step.conditionalStep?.type === "ifelse") {
         return renderInlineConditional(step.conditionalStep, path, context, branchId);
+    }
+    if (Object.keys(step).length === 1 && step.conditionalStep?.type === "stepswitch") {
+        return renderInlineAlternative(step.conditionalStep, path, context, branchId);
     }
     if (Object.keys(step).length === 1 && (step.labelToOpen || step.end)) {
         const lines = convertStep(step, path, context);
@@ -833,6 +851,18 @@ function inlineConditionalBranch(
             const lines = convertStep(item, path, context);
             return lines.length === 1 ? lines[0] : undefined;
         }
+        if (
+            joinsNext &&
+            item.conditionalStep?.type === "stepswitch" &&
+            Object.keys(item).length === 1 &&
+            !("type" in next) &&
+            typeof next.dialogue === "string" &&
+            /^ +$/.test(next.dialogue) &&
+            next.glueEnabled &&
+            next.goNextStep
+        ) {
+            return renderInlineAlternative(item.conditionalStep, path, context, branchId);
+        }
         if (joinsNext && (!item.glueEnabled || item.goNextStep !== true)) return undefined;
         if (Object.keys(item).length !== (joinsNext ? 3 : 1)) return undefined;
         const itemPath = `${path}.secondConditionalItem[${index}]`;
@@ -845,34 +875,7 @@ function inlineConditionalBranch(
             );
         }
         if (item.conditionalStep?.type === "stepswitch") {
-            const alternative = item.conditionalStep;
-            if (!Array.isArray(alternative.elements) || alternative.elements.length < 2)
-                return undefined;
-            const end = "end" in alternative ? alternative.end : undefined;
-            const nestedId = "nestedId" in alternative ? alternative.nestedId : undefined;
-            if (nestedId !== (branchId || undefined)) return undefined;
-            const marker =
-                alternative.choiceType === "sequential"
-                    ? end === "lastItem"
-                        ? ""
-                        : "!"
-                    : alternative.choiceType === "loop"
-                      ? "&"
-                      : alternative.choiceType === "random"
-                        ? "~"
-                        : undefined;
-            if (marker === undefined || (end !== undefined && end !== "lastItem")) return undefined;
-            const elements = alternative.elements.map((element, index) =>
-                inlineConditionalBranch(
-                    element,
-                    `${itemPath}.elements[${index}]`,
-                    context,
-                    branchId,
-                ),
-            );
-            return elements.every((element) => element !== undefined)
-                ? `{${marker}${elements.join("|")}}`
-                : undefined;
+            return renderInlineAlternative(item.conditionalStep, itemPath, context, branchId);
         }
         if (
             item.dialogue === undefined ||
@@ -882,6 +885,35 @@ function inlineConditionalBranch(
         return convertDialog(item.dialogue, `${itemPath}.dialogue`, context.lists);
     });
     return rendered.every((line) => line !== undefined) ? rendered.join("") : undefined;
+}
+
+function renderInlineAlternative(
+    alternative: { elements: unknown; choiceType: unknown; end?: unknown; nestedId?: unknown },
+    path: string,
+    context: InkConversionContext,
+    branchId: string,
+): string | undefined {
+    if (!Array.isArray(alternative.elements) || alternative.elements.length < 2) return undefined;
+    const expectedId = alternative.choiceType === "sequential" ? branchId || undefined : undefined;
+    if (alternative.nestedId !== expectedId) return undefined;
+    const end = alternative.end;
+    const marker =
+        alternative.choiceType === "sequential"
+            ? end === "lastItem"
+                ? ""
+                : "!"
+            : alternative.choiceType === "loop"
+              ? "&"
+              : alternative.choiceType === "random"
+                ? "~"
+                : undefined;
+    if (marker === undefined || (end !== undefined && end !== "lastItem")) return undefined;
+    const elements = alternative.elements.map((element, index) =>
+        inlineConditionalBranch(element, `${path}.elements[${index}]`, context, branchId),
+    );
+    return elements.every((element) => element !== undefined)
+        ? `{${marker}${elements.join("|")}}`
+        : undefined;
 }
 
 function renderInlineConditional(
@@ -962,25 +994,9 @@ function convertConditionalStep(
         ) {
             throw new Error(`Unsupported Ink alternative at ${path}`);
         }
-        const [marker, mode] = modes[kind as keyof typeof modes];
-        const inline = conditional.elements.map((element) => {
-            if (
-                "dialogue" in element &&
-                typeof element.dialogue === "string" &&
-                Object.keys(element).length === 1 &&
-                !/[\r\n|]/.test(element.dialogue)
-            ) {
-                return escapeInkText(element.dialogue);
-            }
-            return undefined;
-        });
-        if (
-            marker !== undefined &&
-            inline.length > 1 &&
-            inline.every((part) => part !== undefined)
-        ) {
-            return [`{${marker}${inline.join("|")}}`];
-        }
+        const [, mode] = modes[kind as keyof typeof modes];
+        const inline = renderInlineAlternative(conditional, path, context, "");
+        if (inline !== undefined) return [inline];
         const lines = [`{ ${mode}:`];
         for (const [index, element] of conditional.elements.entries()) {
             const elementPath = `${path}.elements[${index}]`;
@@ -1188,6 +1204,16 @@ function convertChoice(
             }
         } else if (fallback) {
             header = choicePrefix;
+        } else if (
+            Array.isArray(choice.text) &&
+            choice.text.some((part) => typeof part !== "string")
+        ) {
+            const text = choice.text
+                .map((part, index) =>
+                    renderInlineTextPart(part, `${path}.text[${index}]`, context.lists),
+                )
+                .join("");
+            header = `${choicePrefix} [${text}]`;
         } else if (typeof choice.text !== "string") {
             throw new Error(`Unsupported composed choice text at ${path}.text`);
         } else {

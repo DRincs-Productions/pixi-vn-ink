@@ -710,6 +710,7 @@ test("Examples", async () => {
             -> END
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("[{&Hit|Smash|Try} top-left]");
     expectJsonInkRoundTrip(expected);
 });
 
