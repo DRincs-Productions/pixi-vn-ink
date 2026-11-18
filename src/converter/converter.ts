@@ -79,32 +79,59 @@ export function convertInkToJson(
     });
 }
 
+type InkConversionContext = {
+    inkNames: Map<string, string>;
+    choiceBodies: Map<string, PixiVNJsonLabelStep[]>;
+};
+
+function isGeneratedChoiceLabel(label: string): boolean {
+    return /_\|_c-\d+$/.test(label);
+}
+
 /** Converts the representable subset of PixiVN JSON into an Ink script. */
 export function convertJsonToInk(data: PixiVNJson): string {
     const labels = data.labels ?? {};
     const blocks: string[] = [];
     const inkNames = new Map<string, string>();
+    const choiceBodies = new Map<string, PixiVNJsonLabelStep[]>();
+    const context = { inkNames, choiceBodies };
     for (const label of Object.keys(labels)) {
         if (!label.includes("_|_")) continue;
         const inkName = label.replaceAll("_|_", ".");
         inkNames.set(label, inkName);
     }
 
-    for (const [label, steps] of Object.entries(labels)) {
-        if (!inkNames.has(label)) {
-            assertInkName(label, `labels.${label}`);
+    const knots = new Map<string, { label: string; stitch?: string }[]>();
+    for (const label of Object.keys(labels)) {
+        if (isGeneratedChoiceLabel(label)) {
+            choiceBodies.set(label, labels[label]);
+            continue;
         }
-        const rawName = inkNames.get(label) ?? label;
-        const splitAt = rawName.indexOf(".");
-        const lines = [
-            splitAt >= 0
-                ? `=== ${rawName.slice(0, splitAt)} ===\n= ${rawName.slice(splitAt + 1)}`
-                : `=== ${rawName} ===`,
-        ];
-        for (const [stepIndex, step] of steps.entries()) {
-            lines.push(...convertStep(step, `labels.${label}[${stepIndex}]`, inkNames));
+        const [knot, stitch, nested] = label.split("_|_");
+        if (nested !== undefined) {
+            throw new Error(`Unsupported nested label at labels.${label}`);
+        }
+        assertInkName(knot, `labels.${label}`);
+        if (stitch !== undefined) assertInkName(stitch, `labels.${label}`);
+        const entries = knots.get(knot) ?? [];
+        if (stitch === undefined) entries.unshift({ label });
+        else entries.push({ label, stitch });
+        knots.set(knot, entries);
+    }
+
+    for (const [knot, entries] of knots) {
+        const lines = [`=== ${knot} ===`];
+        for (const { label, stitch } of entries) {
+            if (stitch !== undefined) lines.push(`= ${stitch}`);
+            for (const [stepIndex, step] of labels[label].entries()) {
+                lines.push(...convertStep(step, `labels.${label}[${stepIndex}]`, context));
+            }
         }
         blocks.push(lines.join("\n"));
+    }
+
+    for (const label of choiceBodies.keys()) {
+        throw new Error(`Unreferenced generated choice body at labels.${label}`);
     }
 
     if (data.initialOperations?.length) {
@@ -122,13 +149,13 @@ export function convertJsonToInk(data: PixiVNJson): string {
 function convertStep(
     step: PixiVNJsonLabelStep,
     path: string,
-    inkNames: Map<string, string>,
+    context: InkConversionContext,
 ): string[] {
     if (step.conditionalStep) {
         return convertConditionalStep(
             step.conditionalStep as any,
             `${path}.conditionalStep`,
-            inkNames,
+            context,
         );
     }
     const lines: string[] = [];
@@ -159,12 +186,15 @@ function convertStep(
             throw new Error(`Unsupported JSON to Ink choices at ${path}.choices`);
         }
         for (const [index, choice] of step.choices.entries()) {
-            if (!("text" in choice)) {
-                throw new Error(`Unsupported conditional choice at ${path}.choices[${index}]`);
+            const choicePath = `${path}.choices[${index}]`;
+            if ("text" in choice) {
+                lines.push(...convertChoice(choice, choicePath, context));
+            } else if (choice.type === "ifelse" && !choice.else && "text" in choice.then) {
+                const condition = toInkCondition(choice.condition, `${choicePath}.condition`);
+                lines.push(...convertChoice(choice.then, `${choicePath}.then`, context, condition));
+            } else {
+                throw new Error(`Unsupported conditional choice at ${choicePath}`);
             }
-            lines.push(
-                ...convertChoice(choice as PixiVNJsonChoice, `${path}.choices[${index}]`, inkNames),
-            );
         }
     }
     if (step.labelToOpen !== undefined) {
@@ -178,7 +208,10 @@ function convertStep(
             throw new Error(`Unsupported divert type at ${path}.labelToOpen.type`);
         }
         const label = step.labelToOpen.label;
-        lines.push(`-> ${inkNames.get(label) ?? label.replaceAll("_|_", ".")}`);
+        if (isGeneratedChoiceLabel(label)) {
+            throw new Error(`Unsupported divert to generated choice at ${path}.labelToOpen.label`);
+        }
+        lines.push(`-> ${context.inkNames.get(label) ?? label.replaceAll("_|_", ".")}`);
     }
     if (step.end === "game_end") lines.push("-> END");
     else if (step.end === "label_end") lines.push("-> DONE");
@@ -192,14 +225,14 @@ function convertStep(
 function convertConditionalStep(
     conditional: PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
     path: string,
-    inkNames: Map<string, string>,
+    context: InkConversionContext,
 ): string[] {
     if (conditional.type !== "ifelse") throw new Error(`Unsupported conditional step at ${path}`);
     const statement = conditional as PixiVNJsonIfElse<PixiVNJsonLabelStep>;
     const condition = toInkCondition(statement.condition, `${path}.condition`);
-    const thenLines = convertStep(statement.then as PixiVNJsonLabelStep, `${path}.then`, inkNames);
+    const thenLines = convertStep(statement.then as PixiVNJsonLabelStep, `${path}.then`, context);
     const elseLines = statement.else
-        ? convertStep(statement.else as PixiVNJsonLabelStep, `${path}.else`, inkNames)
+        ? convertStep(statement.else as PixiVNJsonLabelStep, `${path}.else`, context)
         : [];
     return [
         `{ ${condition}:`,
@@ -212,33 +245,58 @@ function convertConditionalStep(
 function convertChoice(
     choice: PixiVNJsonChoice,
     path: string,
-    inkNames: Map<string, string>,
+    context: InkConversionContext,
+    condition?: string,
 ): string[] {
     if (choice.type !== "call" && choice.type !== "jump") {
         throw new Error(`Unsupported choice type at ${path}.type`);
     }
-    if (choice.autoSelect || choice.onlyHaveNoChoice) {
-        if (
-            !choice.autoSelect ||
-            !choice.onlyHaveNoChoice ||
-            asInkText(choice.text, path).length !== 0
-        ) {
-            throw new Error(`Unsupported fallback choice at ${path}`);
-        }
-        return [`* -> ${choice.label}`];
+    const fallback = choice.autoSelect || choice.onlyHaveNoChoice;
+    if (fallback && (!choice.autoSelect || !choice.onlyHaveNoChoice)) {
+        throw new Error(`Unsupported fallback choice at ${path}`);
     }
     if (Object.keys(choice.props).length > 0) {
         throw new Error(`Choice props at ${path}.props are not supported`);
     }
     const text = asInkText(choice.text, `${path}.text`);
-    const marker = choice.oneTime === false ? "+" : "*";
-    if (choice.label.includes("_|_c-")) {
-        throw new Error(
-            `Generated choice label ${choice.label} is not representable as an Ink knot`,
-        );
+    if (fallback && text !== "") throw new Error(`Unsupported fallback choice at ${path}`);
+    const generated = isGeneratedChoiceLabel(choice.label);
+    // The mapper omits oneTime for sticky Ink choices.
+    const marker =
+        choice.oneTime === false || (generated && choice.oneTime === undefined) ? "+" : "*";
+    const choicePrefix = condition ? `${marker} { ${condition} }` : marker;
+    if (generated) {
+        const body = context.choiceBodies.get(choice.label);
+        if (!body) throw new Error(`Missing or repeated generated choice body at ${path}.label`);
+        if (choice.type !== "call")
+            throw new Error(`Unsupported generated choice type at ${path}.type`);
+        context.choiceBodies.delete(choice.label);
+
+        const first = body[0];
+        const echoesChoice =
+            !fallback && first?.dialogue === text && Object.keys(first).length === 1;
+        const header = fallback
+            ? choicePrefix
+            : `${choicePrefix} ${echoesChoice ? escapeInkText(text) : `[${escapeInkText(text)}]`}`;
+        const bodyLines = body.flatMap((step, index) => {
+            if (echoesChoice && index === 0) return [];
+            const stepPath = `labels.${choice.label}[${index}]`;
+            const lines = convertStep(step, stepPath, context);
+            return lines.map((line) =>
+                line.replace(
+                    /^(\s*)([*]+|[+]+)(?= |$)/,
+                    (_, space: string, markers: string) => space + markers + markers[0],
+                ),
+            );
+        });
+        return [header, ...indent(bodyLines)];
     }
-    const labelName = inkNames.get(choice.label) ?? choice.label.replaceAll("_|_", ".");
-    return [`${marker} [${escapeInkText(text)}] -> ${labelName}`];
+    const labelName = context.inkNames.get(choice.label) ?? choice.label.replaceAll("_|_", ".");
+    return [
+        fallback
+            ? `${choicePrefix} -> ${labelName}`
+            : `${choicePrefix} [${escapeInkText(text)}] -> ${labelName}`,
+    ];
 }
 
 function convertDialog(dialogue: unknown, path: string): string {
@@ -305,7 +363,15 @@ function toInkExpression(value: unknown, path: string): string {
             if (entry.storageType === "storage" || entry.storageType === "tempstorage") {
                 return String(entry.key);
             }
-            if (entry.storageType === "label") return `TURNS_SINCE(${String(entry.label)})`;
+            if (entry.storageType === "label" && typeof entry.label === "string") {
+                return entry.label
+                    .split("_|_")
+                    .map((name) => {
+                        assertInkName(name, path);
+                        return name;
+                    })
+                    .join(".");
+            }
             if (entry.storageType === "logic") return toInkExpression(entry.operation, path);
         }
         if (entry.type === "function") {

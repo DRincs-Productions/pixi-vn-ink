@@ -42,6 +42,8 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 - **Hashtag commands**: tags starting with `#` can run Pixi’VN operations (`# show image …`, `# shake …`, `# play sound …`, `# jump`, …) with optional transitions (`with dissolve|fade|…`) and effects. Custom ones are registered through `HashtagCommands`. See `skills/hashtag-commands` and `skills/canvas`.
 - **Output is Pixi’VN JSON**, not a live inkjs `Story`: ink is converted to labels/steps and run by `@drincs/pixi-vn-json`, so the game state (variables, history, save/load) is managed by Pixi’VN, not by inkjs.
 - **Knots/stitches become Pixi’VN labels**; diverts, tunnels, threads, and `-> END`/`-> DONE` are mapped to label opening/closing semantics.
+- **JSON to Ink stitches**: sibling stitch labels are emitted under one knot header. Nested label paths are currently rejected. See `skills/getting-started`.
+- **JSON to Ink choices**: generated choice bodies are emitted inline under their owning choice. A generated body must be referenced once. See `skills/getting-started`.
 - **Variables** are stored in Pixi’VN storage; functions and externals follow Pixi’VN rules (see `skills/getting-started` and `skills/migration`).
 - **Characters, text replacement (`{...}`/`[...]` replacements), markup, input requests, sound and pause/continue** are Pixi’VN extensions (see the matching skill under `skills/`).
 - Some ink features may be unsupported or behave differently; check `tests/` and `skills/migration` before assuming parity.

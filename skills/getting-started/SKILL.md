@@ -370,3 +370,14 @@ native-ink parity, invalidate the choice explicitly: `* (shove) {!shove} [2] 2`.
 - [pixi-vn.com/ink](https://pixi-vn.com/ink) — the rendered version of this integration's docs.
 - [inkle/ink](https://github.com/inkle/ink) and [inkjs](https://github.com/inkle/inkjs) — the language
   and the JS runtime this integration is built on.
+
+## Convert PixiVN JSON to Ink
+
+`convertJsonToInk` emits sibling stitches in the same knot. For example, labels
+`station_|_platform` and `station_|_ticket_office` become `= platform` and
+`= ticket_office` under one `=== station ===` header. The reverse converter
+currently rejects nested label paths.
+
+The reverse converter emits generated choice bodies beneath their owning choice.
+Each generated body must be referenced once. A choice guarded by an `ifelse`
+with no else branch can emit an Ink choice condition.

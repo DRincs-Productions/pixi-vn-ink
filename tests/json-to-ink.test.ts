@@ -1,6 +1,7 @@
 import { convertInkToJson, convertJsonToInk } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("converts labels, dialogue, choices, diverts, and endings to Ink", () => {
     const input: PixiVNJson = {
@@ -87,5 +88,33 @@ test("reports JSON constructs that have no supported Ink representation", () => 
     };
     expect(() => convertJsonToInk(input)).toThrow(
         "Unsupported operation at labels.start[0].operations[0]",
+    );
+});
+
+test("round-trips sibling stitches under a single knot", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            "station_|_platform": [{ dialogue: "On the platform." }, { end: "game_end" }],
+            "station_|_ticket_office": [{ dialogue: "At the ticket office." }, { end: "game_end" }],
+            station: [{ dialogue: "At the station." }, { end: "game_end" }],
+        },
+    };
+
+    const ink = convertJsonToInk(input);
+    expect(ink.match(/=== station ===/g)).toHaveLength(1);
+    expectJsonInkRoundTrip(input);
+});
+
+test("reports a generated choice body with no matching choice", () => {
+    const input: PixiVNJson = {
+        labels: {
+            start: [{ end: "game_end" }],
+            "start_|_c-0": [{ dialogue: "Unreferenced." }],
+        },
+    };
+
+    expect(() => convertJsonToInk(input)).toThrow(
+        "Unreferenced generated choice body at labels.start_|_c-0",
     );
 });
