@@ -238,3 +238,15 @@ test("reports composed choice text without matching shared dialogue", () => {
         "Unsupported composed choice text at labels.start[0].choices[0].text",
     );
 });
+
+test("round-trips a global string reassigned to an Ink alternative", () => {
+    const input = convertInkToJson(`
+VAR colour = ""
+~ colour = "{~red|blue}"
+=== start ===
+{colour}
+-> END
+`);
+
+    expectJsonInkRoundTrip(input);
+});

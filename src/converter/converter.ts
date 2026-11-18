@@ -144,7 +144,11 @@ export function convertJsonToInk(data: PixiVNJson): string {
     for (const [label, steps] of Object.entries(labels)) {
         const owner = label.replace(/(?:_\|_c-\d+)+$/, "");
         visitInkValues(steps, (entry) => {
-            if (isValueGet(entry, "params") && typeof entry.key === "number") {
+            if (
+                entry.type === "value" &&
+                entry.storageType === "params" &&
+                typeof entry.key === "number"
+            ) {
                 arities.set(owner, Math.max(arities.get(owner) ?? 0, entry.key + 1));
             }
             if (typeof entry.label === "string" && Array.isArray(entry.params)) {
@@ -231,6 +235,7 @@ function convertInitialOperations(
 ): string[] {
     const lines: string[] = [];
     const scalarLines = new Set<number>();
+    const declared = new Set<string>();
     for (let index = 0; index < operations.length; index++) {
         const operation = operations[index];
         const path = `initialOperations[${index}]`;
@@ -291,13 +296,19 @@ function convertInitialOperations(
                 selected.has(key) ? `(${key} = ${value})` : `${key} = ${value}`,
             );
             context.lists.set(name, members);
+            declared.add(name);
             lines.push(`LIST ${name} = ${membersInk.join(", ")}`);
             index += members.length;
             continue;
         }
 
-        lines.push(convertVariableSet(operation, path, true, context));
-        scalarLines.add(index);
+        const key = operation.key;
+        const isDeclaration = typeof key === "string" && !declared.has(key);
+        lines.push(convertVariableSet(operation, path, isDeclaration, context));
+        if (isDeclaration) {
+            declared.add(key);
+            scalarLines.add(index);
+        }
     }
     return lines;
 }
@@ -569,6 +580,15 @@ function convertConditionalStep(
     ) {
         return [`{ ${condition}:${escapeInkText(thenText)}|${escapeInkText(elseText)}}`];
     }
+    if (
+        !statement.else &&
+        typeof thenText === "string" &&
+        Object.keys(statement.then).length === 1 &&
+        thenText !== thenText.trim() &&
+        !/[\r\n|]/.test(thenText)
+    ) {
+        return [`{ ${condition}:${escapeInkText(thenText)}}`];
+    }
     const thenLines = convertStep(statement.then as PixiVNJsonLabelStep, `${path}.then`, context);
     const elseLines = statement.else
         ? convertStep(statement.else as PixiVNJsonLabelStep, `${path}.else`, context)
@@ -711,12 +731,15 @@ function convertVariableSet(
 ): string {
     if (
         operation.type !== "value" ||
-        operation.storageType === "params" ||
+        (initial && operation.storageType === "params") ||
         operation.storageType === "flagStorage"
     ) {
         throw new Error(`Unsupported variable operation at ${path}`);
     }
-    const key = operation.key;
+    const key =
+        operation.storageType === "params"
+            ? inkParameter(operation.key, `${path}.key`)
+            : operation.key;
     assertInkName(key, path);
     const expression = operation.value;
     if (
@@ -779,6 +802,22 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
             }
             if (entry.storageType === "logic") return toInkExpression(entry.operation, path, lists);
         }
+        if (entry.type === "stepswitch" && Array.isArray(entry.elements)) {
+            const markers = { sequential: "", loop: "&", random: "~" } as const;
+            const kind = entry.choiceType as keyof typeof markers;
+            if (
+                !Object.hasOwn(markers, kind) ||
+                entry.elements.length < 2 ||
+                entry.end !== undefined ||
+                entry.nestedId !== undefined ||
+                !entry.elements.every(
+                    (part) => typeof part === "string" && !/[\r\n|{}"\\]/.test(part),
+                )
+            ) {
+                throw new Error(`Unsupported Ink string alternative at ${path}`);
+            }
+            return `"{${markers[kind]}${entry.elements.join("|")}}"`;
+        }
         if (entry.type === "function") {
             const args = Array.isArray(entry.args)
                 ? entry.args.map((arg) => toInkExpression(arg, path, lists))
@@ -786,11 +825,13 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
             return `${String(entry.functionName)}(${args.join(", ")})`;
         }
         if (entry.type === "arithmetic") {
-            const operator =
-                entry.operator === "POW" || entry.operator === "INTERSECTION"
-                    ? "^"
-                    : String(entry.operator);
-            return `(${toInkExpression(entry.leftValue, path, lists)} ${operator} ${toInkExpression(entry.rightValue, path, lists)})`;
+            const left = toInkExpression(entry.leftValue, `${path}.leftValue`, lists);
+            const right = toInkExpression(entry.rightValue, `${path}.rightValue`, lists);
+            if (entry.operator === "POW" || entry.operator === "RANDOM") {
+                return `${entry.operator}(${left}, ${right})`;
+            }
+            const operator = entry.operator === "INTERSECTION" ? "^" : String(entry.operator);
+            return `(${left} ${operator} ${right})`;
         }
         if (entry.type === "arithmeticsingle")
             return `${String(entry.operator)}(${toInkExpression(entry.leftValue, path, lists)})`;
