@@ -597,8 +597,7 @@ function convertChoice(
     if (Object.keys(choice.props).length > 0) {
         throw new Error(`Choice props at ${path}.props are not supported`);
     }
-    const text = asInkText(choice.text, `${path}.text`);
-    if (fallback && text !== "") throw new Error(`Unsupported fallback choice at ${path}`);
+    if (fallback && choice.text !== "") throw new Error(`Unsupported fallback choice at ${path}`);
     const generated = isGeneratedChoiceLabel(choice.label);
     // The mapper omits oneTime for sticky Ink choices.
     const marker =
@@ -611,26 +610,46 @@ function convertChoice(
             throw new Error(`Unsupported generated choice type at ${path}.type`);
         context.choiceBodies.delete(choice.label);
 
-        const first = body[0];
-        const echoesChoice =
-            !fallback && first?.dialogue === text && Object.keys(first).length === 1;
-        const header = fallback
-            ? choicePrefix
-            : `${choicePrefix} ${echoesChoice ? escapeInkText(text) : `[${escapeInkText(text)}]`}`;
-        const bodyLines = convertSteps(
-            body,
-            `labels.${choice.label}`,
-            context,
-            echoesChoice ? 1 : 0,
-        ).map((line) =>
-            line.replace(
-                /^(\s*)([*]+|[+]+)(?= |$)/,
-                (_, space: string, markers: string) => space + markers + markers[0],
-            ),
+        const [first, second] = body;
+        const shared = Array.isArray(choice.text) ? choice.text[0] : choice.text;
+        const menuOnly = Array.isArray(choice.text) ? choice.text[1] : "";
+        const hasSharedText =
+            !fallback &&
+            (!Array.isArray(choice.text) || choice.text.length === 2) &&
+            typeof shared === "string" &&
+            typeof menuOnly === "string" &&
+            first?.dialogue === shared &&
+            first.glueEnabled === true &&
+            first.goNextStep === true &&
+            Object.keys(first).length === 3 &&
+            typeof second?.dialogue === "string" &&
+            Object.keys(second).length === 1;
+
+        let header: string;
+        let consumed = 0;
+        if (hasSharedText) {
+            header = `${choicePrefix} ${escapeInkText(shared)}[${escapeInkText(menuOnly)}]${escapeInkText(second.dialogue as string)}`;
+            consumed = 2;
+        } else if (typeof choice.text !== "string") {
+            throw new Error(`Unsupported composed choice text at ${path}.text`);
+        } else if (fallback) {
+            header = choicePrefix;
+        } else {
+            const text = escapeInkText(choice.text);
+            const echoesChoice = first?.dialogue === choice.text && Object.keys(first).length === 1;
+            header = `${choicePrefix} ${echoesChoice ? text : `[${text}]`}`;
+            consumed = echoesChoice ? 1 : 0;
+        }
+        const bodyLines = convertSteps(body, `labels.${choice.label}`, context, consumed).map(
+            (line) =>
+                line.replace(
+                    /^(\s*)([*]+|[+]+)(?= |$)/,
+                    (_, space: string, markers: string) => space + markers + markers[0],
+                ),
         );
         // Ink trims whitespace-only lines, but preserves the space before an inline ending.
         if (
-            !echoesChoice &&
+            consumed === 0 &&
             /^[ \t]+$/.test(bodyLines[0] ?? "") &&
             (bodyLines[1] === "-> END" || bodyLines[1] === "-> DONE")
         ) {
@@ -640,11 +659,14 @@ function convertChoice(
         if (fallback && inlineDivert?.startsWith("-> ")) {
             return [`${header} ${inlineDivert}`, ...indent(bodyLines.slice(1))];
         }
-        if (!echoesChoice && /^[ \t]+-> /.test(inlineDivert ?? "")) {
+        if (consumed === 0 && /^[ \t]+-> /.test(inlineDivert ?? "")) {
             return [header + inlineDivert, ...indent(bodyLines.slice(1))];
         }
         return [header, ...indent(bodyLines)];
     }
+    if (typeof choice.text !== "string")
+        throw new Error(`Unsupported composed choice text at ${path}.text`);
+    const text = choice.text;
     const labelName = context.inkNames.get(choice.label) ?? choice.label.replaceAll("_|_", ".");
     return [
         fallback
@@ -679,14 +701,6 @@ function toInkTextExpression(value: PixiVNJsonDialogText, path: string, lists: I
         return `{${toInkExpression(value, path, lists)}}`;
     }
     throw new Error(`Unsupported dialogue value at ${path}`);
-}
-
-function asInkText(text: PixiVNJsonDialogText, path: string): string {
-    if (typeof text === "string") return text;
-    if (Array.isArray(text) && text.every((part) => typeof part === "string")) {
-        return text.join("");
-    }
-    throw new Error(`Dynamic text at ${path} is not supported`);
 }
 
 function convertVariableSet(

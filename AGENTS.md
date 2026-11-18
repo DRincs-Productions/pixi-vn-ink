@@ -43,7 +43,7 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 - **Output is Pixi’VN JSON**, not a live inkjs `Story`: ink is converted to labels/steps and run by `@drincs/pixi-vn-json`, so the game state (variables, history, save/load) is managed by Pixi’VN, not by inkjs.
 - **Knots/stitches become Pixi’VN labels**; diverts, tunnels, threads, and `-> END`/`-> DONE` are mapped to label opening/closing semantics.
 - **JSON to Ink stitches**: sibling stitch labels are emitted under one knot header. Nested label paths are currently rejected. See `skills/getting-started`.
-- **JSON to Ink choices**: generated choice bodies are emitted inline under their owning choice. A generated body must be referenced once. See `skills/getting-started`.
+- **JSON to Ink choices**: generated choice bodies are emitted inline under their owning choice. A generated body must be referenced once. Shared text and menu-only text can be reconstructed from matching branch dialogue. See `skills/getting-started`.
 - **JSON to Ink tags and glue**: static deferred tags and tag origins preserve their source text. Adjacent dialogue and divert steps can reconstruct leading glue and inline diverts. See `skills/getting-started`.
 - **JSON to Ink divert parameters**: numeric parameter references reconstruct Ink signatures. A parameter used as a divert target receives Ink’s `->` type marker. See `skills/getting-started`.
 - **JSON to Ink lists**: a numeric list declaration is reconstructed from its array and qualified member operations. See `skills/getting-started`.

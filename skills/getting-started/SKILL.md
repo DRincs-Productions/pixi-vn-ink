@@ -404,3 +404,7 @@ leading or trailing spaces, so recompiling preserves those spaces.
 The reverse converter emits Ink alternatives from step switches. Simple text
 alternatives can use inline syntax. Branches with multiple steps and modified
 shuffles use multiline blocks. Explicit nested switch IDs are unsupported.
+
+For a composed choice, the reverse converter can reconstruct
+`shared[menu only]output only` when the first two branch steps preserve the
+shared and output-only text. The bracketed part appears only in the menu.

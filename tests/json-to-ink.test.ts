@@ -213,3 +213,28 @@ test("round-trips a cycle of inline alternatives", () => {
     };
     expectJsonInkRoundTrip(input);
 });
+
+test("reports composed choice text without matching shared dialogue", () => {
+    const input: PixiVNJson = {
+        labels: {
+            start: [
+                {
+                    choices: [
+                        {
+                            text: ["Shared", "Menu only"],
+                            label: "start_|_c-0",
+                            type: "call",
+                            props: {},
+                            oneTime: true,
+                        },
+                    ],
+                },
+            ],
+            "start_|_c-0": [{ dialogue: "Different text" }, { end: "game_end" }],
+        },
+    };
+
+    expect(() => convertJsonToInk(input)).toThrow(
+        "Unsupported composed choice text at labels.start[0].choices[0].text",
+    );
+});
