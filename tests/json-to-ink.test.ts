@@ -194,3 +194,22 @@ test("reports the missing member of an Ink list declaration", () => {
         "Missing or invalid Ink list member at initialOperations[2]",
     );
 });
+
+test("round-trips a cycle of inline alternatives", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    conditionalStep: {
+                        type: "stepswitch",
+                        choiceType: "loop",
+                        elements: [{ dialogue: "Red." }, { dialogue: "Blue." }],
+                    },
+                },
+                { end: "game_end" },
+            ],
+        },
+    };
+    expectJsonInkRoundTrip(input);
+});

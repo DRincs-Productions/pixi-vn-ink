@@ -47,6 +47,7 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 - **JSON to Ink tags and glue**: static deferred tags and tag origins preserve their source text. Adjacent dialogue and divert steps can reconstruct leading glue and inline diverts. See `skills/getting-started`.
 - **JSON to Ink divert parameters**: numeric parameter references reconstruct Ink signatures. A parameter used as a divert target receives Ink’s `->` type marker. See `skills/getting-started`.
 - **JSON to Ink lists**: a numeric list declaration is reconstructed from its array and qualified member operations. See `skills/getting-started`.
+- **JSON to Ink alternatives**: step switches can emit inline or multiline Ink alternatives according to their mode and branch content. See `skills/getting-started`.
 - **Variables** are stored in Pixi’VN storage; functions and externals follow Pixi’VN rules (see `skills/getting-started` and `skills/migration`).
 - **Characters, text replacement (`{...}`/`[...]` replacements), markup, input requests, sound and pause/continue** are Pixi’VN extensions (see the matching skill under `skills/`).
 - Some ink features may be unsupported or behave differently; check `tests/` and `skills/migration` before assuming parity.

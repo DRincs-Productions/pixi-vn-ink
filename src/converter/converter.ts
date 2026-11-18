@@ -320,8 +320,9 @@ function convertSteps(
             }
             rendered[0] = `<>${rendered[0]}`;
         } else if (
-            step.dialogue !== undefined &&
-            previous?.dialogue !== undefined &&
+            (step.dialogue !== undefined || step.conditionalStep?.type === "stepswitch") &&
+            (previous?.dialogue !== undefined ||
+                previous?.conditionalStep?.type === "stepswitch") &&
             (typeof previous.dialogue !== "string" || typeof step.dialogue !== "string") &&
             previous.glueEnabled &&
             previous.goNextStep &&
@@ -356,11 +357,19 @@ function convertStep(
     context: InkConversionContext,
 ): string[] {
     if (step.conditionalStep) {
-        return convertConditionalStep(
+        const rendered = convertConditionalStep(
             step.conditionalStep as any,
             `${path}.conditionalStep`,
             context,
         );
+        if (
+            step.conditionalStep.type === "stepswitch" &&
+            rendered.length === 1 &&
+            step.glueEnabled &&
+            step.goNextStep
+        )
+            rendered[0] += " <>";
+        return rendered;
     }
     const lines: string[] = [];
     if (step.operations?.length) {
@@ -473,6 +482,76 @@ function convertConditionalStep(
     path: string,
     context: InkConversionContext,
 ): string[] {
+    if (conditional.type === "stepswitch") {
+        if ("nestedId" in conditional && conditional.nestedId !== undefined) {
+            throw new Error(`Unsupported nested Ink alternative at ${path}.nestedId`);
+        }
+        const last = "end" in conditional ? conditional.end : undefined;
+        if (last !== undefined && last !== "lastItem") {
+            throw new Error(`Unsupported Ink alternative ending at ${path}.end`);
+        }
+        const kind = conditional.choiceType;
+        const modes = {
+            sequential: last ? ["", "stopping"] : ["!", "once"],
+            loop: ["&", "cycle"],
+            random: ["~", "shuffle"],
+            sequentialrandom: [undefined, last ? "shuffle stopping" : "shuffle once"],
+        } as const;
+        if (
+            !(kind in modes) ||
+            !Array.isArray(conditional.elements) ||
+            !conditional.elements.length
+        ) {
+            throw new Error(`Unsupported Ink alternative at ${path}`);
+        }
+        const [marker, mode] = modes[kind as keyof typeof modes];
+        const inline = conditional.elements.map((element) => {
+            if (
+                "dialogue" in element &&
+                typeof element.dialogue === "string" &&
+                Object.keys(element).length === 1 &&
+                !/[\r\n|]/.test(element.dialogue)
+            ) {
+                return escapeInkText(element.dialogue);
+            }
+            return undefined;
+        });
+        if (
+            marker !== undefined &&
+            inline.length > 1 &&
+            inline.every((part) => part !== undefined)
+        ) {
+            return [`{${marker}${inline.join("|")}}`];
+        }
+        const lines = [`{ ${mode}:`];
+        for (const [index, element] of conditional.elements.entries()) {
+            const elementPath = `${path}.elements[${index}]`;
+            let rendered: string[];
+            if (!("type" in element)) {
+                rendered = convertStep(element, elementPath, context);
+            } else if (element.type === "ifelse" || element.type === "stepswitch") {
+                rendered = convertConditionalStep(element, elementPath, context);
+            } else if (
+                element.type === "resulttocombine" &&
+                element.combine === "cross" &&
+                Array.isArray(element.secondConditionalItem) &&
+                !("firstConditionalItem" in element && element.firstConditionalItem) &&
+                element.secondConditionalItem.every(
+                    (step): step is PixiVNJsonLabelStep => !("type" in step),
+                )
+            ) {
+                rendered = convertSteps(
+                    element.secondConditionalItem,
+                    `${elementPath}.secondConditionalItem`,
+                    context,
+                );
+            } else {
+                throw new Error(`Unsupported Ink alternative branch at ${elementPath}`);
+            }
+            lines.push("-", ...indent(rendered));
+        }
+        return [...lines, "}"];
+    }
     if (conditional.type !== "ifelse") throw new Error(`Unsupported conditional step at ${path}`);
     const statement = conditional as PixiVNJsonIfElse<PixiVNJsonLabelStep>;
     const condition = toInkCondition(statement.condition, `${path}.condition`, context.lists);
@@ -549,6 +628,14 @@ function convertChoice(
                 (_, space: string, markers: string) => space + markers + markers[0],
             ),
         );
+        // Ink trims whitespace-only lines, but preserves the space before an inline ending.
+        if (
+            !echoesChoice &&
+            /^[ \t]+$/.test(bodyLines[0] ?? "") &&
+            (bodyLines[1] === "-> END" || bodyLines[1] === "-> DONE")
+        ) {
+            return [header + bodyLines[0] + bodyLines[1], ...indent(bodyLines.slice(2))];
+        }
         const inlineDivert = bodyLines[0];
         if (fallback && inlineDivert?.startsWith("-> ")) {
             return [`${header} ${inlineDivert}`, ...indent(bodyLines.slice(1))];

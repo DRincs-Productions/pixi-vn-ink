@@ -400,3 +400,7 @@ a matching declared list because the JSON stores only the numeric item values.
 
 A two-branch inline conditional can stay on one line when its dialogue contains
 leading or trailing spaces, so recompiling preserves those spaces.
+
+The reverse converter emits Ink alternatives from step switches. Simple text
+alternatives can use inline syntax. Branches with multiple steps and modified
+shuffles use multiline blocks. Explicit nested switch IDs are unsupported.
