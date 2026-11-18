@@ -1,7 +1,7 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
-import { expectJsonInkRoundTrip } from "./convertOperation";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("Label test 1", async () => {
     const expected: PixiVNJson = {
@@ -29,7 +29,7 @@ test("Label test 1", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === back_in_london ===
 We arrived into London at 9.45pm exactly.
 -> hurry_home
@@ -63,7 +63,7 @@ test("Label test 2", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === back_in_london ===
 We arrived into London at 9.45pm exactly.
 -> END
@@ -132,7 +132,7 @@ test("The first stitch is the default", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === the_orient_express ===
 We boarded the train, but where?
 *	[First class] -> in_first_class
@@ -143,6 +143,8 @@ We boarded the train, but where?
 	Second class was cramped.
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#local-diverts
@@ -196,7 +198,7 @@ test("Local diverts", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> the_orient_express
 === the_orient_express ===
 = in_first_class
@@ -208,6 +210,8 @@ test("Local diverts", async () => {
 	->DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 test("Ignore Uknown Labels", async () => {
     const expected: PixiVNJson = {
@@ -235,7 +239,7 @@ test("Ignore Uknown Labels", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === back_in_london ===
 We arrived into London at 9.45pm exactly.
 -> uknown

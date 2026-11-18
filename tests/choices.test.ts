@@ -1,6 +1,7 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 // Choices
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#2-choices
@@ -35,13 +36,15 @@ test("Choices test 1", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === test ===
 Hello world!
 *	Hello back!
 	Nice to hear from you!
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Choices test 2", async () => {
@@ -74,7 +77,7 @@ test("Choices test 2", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === test ===
 Hello world!
 Hello world!2
@@ -82,6 +85,8 @@ Hello world!2
 	Nice to hear from you!
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Choices test 3", async () => {
@@ -119,13 +124,15 @@ test("Choices test 3", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === test ===
 Hello world!
 *	Hello [back!] right back to you!
 	Nice to hear from you!
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Choices test 4", async () => {
@@ -163,13 +170,15 @@ test("Choices test 4", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === test ===
 "What's that?" my master asked.
 *	"I am somewhat tired[."]," I repeated.
 	"Really," he responded. "How deleterious."
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Choices test 5", async () => {
@@ -248,7 +257,7 @@ test("Choices test 5", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === test ===
 "What's that?" my master asked.
 *	"I am somewhat tired[."]," I repeated.
@@ -259,6 +268,8 @@ test("Choices test 5", async () => {
 	"Ah," he replied, not unkindly. "I see you are feeling frustrated. Tomorrow, things will improve."
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -354,7 +365,7 @@ test("Basic branching", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> paragraph_1
 === paragraph_1 ===
 You stand by the wall of Analand, sword in hand.
@@ -372,6 +383,8 @@ You open the gate, and step out onto the path.
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -464,7 +477,7 @@ test("Example of a fallback choice", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> find_help
 === find_help ===
 
@@ -476,6 +489,8 @@ test("Example of a fallback choice", async () => {
 		-> END
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -527,7 +542,7 @@ test("Sticky choices", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> homers_couch
 === homers_couch ===
 	+	[Eat another donut]
@@ -537,6 +552,8 @@ test("Sticky choices", async () => {
 		-> END
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -819,7 +836,7 @@ test("Conditional Choices", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> visit_paris
 === visit_paris ===
 *	{ not visit_paris } 	[Go to Paris] -> visit_paris
@@ -841,6 +858,8 @@ bored_of_paris
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 test("start_|_s", async () => {
@@ -970,7 +989,7 @@ test("start_|_s", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR _input_value_ = ""
 
 === start ===
@@ -993,6 +1012,8 @@ She enters my room before I'VE even had a chance to.
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1048,7 +1069,7 @@ test("Conditional choice with NOT operator", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === visited_london ===
 You are in London.
 -> DONE
@@ -1056,6 +1077,8 @@ You are in London.
 * { not visited_london } [Go to London] -> visited_london
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1135,7 +1158,7 @@ test("Conditional choice with OR in brackets", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === visit_paris ===
 -> DONE
 === visit_rome ===
@@ -1147,6 +1170,8 @@ You are somewhere new.
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1219,7 +1244,7 @@ test("Multiple conditions AND on sticky choice", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR bored_of_paris = false
 === visit_paris ===
 -> DONE
@@ -1227,6 +1252,8 @@ VAR bored_of_paris = false
 + { visit_paris } { not bored_of_paris } [Return to Paris] -> visit_paris
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1289,7 +1316,7 @@ test("Knot label read count comparison in conditional choice", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === seen_clue ===
 -> DONE
 === start ===
@@ -1299,4 +1326,6 @@ You arrest Mr Jefferson.
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });

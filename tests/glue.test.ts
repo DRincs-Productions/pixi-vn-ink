@@ -1,7 +1,8 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { convertOperation } from "./convertOperation";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#diverts-are-invisible
@@ -30,7 +31,7 @@ test("Diverts are invisible", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> hurry_home
 === hurry_home ===
 We hurried home to Savile Row -> as_fast_as_we_could
@@ -39,6 +40,8 @@ We hurried home to Savile Row -> as_fast_as_we_could
 as fast as we could.
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -108,7 +111,7 @@ test("Diverts and glue at the start of a label", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === theTop ===
 With the divert on a second line, it takes two clicks to
 ->extendSentence
@@ -127,6 +130,8 @@ I thought that putting \\<\\> at the front of a line would mean it would take a 
 -> END
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -173,7 +178,7 @@ test("Glue", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === hurry_home ===
 We hurried home <>
 -> to_savile_row
@@ -186,6 +191,8 @@ to Savile Row
 <> as fast as we could.
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -308,7 +315,7 @@ test("Branching and joining", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
@@ -336,6 +343,8 @@ He insisted that we hurried home to Savile Row
 <> as fast as we could.
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Fix glue error", async () => {
@@ -423,7 +432,7 @@ test("Fix glue error", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 VAR some_var = false
 
 === start ===
@@ -441,6 +450,8 @@ finish text
 `);
     await convertOperation(res);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -474,7 +485,7 @@ test("Glue at the start of a label is invisible, whichever divert reaches it", a
             ],
         },
     };
-    const resNewLine = convertInkText(`
+    const resNewLine = convertInkToJson(`
 === start ===
 Ready?
 -> next
@@ -511,7 +522,7 @@ Ready?
             ],
         },
     };
-    const resSameLine = convertInkText(`
+    const resSameLine = convertInkToJson(`
 === start ===
 Ready?-> next
 
@@ -544,13 +555,15 @@ test("Glue at the end of a line skips the click before the next line", async () 
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 Hello <>
 world.
 -> END
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -576,13 +589,15 @@ test("Glue at the start of a new line still waits for the click", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 Hello
 <> world.
 -> END
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -619,7 +634,7 @@ test("Glue at the start of a label is invisible through a tunnel divert", async 
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 Ready?
 -> next ->
@@ -631,4 +646,6 @@ Done.
 ->->
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });

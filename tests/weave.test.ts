@@ -1,6 +1,7 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 /**
  * https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#options-and-gathers-form-chains-of-content
@@ -162,7 +163,7 @@ test("Options and gathers form chains of content", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> start
 === start ==
 I ran through the forest, the dogs snapping at my heels.
@@ -182,6 +183,8 @@ I ran through the forest, the dogs snapping at my heels.
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -354,7 +357,7 @@ test("Options can be nested", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> start
 === start ==
 - 	"Well, Poirot? Murder or suicide?"
@@ -371,6 +374,8 @@ test("Options can be nested", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -590,7 +595,7 @@ test("Gather points can be nested too", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> start
 === start ==
 - 	"Well, Poirot? Murder or suicide?"
@@ -610,6 +615,8 @@ test("Gather points can be nested too", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -750,7 +757,7 @@ test("Advanced: What gathers do", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> start
 === start ==
 -	"Tell us a tale, Captain!"
@@ -764,6 +771,8 @@ test("Advanced: What gathers do", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1037,7 +1046,7 @@ test("Example: a conversation with nested nodes", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> start
 === start ==
 - I looked at Monsieur Fogg
@@ -1061,6 +1070,8 @@ test("Example: a conversation with nested nodes", async () => {
 - -> END
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1242,7 +1253,7 @@ test("Gathers and options can be labelled", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> meet_guard
 === meet_guard ===
 The guard frowns at you.
@@ -1268,6 +1279,8 @@ fight_guard
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1345,7 +1358,7 @@ test("Scope", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> knot
 === knot ===
 = stitch_one
@@ -1356,6 +1369,8 @@ test("Scope", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1468,7 +1483,7 @@ test("Scope2", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> knot_one
 === knot_one ===
 -	(gather_one)
@@ -1481,6 +1496,8 @@ test("Scope2", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1574,7 +1591,7 @@ test("Advanced: all options can be labelled", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> fight_guard
 === fight_guard ===
 ...
@@ -1587,6 +1604,8 @@ You hurl {throw_something.rock:a rock|a handful of sand} at the guard.
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1768,7 +1787,7 @@ test("Advanced: Loops in a weave", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> fight_guard
 === fight_guard ===
 - (opts)
@@ -1791,6 +1810,8 @@ test("Advanced: Loops in a weave", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1921,7 +1942,7 @@ test("Advanced: diverting to options", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> fight_guard
 === fight_guard ===
 - (opts)
@@ -1940,6 +1961,8 @@ fight_the_guard
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -2055,7 +2078,7 @@ test("Advanced: Gathers directly after an option", async () => {
             ],
         },
     };
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 -> fight_guard
 === fight_guard ===
 *	"Are you quite well, Monsieur?"[] I asked.
@@ -2067,4 +2090,6 @@ test("Advanced: Gathers directly after an option", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });

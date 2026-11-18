@@ -1,7 +1,5 @@
 import { HashtagCommands } from "@/handlers/hashtag-commands";
-import { convertInkToJson, convertJsonToInk } from "@/converter";
 import type { PixiVNJson, PixiVNJsonIfElse, PixiVNJsonOperation } from "@drincs/pixi-vn-json";
-import { expect } from "vitest";
 
 export async function convertOperation(res?: PixiVNJson) {
     if (res?.labels) {
@@ -48,11 +46,4 @@ export async function convertOperation(res?: PixiVNJson) {
             res.labels[label] = tempSteps;
         }
     }
-}
-
-/** Checks the Ink-representable subset of an expected JSON conversion result by round-tripping it. */
-export function expectJsonInkRoundTrip(expected: PixiVNJson) {
-    const ink = convertJsonToInk(expected);
-    const actual = convertInkToJson(ink);
-    expect(actual).toEqual(expected);
 }

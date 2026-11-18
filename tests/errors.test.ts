@@ -1,4 +1,4 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { InkCompiler } from "@drincs/pixi-vn-ink/parser";
 import { expect, test } from "vitest";
 
@@ -6,7 +6,7 @@ import { expect, test } from "vitest";
  * An empty bare divert `->` outside a choice is an ink compile error.
  */
 test("Label test 1", async () => {
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === back_in_london ===
 
 We arrived into London at 9.45pm exactly.
