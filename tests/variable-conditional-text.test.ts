@@ -1,4 +1,4 @@
-import { convertInkToJson } from "@/loader";
+import { convertInkToJson, convertJsonToInk } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
@@ -1173,6 +1173,7 @@ learned_his_name
 -> met_blofeld
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("{a|b|{met_blofeld: {c|d}}}");
     expectJsonInkRoundTrip(expected);
 });
 

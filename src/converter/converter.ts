@@ -450,9 +450,8 @@ function convertSteps(
             if (lines.at(-1) === "<>") lines.pop();
             rendered[0] = `<>${rendered[0]}`;
         } else if (
-            (step.dialogue !== undefined || step.conditionalStep?.type === "stepswitch") &&
-            (previous?.dialogue !== undefined ||
-                previous?.conditionalStep?.type === "stepswitch") &&
+            (step.dialogue !== undefined || step.conditionalStep !== undefined) &&
+            (previous?.dialogue !== undefined || previous?.conditionalStep !== undefined) &&
             (typeof previous.dialogue !== "string" || typeof step.dialogue !== "string") &&
             previous.glueEnabled &&
             previous.goNextStep &&
@@ -560,13 +559,7 @@ function convertStep(
             `${path}.conditionalStep`,
             context,
         );
-        if (
-            step.conditionalStep.type === "stepswitch" &&
-            rendered.length === 1 &&
-            step.glueEnabled &&
-            step.goNextStep
-        )
-            rendered[0] += "<>";
+        if (rendered.length === 1 && step.glueEnabled && step.goNextStep) rendered[0] += "<>";
         return rendered;
     }
     const lines: string[] = [];
@@ -788,6 +781,7 @@ function inlineConditionalBranch(
     branch: unknown,
     path: string,
     context: InkConversionContext,
+    branchId = "",
 ): string | undefined {
     if (!branch || typeof branch !== "object") return undefined;
     const step = branch as PixiVNJsonLabelStep;
@@ -797,6 +791,14 @@ function inlineConditionalBranch(
         !/[\r\n|]/.test(step.dialogue)
     )
         return escapeInkText(step.dialogue);
+
+    if (Object.keys(step).length === 1 && step.conditionalStep?.type === "ifelse") {
+        return renderInlineConditional(step.conditionalStep, path, context, branchId);
+    }
+    if (Object.keys(step).length === 1 && (step.labelToOpen || step.end)) {
+        const lines = convertStep(step, path, context);
+        return lines.length === 1 ? lines[0] : undefined;
+    }
 
     const combination = branch as PixiVNJsonConditionalResultToCombine<PixiVNJsonLabelStep>;
     if (
@@ -812,6 +814,25 @@ function inlineConditionalBranch(
     const rendered = items.map((item, index) => {
         if ("type" in item) return undefined;
         const joinsNext = index < items.length - 1;
+        const next = items[index + 1];
+        if (
+            joinsNext &&
+            !("type" in next) &&
+            (next.labelToOpen || next.end) &&
+            typeof item.dialogue === "string" &&
+            ((item.goNextStep === true && Object.keys(item).length === 2) ||
+                (next.end && Object.keys(item).length === 1))
+        ) {
+            return escapeInkText(item.dialogue);
+        }
+        if (
+            !joinsNext &&
+            (item.labelToOpen || item.end) &&
+            Object.keys(item).every((key) => ["labelToOpen", "end", "glueEnabled"].includes(key))
+        ) {
+            const lines = convertStep(item, path, context);
+            return lines.length === 1 ? lines[0] : undefined;
+        }
         if (joinsNext && (!item.glueEnabled || item.goNextStep !== true)) return undefined;
         if (Object.keys(item).length !== (joinsNext ? 3 : 1)) return undefined;
         const itemPath = `${path}.secondConditionalItem[${index}]`;
@@ -820,7 +841,38 @@ function inlineConditionalBranch(
                 item.conditionalStep,
                 `${itemPath}.conditionalStep`,
                 context,
+                branchId,
             );
+        }
+        if (item.conditionalStep?.type === "stepswitch") {
+            const alternative = item.conditionalStep;
+            if (!Array.isArray(alternative.elements) || alternative.elements.length < 2)
+                return undefined;
+            const end = "end" in alternative ? alternative.end : undefined;
+            const nestedId = "nestedId" in alternative ? alternative.nestedId : undefined;
+            if (nestedId !== (branchId || undefined)) return undefined;
+            const marker =
+                alternative.choiceType === "sequential"
+                    ? end === "lastItem"
+                        ? ""
+                        : "!"
+                    : alternative.choiceType === "loop"
+                      ? "&"
+                      : alternative.choiceType === "random"
+                        ? "~"
+                        : undefined;
+            if (marker === undefined || (end !== undefined && end !== "lastItem")) return undefined;
+            const elements = alternative.elements.map((element, index) =>
+                inlineConditionalBranch(
+                    element,
+                    `${itemPath}.elements[${index}]`,
+                    context,
+                    branchId,
+                ),
+            );
+            return elements.every((element) => element !== undefined)
+                ? `{${marker}${elements.join("|")}}`
+                : undefined;
         }
         if (
             item.dialogue === undefined ||
@@ -836,9 +888,20 @@ function renderInlineConditional(
     conditional: { condition: unknown; then: unknown; else?: unknown },
     path: string,
     context: InkConversionContext,
+    branchId = "",
 ): string | undefined {
-    const then = inlineConditionalBranch(conditional.then, `${path}.then`, context);
-    const otherwise = inlineConditionalBranch(conditional.else, `${path}.else`, context);
+    const then = inlineConditionalBranch(
+        conditional.then,
+        `${path}.then`,
+        context,
+        branchId + "then",
+    );
+    const otherwise = inlineConditionalBranch(
+        conditional.else,
+        `${path}.else`,
+        context,
+        branchId + "else",
+    );
     if (then === undefined || (conditional.else !== undefined && otherwise === undefined)) {
         return undefined;
     }
@@ -954,7 +1017,13 @@ function convertConditionalStep(
         typeof branch === "object" &&
         "type" in branch &&
         branch.type === "resulttocombine";
-    if (isCrossBranch(statement.then) || isCrossBranch(statement.else)) {
+    if (
+        isCrossBranch(statement.then) ||
+        isCrossBranch(statement.else) ||
+        ("dialogue" in statement.then &&
+            typeof statement.then.dialogue === "string" &&
+            statement.then.dialogue !== statement.then.dialogue.trim())
+    ) {
         const inline = renderInlineConditional(statement, path, context);
         if (inline !== undefined) return [inline];
     }

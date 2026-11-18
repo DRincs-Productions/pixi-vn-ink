@@ -231,6 +231,7 @@ An unnamed gather begins with `-` and brings preceding choices back together. Us
 Standalone function calls use an Ink logic line such as `~ award_points(5)`.
 Multiline conditional branches can include dialogue, logic lines, and choices.
 Keep a conditional inline when its surrounding spaces are part of the dialogue.
+Inline conditional text can contain alternatives such as `{a|b}`.
 
 Initialize a variable with selected list members using qualified names, for example
 `VAR inventory = (items.sword, items.key)`.
