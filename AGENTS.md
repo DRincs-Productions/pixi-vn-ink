@@ -48,7 +48,7 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 - **JSON to Ink tags and glue**: static deferred tags and tag origins preserve their source text. Dynamic tags can reconstruct interpolations and inline branches. Adjacent dialogue and divert steps can reconstruct leading glue and inline diverts. Literal glue markers are escaped. See `skills/getting-started`.
 - **JSON to Ink markup**: dialogue escapes Ink syntax used as literal markup and preserves explicit line breaks. See `skills/markup`.
 - **JSON to Ink divert parameters**: numeric parameter references reconstruct Ink signatures. A parameter used as a divert target receives Ink’s `->` type marker. See `skills/getting-started`.
-- **JSON to Ink lists**: a numeric list declaration is reconstructed from its array and qualified member operations. See `skills/getting-started`.
+- **JSON to Ink lists**: a numeric list declaration is reconstructed from its array and qualified member operations. A global initialized from that list can also be reconstructed. See `skills/getting-started`.
 - **JSON to Ink assignments**: repeated global assignments and writes to knot parameters can be reconstructed, including simple alternatives inside quoted strings. See `skills/getting-started`.
 - **JSON to Ink function calls**: standalone function operations emit as Ink logic lines. See `skills/getting-started`.
 - **JSON to Ink alternatives**: step switches can emit inline or multiline Ink alternatives according to their mode and branch content. See `skills/getting-started`.

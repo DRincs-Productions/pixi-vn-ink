@@ -230,6 +230,9 @@ choice with no branch content can appear in the menu without a separate PixiVN l
 An unnamed gather begins with `-` and brings preceding choices back together. Use `- (name)` for a named gather and qualify references from other knots or stitches.
 Standalone function calls use an Ink logic line such as `~ award_points(5)`.
 
+Initialize a variable with selected list members using qualified names, for example
+`VAR inventory = (items.sword, items.key)`.
+
 ### Knots are Pixi'VN labels — in both directions
 
 Creating a `knot` with ink registers a `label` internally, addressed exactly like a TS-authored one:

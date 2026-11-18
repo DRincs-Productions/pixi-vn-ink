@@ -292,6 +292,47 @@ function convertInitialOperations(
             if (operation.storageType !== "storage" || operation.storageOperationType !== "set") {
                 throw new Error(`Unsupported Ink list declaration at ${path}`);
             }
+            const knownMembers = context.lists.get(name);
+            const alias = operations[index + 1];
+            if (
+                knownMembers &&
+                alias?.type === "value" &&
+                alias.storageType === "storage" &&
+                alias.storageOperationType === "set" &&
+                typeof alias.key === "string" &&
+                !declared.has(alias.key) &&
+                Array.isArray(alias.value) &&
+                alias.value.length &&
+                operation.value.length === knownMembers.length &&
+                operation.value.every((value, offset) => value === knownMembers[offset].value)
+            ) {
+                const first = index - alias.value.length;
+                const selected = alias.value.map((value, offset) => {
+                    const at = first + offset;
+                    const entry = operations[at];
+                    return scalarLines.has(at) && entry?.type === "value" && entry.value === value
+                        ? knownMembers.find(
+                              (member) => member.key === entry.key && member.value === value,
+                          )
+                        : undefined;
+                });
+                if (
+                    selected.every((member) => member !== undefined) &&
+                    new Set(selected.map((member) => member.key)).size === selected.length
+                ) {
+                    assertInkName(alias.key, `initialOperations[${index + 1}].key`);
+                    lines.splice(-selected.length);
+                    for (let at = first; at < index; at++) {
+                        scalarLines.delete(at);
+                        declared.delete(selected[at - first].key);
+                    }
+                    const items = selected.map((member) => `${name}.${member.key}`);
+                    lines.push(`VAR ${alias.key} = (${items.join(", ")})`);
+                    declared.add(alias.key);
+                    index++;
+                    continue;
+                }
+            }
             const members = operation.value.map((value, offset) => {
                 const memberIndex = index + offset + 1;
                 const memberPath = `initialOperations[${memberIndex}]`;

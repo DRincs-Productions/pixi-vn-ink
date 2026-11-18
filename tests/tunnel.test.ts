@@ -1,4 +1,4 @@
-import { convertInkToJson } from "@/loader";
+import { convertInkToJson, convertJsonToInk } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
 import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
@@ -546,6 +546,7 @@ You have:
 ->->
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("VAR inventory2 = (items.sword, items.key)");
     expectJsonInkRoundTrip(expected);
 });
 
