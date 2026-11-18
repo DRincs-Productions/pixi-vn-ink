@@ -9,6 +9,7 @@ import type {
     PixiVNJsonChoice,
     PixiVNJsonComparation,
     PixiVNJsonConditions,
+    PixiVNJsonConditionalResultToCombine,
     PixiVNJsonConditionalStatements,
     PixiVNJsonDialogText,
     PixiVNJsonIfElse,
@@ -774,6 +775,32 @@ function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?:
     return `{${toInkExpression(part, path, lists)}}`;
 }
 
+function convertConditionalBranch(
+    branch:
+        | PixiVNJsonLabelStep
+        | PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>
+        | PixiVNJsonConditionalResultToCombine<PixiVNJsonLabelStep>
+        | undefined,
+    path: string,
+    context: InkConversionContext,
+): string[] {
+    if (branch === undefined) return [];
+    if (!("type" in branch)) return convertStep(branch, path, context);
+    if (branch.type === "ifelse" || branch.type === "stepswitch") {
+        return convertConditionalStep(branch, path, context);
+    }
+    if (
+        branch.type === "resulttocombine" &&
+        branch.combine === "cross" &&
+        Array.isArray(branch.secondConditionalItem) &&
+        !("firstConditionalItem" in branch && branch.firstConditionalItem) &&
+        branch.secondConditionalItem.every((step): step is PixiVNJsonLabelStep => !("type" in step))
+    ) {
+        return convertSteps(branch.secondConditionalItem, `${path}.secondConditionalItem`, context);
+    }
+    throw new Error(`Unsupported Ink conditional branch at ${path}`);
+}
+
 function convertConditionalStep(
     conditional: PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
     path: string,
@@ -875,10 +902,8 @@ function convertConditionalStep(
     ) {
         return [`{ ${condition}:${escapeInkText(thenText)}}`];
     }
-    const thenLines = convertStep(statement.then as PixiVNJsonLabelStep, `${path}.then`, context);
-    const elseLines = statement.else
-        ? convertStep(statement.else as PixiVNJsonLabelStep, `${path}.else`, context)
-        : [];
+    const thenLines = convertConditionalBranch(statement.then, `${path}.then`, context);
+    const elseLines = convertConditionalBranch(statement.else, `${path}.else`, context);
     return [
         `{ ${condition}:`,
         ...indent(thenLines),

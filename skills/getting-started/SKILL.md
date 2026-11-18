@@ -229,6 +229,7 @@ Use `* ->` followed by branch content for a fallback choice with dialogue. A bra
 choice with no branch content can appear in the menu without a separate PixiVN label.
 An unnamed gather begins with `-` and brings preceding choices back together. Use `- (name)` for a named gather and qualify references from other knots or stitches.
 Standalone function calls use an Ink logic line such as `~ award_points(5)`.
+Multiline conditional branches can include dialogue, logic lines, and choices.
 
 Initialize a variable with selected list members using qualified names, for example
 `VAR inventory = (items.sword, items.key)`.

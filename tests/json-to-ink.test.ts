@@ -349,3 +349,23 @@ test("round-trips Markdown and explicit line breaks as dialogue", () => {
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips a conditional branch containing dialogue and choices", () => {
+    const input = convertInkToJson(`
+VAR door_open = true
+=== start ===
+{door_open:
+    The door is open.
+    * [Enter]
+        -> hall
+- else:
+    The door is locked.
+    -> END
+}
+=== hall ===
+You are inside.
+-> END
+`);
+
+    expectJsonInkRoundTrip(input);
+});

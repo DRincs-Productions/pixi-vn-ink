@@ -52,6 +52,7 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 - **JSON to Ink assignments**: repeated global assignments and writes to knot parameters can be reconstructed, including simple alternatives inside quoted strings. See `skills/getting-started`.
 - **JSON to Ink function calls**: standalone function operations emit as Ink logic lines. See `skills/getting-started`.
 - **JSON to Ink alternatives**: step switches can emit inline or multiline Ink alternatives according to their mode and branch content. See `skills/getting-started`.
+- **JSON to Ink conditional branches**: branches containing dialogue, operations and choices can emit as multiline Ink conditionals. See `skills/getting-started`.
 - **Variables** are stored in Pixi’VN storage; functions and externals follow Pixi’VN rules (see `skills/getting-started` and `skills/migration`).
 - **Characters, text replacement (`{...}`/`[...]` replacements), markup, input requests, sound and pause/continue** are Pixi’VN extensions (see the matching skill under `skills/`).
 - Some ink features may be unsupported or behave differently; check `tests/` and `skills/migration` before assuming parity.
