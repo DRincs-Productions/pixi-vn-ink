@@ -44,6 +44,9 @@ Standard ink is the baseline; anything that deviates from it must be documented.
 - **Knots/stitches become Pixi’VN labels**; diverts, tunnels, threads, and `-> END`/`-> DONE` are mapped to label opening/closing semantics.
 - **JSON to Ink stitches**: sibling stitch labels are emitted under one knot header. Nested label paths are currently rejected. See `skills/getting-started`.
 - **JSON to Ink choices**: generated choice bodies are emitted inline under their owning choice. A generated body must be referenced once. See `skills/getting-started`.
+- **JSON to Ink tags and glue**: static deferred tags and tag origins preserve their source text. Adjacent dialogue and divert steps can reconstruct leading glue and inline diverts. See `skills/getting-started`.
+- **JSON to Ink divert parameters**: numeric parameter references reconstruct Ink signatures. A parameter used as a divert target receives Ink’s `->` type marker. See `skills/getting-started`.
+- **JSON to Ink lists**: a numeric list declaration is reconstructed from its array and qualified member operations. See `skills/getting-started`.
 - **Variables** are stored in Pixi’VN storage; functions and externals follow Pixi’VN rules (see `skills/getting-started` and `skills/migration`).
 - **Characters, text replacement (`{...}`/`[...]` replacements), markup, input requests, sound and pause/continue** are Pixi’VN extensions (see the matching skill under `skills/`).
 - Some ink features may be unsupported or behave differently; check `tests/` and `skills/migration` before assuming parity.

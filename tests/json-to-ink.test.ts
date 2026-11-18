@@ -118,3 +118,79 @@ test("reports a generated choice body with no matching choice", () => {
         "Unreferenced generated choice body at labels.start_|_c-0",
     );
 });
+
+test("round-trips a deferred tag with a quoted argument", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                {
+                    goNextStep: true,
+                    operations: [{ type: "operationtoconvert", values: ['custom_tag "two words"'] }],
+                },
+                { dialogue: "Ready." },
+                { end: "game_end" },
+            ],
+        },
+    };
+
+    expectJsonInkRoundTrip(input);
+});
+
+test("round-trips a stored divert target", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "destination",
+                value: "finish",
+            },
+        ],
+        labels: {
+            start: [
+                {
+                    labelToOpen: {
+                        type: "jump",
+                        label: {
+                            type: "value",
+                            storageOperationType: "get",
+                            storageType: "storage",
+                            key: "destination",
+                        },
+                    },
+                },
+            ],
+            finish: [{ end: "game_end" }],
+        },
+    };
+
+    expectJsonInkRoundTrip(input);
+});
+
+test("reports the missing member of an Ink list declaration", () => {
+    const input: PixiVNJson = {
+        initialOperations: [
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rank",
+                value: [1, 3],
+            },
+            {
+                type: "value",
+                storageOperationType: "set",
+                storageType: "storage",
+                key: "rank.recruit",
+                value: 1,
+            },
+        ],
+    };
+
+    expect(() => convertJsonToInk(input)).toThrow(
+        "Missing or invalid Ink list member at initialOperations[2]",
+    );
+});

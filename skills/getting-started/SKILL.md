@@ -381,3 +381,22 @@ currently rejects nested label paths.
 The reverse converter emits generated choice bodies beneath their owning choice.
 Each generated body must be referenced once. A choice guarded by an `ifelse`
 with no else branch can emit an Ink choice condition.
+
+The reverse converter can emit static tag text from an operation's `$origin`
+or from a deferred operation with one string value. It preserves quoted tag
+arguments. Tunnel calls use `-> target ->`, and glue can be reconstructed from
+adjacent dialogue or divert steps.
+
+The reverse converter reconstructs knot and stitch parameter lists from numeric
+parameter references and divert arguments. It uses generated parameter names
+because PixiVN JSON stores parameter positions. A parameter used as a divert
+target is emitted with Ink's `->` type marker.
+
+The reverse converter reconstructs Ink `LIST` declarations from an initial
+array and the qualified member operations immediately following it. Matching
+member operations immediately before the array identify initially selected
+members. Empty lists emit as `()`. Numeric list literals in story steps need
+a matching declared list because the JSON stores only the numeric item values.
+
+A two-branch inline conditional can stay on one line when its dialogue contains
+leading or trailing spaces, so recompiling preserves those spaces.

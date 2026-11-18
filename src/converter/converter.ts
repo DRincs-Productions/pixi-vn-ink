@@ -18,7 +18,6 @@ import type {
     PixiVNJsonValueGet,
     PixiVNJsonValueSet,
 } from "@drincs/pixi-vn-json/schema";
-import { HashtagCommands } from "@/handlers/hashtag-commands";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
 import JSON5 from "json5";
 
@@ -79,13 +78,56 @@ export function convertInkToJson(
     });
 }
 
+type InkLists = Map<string, { key: string; value: number }[]>;
+
 type InkConversionContext = {
+    lists: InkLists;
     inkNames: Map<string, string>;
     choiceBodies: Map<string, PixiVNJsonLabelStep[]>;
+    divertParameters: Map<string, Set<number>>;
+    divertVariables: Set<string>;
 };
 
 function isGeneratedChoiceLabel(label: string): boolean {
     return /_\|_c-\d+$/.test(label);
+}
+
+function visitInkValues(value: unknown, visit: (entry: Record<string, unknown>) => void): void {
+    if (Array.isArray(value)) {
+        for (const item of value) visitInkValues(item, visit);
+    } else if (value && typeof value === "object") {
+        const entry = value as Record<string, unknown>;
+        visit(entry);
+        for (const item of Object.values(entry)) visitInkValues(item, visit);
+    }
+}
+
+function isValueGet(value: unknown, storageType: string): value is { key: unknown } {
+    if (!value || typeof value !== "object") return false;
+    const entry = value as Record<string, unknown>;
+    return (
+        entry.type === "value" &&
+        entry.storageOperationType === "get" &&
+        entry.storageType === storageType &&
+        "key" in entry
+    );
+}
+
+function inkParameter(index: unknown, path: string): string {
+    if (typeof index !== "number" || !Number.isSafeInteger(index) || index < 0) {
+        throw new Error(`Invalid Ink parameter index at ${path}`);
+    }
+    return `ink_param_${index}`;
+}
+
+function inkAddress(label: string, path: string): string {
+    return label
+        .split("_|_")
+        .map((name) => {
+            assertInkName(name, path);
+            return name;
+        })
+        .join(".");
 }
 
 /** Converts the representable subset of PixiVN JSON into an Ink script. */
@@ -94,7 +136,51 @@ export function convertJsonToInk(data: PixiVNJson): string {
     const blocks: string[] = [];
     const inkNames = new Map<string, string>();
     const choiceBodies = new Map<string, PixiVNJsonLabelStep[]>();
-    const context = { inkNames, choiceBodies };
+    const divertParameters = new Map<string, Set<number>>();
+    const divertVariables = new Set<string>();
+    const arities = new Map<string, number>();
+    const lists: InkLists = new Map();
+    const context = { lists, inkNames, choiceBodies, divertParameters, divertVariables };
+    for (const [label, steps] of Object.entries(labels)) {
+        const owner = label.replace(/(?:_\|_c-\d+)+$/, "");
+        visitInkValues(steps, (entry) => {
+            if (isValueGet(entry, "params") && typeof entry.key === "number") {
+                arities.set(owner, Math.max(arities.get(owner) ?? 0, entry.key + 1));
+            }
+            if (typeof entry.label === "string" && Array.isArray(entry.params)) {
+                arities.set(
+                    entry.label,
+                    Math.max(arities.get(entry.label) ?? 0, entry.params.length),
+                );
+            }
+            const target = entry.label;
+            if (
+                (entry.type === "jump" || entry.type === "call") &&
+                isValueGet(target, "params") &&
+                typeof target.key === "number"
+            ) {
+                const parameters = divertParameters.get(owner) ?? new Set<number>();
+                parameters.add(target.key);
+                divertParameters.set(owner, parameters);
+            }
+            if (
+                (entry.type === "jump" || entry.type === "call") &&
+                isValueGet(target, "storage") &&
+                typeof target.key === "string"
+            ) {
+                divertVariables.add(target.key);
+            }
+        });
+    }
+    const signature = (label: string) => {
+        const count = arities.get(label) ?? 0;
+        if (!count) return "";
+        const parameters = Array.from({ length: count }, (_, index) => {
+            const name = inkParameter(index, `labels.${label}`);
+            return divertParameters.get(label)?.has(index) ? `-> ${name}` : name;
+        });
+        return `(${parameters.join(", ")})`;
+    };
     for (const label of Object.keys(labels)) {
         if (!label.includes("_|_")) continue;
         const inkName = label.replaceAll("_|_", ".");
@@ -119,13 +205,15 @@ export function convertJsonToInk(data: PixiVNJson): string {
         knots.set(knot, entries);
     }
 
+    if (data.initialOperations?.length) {
+        blocks.push(convertInitialOperations(data.initialOperations, context).join("\n"));
+    }
+
     for (const [knot, entries] of knots) {
-        const lines = [`=== ${knot} ===`];
+        const lines = [`=== ${knot}${signature(knot)} ===`];
         for (const { label, stitch } of entries) {
-            if (stitch !== undefined) lines.push(`= ${stitch}`);
-            for (const [stepIndex, step] of labels[label].entries()) {
-                lines.push(...convertStep(step, `labels.${label}[${stepIndex}]`, context));
-            }
+            if (stitch !== undefined) lines.push(`= ${stitch}${signature(label)}`);
+            lines.push(...convertSteps(labels[label], `labels.${label}`, context));
         }
         blocks.push(lines.join("\n"));
     }
@@ -134,16 +222,132 @@ export function convertJsonToInk(data: PixiVNJson): string {
         throw new Error(`Unreferenced generated choice body at labels.${label}`);
     }
 
-    if (data.initialOperations?.length) {
-        const declarations = data.initialOperations.map((operation, index) => {
-            if ("type" in operation && operation.type === "value") {
-                return convertVariableSet(operation, `initialOperations[${index}]`, true);
-            }
-            throw new Error(`Unsupported JSON to Ink value at initialOperations[${index}]`);
-        });
-        blocks.unshift(declarations.join("\n"));
-    }
     return blocks.join("\n\n");
+}
+
+function convertInitialOperations(
+    operations: NonNullable<PixiVNJson["initialOperations"]>,
+    context: InkConversionContext,
+): string[] {
+    const lines: string[] = [];
+    const scalarLines = new Set<number>();
+    for (let index = 0; index < operations.length; index++) {
+        const operation = operations[index];
+        const path = `initialOperations[${index}]`;
+        if (operation.type !== "value") throw new Error(`Unsupported JSON to Ink value at ${path}`);
+
+        if (
+            typeof operation.key === "string" &&
+            Array.isArray(operation.value) &&
+            operation.value.length
+        ) {
+            const name = operation.key;
+            assertInkName(name, `${path}.key`);
+            if (operation.storageType !== "storage" || operation.storageOperationType !== "set") {
+                throw new Error(`Unsupported Ink list declaration at ${path}`);
+            }
+            const members = operation.value.map((value, offset) => {
+                const memberIndex = index + offset + 1;
+                const memberPath = `initialOperations[${memberIndex}]`;
+                const member = operations[memberIndex];
+                if (
+                    member?.type !== "value" ||
+                    member.storageType !== "storage" ||
+                    member.storageOperationType !== "set" ||
+                    typeof member.key !== "string" ||
+                    !member.key.startsWith(`${name}.`) ||
+                    member.value !== value ||
+                    typeof value !== "number" ||
+                    !Number.isSafeInteger(value)
+                ) {
+                    throw new Error(`Missing or invalid Ink list member at ${memberPath}`);
+                }
+                const key = member.key.slice(name.length + 1);
+                assertInkName(key, `${memberPath}.key`);
+                return { key, value };
+            });
+            if (new Set(members.map(({ key }) => key)).size !== members.length) {
+                throw new Error(`Duplicate Ink list member at ${path}`);
+            }
+
+            const selected = new Set<string>();
+            for (let previous = index - 1; scalarLines.has(previous); previous--) {
+                const candidate = operations[previous];
+                const member = members.find(
+                    ({ key, value }) =>
+                        candidate.type === "value" &&
+                        candidate.storageType === "storage" &&
+                        candidate.storageOperationType === "set" &&
+                        candidate.key === key &&
+                        candidate.value === value &&
+                        !context.divertVariables.has(key),
+                );
+                if (!member || selected.has(member.key)) break;
+                selected.add(member.key);
+                lines.pop();
+                scalarLines.delete(previous);
+            }
+            const membersInk = members.map(({ key, value }) =>
+                selected.has(key) ? `(${key} = ${value})` : `${key} = ${value}`,
+            );
+            context.lists.set(name, members);
+            lines.push(`LIST ${name} = ${membersInk.join(", ")}`);
+            index += members.length;
+            continue;
+        }
+
+        lines.push(convertVariableSet(operation, path, true, context));
+        scalarLines.add(index);
+    }
+    return lines;
+}
+
+function convertSteps(
+    steps: PixiVNJsonLabelStep[],
+    path: string,
+    context: InkConversionContext,
+    start = 0,
+): string[] {
+    const lines: string[] = [];
+    for (let index = start; index < steps.length; index++) {
+        const step = steps[index];
+        const previous = steps[index - 1];
+        const stepPath = `${path}[${index}]`;
+        const rendered = convertStep(step, stepPath, context);
+        if (previous?.glueEnabled && previous.goNextStep === false) {
+            if (step.dialogue === undefined || rendered.length !== 1) {
+                throw new Error(`Unsupported step after leading glue at ${stepPath}`);
+            }
+            rendered[0] = `<>${rendered[0]}`;
+        } else if (
+            step.dialogue !== undefined &&
+            previous?.dialogue !== undefined &&
+            (typeof previous.dialogue !== "string" || typeof step.dialogue !== "string") &&
+            previous.glueEnabled &&
+            previous.goNextStep &&
+            rendered.length === 1 &&
+            lines.at(-1)?.endsWith(" <>")
+        ) {
+            lines[lines.length - 1] = lines[lines.length - 1].slice(0, -3) + rendered[0];
+            continue;
+        } else if (
+            step.labelToOpen &&
+            step.glueEnabled &&
+            rendered.length === 1 &&
+            previous?.dialogue !== undefined &&
+            previous.goNextStep &&
+            lines.length
+        ) {
+            lines[lines.length - 1] += rendered[0];
+            continue;
+        }
+        lines.push(...rendered);
+    }
+    const last = steps.at(-1);
+    if (last?.glueEnabled && last.goNextStep === false) {
+        throw new Error(`Missing step after leading glue at ${path}[${steps.length - 1}]`);
+    }
+    return lines;
 }
 
 function convertStep(
@@ -162,23 +366,34 @@ function convertStep(
     if (step.operations?.length) {
         for (const [index, operation] of step.operations.entries()) {
             if (operation.type === "value" && operation.storageOperationType === "set") {
-                lines.push(convertVariableSet(operation, `${path}.operations[${index}]`, false));
+                lines.push(
+                    convertVariableSet(operation, `${path}.operations[${index}]`, false, context),
+                );
             } else if ("$origin" in operation && operation.$origin) {
-                const tokens = HashtagCommands.convertTagTolist(operation.$origin, {
-                    mergeInkVariables: false,
-                });
-                if (tokens.length === 0)
-                    throw new Error(`Invalid hashtag origin at ${path}.operations[${index}]`);
-                lines.push(`# ${tokens.join(" ")}`);
+                lines.push(convertTag(operation.$origin, `${path}.operations[${index}].$origin`));
+            } else if (operation.type === "operationtoconvert") {
+                const [tag] = operation.values;
+                const tagPath = `${path}.operations[${index}].values`;
+                if (operation.values.length !== 1 || typeof tag !== "string") {
+                    throw new Error(`Unsupported dynamic Ink tag at ${tagPath}`);
+                }
+                lines.push(convertTag(tag, tagPath));
             } else {
                 throw new Error(`Unsupported operation at ${path}.operations[${index}]`);
             }
         }
     }
+    if (
+        step.dialogue === undefined &&
+        step.glueEnabled &&
+        step.goNextStep &&
+        !step.operations?.length
+    ) {
+        lines.push("<>");
+    }
     if (step.dialogue !== undefined) {
-        const dialogue = convertDialog(step.dialogue, `${path}.dialogue`);
-        if (step.glueEnabled && step.goNextStep === false) lines.push("<>");
-        else if (step.glueEnabled && step.goNextStep === true) lines.push(`${dialogue} <>`);
+        const dialogue = convertDialog(step.dialogue, `${path}.dialogue`, context.lists);
+        if (step.glueEnabled && step.goNextStep === true) lines.push(`${dialogue} <>`);
         else lines.push(dialogue);
     }
     if (step.choices !== undefined) {
@@ -190,7 +405,11 @@ function convertStep(
             if ("text" in choice) {
                 lines.push(...convertChoice(choice, choicePath, context));
             } else if (choice.type === "ifelse" && !choice.else && "text" in choice.then) {
-                const condition = toInkCondition(choice.condition, `${choicePath}.condition`);
+                const condition = toInkCondition(
+                    choice.condition,
+                    `${choicePath}.condition`,
+                    context.lists,
+                );
                 lines.push(...convertChoice(choice.then, `${choicePath}.then`, context, condition));
             } else {
                 throw new Error(`Unsupported conditional choice at ${choicePath}`);
@@ -201,17 +420,37 @@ function convertStep(
         if (Array.isArray(step.labelToOpen) || !("label" in step.labelToOpen)) {
             throw new Error(`Unsupported conditional divert at ${path}.labelToOpen`);
         }
-        if (typeof step.labelToOpen.label !== "string") {
-            throw new Error(`Dynamic divert label at ${path}.labelToOpen.label is not supported`);
-        }
         if (step.labelToOpen.type !== "jump" && step.labelToOpen.type !== "call") {
             throw new Error(`Unsupported divert type at ${path}.labelToOpen.type`);
         }
         const label = step.labelToOpen.label;
-        if (isGeneratedChoiceLabel(label)) {
-            throw new Error(`Unsupported divert to generated choice at ${path}.labelToOpen.label`);
+        const targetPath = `${path}.labelToOpen.label`;
+        let target: string;
+        if (typeof label === "string") {
+            target = inkAddress(label, targetPath);
+        } else if (isValueGet(label, "params")) {
+            target = inkParameter(label.key, targetPath);
+        } else if (
+            (isValueGet(label, "storage") || isValueGet(label, "tempstorage")) &&
+            typeof label.key === "string"
+        ) {
+            assertInkName(label.key, targetPath);
+            target = label.key;
+        } else {
+            throw new Error(`Unsupported dynamic divert at ${targetPath}`);
         }
-        lines.push(`-> ${context.inkNames.get(label) ?? label.replaceAll("_|_", ".")}`);
+        const params = step.labelToOpen.params?.map((param, index) => {
+            const paramPath = `${path}.labelToOpen.params[${index}]`;
+            if (
+                typeof label === "string" &&
+                context.divertParameters.get(label)?.has(index) &&
+                typeof param === "string"
+            )
+                return `-> ${inkAddress(param, paramPath)}`;
+            return toInkExpression(param, paramPath, context.lists);
+        });
+        const args = params?.length ? `(${params.join(", ")})` : "";
+        lines.push(`-> ${target}${args}${step.labelToOpen.type === "call" ? " ->" : ""}`);
     }
     if (step.end === "game_end") lines.push("-> END");
     else if (step.end === "label_end") lines.push("-> DONE");
@@ -222,6 +461,13 @@ function convertStep(
     return lines;
 }
 
+function convertTag(tag: string, path: string): string {
+    if (!tag.trim() || /[\r\n]/.test(tag)) {
+        throw new Error(`Invalid Ink tag at ${path}`);
+    }
+    return `# ${tag}`;
+}
+
 function convertConditionalStep(
     conditional: PixiVNJsonConditionalStatements<PixiVNJsonLabelStep>,
     path: string,
@@ -229,7 +475,21 @@ function convertConditionalStep(
 ): string[] {
     if (conditional.type !== "ifelse") throw new Error(`Unsupported conditional step at ${path}`);
     const statement = conditional as PixiVNJsonIfElse<PixiVNJsonLabelStep>;
-    const condition = toInkCondition(statement.condition, `${path}.condition`);
+    const condition = toInkCondition(statement.condition, `${path}.condition`, context.lists);
+    const thenText = "dialogue" in statement.then ? statement.then.dialogue : undefined;
+    const elseText =
+        statement.else && "dialogue" in statement.else ? statement.else.dialogue : undefined;
+    if (
+        typeof thenText === "string" &&
+        typeof elseText === "string" &&
+        Object.keys(statement.then).length === 1 &&
+        Object.keys(statement.else ?? {}).length === 1 &&
+        (thenText !== thenText.trim() || elseText !== elseText.trim()) &&
+        !/[\r\n|]/.test(thenText) &&
+        !/[\r\n|]/.test(elseText)
+    ) {
+        return [`{ ${condition}:${escapeInkText(thenText)}|${escapeInkText(elseText)}}`];
+    }
     const thenLines = convertStep(statement.then as PixiVNJsonLabelStep, `${path}.then`, context);
     const elseLines = statement.else
         ? convertStep(statement.else as PixiVNJsonLabelStep, `${path}.else`, context)
@@ -278,17 +538,24 @@ function convertChoice(
         const header = fallback
             ? choicePrefix
             : `${choicePrefix} ${echoesChoice ? escapeInkText(text) : `[${escapeInkText(text)}]`}`;
-        const bodyLines = body.flatMap((step, index) => {
-            if (echoesChoice && index === 0) return [];
-            const stepPath = `labels.${choice.label}[${index}]`;
-            const lines = convertStep(step, stepPath, context);
-            return lines.map((line) =>
-                line.replace(
-                    /^(\s*)([*]+|[+]+)(?= |$)/,
-                    (_, space: string, markers: string) => space + markers + markers[0],
-                ),
-            );
-        });
+        const bodyLines = convertSteps(
+            body,
+            `labels.${choice.label}`,
+            context,
+            echoesChoice ? 1 : 0,
+        ).map((line) =>
+            line.replace(
+                /^(\s*)([*]+|[+]+)(?= |$)/,
+                (_, space: string, markers: string) => space + markers + markers[0],
+            ),
+        );
+        const inlineDivert = bodyLines[0];
+        if (fallback && inlineDivert?.startsWith("-> ")) {
+            return [`${header} ${inlineDivert}`, ...indent(bodyLines.slice(1))];
+        }
+        if (!echoesChoice && /^[ \t]+-> /.test(inlineDivert ?? "")) {
+            return [header + inlineDivert, ...indent(bodyLines.slice(1))];
+        }
         return [header, ...indent(bodyLines)];
     }
     const labelName = context.inkNames.get(choice.label) ?? choice.label.replaceAll("_|_", ".");
@@ -299,7 +566,7 @@ function convertChoice(
     ];
 }
 
-function convertDialog(dialogue: unknown, path: string): string {
+function convertDialog(dialogue: unknown, path: string, lists: InkLists): string {
     if (typeof dialogue === "string") return escapeInkText(dialogue);
     if (dialogue && typeof dialogue === "object" && "character" in dialogue && "text" in dialogue) {
         const { character, text } = dialogue as { character: unknown; text: unknown };
@@ -307,7 +574,7 @@ function convertDialog(dialogue: unknown, path: string): string {
             return `${assertSpeaker(character, path)}: ${escapeInkText(text)}`;
         }
     }
-    return toInkTextExpression(dialogue as PixiVNJsonDialogText, path);
+    return toInkTextExpression(dialogue as PixiVNJsonDialogText, path, lists);
 }
 
 function assertSpeaker(value: string, path: string): string {
@@ -315,14 +582,14 @@ function assertSpeaker(value: string, path: string): string {
     return value;
 }
 
-function toInkTextExpression(value: PixiVNJsonDialogText, path: string): string {
+function toInkTextExpression(value: PixiVNJsonDialogText, path: string, lists: InkLists): string {
     if (typeof value === "string") return escapeInkText(value);
     if (Array.isArray(value))
         return value
-            .map((part) => toInkTextExpression(part as PixiVNJsonDialogText, path))
+            .map((part) => toInkTextExpression(part as PixiVNJsonDialogText, path, lists))
             .join("");
     if (value && typeof value === "object" && "type" in value) {
-        return `{${toInkExpression(value, path)}}`;
+        return `{${toInkExpression(value, path, lists)}}`;
     }
     throw new Error(`Unsupported dialogue value at ${path}`);
 }
@@ -339,6 +606,7 @@ function convertVariableSet(
     operation: PixiVNJsonValueSet | PixiVNJsonOperation,
     path: string,
     initial: boolean,
+    context: InkConversionContext,
 ): string {
     if (
         operation.type !== "value" ||
@@ -349,19 +617,55 @@ function convertVariableSet(
     }
     const key = operation.key;
     assertInkName(key, path);
-    const value = toInkExpression(operation.value, `${path}.value`);
-    return `${initial ? "VAR" : "~"} ${key} = ${value}`;
+    const expression = operation.value;
+    if (
+        !initial &&
+        expression &&
+        typeof expression === "object" &&
+        "type" in expression &&
+        expression.type === "arithmetic" &&
+        (expression.operator === "+" || expression.operator === "-") &&
+        isValueGet(expression.leftValue, "storage") &&
+        expression.leftValue.key === key
+    ) {
+        return `~ ${key} ${expression.operator}= ${toInkExpression(expression.rightValue, `${path}.value.rightValue`, context.lists)}`;
+    }
+    const valuePath = `${path}.value`;
+    const value =
+        context.divertVariables.has(key) && typeof operation.value === "string"
+            ? `-> ${inkAddress(operation.value, valuePath)}`
+            : toInkExpression(operation.value, valuePath, context.lists);
+    return `${initial ? "VAR" : operation.storageType === "tempstorage" ? "~ temp" : "~"} ${key} = ${value}`;
 }
 
-function toInkExpression(value: unknown, path: string): string {
+function toInkExpression(value: unknown, path: string, lists: InkLists): string {
     if (value === null || typeof value === "boolean" || typeof value === "number")
         return JSON.stringify(value);
     if (typeof value === "string") return JSON.stringify(value);
+    if (Array.isArray(value)) {
+        if (value.length === 0) return "()";
+        for (const [name, members] of lists) {
+            const keys = value.map((item) => members.find((member) => member.value === item)?.key);
+            if (keys.every((key) => key !== undefined) && new Set(keys).size === keys.length) {
+                return `(${keys.map((key) => `${name}.${key}`).join(", ")})`;
+            }
+        }
+        throw new Error(`No matching Ink list for literal at ${path}`);
+    }
     if (value && typeof value === "object") {
         const entry = value as Record<string, any>;
         if (entry.type === "value" && entry.storageOperationType === "get") {
+            if (entry.storageType === "params") return inkParameter(entry.key, path);
             if (entry.storageType === "storage" || entry.storageType === "tempstorage") {
-                return String(entry.key);
+                if (typeof entry.key !== "string")
+                    throw new Error(`Invalid variable name at ${path}`);
+                return entry.key
+                    .split(".")
+                    .map((part) => {
+                        assertInkName(part, path);
+                        return part;
+                    })
+                    .join(".");
             }
             if (entry.storageType === "label" && typeof entry.label === "string") {
                 return entry.label
@@ -372,40 +676,48 @@ function toInkExpression(value: unknown, path: string): string {
                     })
                     .join(".");
             }
-            if (entry.storageType === "logic") return toInkExpression(entry.operation, path);
+            if (entry.storageType === "logic") return toInkExpression(entry.operation, path, lists);
         }
         if (entry.type === "function") {
             const args = Array.isArray(entry.args)
-                ? entry.args.map((arg) => toInkExpression(arg, path))
+                ? entry.args.map((arg) => toInkExpression(arg, path, lists))
                 : [];
             return `${String(entry.functionName)}(${args.join(", ")})`;
         }
         if (entry.type === "arithmetic") {
-            const operator = entry.operator === "POW" ? "^" : String(entry.operator);
-            return `(${toInkExpression(entry.leftValue, path)} ${operator} ${toInkExpression(entry.rightValue, path)})`;
+            const operator =
+                entry.operator === "POW" || entry.operator === "INTERSECTION"
+                    ? "^"
+                    : String(entry.operator);
+            return `(${toInkExpression(entry.leftValue, path, lists)} ${operator} ${toInkExpression(entry.rightValue, path, lists)})`;
         }
         if (entry.type === "arithmeticsingle")
-            return `${String(entry.operator)}(${toInkExpression(entry.leftValue, path)})`;
+            return `${String(entry.operator)}(${toInkExpression(entry.leftValue, path, lists)})`;
         if (entry.type === "compare" || entry.type === "union")
-            return toInkCondition(entry as PixiVNJsonConditions, path);
+            return toInkCondition(entry as PixiVNJsonConditions, path, lists);
     }
     throw new Error(`Unsupported Ink expression at ${path}`);
 }
 
-function toInkCondition(condition: PixiVNJsonConditions | unknown, path: string): string {
+function toInkCondition(
+    condition: PixiVNJsonConditions | unknown,
+    path: string,
+    lists: InkLists,
+): string {
     if (condition === null || typeof condition !== "object")
-        return toInkExpression(condition, path);
+        return toInkExpression(condition, path, lists);
     const value = condition as Record<string, unknown>;
     if (value.type === "compare") {
         const comparison = value as unknown as PixiVNJsonComparation;
-        return `(${toInkExpression(comparison.leftValue, path)} ${comparison.operator === "CONTAINS" ? "?" : comparison.operator} ${toInkExpression(comparison.rightValue, path)})`;
+        return `(${toInkExpression(comparison.leftValue, path, lists)} ${comparison.operator === "CONTAINS" ? "?" : comparison.operator} ${toInkExpression(comparison.rightValue, path, lists)})`;
     }
     if (value.type === "union") {
         const union = value as unknown as PixiVNJsonUnionCondition;
-        if (union.unionType === "not") return `not (${toInkCondition(union.condition, path)})`;
-        return `(${union.conditions.map((item) => toInkCondition(item, path)).join(union.unionType === "and" ? " and " : " or ")})`;
+        if (union.unionType === "not")
+            return `not (${toInkCondition(union.condition, path, lists)})`;
+        return `(${union.conditions.map((item) => toInkCondition(item, path, lists)).join(union.unionType === "and" ? " and " : " or ")})`;
     }
-    return toInkExpression(condition, path);
+    return toInkExpression(condition, path, lists);
 }
 
 function indent(lines: string[]): string[] {
