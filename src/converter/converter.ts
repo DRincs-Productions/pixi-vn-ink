@@ -85,6 +85,9 @@ type InkConversionContext = {
     inkNames: Map<string, string>;
     choiceBodies: Map<string, PixiVNJsonLabelStep[]>;
     renderedChoices: Set<string>;
+    gathers: Map<string, PixiVNJsonLabelStep[]>;
+    implicitGather?: string;
+    choiceDepth?: number;
     divertParameters: Map<string, Set<number>>;
     divertVariables: Set<string>;
 };
@@ -148,6 +151,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
         divertParameters,
         divertVariables,
         renderedChoices: new Set<string>(),
+        gathers: new Map<string, PixiVNJsonLabelStep[]>(),
     };
     for (const [label, steps] of Object.entries(labels)) {
         const owner = label.replace(/(?:_\|_c-\d+)+$/, "");
@@ -205,6 +209,10 @@ export function convertJsonToInk(data: PixiVNJson): string {
             choiceBodies.set(label, labels[label]);
             continue;
         }
+        if (/_\|_g-\d+$/.test(label)) {
+            context.gathers.set(label, labels[label]);
+            continue;
+        }
         const [knot, stitch, nested] = label.split("_|_");
         if (nested !== undefined) {
             throw new Error(`Unsupported nested label at labels.${label}`);
@@ -232,6 +240,10 @@ export function convertJsonToInk(data: PixiVNJson): string {
 
     for (const label of choiceBodies.keys()) {
         throw new Error(`Unreferenced generated choice body at labels.${label}`);
+    }
+
+    for (const label of context.gathers.keys()) {
+        throw new Error(`Unsupported or unreferenced Ink gather at labels.${label}`);
     }
 
     return blocks.join("\n\n");
@@ -332,6 +344,19 @@ function convertSteps(
         const step = steps[index];
         const previous = steps[index - 1];
         const stepPath = `${path}[${index}]`;
+        const entryGather =
+            index === 0 && steps.length === 1 ? implicitGatherTarget(step) : undefined;
+        if (entryGather && entryGather.replace(/_\|_g-\d+$/, "") === path.slice("labels.".length)) {
+            const body = context.gathers.get(entryGather);
+            if (body) {
+                context.gathers.delete(entryGather);
+                lines.push(
+                    gatherMarker(context),
+                    ...convertSteps(body, `labels.${entryGather}`, context),
+                );
+                continue;
+            }
+        }
         const rendered = convertStep(step, stepPath, context);
         if (
             step.glueEnabled === false &&
@@ -391,6 +416,53 @@ function convertSteps(
         throw new Error(`Missing step after leading glue at ${path}[${steps.length - 1}]`);
     }
     return lines;
+}
+
+function gatherMarker(context: InkConversionContext): string {
+    return "- ".repeat((context.choiceDepth ?? 0) + 1).trimEnd();
+}
+
+function implicitGatherTarget(step: PixiVNJsonLabelStep | undefined): string | undefined {
+    const divert = step?.labelToOpen;
+    if (
+        !step ||
+        !divert ||
+        !("label" in divert) ||
+        divert.type !== "jump" ||
+        typeof divert.label !== "string" ||
+        divert.params?.length ||
+        step.glueEnabled ||
+        Object.keys(step).some((key) => key !== "labelToOpen" && key !== "glueEnabled")
+    ) {
+        return undefined;
+    }
+    return divert.label;
+}
+
+function collectGatherTargets(
+    choices: NonNullable<PixiVNJsonLabelStep["choices"]>,
+    context: InkConversionContext,
+    owner: string,
+    targets: Set<string>,
+    visited = new Set<string>(),
+): void {
+    if (!Array.isArray(choices)) return;
+    for (const item of choices) {
+        const choice =
+            "text" in item
+                ? item
+                : item.type === "ifelse" && "text" in item.then
+                  ? item.then
+                  : undefined;
+        if (!choice || visited.has(choice.label)) continue;
+        visited.add(choice.label);
+        const last = context.choiceBodies.get(choice.label)?.at(-1);
+        const target = implicitGatherTarget(last);
+        if (target && target.replace(/_\|_g-\d+$/, "") === owner && context.gathers.has(target)) {
+            targets.add(target);
+        }
+        if (last?.choices) collectGatherTargets(last.choices, context, owner, targets, visited);
+    }
 }
 
 function convertStep(
@@ -455,20 +527,32 @@ function convertStep(
         if (!Array.isArray(step.choices)) {
             throw new Error(`Unsupported JSON to Ink choices at ${path}.choices`);
         }
+        const owner = /^labels\.([^[]+)\[/.exec(path)?.[1]?.replace(/_\|_g-\d+$/, "");
+        const targets = new Set<string>();
+        if (owner) collectGatherTargets(step.choices, context, owner, targets);
+        const gather = targets.size === 1 ? targets.values().next().value : undefined;
         for (const [index, choice] of step.choices.entries()) {
             const choicePath = `${path}.choices[${index}]`;
             if ("text" in choice) {
-                lines.push(...convertChoice(choice, choicePath, context));
+                lines.push(...convertChoice(choice, choicePath, context, undefined, gather));
             } else if (choice.type === "ifelse" && !choice.else && "text" in choice.then) {
                 const condition = toInkCondition(
                     choice.condition,
                     `${choicePath}.condition`,
                     context.lists,
                 );
-                lines.push(...convertChoice(choice.then, `${choicePath}.then`, context, condition));
+                lines.push(
+                    ...convertChoice(choice.then, `${choicePath}.then`, context, condition, gather),
+                );
             } else {
                 throw new Error(`Unsupported conditional choice at ${choicePath}`);
             }
+        }
+        if (gather) {
+            const steps = context.gathers.get(gather);
+            if (!steps) throw new Error(`Repeated Ink gather at labels.${gather}`);
+            context.gathers.delete(gather);
+            lines.push(gatherMarker(context), ...convertSteps(steps, `labels.${gather}`, context));
         }
     }
     if (step.labelToOpen !== undefined) {
@@ -694,6 +778,7 @@ function convertChoice(
     path: string,
     context: InkConversionContext,
     condition?: string,
+    gather?: string,
 ): string[] {
     if (choice.type !== "call" && choice.type !== "jump") {
         throw new Error(`Unsupported choice type at ${path}.type`);
@@ -718,7 +803,11 @@ function convertChoice(
         choice.oneTime === false || (generated && choice.oneTime === undefined) ? "+" : "*";
     const choicePrefix = condition ? `${marker} { ${condition} }` : marker;
     if (generated) {
-        const body = context.choiceBodies.get(choice.label);
+        const originalBody = context.choiceBodies.get(choice.label);
+        const nextGather = gather ?? context.implicitGather;
+        const joinsGather =
+            nextGather !== undefined && implicitGatherTarget(originalBody?.at(-1)) === nextGather;
+        const body = joinsGather ? originalBody?.slice(0, -1) : originalBody;
         if (context.renderedChoices.has(choice.label)) {
             throw new Error(`Repeated generated choice at ${path}.label`);
         }
@@ -758,13 +847,19 @@ function convertChoice(
             first.goNextStep === true &&
             Object.keys(first).length === 3 &&
             typeof second?.dialogue === "string" &&
-            (Object.keys(second).length === 1 || hasInlineDivert);
+            (Object.keys(second).length === 1 ||
+                hasInlineDivert ||
+                (joinsGather &&
+                    second.glueEnabled === true &&
+                    second.goNextStep === true &&
+                    Object.keys(second).length === 3));
 
         let header: string;
         let consumed = 0;
         if (hasSharedText) {
             header = `${choicePrefix} ${escapeInkText(shared)}[${escapeInkText(menuOnly)}]${escapeInkText(second.dialogue as string)}`;
             consumed = 2;
+            if (joinsGather && second.glueEnabled && second.goNextStep) header += "<>";
             if (hasInlineDivert) {
                 header += convertStep(third, `labels.${choice.label}[2]`, context).join("");
                 consumed = 3;
@@ -783,13 +878,27 @@ function convertChoice(
                         (second?.labelToOpen !== undefined || second?.end !== undefined)));
             header = `${choicePrefix} ${echoesChoice ? text : `[${text}]`}`;
             consumed = echoesChoice ? 1 : 0;
+            if (
+                joinsGather &&
+                first?.dialogue === choice.text &&
+                first.glueEnabled === true &&
+                first.goNextStep === true &&
+                Object.keys(first).length === 3
+            ) {
+                header = `${choicePrefix} ${text}<>`;
+                consumed = 1;
+            }
         }
-        const bodyLines = convertSteps(body, `labels.${choice.label}`, context, consumed).map(
-            (line) =>
-                line.replace(
-                    /^(\s*)([*]+|[+]+)(?= |$)/,
-                    (_, space: string, markers: string) => space + markers + markers[0],
-                ),
+        const bodyLines = convertSteps(
+            body,
+            `labels.${choice.label}`,
+            { ...context, implicitGather: nextGather, choiceDepth: (context.choiceDepth ?? 0) + 1 },
+            consumed,
+        ).map((line) =>
+            line.replace(
+                /^(\s*)([*]+|[+]+)(?= |$)/,
+                (_, space: string, markers: string) => space + markers + markers[0],
+            ),
         );
         // Ink trims whitespace-only lines, but preserves the space before an inline ending.
         if (

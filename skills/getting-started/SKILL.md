@@ -227,6 +227,7 @@ what's specific to writing it *for Pixi'VN*.
 
 Use `* ->` followed by branch content for a fallback choice with dialogue. A bracketed
 choice with no branch content can appear in the menu without a separate PixiVN label.
+An unnamed gather begins with `-` and brings preceding choices back together.
 
 ### Knots are Pixi'VN labels — in both directions
 

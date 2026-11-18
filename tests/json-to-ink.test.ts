@@ -306,3 +306,17 @@ test("round-trips an Ink choice without a generated body", () => {
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips choices joining at an anonymous gather", () => {
+    const input = convertInkToJson(`
+=== start ===
+* [Left]
+    You turn left.
+* [Right]
+    You turn right.
+- You arrive.
+-> DONE
+`);
+
+    expectJsonInkRoundTrip(input);
+});
