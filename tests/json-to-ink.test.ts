@@ -250,3 +250,14 @@ VAR colour = ""
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips a tag containing variable interpolation", () => {
+    const input = convertInkToJson(`
+VAR amount = 2
+=== start ===
+# custom_tag amount {amount}
+-> END
+`);
+
+    expectJsonInkRoundTrip(input);
+});

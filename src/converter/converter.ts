@@ -392,11 +392,15 @@ function convertStep(
             } else if ("$origin" in operation && operation.$origin) {
                 lines.push(convertTag(operation.$origin, `${path}.operations[${index}].$origin`));
             } else if (operation.type === "operationtoconvert") {
-                const [tag] = operation.values;
                 const tagPath = `${path}.operations[${index}].values`;
-                if (operation.values.length !== 1 || typeof tag !== "string") {
-                    throw new Error(`Unsupported dynamic Ink tag at ${tagPath}`);
-                }
+                const tag =
+                    operation.values.length === 1 && typeof operation.values[0] === "string"
+                        ? operation.values[0]
+                        : operation.values
+                              .map((part, index) =>
+                                  renderTagPart(part, `${tagPath}[${index}]`, context.lists),
+                              )
+                              .join("");
                 lines.push(convertTag(tag, tagPath));
             } else {
                 throw new Error(`Unsupported operation at ${path}.operations[${index}]`);
@@ -486,6 +490,59 @@ function convertTag(tag: string, path: string): string {
         throw new Error(`Invalid Ink tag at ${path}`);
     }
     return `# ${tag}`;
+}
+
+function renderTagPart(value: unknown, path: string, lists: InkLists, branchId?: string): string {
+    if (typeof value === "string") return escapeInkText(value);
+    if (!value || typeof value !== "object") {
+        throw new Error(`Unsupported Ink tag fragment at ${path}`);
+    }
+    const part = value as Record<string, unknown>;
+    if (part.type === "ifelse") {
+        const condition = toInkCondition(part.condition, `${path}.condition`, lists);
+        const then = renderTagPart(part.then, `${path}.then`, lists, `${branchId ?? ""}then`);
+        const otherwise =
+            part.else === undefined
+                ? ""
+                : `|${renderTagPart(part.else, `${path}.else`, lists, `${branchId ?? ""}else`)}`;
+        return `{${condition}:${then}${otherwise}}`;
+    }
+    if (
+        part.type === "resulttocombine" &&
+        part.combine === "cross" &&
+        Array.isArray(part.secondConditionalItem) &&
+        part.firstConditionalItem === undefined
+    ) {
+        return part.secondConditionalItem
+            .map((item, index) =>
+                renderTagPart(item, `${path}.secondConditionalItem[${index}]`, lists, branchId),
+            )
+            .join("");
+    }
+    if (part.type === "stepswitch" && Array.isArray(part.elements) && part.elements.length > 1) {
+        const marker =
+            part.choiceType === "loop"
+                ? "&"
+                : part.choiceType === "random"
+                  ? "~"
+                  : part.choiceType === "sequential"
+                    ? part.end === "lastItem"
+                        ? ""
+                        : "!"
+                    : undefined;
+        if (
+            marker === undefined ||
+            (part.end !== undefined && part.end !== "lastItem") ||
+            (part.nestedId !== undefined && part.nestedId !== branchId)
+        ) {
+            throw new Error(`Unsupported Ink tag alternative at ${path}`);
+        }
+        const alternatives = part.elements.map((item, index) =>
+            renderTagPart(item, `${path}.elements[${index}]`, lists, branchId),
+        );
+        return `{${marker}${alternatives.join("|")}}`;
+    }
+    return `{${toInkExpression(part, path, lists)}}`;
 }
 
 function convertConditionalStep(

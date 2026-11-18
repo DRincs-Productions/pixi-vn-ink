@@ -25,6 +25,9 @@ Vite dev server logs it as an **unknown hashtag command** (see **pixi-vn-ink**'s
 debugging section). A `#` line is either a recognized command that does something specific and
 type-checked, or a mistake to be reported — never a value-neutral annotation the engine shrugs off.
 
+Deferred hashtag operations can round-trip through `convertJsonToInk` when their
+fragments are text, interpolations, or supported inline branches.
+
 ## Why not an ink `function`?
 
 `=== function name(...) === / ~ return ...` is **valid, compiler-clean native ink** — and **silently
