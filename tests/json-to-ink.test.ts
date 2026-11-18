@@ -334,3 +334,18 @@ test("round-trips a named gather inside a stitch", () => {
 
     expectJsonInkRoundTrip(input);
 });
+
+test("round-trips Markdown and explicit line breaks as dialogue", () => {
+    const input: PixiVNJson = {
+        $schema: PIXIVNJSON_SCHEMA_URL,
+        labels: {
+            start: [
+                { dialogue: "# Heading\n[Link](https://example.com) | text" },
+                { dialogue: "* Item with -> written out" },
+                { end: "game_end" },
+            ],
+        },
+    };
+
+    expectJsonInkRoundTrip(input);
+});

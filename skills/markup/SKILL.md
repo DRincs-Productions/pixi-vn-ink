@@ -72,6 +72,9 @@ actually start a new paragraph rather than a soft break:
 Hello, this is a test. \n\n This is a new line.
 ```
 
+When generating Ink with `convertJsonToInk`, literal Markdown punctuation and
+explicit dialogue line breaks are escaped automatically.
+
 ## Raw HTML and Tailwind CSS
 
 With `rehype-raw` (or an equivalent) enabled, raw HTML works directly in dialogue text, and Tailwind CSS

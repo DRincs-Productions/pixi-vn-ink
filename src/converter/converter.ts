@@ -1006,11 +1006,11 @@ function convertChoice(
 }
 
 function convertDialog(dialogue: unknown, path: string, lists: InkLists): string {
-    if (typeof dialogue === "string") return escapeInkText(dialogue);
+    if (typeof dialogue === "string") return escapeInkDialogue(dialogue);
     if (dialogue && typeof dialogue === "object" && "character" in dialogue && "text" in dialogue) {
         const { character, text } = dialogue as { character: unknown; text: unknown };
         if (typeof character === "string" && typeof text === "string") {
-            return `${assertSpeaker(character, path)}: ${escapeInkText(text)}`;
+            return `${assertSpeaker(character, path)}: ${escapeInkDialogue(text)}`;
         }
     }
     return toInkTextExpression(dialogue as PixiVNJsonDialogText, path, lists);
@@ -1022,7 +1022,7 @@ function assertSpeaker(value: string, path: string): string {
 }
 
 function toInkTextExpression(value: PixiVNJsonDialogText, path: string, lists: InkLists): string {
-    if (typeof value === "string") return escapeInkText(value);
+    if (typeof value === "string") return escapeInkDialogue(value);
     if (Array.isArray(value))
         return value
             .map((part) => toInkTextExpression(part as PixiVNJsonDialogText, path, lists))
@@ -1194,4 +1194,15 @@ function escapeInkText(value: string): string {
         .replace(/\{/g, "\\{")
         .replace(/\}/g, "\\}")
         .replace(/<>/g, "\\<\\>");
+}
+
+function escapeInkDialogue(value: string): string {
+    return escapeInkText(value)
+        .replace(/\n/g, "\\\\n")
+        .replace(/#/g, "\\#")
+        .replace(/\|/g, "\\|")
+        .replace(/\/\//g, "\\/\\/")
+        .replace(/\/\*/g, "\\/*")
+        .replace(/->/g, "\\-\\>")
+        .replace(/^(\s*)([*+~`=-])/, "$1\\$2");
 }
