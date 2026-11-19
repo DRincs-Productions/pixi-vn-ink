@@ -727,9 +727,17 @@ function convertStep(
             const steps = context.gathers.get(gather);
             if (!steps) throw new Error(`Repeated Ink gather at labels.${gather}`);
             context.gathers.delete(gather);
+            // The gather's closing jump to the enclosing weave's gather is implicit in Ink.
+            const joinsOuter =
+                context.implicitGather !== undefined &&
+                implicitGatherTarget(steps.at(-1)) === context.implicitGather;
             lines.push(
                 gatherMarker(gather, context),
-                ...convertSteps(steps, `labels.${gather}`, context),
+                ...convertSteps(
+                    joinsOuter ? steps.slice(0, -1) : steps,
+                    `labels.${gather}`,
+                    context,
+                ),
             );
         }
     }
