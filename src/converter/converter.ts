@@ -88,6 +88,7 @@ type InkConversionContext = {
     renderedChoices: Set<string>;
     gathers: Map<string, PixiVNJsonLabelStep[]>;
     namedGatherLabels: Set<string>;
+    referencedChoices: Set<string>;
     implicitGather?: string;
     choiceDepth?: number;
     divertParameters: Map<string, Set<number>>;
@@ -126,10 +127,16 @@ function inkParameter(index: unknown, path: string): string {
     return `ink_param_${index}`;
 }
 
+/** Ink identifiers cannot contain `-`, so generated choice names (`c-0`) are spelled `c_0`. */
+function inkSegment(name: string): string {
+    return /^c-\d+$/.test(name) ? name.replace("-", "_") : name;
+}
+
 function inkAddress(label: string, path: string): string {
     return label
         .split("_|_")
-        .map((name) => {
+        .map((raw) => {
+            const name = inkSegment(raw);
             assertInkName(name, path);
             return name;
         })
@@ -155,7 +162,16 @@ export function convertJsonToInk(data: PixiVNJson): string {
         renderedChoices: new Set<string>(),
         gathers: new Map<string, PixiVNJsonLabelStep[]>(),
         namedGatherLabels: new Set<string>(),
+        referencedChoices: new Set<string>(),
     };
+    visitInkValues(labels, (entry) => {
+        const isReference =
+            (entry.type === "value" && entry.storageType === "label") ||
+            (!("text" in entry) && (entry.type === "jump" || entry.type === "call"));
+        if (isReference && typeof entry.label === "string" && isGeneratedChoiceLabel(entry.label)) {
+            context.referencedChoices.add(entry.label);
+        }
+    });
     for (const [label, steps] of Object.entries(labels)) {
         const owner = label.replace(/(?:_\|_c-\d+)+$/, "");
         visitInkValues(steps, (entry) => {
@@ -1139,7 +1155,10 @@ function convertChoice(
     // The mapper omits oneTime for sticky Ink choices.
     const marker =
         choice.oneTime === false || (generated && choice.oneTime === undefined) ? "+" : "*";
-    const choicePrefix = condition ? `${marker} { ${condition} }` : marker;
+    const ownName = context.referencedChoices.has(choice.label)
+        ? ` (${inkSegment(choice.label.slice(choice.label.lastIndexOf("_|_") + 3))})`
+        : "";
+    const choicePrefix = condition ? `${marker}${ownName} { ${condition} }` : `${marker}${ownName}`;
     if (generated) {
         const originalBody = context.choiceBodies.get(choice.label);
         const nextGather = gather ?? context.implicitGather;
@@ -1255,6 +1274,9 @@ function convertChoice(
             (bodyLines[1] === "-> END" || bodyLines[1] === "-> DONE")
         ) {
             return [header + bodyLines[0] + bodyLines[1], ...indent(bodyLines.slice(2))];
+        }
+        if (consumed === 0 && /^[ \t]+$/.test(bodyLines[0] ?? "")) {
+            return [`${header}${bodyLines[0]}`, ...indent(bodyLines.slice(1))];
         }
         const inlineDivert = bodyLines[0];
         if (fallback && inlineDivert?.startsWith("-> ")) {
@@ -1375,7 +1397,8 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
             if (entry.storageType === "label" && typeof entry.label === "string") {
                 return entry.label
                     .split("_|_")
-                    .map((name) => {
+                    .map((raw) => {
+                        const name = inkSegment(raw);
                         assertInkName(name, path);
                         return name;
                     })
