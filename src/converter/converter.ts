@@ -260,6 +260,12 @@ export function convertJsonToInk(data: PixiVNJson): string {
             if (!isAnonymousGather(target)) namedRootGathers.add(target);
         }
     }
+    const tunnelTargets = new Set<string>();
+    visitInkValues(labels, (entry) => {
+        if (entry.type === "call" && !("text" in entry) && typeof entry.label === "string") {
+            tunnelTargets.add(entry.label);
+        }
+    });
     const knots = new Map<string, { label: string; stitch?: string }[]>();
     for (const label of Object.keys(labels)) {
         if (isGeneratedChoiceLabel(label)) {
@@ -308,6 +314,11 @@ export function convertJsonToInk(data: PixiVNJson): string {
         for (const { label, stitch } of entries) {
             if (stitch !== undefined) lines.push(`= ${stitch}${signature(label)}`);
             lines.push(...convertSteps(labels[label], `labels.${label}`, context));
+            // Tunnels return with `->->`, which the mapper does not keep in the JSON.
+            const lastStep = labels[label].at(-1);
+            if (tunnelTargets.has(label) && lastStep && !lastStep.end && !lastStep.labelToOpen) {
+                lines.push("->->");
+            }
         }
         blocks.push(lines.join("\n"));
     }
@@ -1169,6 +1180,37 @@ function convertConditionalStep(
     ) {
         return [`{ ${condition}:${escapeInkText(thenText)}}`];
     }
+    // The mapper reads `{ x: - 1: a - 2: b }` as `x == 1` followed by else-ifs on the bare constants.
+    const switchCases = readConstantSwitch(statement);
+    if (switchCases) {
+        const subjectValue = (statement.condition as { leftValue: unknown }).leftValue;
+        const renderedSubject = toInkExpression(
+            subjectValue,
+            `${path}.condition.leftValue`,
+            context.lists,
+        );
+        const subject =
+            (subjectValue as { type?: string } | null)?.type === "arithmetic" &&
+            renderedSubject.startsWith("(") &&
+            renderedSubject.endsWith(")")
+                ? renderedSubject.slice(1, -1)
+                : renderedSubject;
+        const lines = [`{ ${subject}:`];
+        for (const [index, item] of switchCases.cases.entries()) {
+            const casePath = `${path}${".else.conditionalStep".repeat(index)}`;
+            lines.push(
+                `- ${toInkExpression(item.value, `${casePath}.condition`, context.lists)}:`,
+                ...indent(convertConditionalBranch(item.then as any, `${casePath}.then`, context)),
+            );
+        }
+        const elseLines = convertConditionalBranch(
+            switchCases.else as any,
+            `${path}${".else.conditionalStep".repeat(switchCases.cases.length - 1)}.else`,
+            context,
+        );
+        if (elseLines.length) lines.push("- else:", ...indent(elseLines));
+        return [...lines, "}"];
+    }
     const thenLines = convertConditionalBranch(statement.then, `${path}.then`, context);
     const elseLines = convertConditionalBranch(statement.else, `${path}.else`, context);
     return [
@@ -1177,6 +1219,27 @@ function convertConditionalStep(
         ...(elseLines.length ? ["- else:", ...indent(elseLines)] : []),
         "}",
     ];
+}
+
+function readConstantSwitch(
+    statement: PixiVNJsonIfElse<PixiVNJsonLabelStep>,
+): { cases: { value: unknown; then: unknown }[]; else: unknown } | undefined {
+    const first = statement.condition as unknown as Record<string, any> | undefined;
+    const isConstant = (value: unknown) => typeof value === "number" || typeof value === "string";
+    if (first?.type !== "compare" || first.operator !== "==" || !isConstant(first.rightValue))
+        return undefined;
+    const cases = [{ value: first.rightValue as unknown, then: statement.then as unknown }];
+    let rest = statement.else as Record<string, any> | undefined;
+    while (
+        rest &&
+        Object.keys(rest).length === 1 &&
+        rest.conditionalStep?.type === "ifelse" &&
+        isConstant(rest.conditionalStep.condition)
+    ) {
+        cases.push({ value: rest.conditionalStep.condition, then: rest.conditionalStep.then });
+        rest = rest.conditionalStep.else;
+    }
+    return cases.length > 1 ? { cases, else: rest } : undefined;
 }
 
 // The mapper encodes a scoped gather visit as a comparison on its owning flow.
@@ -1566,7 +1629,24 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
                 return `${entry.operator}(${left}, ${right})`;
             }
             const operator = entry.operator === "INTERSECTION" ? "^" : String(entry.operator);
-            return `(${left} ${operator} ${right})`;
+            const precedence = arithmeticPrecedence(operator);
+            // Same-precedence left chains and tighter-binding operands need no parentheses.
+            const unwrap = (child: unknown, rendered: string, allowEqual: boolean) => {
+                if (precedence === undefined || !child || typeof child !== "object")
+                    return rendered;
+                const inner = child as Record<string, unknown>;
+                const innerPrecedence =
+                    inner.type === "arithmetic"
+                        ? arithmeticPrecedence(String(inner.operator))
+                        : undefined;
+                const bare =
+                    innerPrecedence !== undefined &&
+                    (allowEqual ? innerPrecedence >= precedence : innerPrecedence > precedence);
+                return bare && rendered.startsWith("(") && rendered.endsWith(")")
+                    ? rendered.slice(1, -1)
+                    : rendered;
+            };
+            return `(${unwrap(entry.leftValue, left, true)} ${operator} ${unwrap(entry.rightValue, right, false)})`;
         }
         if (entry.type === "arithmeticsingle")
             return `${String(entry.operator)}(${toInkExpression(entry.leftValue, path, lists)})`;
@@ -1574,6 +1654,12 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
             return toInkCondition(entry as PixiVNJsonConditions, path, lists);
     }
     throw new Error(`Unsupported Ink expression at ${path}`);
+}
+
+function arithmeticPrecedence(operator: string): number | undefined {
+    if (operator === "*" || operator === "/" || operator === "%") return 2;
+    if (operator === "+" || operator === "-") return 1;
+    return undefined;
 }
 
 function toInkCondition(
