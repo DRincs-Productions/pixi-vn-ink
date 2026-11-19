@@ -117,7 +117,7 @@
     "@biomejs/biome": "^2.5.14",
     "ajv": "^8.20.0",
     "inkjs": "2.4.0",
-    "jsdom": "^27.4.0",
+    "jsdom": "^31.0.0",
     "json5": "^2.2.3",
     "picocolors": "^1.1.1",
     "tinyglobby": "^0.2.17",
