@@ -89,6 +89,7 @@ type InkConversionContext = {
     gathers: Map<string, PixiVNJsonLabelStep[]>;
     namedGatherLabels: Set<string>;
     referencedChoices: Set<string>;
+    nestedGathers: Map<string, string>;
     implicitGather?: string;
     choiceDepth?: number;
     divertParameters: Map<string, Set<number>>;
@@ -140,7 +141,10 @@ function inkAddress(label: string, path: string): string {
     return parts
         .filter((_, index) => {
             if (index === 0 || index === parts.length - 1) return true;
-            return !rootGatherLabels.has(parts.slice(0, index + 1).join("_|_"));
+            return (
+                !rootGatherLabels.has(parts.slice(0, index + 1).join("_|_")) &&
+                !/^c-\d+$/.test(parts[index])
+            );
         })
         .map((raw) => {
             const name = inkSegment(raw);
@@ -170,6 +174,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
         gathers: new Map<string, PixiVNJsonLabelStep[]>(),
         namedGatherLabels: new Set<string>(),
         referencedChoices: new Set<string>(),
+        nestedGathers: new Map<string, string>(),
     };
     visitInkValues(labels, (entry) => {
         const isReference =
@@ -1159,6 +1164,36 @@ function convertChoice(
     condition?: string,
     gather?: string,
 ): string[] {
+    const lines = convertChoiceHeader(choice, path, context, condition, gather);
+    const nested = context.nestedGathers.get(choice.label);
+    if (!nested) return lines;
+    context.nestedGathers.delete(choice.label);
+    const steps = context.gathers.get(nested);
+    if (!steps) throw new Error(`Repeated Ink gather at labels.${nested}`);
+    context.gathers.delete(nested);
+    const nextGather = gather ?? context.implicitGather;
+    const body =
+        nextGather !== undefined && implicitGatherTarget(steps.at(-1)) === nextGather
+            ? steps.slice(0, -1)
+            : steps;
+    const inner = {
+        ...context,
+        implicitGather: nextGather,
+        choiceDepth: (context.choiceDepth ?? 0) + 1,
+    };
+    return [
+        ...lines,
+        ...indent([gatherMarker(nested, inner), ...convertSteps(body, `labels.${nested}`, inner)]),
+    ];
+}
+
+function convertChoiceHeader(
+    choice: PixiVNJsonChoice,
+    path: string,
+    context: InkConversionContext,
+    condition?: string,
+    gather?: string,
+): string[] {
     if (choice.type !== "call" && choice.type !== "jump") {
         throw new Error(`Unsupported choice type at ${path}.type`);
     }
@@ -1189,7 +1224,18 @@ function convertChoice(
             ? `${marker}${ownName} { ${condition} }`
             : `${marker}${ownName}`;
     if (generated) {
-        const originalBody = context.choiceBodies.get(choice.label);
+        let originalBody = context.choiceBodies.get(choice.label);
+        // A named gather nested in the choice body (`- - (name)`) closes the body with an implicit jump.
+        const nestedTarget = implicitGatherTarget(originalBody?.at(-1));
+        if (
+            originalBody &&
+            nestedTarget &&
+            gatherParent(nestedTarget) === choice.label &&
+            context.gathers.has(nestedTarget)
+        ) {
+            context.nestedGathers.set(choice.label, nestedTarget);
+            originalBody = originalBody.slice(0, -1);
+        }
         const nextGather = gather ?? context.implicitGather;
         const joinsGather =
             nextGather !== undefined && implicitGatherTarget(originalBody?.at(-1)) === nextGather;
