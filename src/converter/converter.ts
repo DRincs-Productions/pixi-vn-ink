@@ -132,9 +132,16 @@ function inkSegment(name: string): string {
     return /^c-\d+$/.test(name) ? name.replace("-", "_") : name;
 }
 
+/** Named gathers at knot level (`- (opts)`) do not add a scope to the Ink addresses of what follows them. */
+let rootGatherLabels = new Set<string>();
+
 function inkAddress(label: string, path: string): string {
-    return label
-        .split("_|_")
+    const parts = label.split("_|_");
+    return parts
+        .filter((_, index) => {
+            if (index === 0 || index === parts.length - 1) return true;
+            return !rootGatherLabels.has(parts.slice(0, index + 1).join("_|_"));
+        })
         .map((raw) => {
             const name = inkSegment(raw);
             assertInkName(name, path);
@@ -218,8 +225,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
     };
     for (const label of Object.keys(labels)) {
         if (!label.includes("_|_")) continue;
-        const inkName = label.replaceAll("_|_", ".");
-        inkNames.set(label, inkName);
+        inkNames.set(label, label.replaceAll("_|_", "."));
     }
 
     const scopedOwners = new Set<string>();
@@ -227,6 +233,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
         const owner = scopedGatherOwner(entry);
         if (owner) scopedOwners.add(owner);
     });
+    rootGatherLabels = new Set<string>();
     const knots = new Map<string, { label: string; stitch?: string }[]>();
     for (const label of Object.keys(labels)) {
         if (isGeneratedChoiceLabel(label)) {
@@ -242,10 +249,26 @@ export function convertJsonToInk(data: PixiVNJson): string {
             !Object.keys(labels).some(
                 (child) => gatherParent(child) === label && !isGeneratedChoiceLabel(child),
             );
+        // A named gather at knot level (`- (opts)`) looks like a stitch, but its choices join a sibling gather.
+        const isNamedRootGather =
+            parentSteps?.length === 1 &&
+            implicitGatherTarget(parentSteps[0]) === label &&
+            Object.keys(labels).some((child) => {
+                if (!child.startsWith(`${label}_|_c-`) || !isGeneratedChoiceLabel(child))
+                    return false;
+                const target = implicitGatherTarget(labels[child].at(-1));
+                return (
+                    target !== undefined &&
+                    isAnonymousGather(target) &&
+                    gatherParent(target) === parent
+                );
+            });
+        if (isNamedRootGather) rootGatherLabels.add(label);
         if (
             isAnonymousGather(label) ||
             (parent.includes("_|_") && Object.hasOwn(labels, parent)) ||
-            isScopedRootGather
+            isScopedRootGather ||
+            isNamedRootGather
         ) {
             context.gathers.set(label, labels[label]);
             if (!isAnonymousGather(label)) context.namedGatherLabels.add(label);
@@ -697,7 +720,9 @@ function convertStep(
             return toInkExpression(param, paramPath, context.lists);
         });
         const args = params?.length ? `(${params.join(", ")})` : "";
-        lines.push(`-> ${target}${args}${step.labelToOpen.type === "call" ? " ->" : ""}`);
+        lines.push(
+            `-> ${target}${args}${step.labelToOpen.type === "call" && !isGeneratedChoiceLabel(String(step.labelToOpen.label)) ? " ->" : ""}`,
+        );
     }
     if (step.end === "game_end") lines.push("-> END");
     else if (step.end === "label_end") lines.push("-> DONE");
@@ -1279,7 +1304,8 @@ function convertChoice(
         ) {
             return [header + bodyLines[0] + bodyLines[1], ...indent(bodyLines.slice(2))];
         }
-        if (consumed === 0 && /^[ \t]+$/.test(bodyLines[0] ?? "")) {
+        // Ink trims leading spaces on a new line, so spaced dialogue stays on the choice line.
+        if (consumed === 0 && /^[ \t]+([^\s*+\-~=<>{}#]|$)/.test(bodyLines[0] ?? "")) {
             return [`${header}${bodyLines[0]}`, ...indent(bodyLines.slice(1))];
         }
         const inlineDivert = bodyLines[0];
@@ -1294,7 +1320,7 @@ function convertChoice(
     if (typeof choice.text !== "string")
         throw new Error(`Unsupported composed choice text at ${path}.text`);
     const text = choice.text;
-    const labelName = context.inkNames.get(choice.label) ?? choice.label.replaceAll("_|_", ".");
+    const labelName = context.inkNames.get(choice.label) ?? inkAddress(choice.label, path);
     return [
         fallback
             ? `${choicePrefix} -> ${labelName}`
@@ -1399,14 +1425,7 @@ function toInkExpression(value: unknown, path: string, lists: InkLists): string 
                     .join(".");
             }
             if (entry.storageType === "label" && typeof entry.label === "string") {
-                return entry.label
-                    .split("_|_")
-                    .map((raw) => {
-                        const name = inkSegment(raw);
-                        assertInkName(name, path);
-                        return name;
-                    })
-                    .join(".");
+                return inkAddress(entry.label, path);
             }
             if (entry.storageType === "logic") return toInkExpression(entry.operation, path, lists);
         }
