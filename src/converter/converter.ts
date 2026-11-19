@@ -1158,7 +1158,11 @@ function convertChoice(
     const ownName = context.referencedChoices.has(choice.label)
         ? ` (${inkSegment(choice.label.slice(choice.label.lastIndexOf("_|_") + 3))})`
         : "";
-    const choicePrefix = condition ? `${marker}${ownName} { ${condition} }` : `${marker}${ownName}`;
+    // The mapper adds the constant condition `1` itself to choices diverting to a stitch.
+    const choicePrefix =
+        condition && condition !== "1"
+            ? `${marker}${ownName} { ${condition} }`
+            : `${marker}${ownName}`;
     if (generated) {
         const originalBody = context.choiceBodies.get(choice.label);
         const nextGather = gather ?? context.implicitGather;
