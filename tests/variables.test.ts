@@ -3492,9 +3492,15 @@ Variable: {Head} <># continue
 }
 -> END
 `);
+    const expectedRaw = structuredClone(expected);
+    expectedRaw.labels!.Flashlight[3].operations = [
+        { type: "operationtoconvert", values: ["continue"] },
+    ];
+    expect(res).toEqual(expectedRaw);
     await convertOperation(res);
     expect(res).toEqual(expected);
-    expectJsonInkRoundTrip(expected);
+    // `Head` is a storage key in the divert arguments, so the generated Ink declares it as an external variable.
+    expectJsonInkRoundTrip({ ...expectedRaw, initialOperations: [] });
 });
 
 /**
