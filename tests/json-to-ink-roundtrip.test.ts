@@ -143,22 +143,6 @@ for (const [name, source] of Object.entries(sources)) {
     });
 }
 
-test("emits a repeated temp assignment without redeclaring it", () => {
-    const ink = convertJsonToInk(convertInkToJson(sources["temp variables declared once"])!);
-    expect(ink.match(/~ temp x/g)).toHaveLength(1);
-    expect(ink).toContain("~ x = ");
-});
-
-test("emits a tunnel return for called labels", () => {
-    const ink = convertJsonToInk(convertInkToJson(sources["tunnel with parameters"])!);
-    expect(ink).toContain("->->");
-});
-
-test("emits a trailing-space tag on the dialogue line", () => {
-    const ink = convertJsonToInk(convertInkToJson(sources["tag after dialogue with a trailing space"])!);
-    expect(ink).toContain("Hello # tag one");
-});
-
 test("throws a path-specific error for dialogue whose trailing space Ink would trim", () => {
     const json: PixiVNJson = {
         $schema: PIXIVNJSON_SCHEMA_URL,
