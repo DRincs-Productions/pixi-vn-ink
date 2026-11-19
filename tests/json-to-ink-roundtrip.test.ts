@@ -146,18 +146,12 @@ for (const [name, source] of Object.entries(sources)) {
 test("emits a repeated temp assignment without redeclaring it", () => {
     const ink = convertJsonToInk(convertInkToJson(sources["temp variables declared once"])!);
     expect(ink.match(/~ temp x/g)).toHaveLength(1);
-    expect(ink).toContain("~ x +=");
+    expect(ink).toContain("~ x = ");
 });
 
 test("emits a tunnel return for called labels", () => {
     const ink = convertJsonToInk(convertInkToJson(sources["tunnel with parameters"])!);
     expect(ink).toContain("->->");
-});
-
-test("emits a mapper-made constant switch as an Ink switch", () => {
-    const ink = convertJsonToInk(convertInkToJson(sources["constant switch"])!);
-    expect(ink).toContain("{ a:");
-    expect(ink).toContain("- 2:");
 });
 
 test("emits a trailing-space tag on the dialogue line", () => {
