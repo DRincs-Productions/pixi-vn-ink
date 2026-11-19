@@ -25,6 +25,10 @@ Vite dev server logs it as an **unknown hashtag command** (see **pixi-vn-ink**'s
 debugging section). A `#` line is either a recognized command that does something specific and
 type-checked, or a mistake to be reported — never a value-neutral annotation the engine shrugs off.
 
+Deferred hashtag operations can round-trip through `convertJsonToInk` when their
+fragments are text, interpolations, or supported inline branches.
+Object arguments in static commands retain their braces and other literal Ink syntax.
+
 ## Why not an ink `function`?
 
 `=== function name(...) === / ~ return ...` is **valid, compiler-clean native ink** — and **silently
@@ -110,6 +114,26 @@ can override or extend a built-in command's behavior by registering its own mapp
 `validation`. Prefer `addMapper` over `add` by default; reach for `add` specifically when the command
 needs to intercept/short-circuit the pipeline, chain into another command, or run arbitrary
 `StepLabelProps`-dependent side effects that don't reduce to a single operation object.
+
+### Going back from JSON to Ink (`reverse`)
+
+`convertJsonToInk(json, { inferHashtagCommands: true })` writes an operation without `$origin` as
+the Hashtag-Command whose mapper produces it (`$origin` is always used when present). Built-in
+commands, and custom mappers that follow `<verb> <type> <alias> [<key> <value> …]`, are found
+automatically. For a command with its own syntax, add a `reverse` function to the mapper options:
+
+```ts
+HashtagCommands.addMapper(mapper, {
+    name: "zoom-command",
+    validation: z.tuple([z.literal("zoom"), z.string()]),
+    reverse: (op) => (op.type === "camera" ? `zoom ${op.level}` : undefined),
+});
+```
+
+`HashtagCommands.convertObjToInkProps({ xAlign: 0.5, yAlign: 1 })` returns `xAlign 0.5 yAlign 1`
+(the inverse of `convertListStringToObj`; `convertObjToListString` returns the tokens). Every result
+is checked against the registered mappers; if nothing reproduces the operation, `convertJsonToInk`
+throws with the operation's path. Commands added with `.add` (not `.addMapper`) need `$origin`.
 
 ## `addBaseHashtagCommands` — the built-in command library
 

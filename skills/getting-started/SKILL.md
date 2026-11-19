@@ -225,6 +225,18 @@ glue, weave, gathers, variable text, `VAR`/`CONST`/`temp`, `LIST`, functions, tu
 standard ink. The full syntax reference is `reference/writing-with-ink.md`; this section covers only
 what's specific to writing it *for Pixi'VN*.
 
+Use `* ->` followed by branch content for a fallback choice with dialogue. A bracketed
+choice with no branch content can appear in the menu without a separate PixiVN label.
+An unnamed gather begins with `-` and brings preceding choices back together. Use `- (name)` for a named gather and qualify references from other knots or stitches.
+Standalone function calls use an Ink logic line such as `~ award_points(5)`.
+Multiline conditional branches can include dialogue, logic lines, and choices.
+Keep a conditional inline when its surrounding spaces are part of the dialogue.
+Inline conditional text can contain alternatives such as `{a|b}`.
+Bracketed choice text can contain alternatives, for example `* [{&Hit|Smash} the target]`.
+
+Initialize a variable with selected list members using qualified names, for example
+`VAR inventory = (items.sword, items.key)`.
+
 ### Knots are Pixi'VN labels — in both directions
 
 Creating a `knot` with ink registers a `label` internally, addressed exactly like a TS-authored one:
@@ -370,3 +382,7 @@ native-ink parity, invalidate the choice explicitly: `* (shove) {!shove} [2] 2`.
 - [pixi-vn.com/ink](https://pixi-vn.com/ink) — the rendered version of this integration's docs.
 - [inkle/ink](https://github.com/inkle/ink) and [inkjs](https://github.com/inkle/inkjs) — the language
   and the JS runtime this integration is built on.
+
+## Convert PixiVN JSON to Ink
+
+Use `convertJsonToInk` from `@drincs/pixi-vn-ink/converter` to convert PixiVN JSON to Ink source. Pass `{ inferHashtagCommands: true }` to write canvas/sound/asset operations without `$origin` as hashtag commands (see `hashtag-commands`).

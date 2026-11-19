@@ -1,6 +1,8 @@
+import { convertJsonToInk } from "@/converter";
 import { convertInkToJson } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("Function 1", async () => {
     const expected: PixiVNJson = {
@@ -124,6 +126,7 @@ You continue your journey.
 ->->
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Function 2", async () => {
@@ -234,4 +237,6 @@ Hello
 -> END
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("~ test(0, 1, 2)");
+    expectJsonInkRoundTrip(expected);
 });

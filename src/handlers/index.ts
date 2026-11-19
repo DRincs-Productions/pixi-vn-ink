@@ -3,6 +3,7 @@ export {
     HashtagCommands,
     onInkHashtagScript,
 } from "@/handlers/hashtag-commands";
+export { inferHashtagCommand } from "@/handlers/hashtag-inference";
 export type { BaseHashtagCommandsOptions } from "@/handlers/hashtag-commands";
 export type {
     HashtagHandler,

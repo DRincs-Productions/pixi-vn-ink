@@ -401,6 +401,94 @@ export namespace HashtagCommands {
         }
     }
 
+    /**
+     * Inverse of {@link convertListStringToObj}: turns a props object into the list of Ink tokens
+     * that `convertListStringToObj` reads back as the same object.
+     *
+     * Each key is followed by its value. Nested objects stay on one line as a JSON5 block.
+     *
+     * @example
+     * `{ duration: 3 }` → `["duration", "3"]`, `{ xAlign: 0.5, yAlign: 1 }` →
+     * `["xAlign", "0.5", "yAlign", "1"]`, `{ style: { fill: "#fff" } }` →
+     * `["style", '{ fill: "#fff" }']`.
+     * @throws if a value cannot be written as Ink tokens and read back unchanged.
+     */
+    export function convertObjToListString(props: Record<string, unknown>): string[] {
+        const list: string[] = [];
+        for (const [key, value] of Object.entries(props)) {
+            if (value === undefined) continue;
+            if (!/^[^\s"'`{}[\]]+$/.test(key)) {
+                throw new Error(`The prop name "${key}" cannot be written in a Hashtag-Command`);
+            }
+            const candidates = propValueCandidates(value);
+            const token = candidates.find((candidate) => {
+                try {
+                    const back = convertListStringToObj(convertTagTolist(`${key} ${candidate}`));
+                    return sameJson(back, { [key]: value });
+                } catch {
+                    return false;
+                }
+            });
+            if (token === undefined) {
+                throw new Error(
+                    `The value of the prop "${key}" cannot be written in a Hashtag-Command`,
+                );
+            }
+            list.push(key, token);
+        }
+        return list;
+    }
+
+    /**
+     * Inverse of {@link convertListStringToObj} as a string: `{ xAlign: 0.5, yAlign: 1 }` →
+     * `xAlign 0.5 yAlign 1`. Useful in a {@link HashtagHandlerOptions.reverse} function.
+     *
+     * @throws if a value cannot be written as Ink text and read back unchanged.
+     */
+    export function convertObjToInkProps(props: Record<string, unknown>): string {
+        return convertObjToListString(props).join(" ");
+    }
+
+    function sameJson(a: unknown, b: unknown): boolean {
+        return JSON.stringify(sortJson(a)) === JSON.stringify(sortJson(b));
+    }
+
+    function sortJson(value: unknown): unknown {
+        if (Array.isArray(value)) return value.map(sortJson);
+        if (value && typeof value === "object") {
+            return Object.fromEntries(
+                Object.entries(value as Record<string, unknown>)
+                    .filter(([, item]) => item !== undefined)
+                    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+                    .map(([key, item]) => [key, sortJson(item)]),
+            );
+        }
+        return value;
+    }
+
+    function json5Text(value: unknown): string {
+        if (Array.isArray(value)) return `[ ${value.map(json5Text).join(", ")} ]`;
+        if (value && typeof value === "object") {
+            const entries = Object.entries(value as Record<string, unknown>)
+                .filter(([, item]) => item !== undefined)
+                .map(
+                    ([key, item]) =>
+                        `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${json5Text(item)}`,
+                );
+            return `{ ${entries.join(", ")} }`;
+        }
+        return JSON.stringify(value);
+    }
+
+    function propValueCandidates(value: unknown): string[] {
+        if (typeof value === "string") {
+            const escaped = value.replaceAll('"', '\\"');
+            return [value, `"${escaped}"`, `"\\"${escaped}\\""`];
+        }
+        if (value !== null && typeof value === "object") return [json5Text(value)];
+        return [String(value)];
+    }
+
     function removeExtraDoubleQuotes(value: string): string {
         if (value.startsWith('"') && value.endsWith('"')) {
             return value.substring(1, value.length - 1);

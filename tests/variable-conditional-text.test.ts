@@ -1,6 +1,7 @@
-import { convertInkToJson } from "@/loader";
+import { convertInkToJson, convertJsonToInk } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 // Variable Text
 // https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md#8-variable-text
@@ -104,6 +105,7 @@ The radio hissed into life. {"Three!"|"Two!"|"One!"|There was the white noise ra
 + [ Exit ] -> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Cycles (marked with a &)", async () => {
@@ -194,6 +196,7 @@ It was {&Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday} today.
 + [ Exit ] -> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Once-only (marked with a !)", async () => {
@@ -272,6 +275,7 @@ He told me a joke. {!I laughed politely.|I smiled.|I grimaced.|I promised myself
 + [ Exit ] -> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Shuffles (marked with a ~)", async () => {
@@ -347,6 +351,7 @@ I tossed the coin. {~Heads|Tails}.
 + [ Exit ] -> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 // TODO: in Inky this code works, but in inkjs parser it doesn't work
@@ -705,6 +710,8 @@ test("Examples", async () => {
             -> END
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("[{&Hit|Smash|Try} top-left]");
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Examples 2", async () => {
@@ -836,6 +843,7 @@ I turned on the television {for the first time|for the second time|again|once mo
 -> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 /**
@@ -1166,6 +1174,8 @@ learned_his_name
 -> met_blofeld
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("{a|b|{met_blofeld: {c|d}}}");
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Conditional Text 2", async () => {
@@ -1240,4 +1250,5 @@ test("Conditional Text 2", async () => {
 -> DONE
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });

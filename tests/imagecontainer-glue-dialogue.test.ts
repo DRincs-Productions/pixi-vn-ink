@@ -1,6 +1,7 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 /**
  * A common visual-novel pattern: each dialogue line is preceded by its own
@@ -100,7 +101,7 @@ test("show imagecontainer tag per line, with glue joining consecutive dialogue f
         },
     };
 
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === start ===
 # show imagecontainer james [m01-body m01-eyes-smile m01-mouth-grin00]
 I take his hand and shake.
@@ -117,4 +118,6 @@ james: Come on in and...
 `);
 
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });

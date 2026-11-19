@@ -1,6 +1,7 @@
 import { beforeEach, expect, test } from "vitest";
 import { HashtagCommands, addBaseHashtagCommands } from "@/handlers/hashtag-commands";
 import { convertInkToJson } from "@/loader";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 function convert(command: string) {
     return HashtagCommands.convertOperation(HashtagCommands.convertTagTolist(command), {});
@@ -148,6 +149,7 @@ test("compilation emits static asprite JSON operations", () => {
             frame: 2,
         }),
     ]);
+    expectJsonInkRoundTrip(result);
 });
 
 test("compilation defers malformed animated sprite commands", () => {
@@ -158,5 +160,6 @@ test("compilation defers malformed animated sprite commands", () => {
     ]) {
         const result = convertInkToJson(`=== start ===\n${command}\nHello!\n`);
         expect(JSON.stringify(result), command).toContain("operationtoconvert");
+        expectJsonInkRoundTrip(result);
     }
 });

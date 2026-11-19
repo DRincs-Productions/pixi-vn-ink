@@ -102,6 +102,39 @@ export interface HashtagHandlerOptions {
      */
     deprecated?: boolean;
     /**
+     * Optional inverse of a mapper registered with {@link HashtagCommands.addMapper}: turns a
+     * {@link PixiVNJsonOperation} back into the Hashtag-Command text that the mapper would
+     * convert into that operation (without the leading `#`).
+     *
+     * It is only used by `convertJsonToInk(json, { inferHashtagCommands: true })`, for operations
+     * that have no `$origin` (an operation with `$origin` always uses it). Return `undefined`
+     * when the operation is not one this mapper produces. The result is never trusted blindly:
+     * it is converted again with the registered mappers and discarded unless it yields exactly
+     * the same operation.
+     *
+     * Commands that follow the usual `<verb> <type> <alias> [<key> <value> …]` convention do not
+     * need it, because they are inferred automatically. Use it for commands with a custom syntax.
+     *
+     * To write the `<key> <value> …` part, use {@link HashtagCommands.convertObjToInkProps}: it
+     * turns a props object such as `{ xAlign: 0.5, yAlign: 1 }` into `xAlign 0.5 yAlign 1`.
+     *
+     * @example
+     * ```ts
+     * HashtagCommands.addMapper(
+     *     (list) => ({ type: "camera", operationType: "zoom", props: HashtagCommands.convertListStringToObj(list.slice(1)) }),
+     *     {
+     *         name: "zoom-command",
+     *         validation: z.tuple([z.literal("zoom")]).rest(z.string()),
+     *         reverse: (op) =>
+     *             op.type === "camera" && op.operationType === "zoom"
+     *                 ? `zoom ${HashtagCommands.convertObjToInkProps(op.props ?? {})}`.trim()
+     *                 : undefined,
+     *     },
+     * )
+     * ```
+     */
+    reverse?: (operation: PixiVNJsonOperation) => string | undefined;
+    /**
      * JSON Schemas (usable with Ajv) for order-independent `<key> <value> [<value2> ...]` sections
      * embedded anywhere in the command's token list, keyed by the token that introduces the
      * section.

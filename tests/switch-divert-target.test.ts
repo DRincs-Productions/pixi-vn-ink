@@ -1,6 +1,7 @@
-import { convertInkText } from "@/loader";
+import { convertInkToJson } from "@/converter";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 // Regression test for a multi-way value switch (`{ x: -0:.. -1:.. -2:.. -3:.. -else:.. }`)
 // diverting to sibling stitches. Ink compiles this into a flat chain of sibling
@@ -11,7 +12,7 @@ import { expect, test } from "vitest";
 // produced dangling "else" segments (e.g. "talk_alice_|_else_|_talk_alice2") for the
 // third and later cases instead of the real label "talk_alice_|_talk_alice2".
 test("switch case 3+ diverting to a sibling stitch resolves to the correct label", () => {
-    const res = convertInkText(`
+    const res = convertInkToJson(`
 === talk_alice ===
 { aliceQuest_currentStageIndex:
 - 0: 	-> talk_alice0
@@ -187,4 +188,6 @@ alice: Thank you, I can finally read something new.
         initialOperations: [],
     };
     expect(res).toEqual(expected);
+
+    expectJsonInkRoundTrip(expected);
 });

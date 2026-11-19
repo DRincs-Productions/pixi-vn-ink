@@ -5,6 +5,7 @@ import type { InkHashtagCommandInfo } from "@/parser/types";
 import type { PixiVNJsonLabelStep } from "@drincs/pixi-vn-json";
 import { afterEach, expect, test, vi } from "vitest";
 import { z } from "zod";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("mergeJsonBlocks merges sibling JSON-like blocks", () => {
     expect(
@@ -804,6 +805,7 @@ test("`source` as a key/value property overrides the URL for play sound, show im
             $origin: 'show video bg source "/video 2.mp4" x 10',
         },
     ]);
+    expectJsonInkRoundTrip(res);
 });
 
 test("convertOperation maps every new effect like shake", () => {

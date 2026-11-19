@@ -1,6 +1,7 @@
-import { convertInkToJson } from "@/loader";
+import { convertInkToJson, convertJsonToInk } from "@/loader";
 import { PIXIVNJSON_SCHEMA_URL, type PixiVNJson } from "@drincs/pixi-vn-json";
 import { expect, test } from "vitest";
+import { expectJsonInkRoundTrip } from "./json-to-ink-utils";
 
 test("Tunnel 1", async () => {
     const expected: PixiVNJson = {
@@ -100,6 +101,7 @@ The merchant smiles.
 ->->
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Tunnel 2", async () => {
@@ -294,6 +296,7 @@ The guard looks at you.
 ->->
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Tunnel 3", async () => {
@@ -543,6 +546,8 @@ You have:
 ->->
 `);
     expect(res).toEqual(expected);
+    expect(convertJsonToInk(expected)).toContain("VAR inventory2 = (items.sword, items.key)");
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Tunnel 4", async () => {
@@ -844,6 +849,7 @@ The enemy strikes.
 ->->
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Tunnel 5", async () => {
@@ -988,6 +994,7 @@ You are in your room.
 -> END
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
 
 test("Tunnel 6", async () => {
@@ -1169,4 +1176,5 @@ VAR quest_completed = false
 ->->
 `);
     expect(res).toEqual(expected);
+    expectJsonInkRoundTrip(expected);
 });
