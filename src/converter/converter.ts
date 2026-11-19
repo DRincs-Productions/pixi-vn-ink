@@ -471,6 +471,41 @@ function convertSteps(
                 continue;
             }
         }
+        const cond = step.conditionalStep;
+        const nextStep = steps[index + 1];
+        const plain = (value: unknown): value is { dialogue: string } =>
+            !!value &&
+            typeof value === "object" &&
+            Object.keys(value).length === 1 &&
+            typeof (value as { dialogue?: unknown }).dialogue === "string" &&
+            !/[\r\n|{}:\\#<>]/.test((value as { dialogue: string }).dialogue);
+        // `text <>` + glued `{cond: a|b}` + ` more` is one inline conditional line.
+        if (
+            cond?.type === "ifelse" &&
+            step.glueEnabled &&
+            step.goNextStep === true &&
+            Object.keys(step).length === 3 &&
+            lines.at(-1)?.endsWith("<>") &&
+            plain(cond.then) &&
+            (cond.else === undefined || plain(cond.else)) &&
+            nextStep?.dialogue !== undefined &&
+            typeof nextStep.dialogue === "string" &&
+            Object.keys(nextStep).length === 1 &&
+            !/[\r\n]/.test(nextStep.dialogue)
+        ) {
+            const condition = toInkCondition(
+                cond.condition,
+                `${stepPath}.conditionalStep.condition`,
+                context.lists,
+            );
+            const branches = [cond.then.dialogue, cond.else?.dialogue].filter(
+                (v) => v !== undefined,
+            );
+            lines[lines.length - 1] =
+                `${lines[lines.length - 1].slice(0, -2)}{${condition}:${branches.join("|")}}${convertDialog(nextStep.dialogue, `${path}[${index + 1}].dialogue`, context.lists)}`;
+            index++;
+            continue;
+        }
         const rendered = convertStep(step, stepPath, context);
         if (
             step.glueEnabled === false &&
@@ -1543,6 +1578,19 @@ function toInkCondition(
     const value = condition as Record<string, unknown>;
     if (value.type === "compare") {
         const comparison = value as unknown as PixiVNJsonComparation;
+        const right = comparison.rightValue as unknown as Record<string, unknown> | undefined;
+        const left = comparison.leftValue as unknown as Record<string, unknown> | undefined;
+        // A bare label read count (`{label:}`) is mapped to `label >= {value: 0}`.
+        if (
+            comparison.operator === ">=" &&
+            left?.type === "value" &&
+            left.storageType === "label" &&
+            right?.type === "value" &&
+            right.value === 0 &&
+            right.storageType === undefined
+        ) {
+            return toInkExpression(left, path, lists);
+        }
         return `(${toInkExpression(comparison.leftValue, path, lists)} ${comparison.operator === "CONTAINS" ? "?" : comparison.operator} ${toInkExpression(comparison.rightValue, path, lists)})`;
     }
     if (value.type === "union") {
