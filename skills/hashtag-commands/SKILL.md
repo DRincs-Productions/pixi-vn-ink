@@ -115,6 +115,26 @@ can override or extend a built-in command's behavior by registering its own mapp
 needs to intercept/short-circuit the pipeline, chain into another command, or run arbitrary
 `StepLabelProps`-dependent side effects that don't reduce to a single operation object.
 
+### Going back from JSON to Ink (`reverse`)
+
+`convertJsonToInk(json, { inferHashtagCommands: true })` writes an operation without `$origin` as
+the Hashtag-Command whose mapper produces it (`$origin` is always used when present). Built-in
+commands, and custom mappers that follow `<verb> <type> <alias> [<key> <value> …]`, are found
+automatically. For a command with its own syntax, add a `reverse` function to the mapper options:
+
+```ts
+HashtagCommands.addMapper(mapper, {
+    name: "zoom-command",
+    validation: z.tuple([z.literal("zoom"), z.string()]),
+    reverse: (op) => (op.type === "camera" ? `zoom ${op.level}` : undefined),
+});
+```
+
+`HashtagCommands.convertObjToInkProps({ xAlign: 0.5, yAlign: 1 })` returns `xAlign 0.5 yAlign 1`
+(the inverse of `convertListStringToObj`; `convertObjToListString` returns the tokens). Every result
+is checked against the registered mappers; if nothing reproduces the operation, `convertJsonToInk`
+throws with the operation's path. Commands added with `.add` (not `.addMapper`) need `$origin`.
+
 ## `addBaseHashtagCommands` — the built-in command library
 
 Every command documented in **pixi-vn-ink-canvas**, **-sound**, **-assets**, and **-pause-continue** (plus

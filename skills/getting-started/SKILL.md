@@ -385,4 +385,4 @@ native-ink parity, invalidate the choice explicitly: `* (shove) {!shove} [2] 2`.
 
 ## Convert PixiVN JSON to Ink
 
-Use `convertJsonToInk` from `@drincs/pixi-vn-ink/converter` to convert PixiVN JSON to Ink source.
+Use `convertJsonToInk` from `@drincs/pixi-vn-ink/converter` to convert PixiVN JSON to Ink source. Pass `{ inferHashtagCommands: true }` to write canvas/sound/asset operations without `$origin` as hashtag commands (see `hashtag-commands`).

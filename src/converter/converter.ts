@@ -1,4 +1,5 @@
 import type { CharacterIdSource, LoaderSharedType } from "@/converter/type";
+import { inferHashtagCommand } from "@/handlers/hashtag-inference";
 import type InkStoryType from "@/interfaces/InkStoryType";
 import { InkMapper } from "@/mapper";
 import { InkCompiler } from "@/parser";
@@ -8,15 +9,14 @@ import type { PixiVNJson } from "@drincs/pixi-vn-json";
 import type {
     PixiVNJsonChoice,
     PixiVNJsonComparation,
-    PixiVNJsonConditions,
     PixiVNJsonConditionalResultToCombine,
     PixiVNJsonConditionalStatements,
+    PixiVNJsonConditions,
     PixiVNJsonDialogText,
     PixiVNJsonIfElse,
     PixiVNJsonLabelStep,
     PixiVNJsonOperation,
     PixiVNJsonUnionCondition,
-    PixiVNJsonValueGet,
     PixiVNJsonValueSet,
 } from "@drincs/pixi-vn-json/schema";
 import { ErrorType } from "inkjs/compiler/Parser/ErrorType";
@@ -91,6 +91,7 @@ type InkConversionContext = {
     referencedChoices: Set<string>;
     nestedGathers: Map<string, string>;
     declaredTemps: Set<string>;
+    inferHashtagCommands: boolean;
     implicitGather?: string;
     choiceDepth?: number;
     divertParameters: Map<string, Set<number>>;
@@ -155,8 +156,20 @@ function inkAddress(label: string, path: string): string {
         .join(".");
 }
 
+export interface JsonToInkOptions {
+    /**
+     * When `true`, an operation without `$origin` (a canvas, sound or asset operation, `pause`,
+     * `request input`, …) is written as the Hashtag-Command that the registered mappers convert
+     * back into that same operation, instead of throwing. `$origin` is always used when present.
+     * Commands outside the built-in ones are found if they follow the
+     * `<verb> <type> <alias> [<key> <value> …]` convention, or provide a `reverse` function.
+     * Defaults to `false`.
+     */
+    inferHashtagCommands?: boolean;
+}
+
 /** Converts the representable subset of PixiVN JSON into an Ink script. */
-export function convertJsonToInk(data: PixiVNJson): string {
+export function convertJsonToInk(data: PixiVNJson, options: JsonToInkOptions = {}): string {
     const labels = data.labels ?? {};
     const blocks: string[] = [];
     const inkNames = new Map<string, string>();
@@ -177,6 +190,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
         referencedChoices: new Set<string>(),
         nestedGathers: new Map<string, string>(),
         declaredTemps: new Set<string>(),
+        inferHashtagCommands: options.inferHashtagCommands === true,
     };
     visitInkValues(labels, (entry) => {
         const isReference =
@@ -725,7 +739,18 @@ function convertStep(
                 const operationPath = `${path}.operations[${index}]`;
                 lines.push(`~ ${toInkExpression(operation, operationPath, context.lists)}`);
             } else {
-                throw new Error(`Unsupported operation at ${path}.operations[${index}]`);
+                const operationPath = `${path}.operations[${index}]`;
+                const inferred = context.inferHashtagCommands
+                    ? inferHashtagCommand(operation as PixiVNJsonOperation)
+                    : undefined;
+                if (inferred === undefined) {
+                    throw new Error(
+                        context.inferHashtagCommands
+                            ? `Cannot infer a Hashtag-Command for the operation at ${operationPath}; add $origin or a reverse function to its mapper`
+                            : `Unsupported operation at ${operationPath}`,
+                    );
+                }
+                lines.push(convertTag(escapeInkTagText(inferred), operationPath));
             }
         }
     }
@@ -1076,13 +1101,13 @@ function renderInlineConditional(
         conditional.then,
         `${path}.then`,
         context,
-        branchId + "then",
+        `${branchId}then`,
     );
     const otherwise = inlineConditionalBranch(
         conditional.else,
         `${path}.else`,
         context,
-        branchId + "else",
+        `${branchId}else`,
     );
     if (then === undefined || (conditional.else !== undefined && otherwise === undefined)) {
         return undefined;
