@@ -239,6 +239,27 @@ export function convertJsonToInk(data: PixiVNJson): string {
         if (owner) scopedOwners.add(owner);
     });
     rootGatherLabels = new Set<string>();
+    // A named gather at knot level (`- (opts)`) looks like a stitch, but its choices join a sibling gather.
+    const namedRootGathers = new Set<string>();
+    const joinTarget = (child: string, label: string, parent: string) => {
+        if (!child.startsWith(`${label}_|_c-`) || !isGeneratedChoiceLabel(child)) return undefined;
+        const target = implicitGatherTarget(labels[child].at(-1));
+        return target !== undefined && target !== label && gatherParent(target) === parent
+            ? target
+            : undefined;
+    };
+    for (const label of Object.keys(labels)) {
+        const parent = gatherParent(label);
+        const parentSteps = labels[parent];
+        if (isGeneratedChoiceLabel(label) || parentSteps?.length !== 1) continue;
+        if (implicitGatherTarget(parentSteps[0]) !== label) continue;
+        for (const child of Object.keys(labels)) {
+            const target = joinTarget(child, label, parent);
+            if (target === undefined) continue;
+            namedRootGathers.add(label);
+            if (!isAnonymousGather(target)) namedRootGathers.add(target);
+        }
+    }
     const knots = new Map<string, { label: string; stitch?: string }[]>();
     for (const label of Object.keys(labels)) {
         if (isGeneratedChoiceLabel(label)) {
@@ -254,20 +275,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
             !Object.keys(labels).some(
                 (child) => gatherParent(child) === label && !isGeneratedChoiceLabel(child),
             );
-        // A named gather at knot level (`- (opts)`) looks like a stitch, but its choices join a sibling gather.
-        const isNamedRootGather =
-            parentSteps?.length === 1 &&
-            implicitGatherTarget(parentSteps[0]) === label &&
-            Object.keys(labels).some((child) => {
-                if (!child.startsWith(`${label}_|_c-`) || !isGeneratedChoiceLabel(child))
-                    return false;
-                const target = implicitGatherTarget(labels[child].at(-1));
-                return (
-                    target !== undefined &&
-                    isAnonymousGather(target) &&
-                    gatherParent(target) === parent
-                );
-            });
+        const isNamedRootGather = namedRootGathers.has(label);
         if (isNamedRootGather) rootGatherLabels.add(label);
         if (
             isAnonymousGather(label) ||
@@ -451,8 +459,7 @@ function convertSteps(
         const step = steps[index];
         const previous = steps[index - 1];
         const stepPath = `${path}[${index}]`;
-        const entryGather =
-            index === 0 && steps.length === 1 ? implicitGatherTarget(step) : undefined;
+        const entryGather = index === steps.length - 1 ? implicitGatherTarget(step) : undefined;
         if (entryGather && gatherParent(entryGather) === path.slice("labels.".length)) {
             const body = context.gathers.get(entryGather);
             if (body) {
@@ -859,7 +866,13 @@ function inlineConditionalBranch(
     if (Object.keys(step).length === 1 && step.conditionalStep?.type === "stepswitch") {
         return renderInlineAlternative(step.conditionalStep, path, context, branchId);
     }
-    if (Object.keys(step).length === 1 && (step.labelToOpen || step.end)) {
+    if (
+        (step.labelToOpen || step.end) &&
+        Object.keys(step).every(
+            (key) =>
+                key === "labelToOpen" || key === "end" || (key === "glueEnabled" && !step[key]),
+        )
+    ) {
         const lines = convertStep(step, path, context);
         return lines.length === 1 ? lines[0] : undefined;
     }
