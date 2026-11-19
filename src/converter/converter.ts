@@ -90,6 +90,7 @@ type InkConversionContext = {
     namedGatherLabels: Set<string>;
     referencedChoices: Set<string>;
     nestedGathers: Map<string, string>;
+    declaredTemps: Set<string>;
     implicitGather?: string;
     choiceDepth?: number;
     divertParameters: Map<string, Set<number>>;
@@ -175,6 +176,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
         namedGatherLabels: new Set<string>(),
         referencedChoices: new Set<string>(),
         nestedGathers: new Map<string, string>(),
+        declaredTemps: new Set<string>(),
     };
     visitInkValues(labels, (entry) => {
         const isReference =
@@ -311,6 +313,7 @@ export function convertJsonToInk(data: PixiVNJson): string {
 
     for (const [knot, entries] of knots) {
         const lines = [`=== ${knot}${signature(knot)} ===`];
+        context.declaredTemps.clear();
         for (const { label, stitch } of entries) {
             if (stitch !== undefined) lines.push(`= ${stitch}${signature(label)}`);
             lines.push(...convertSteps(labels[label], `labels.${label}`, context));
@@ -518,6 +521,40 @@ function convertSteps(
             continue;
         }
         const rendered = convertStep(step, stepPath, context);
+        // Ink trims a line's trailing spaces unless a tag follows them on the same line.
+        if (
+            rendered.length > 0 &&
+            rendered.every((line) => line.startsWith("# ")) &&
+            Object.keys(step).every((key) => key === "operations" || key === "goNextStep") &&
+            typeof previous?.dialogue === "string" &&
+            !previous.glueEnabled &&
+            /\s$/.test(previous.dialogue) &&
+            lines.length > 0 &&
+            !lines.at(-1)?.includes("#")
+        ) {
+            lines[lines.length - 1] += rendered[0];
+            lines.push(...rendered.slice(1));
+            continue;
+        }
+        if (
+            typeof step.dialogue === "string" &&
+            !step.glueEnabled &&
+            step.goNextStep !== true &&
+            step.dialogue.trim() !== "" &&
+            /[ \t]$/.test(step.dialogue) &&
+            rendered.length === 1 &&
+            /[ \t]$/.test(rendered[0]) &&
+            !steps[index + 1]?.labelToOpen &&
+            !steps[index + 1]?.end &&
+            !(
+                steps[index + 1]?.operations?.length &&
+                Object.keys(steps[index + 1]).every(
+                    (key) => key === "operations" || key === "goNextStep",
+                )
+            )
+        ) {
+            throw new Error(`Trailing whitespace would be trimmed by Ink at ${stepPath}.dialogue`);
+        }
         if (
             step.glueEnabled === false &&
             step.goNextStep === true &&
@@ -1436,7 +1473,10 @@ function convertChoiceHeader(
                 (Object.keys(first).length === 1 ||
                     (Object.keys(first).length === 2 &&
                         first.goNextStep === true &&
-                        (second?.labelToOpen !== undefined || second?.end !== undefined)));
+                        (second?.labelToOpen !== undefined ||
+                            second?.end !== undefined ||
+                            typeof second?.dialogue === "string" ||
+                            second?.choices !== undefined)));
             header = `${choicePrefix} ${echoesChoice ? text : `[${text}]`}`;
             consumed = echoesChoice ? 1 : 0;
             if (
@@ -1547,7 +1587,10 @@ function convertVariableSet(
         "type" in expression &&
         expression.type === "arithmetic" &&
         (expression.operator === "+" || expression.operator === "-") &&
-        isValueGet(expression.leftValue, "storage") &&
+        (isValueGet(expression.leftValue, "storage") ||
+            (operation.storageType === "tempstorage" &&
+                context.declaredTemps.has(key) &&
+                isValueGet(expression.leftValue, "tempstorage"))) &&
         expression.leftValue.key === key
     ) {
         return `~ ${key} ${expression.operator}= ${toInkExpression(expression.rightValue, `${path}.value.rightValue`, context.lists)}`;
@@ -1557,7 +1600,10 @@ function convertVariableSet(
         context.divertVariables.has(key) && typeof operation.value === "string"
             ? `-> ${inkAddress(operation.value, valuePath)}`
             : toInkExpression(operation.value, valuePath, context.lists);
-    return `${initial ? "VAR" : operation.storageType === "tempstorage" ? "~ temp" : "~"} ${key} = ${value}`;
+    // Ink temps are declared once; later writes in the same knot are plain assignments.
+    const declares = operation.storageType === "tempstorage" && !context.declaredTemps.has(key);
+    if (operation.storageType === "tempstorage") context.declaredTemps.add(key);
+    return `${initial ? "VAR" : declares ? "~ temp" : "~"} ${key} = ${value}`;
 }
 
 function toInkExpression(value: unknown, path: string, lists: InkLists): string {
