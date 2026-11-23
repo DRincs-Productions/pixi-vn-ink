@@ -77,8 +77,6 @@ The JSDoc API reference for this library is available at [jsdocs.pixi-vn.com/pix
 
 Pixi'VN ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants how to correctly use each part of the engine.
 
-> In LM Studio Bionic, ask the agent to install skills from `https://github.com/DRincs-Productions/pixi-vn-ink`, or add the skill files in **Settings → Skills**. To reuse skills installed for Codex or Claude Code, enable **Settings → Skills → Use skills found in other apps**.
-
 **Codex**:
 
 ```npm
@@ -91,10 +89,10 @@ npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent 
 npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent claude-code -g -y
 ```
 
-**Other agents**:
+**Other agents (Universal)**:
 
 ```npm
-npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --all -y
+npx skills@latest add DRincs-Productions/pixi-vn-ink@latest --skill '*' --agent universal -g -y
 ```
 
 Available skills:
